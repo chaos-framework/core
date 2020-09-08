@@ -1,13 +1,21 @@
-import Value from './Value';
+import { Value } from './Value';
 
-class Property<T> {
+export interface Property {
     // min, max, current, modifiers
     _name: string;
-    _min: Value<T>;
-    _max: Value<T>;
-    _cur: Value<T>;
-
-    constructor(name: string, min: T, max: T, cur: T) {
-        this._name = name; this._min = new Value(min); this._max = new Value(max); this._cur = new Value(cur);
-    }
+    _current: Value;
 }
+
+export class NumericProperty implements Property {
+    _name: string;
+    _current: Value;
+    _min: Value;
+    _max: Value;
+}
+
+export class StringProperty implements Property {
+    _name: string;
+    _current: Value;
+}
+
+// TODO: icon, position?

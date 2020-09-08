@@ -1,15 +1,15 @@
 export enum ModifierType {
     Adjust,
     Set,
-    Absolute
+    Absolute // sets and halts all future modifications when calculating
 }
 
-export default class Modifier<T> {
+export class NumericModifier {
     _type: ModifierType = ModifierType.Adjust;
-    _value: T;
-
-    constructor(type: ModifierType, value: T) {
-        this._type = type;
+    _value: number;
+    
+    constructor(value: number, type: ModifierType = ModifierType.Adjust) {
         this._value = value;
+        this._type = type;
     }
 }
