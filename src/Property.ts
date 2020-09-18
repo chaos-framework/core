@@ -1,21 +1,21 @@
 import { Value } from './Value';
 
-export interface Property {
+export default interface Property {
     // min, max, current, modifiers
-    _name: string;
-    _current: Value;
+    name: string;
+    current: Value;
 }
 
 export class NumericProperty implements Property {
-    _name: string;
-    _current: Value;
-    _min: Value;
-    _max: Value;
+    name: string;
+    current: Value;
+    min: Value;
+    max: Value;
 }
 
 export class StringProperty implements Property {
-    _name: string;
-    _current: Value;
+    name: string;
+    current: Value;
 }
 
 // TODO: icon, position?
