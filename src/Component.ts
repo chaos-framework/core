@@ -1,25 +1,32 @@
-import Entity from 
-
-abstract class Component {
-    static totalCount: number;
+export default abstract class Component {
+    private static idCounter = 0;
 
     id: number;
-    parent: Entity;
-    name: string;
     data: object;
+    parent: ComponentContainer;
+    name?: string;
 
-    constuctor(parent: any) {
+    // TODO listens to, reacts to
+
+    constructor(parent: ComponentContainer) {
+        this.id = ++Component.idCounter;
         this.parent = parent;
-        this.id = ++Component.totalCount;
+        this.data = {};
+    }
+
+    static setIdCounter(i: number): void {
+        Component.idCounter = i;
     }
 
     serialize(): object {
-        return { id: this.id, name: this.name, data: this.data } // TODO convert to json
+        return { id: this.id, name: this.name, data: this.data } // TODO convert to json string?
     }
 
     unserialize(id: number, name: string, data: object) {
-        
+
     }
 }
 
-export default Component
+export interface ComponentContainer {
+    components: Component[];
+}

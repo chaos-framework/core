@@ -1,30 +1,31 @@
-import { NumericModifier, ModifierType } from './Modifier'
+import { Modification, ModificationType } from './Modification'
 
-export class NumericValue {
-    _base: number;
-    _calculated: number;
-    _modifiers: NumericModifier[];
+export default class Value {
+    base: number;
+    calculated: number;
+    modifiers: Modification[];
 
     constructor(base: number) {
-        this._base = base;
-        this._calculated = base;
-        this._modifiers = [];
+        this.base = base;
+        this.calculated = base;
+        this.modifiers = [];
     }
 
     // Calculate new value, dispatching event for optional modifier
     public calculate(event?: null): void {
-        let newValue: number = this._base;
+        let newValue: number = this.base;
         // Iterate over all modifiers
-        this._modifiers.map(m => {
+        this.modifiers.map(m => {
             switch(m._type) {
-                case ModifierType.Adjust:
+                case ModificationType.Adjust:
                     newValue += m._value;
                     break;
-                case ModifierType.Set:
+                case ModificationType.Set:
                     newValue = m._value;
                     break;
-                case ModifierType.Absolute:
-                    this._calculated = m._value;
+                case ModificationType.Absolute:
+                    // Set and return directly
+                    this.calculated = m._value;
                     return;
                 default:
                     newValue += m._value;
@@ -32,12 +33,12 @@ export class NumericValue {
             }
         });
         // Set to the current value
-        this._calculated = newValue;
+        this.calculated = newValue;
     }
 
     // Set the base value from a direct action
     public set(value: number) {
-        this._base = value;
+        this.base = value;
         this.calculate();
     }
 
@@ -48,14 +49,14 @@ export class NumericValue {
     }
 
     // Apply a Modifier from an Effect and recalculate values
-    public apply(modifier: NumericModifier, event?: null ): void {
-        this._modifiers.push(modifier);
+    public apply(modifier: Modification, event?: null ): void {
+        this.modifiers.push(modifier);
         this.calculate();
     }
 
     // Remove a Modifier from an Effect and recalculate values
-    public remove(modifier: NumericModifier) {
-        this._modifiers.splice(this._modifiers.indexOf(modifier), 1);
+    public remove(modifier: Modification) {
+        this.modifiers.splice(this.modifiers.indexOf(modifier), 1);
         this.calculate();
     }
 }
