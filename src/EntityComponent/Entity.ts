@@ -12,12 +12,15 @@ export default class Entity implements ComponentContainer {
     statuses: Component[];
     components: Component[];
 
+    // TODO formalize position coordinates into class
+    x: number;
+    y: number;
+
     static setIdCounter(i: number): void {
         Entity.idCounter = i;
     }
 
-
-    constructor(serialized: object) {
+    constructor(serialized?: object) {
         // TODO create from serialized to load from disk/db, and don't increment entity count
         this.id = ++Entity.idCounter;
         this.properties = {};
@@ -45,6 +48,16 @@ export default class Entity implements ComponentContainer {
     // Check if this Entity "is" (has) as certain component
     is(name: string): boolean {
 
+    }
+
+    addTrait(t: Component) {
+        this.traits.push(t);
+        t.parent = this;
+    }
+
+    removeTrait(t: Component) {
+        const i = this.traits.findIndex(c => c === t);
+        this.traits.splice(i, 1);
     }
 
 }

@@ -1,4 +1,4 @@
-import Entity from '../../src/Entity';
+import Entity from '../../../src/EntityComponent/Entity';
 
 test('IDs should be unique increment, starting with one', () => {
     let a = new Entity();

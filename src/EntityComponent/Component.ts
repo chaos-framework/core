@@ -3,14 +3,13 @@ export default abstract class Component {
 
     id: number;
     data: object;
-    parent: ComponentContainer;
+    parent?: ComponentContainer;
     name?: string;
 
     // TODO listens to, reacts to
 
-    constructor(parent: ComponentContainer) {
+    constructor() {
         this.id = ++Component.idCounter;
-        this.parent = parent;
         this.data = {};
     }
 

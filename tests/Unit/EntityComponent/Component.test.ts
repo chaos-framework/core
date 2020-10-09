@@ -1,4 +1,4 @@
-import Component from '../../src/Component'
+import Component from '../../../src/EntityComponent/Component';
 
 class TestComponent extends Component {
     name = 'Test';
