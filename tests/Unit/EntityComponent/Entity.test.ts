@@ -8,9 +8,9 @@ test('IDs should be unique increment, starting with one', () => {
 })
 
 test('ID base can be reset', () => {
-    Entity.setIdCounter(0);
+    Entity.setIdCount(0);
     let a = new Entity();
-    Entity.setIdCounter(9)
+    Entity.setIdCount(9)
     let b = new Entity();
     expect(a.id === 1);
     expect(b.id === 11);

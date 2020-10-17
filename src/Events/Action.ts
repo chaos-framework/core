@@ -1,9 +1,15 @@
 import Entity from "../EntityComponent/Entity";
+import Component from "../EntityComponent/Component";
+import { Listener } from './Interfaces';
 
 export default abstract class Action {
   // TODO implement player: Player;
   readonly caster: Entity;
+  target?: Entity;
   tags: String[] = [];
+  breadcrumbs: String[] = [];
+  cancelled: boolean = false;
+  // TODO modifications?
 
   constructor(caster: Entity, tags?: String[]) {
     this.caster = caster;
@@ -12,17 +18,54 @@ export default abstract class Action {
     }
   }
 
+  execute(): void {
+    // Get listeners (entities, maps, systems, etc) in order they should modify/react
+    let listeners: Listener[] = [];
+    if(this.caster) {
+      listeners.push(this.caster);
+      listeners.push(this.caster.map);
+    }
+    // TODO add systems
+    if(this.target && this.target != this.caster) {
+      if(this.caster && this.caster.map != this.target.map) {
+        listeners.push(this.target.map);
+      }
+      listeners.push(this.target);
+    }
+
+    // Let all listeners modify, watching to see if any cancel the action
+    for(let listener of listeners) {
+      listener.modify(this);
+      if(this.cancelled) {
+        break;
+      }
+    }
+
+    if(this.cancelled) {
+      return; // TODO how to handle gracefully, message users about failure, etc
+    }
+
+    // Apply this action to the target
+    this.apply();
+
+    // Let all listeners react
+    for(let listener of listeners) {
+      listener.react(this);
+    }
+
+    // TODO broadcast self to system
+  }
+
   abstract apply(): void;
 }
 
 export class RelativeMovement extends Action {
-  mover: Entity;
   x: number;
   y: number;
 
-  constructor(caster: Entity, mover: Entity, x: number, y: number, tags?: String[]) {
+  constructor(caster: Entity, target: Entity, x: number, y: number, tags?: String[]) {
     super(caster, tags);
-    this.mover = mover;
+    this.target = target;
     this.x = x;
     this.y = x;
   }
@@ -34,13 +77,12 @@ export class RelativeMovement extends Action {
 }
 
 export class AbsoluteMovement extends Action {
-  mover: Entity;
   x: number;
   y: number;
 
-  constructor(caster: Entity, mover: Entity, x: number, y: number, tags?: String[]) {
+  constructor(caster: Entity, target: Entity, x: number, y: number, tags?: String[]) {
     super(caster, tags);
-    this.mover = mover;
+    this.target = target;
     this.x = x;
     this.y = x;
   }

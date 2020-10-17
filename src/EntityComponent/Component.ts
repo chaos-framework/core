@@ -6,6 +6,9 @@ export default abstract class Component {
     parent?: ComponentContainer;
     name?: string;
 
+    public: boolean = false;    // can other entities see this component? TODO: needed?
+    broadcast: boolean = false; // do we tell client about this component at all?
+
     // TODO listens to, reacts to
 
     constructor() {

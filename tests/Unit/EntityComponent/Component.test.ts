@@ -3,16 +3,16 @@ import Component from '../../../src/EntityComponent/Component';
 class TestComponent extends Component {
     name = 'Test';
 
-    constructor(parent?: any) {
-        super(parent);
+    constructor() {
+        super();
     }
 }
 
 test('IDs should be unique increment, starting with one', () => {
-    let a = new TestComponent(null);
-    let b = new TestComponent(null);
+    let a = new TestComponent();
+    let b = new TestComponent();
     expect(a.id === 1);
-    expect(b.id === 1);
+    expect(b.id === 2);
 })
 
 test('ID base can be reset', () => {

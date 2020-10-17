@@ -11,7 +11,9 @@ export default class Event {
     }
   }
 
-  fire() {
-    // TODO iterate over actions and fire off sequentially
+  execute() {
+    for(let a in this.actions) {
+      a.execute();
+    }
   }
 }
