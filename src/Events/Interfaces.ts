@@ -1,3 +1,4 @@
+import Component from '../EntityComponent/Component';
 import Action from './Action';
 
 export interface Listener {
@@ -11,4 +12,12 @@ export interface Modifier {
 
 export interface Reacter {
   react(a: Action): void; // TODO determine return type..
+}
+
+export function isModifierComponent(o: any): o is Modifier {
+  return o.modify !== undefined;
+}
+
+export function isReacterComponent(o: any): o is Reacter {
+  return o.react !== undefined;
 }

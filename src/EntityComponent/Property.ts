@@ -1,5 +1,7 @@
 import Value from './Value';
 
+export enum PropertyType { Current, Min, Max }
+
 export default class Property implements Property {
     current: Value;
     min: Value;
@@ -10,4 +12,5 @@ export default class Property implements Property {
         this.min = new Value(min || -Infinity);
         this.max = new Value(max || Infinity);
     }
+
 }

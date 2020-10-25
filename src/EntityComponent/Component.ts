@@ -1,34 +1,51 @@
 export default abstract class Component {
-    private static idCounter = 0;
+  private static idCounter = 0;
 
-    id: number;
-    data: object;
-    parent?: ComponentContainer;
-    name?: string;
+  id: number;
+  data: { [key: string]: any };;
+  parent?: ComponentContainer;
+  name?: string;
+  tags: string[] = []; // usually frontend stuff, like filtering for traits vs statuses, etc
 
-    public: boolean = false;    // can other entities see this component? TODO: needed?
-    broadcast: boolean = false; // do we tell client about this component at all?
+  scope: string = "Entity";
+  public: boolean = false;    // can other entities see this component? TODO: needed?
+  broadcast: boolean = false; // do we tell client about this component at all?
 
-    // TODO listens to, reacts to
+  // TODO listens to, reacts to
 
-    constructor() {
-        this.id = ++Component.idCounter;
-        this.data = {};
+  constructor() {
+    this.id = ++Component.idCounter;
+    this.data = {};
+  }
+
+  static setIdCounter(i: number): void {
+    Component.idCounter = i;
+  }
+
+  serialize(): object {
+    return { id: this.id, name: this.name, data: this.data } // TODO convert to json string?
+  }
+
+  unserialize(id: number, name: string, data: object) {
+
+  }
+
+  attach(parent: ComponentContainer) {
+    this.parent = parent;
+  }
+
+  destroy(): boolean {
+    // Detach from parent
+    if(this.parent && this.parent.detach(this)) {
+      // TODO delete from DB?
+      return true;
     }
-
-    static setIdCounter(i: number): void {
-        Component.idCounter = i;
-    }
-
-    serialize(): object {
-        return { id: this.id, name: this.name, data: this.data } // TODO convert to json string?
-    }
-
-    unserialize(id: number, name: string, data: object) {
-
-    }
+    return false;
+  }
 }
 
 export interface ComponentContainer {
-    components: Component[];
+  components: Component[];
+  attach(component: Component): boolean;
+  detach(component: Component): boolean;
 }

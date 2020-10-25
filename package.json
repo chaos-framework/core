@@ -1,6 +1,6 @@
 {
   "name": "@metarogue/core",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -31,5 +31,8 @@
   },
   "build": "tsc",
   "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-  "lint": "tslint -p tsconfig.json"
+  "lint": "tslint -p tsconfig.json",
+  "dependencies": {
+    "lodash": "^4.17.20"
+  }
 }

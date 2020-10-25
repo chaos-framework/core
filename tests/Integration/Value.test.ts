@@ -1,5 +1,5 @@
-import Value from '../../src/Value';
-import { ModificationType, Modification } from '../../src/Modification';
+import Value from '../../src/EntityComponent/Value';
+import { ModificationType, Modification } from '../../src/EntityComponent/Modification';
 
 test('Numeric value construction.', () => {
     let v = new Value(10);
@@ -16,7 +16,6 @@ test('Numeric value setting.', () => {
     expect(v.base).toBe(10);
     expect(v.calculated).toBe(10);
 })
-
 
 test('Numeric value modification - adjust', () => {
     let v = new Value(10);

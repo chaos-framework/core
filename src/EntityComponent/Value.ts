@@ -44,8 +44,8 @@ export default class Value {
 
     // Adjust the base value from a direct action
     public adjust(amount: number) {
-        //this._base += amount;
-        this.calculate(); 
+        this.base += amount;
+        this.calculate();
     }
 
     // Apply a Modifier from an Effect and recalculate values

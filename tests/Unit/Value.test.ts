@@ -1,4 +1,4 @@
-import Value from '../../src/Value';
+import Value from '../../src/EntityComponent/Value';
 
 test('Value construction', () => {
     let v = new Value(50);
