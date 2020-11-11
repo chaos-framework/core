@@ -14,10 +14,10 @@ export interface Reacter {
   react(a: Action): void; // TODO determine return type..
 }
 
-export function isModifierComponent(o: any): o is Modifier {
+export function isModifier(o: any): o is Modifier {
   return o.modify !== undefined;
 }
 
-export function isReacterComponent(o: any): o is Reacter {
+export function isReacter(o: any): o is Reacter {
   return o.react !== undefined;
 }

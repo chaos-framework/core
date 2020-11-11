@@ -1,8 +1,8 @@
-import Component, { ComponentContainer } from '../../../../src/EntityComponent/Component';
-import Entity from '../../../../src/EntityComponent/Entity';
-import Heal from '../../Abilities/Heal';
+import Component, { ComponentContainer } from '../../../src/EntityComponent/Component';
+import Entity from '../../../src/EntityComponent/Entity';
+import Heal from '../Abilities/Heal';
 
-export default class Paladin extends Component {
+export class Paladin extends Component {
   name = 'Paladin';
   public = true;
   broadcast = true;

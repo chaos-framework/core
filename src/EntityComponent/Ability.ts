@@ -6,12 +6,15 @@ export default abstract class Ability {
   abstract name: string;
   granter?: any;
 
-  constructor() {
-  }
-
-  abstract cast(caster: Entity, using?: Entity | Component, target?: any, options?: any): Event;
+  abstract cast(caster: Entity, { using, target, options }: OptionalCastParameters ): Event;
 
   // TODO serialize, unserialize
+}
+
+export interface OptionalCastParameters {
+  using?: Entity | Component, 
+  target?: Entity,
+  options?: any
 }
 
 export class Grant {

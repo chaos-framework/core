@@ -2,14 +2,18 @@ import Property from './Property';
 import Component, { ComponentContainer } from './Component';
 import Event from '../Events/Event';
 import Action from '../Events/Action';
-import { Listener, Modifier, Reacter, isModifierComponent, isReacterComponent } from '../Events/Interfaces';
-import Ability, { Grant } from './Ability';
+import { Listener, Modifier, Reacter, isModifier, isReacter } from '../Events/Interfaces';
+import Ability, { OptionalCastParameters, Grant } from './Ability';
+import EquipAction from '../Events/Actions/EquipAction';
+import AttachComponentAction from '../Events/Actions/AttachComponentAction';
 
-export default class Entity implements ComponentContainer, Listener {
+export default class Entity implements Listener {
   private static idCounter = 0;
-  readonly id: number;
+  id?: number;
   tags: Set<string>; // TODO make set
-  readonly omnipotent: boolean = false; // listens to every action in the game
+  published = false;
+  active = false;
+  omnipotent = false; // listens to every action in the game
 
   properties: { [name: string]: Property };
 
@@ -19,19 +23,43 @@ export default class Entity implements ComponentContainer, Listener {
   reacters: Reacter[] = [];
 
   abilities: { [name: string]: Grant[] } = {};
-  slots: { [name: string]: Entity | null } = {};
+
+  // Places for items to be equipped
+  slots: { [name: string]: Entity | Component | null } = {};
+  // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
   // TODO position / coordinates
 
   map: any;
+  container: any; // TODO can this be combined with map?
+
+  // TODO art asset
+  // TODO single char for display in leiu of art asset
 
   constructor(serialized?: object) {
     // TODO create from serialized to load from disk/db, and don't increment entity count
-    this.id = ++Entity.idCounter;
     this.properties = {};
-
     this.components = [];
     this.tags = new Set<string>();
+  }
+
+  publish() {
+    this.id = ++Entity.idCounter;
+    this.active = true;
+  }
+
+  isPublished(): boolean {
+    return this.id !== undefined;
+  }
+
+  activate() {
+    this.active = true;
+    // TODO attach listeners?
+  }
+
+  deactivate() {
+    this.active = false;
+    // TODO remove listeners?
   }
 
   static setIdCount(i: number): void {
@@ -39,14 +67,38 @@ export default class Entity implements ComponentContainer, Listener {
   }
 
   modify(a: Action) {
-    for(let i = 0; i < this.modifiers.length && !a.cancelled; i++) {
-      this.modifiers[i].modify(a);
-    }
+    this.modifiers.map(r => r.modify(a));
   }
 
+  _modify(a: Action) {
+    this.components.map(c => { 
+      if(isModifier(c)) { 
+        c.modify(a) 
+      }
+    });
+    for(let k in this.slots) {
+      let o = this.slots[k];
+      if(isModifier(o)) {
+        o._modify(a);
+      }
+    }
+  }
+  
   react(a: Action) {
-    for(let i = 0; i < this.reacters.length && !a.cancelled; i++) {
-      this.reacters[i].react(a);
+   this.reacters.map(r => r.react(a));
+  }
+  
+  _react(a: Action) {
+    this.components.map(c => { 
+      if(isReacter(c)) { 
+        c.react(a) 
+      }
+    });
+    for(let k in this.slots) {
+      let o = this.slots[k];
+      if(isReacter(o)) {
+        o._react(a);
+      }
     }
   }
 
@@ -54,30 +106,53 @@ export default class Entity implements ComponentContainer, Listener {
     return this.properties[k];
   }
 
-  tag(tag: string): void {
-    // TODO add to tags, tag needs to be made set first
+  tag(tag: string) {
+    this.tags.add(tag);    
+  }
+
+  untag(tag: string) {
+    this.tags.delete(tag);
   }
 
   tagged(tag: string): boolean {
-    // TODO check if tagged, return true/false
-    return false;
+    return this.tags.has(tag);
   }
 
-  attach(component: Component): boolean {
+  is(component: string | Component): Component | undefined  {
+    return this.has(component);
+  }
+
+  has(component: string | Component): Component | undefined {
+    if(component instanceof String) {
+      return this.components.find(c => c.constructor === component.constructor);
+    }
+    else {
+      return this.components.find(c => c.name === component);
+    }
+  }
+
+  attach(component: Component, {caster, using, tags}: 
+    {caster: Entity, using?: Entity | Component, tags?: string[]})
+    : Attach 
+  {
+    return new Attach({ caster, target: this, component, using, tags});
+  };
+
+  _attach(component: Component): boolean {
     this.components.push(component); // TODO check for unique flag, return false if already attached
     // Add listeners, if appropriate
     switch(component.scope) {
       default:
-        if(isModifierComponent(component)) {
+        if(isModifier(component)) {
           this.modifiers.push(component);
         }
-        if(isReacterComponent(component)) {
+        if(isReacter(component)) {
           this.reacters.push(component);
         }
         break;
     }
     // Run component's attach method
-    component.attach(this);
+    //component.attach(this);
     return true;
   }
 
@@ -104,10 +179,23 @@ export default class Entity implements ComponentContainer, Listener {
     }
   }
 
-  // TODO slots, and putting entities
-  equip(item: Entity, slotName: string): boolean {
+  equip({ caster = this, slot, item, using, tags, force = false }: 
+        { caster?: Entity, slot: string, item: Entity, using?: Entity | Component, tags?: string[], force?: boolean })
+        : EquipItem
+  {
+    return new EquipItem(caster, this, slot, item, tags);
+  }
+
+  _equip(item: Entity | Component, slotName: string): boolean {
     if(slotName in this.slots && this.slots[slotName] === undefined) {
       this.slots[slotName] = item;
+      if(item instanceof Entity || isModifier(item)) {
+        this.modifiers.push(item);
+      }
+      if(item instanceof Entity || isReacter(item)) {
+        this.reacters.push(item);
+      }
+      // TODO should item decide to remove from parent container?
       return true;
     }
     return false;
@@ -116,7 +204,6 @@ export default class Entity implements ComponentContainer, Listener {
   // or just equip null? I feel like it needs to move into another slot, though
   unequip(): boolean {
     return false;
-    // TODO remove abilities granted by this item, if any
   }
 
   grantSlot(name: string): boolean {
@@ -137,15 +224,15 @@ export default class Entity implements ComponentContainer, Listener {
   }
 
   // Cast ability by name and optional lookup for specific version based on how we're casting it
-  cast(abilityName: string, using?: Entity | Component, target?: any, options?: any): Event | undefined {
+  cast(abilityName: string, {using, target, options}: OptionalCastParameters = {}): Event | undefined {
     // See if we have this ability at all
     const grants = this.abilities[abilityName];
     if(grants && grants.length > 0) {
       // Use the verion of this ability granted by 
-      let grant: Grant | undefined = grants.find(g => g.using === using);
+      let grant: Grant | undefined = using ? grants.find(g => g.using === using) : undefined;
       if(!grant)
         grant = grants[0];
-      const e = grant.ability.cast(this, target, options);
+      const e = grant.ability.cast(this, { using, target, options });
       e.execute();
       return e;
     }

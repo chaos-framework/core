@@ -1,5 +1,5 @@
-import { PropertyAdjustment } from '../../src/Events/Action';
-import Undead from '../Mocks/Components/Traits/Undead';
+import PropertyAdjustment from '../../src/Events/Actions/PropertyAdjustment';
+import { Undead } from '../Mocks/Components/Traits';
 import { createZombie, createPaladin } from '../Mocks/Entities/Actors';
 
 test('Modifiers are added to Entities', () => {
@@ -18,7 +18,7 @@ test('Unique modifiers cannot be added twice', () => {
 test('Modifiers on entities can change action outcomes', () => {
   const zombie = createZombie();
   const paladin = createPaladin();
-  const e = paladin.cast('Heal', undefined, zombie);
+  const e = paladin.cast('Heal', {target: zombie});
   expect(e).toBeTruthy();
   if(e !== undefined) {
     expect(e.executed === true);

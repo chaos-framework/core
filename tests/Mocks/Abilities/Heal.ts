@@ -1,19 +1,24 @@
 import Entity from '../../../src/EntityComponent/Entity';
-import Ability from '../../../src/EntityComponent/Ability';
+import Ability, { OptionalCastParameters } from '../../../src/EntityComponent/Ability';
 import Event from '../../../src/Events/Event';
-import { PropertyAdjustment } from '../../../src/Events/Action';
+import PropertyAdjustment from '../../../src/Events/Actions/PropertyAdjustment';
 
 export default class Heal extends Ability {
   name = "Heal";
 
-  cast(caster: Entity, target?: any, options?: any): Event {
+  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event {
     // TODO check line-of-sight
-    const amount = 5; // TODO roll based on INT
-    target = target && target instanceof Entity ? target : caster; // default to casting on self
+    const amount = 5; // TODO roll based on INT or something
+    // default to casting on self
+    target = target && target instanceof Entity ? target : caster;
     const event = new Event([
-      new PropertyAdjustment(caster, target, "HP", amount, ['heal'])
+      new PropertyAdjustment({ caster, target, property: "HP", amount, tags: ['heal'] })
     ]);
     return event;
+  }
+  
+  _move() {
+
   }
 
 }
