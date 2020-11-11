@@ -119,12 +119,7 @@ export default abstract class Action {
 export interface ActionParameters {
   caster: Entity,
   target?: Entity,
-  tags?: string[]
-}
-
-export interface ActionParametersRequiringTarget {
-  caster: Entity,
-  target: Entity,
+  using?: Entity | Component,
   tags?: string[]
 }
 

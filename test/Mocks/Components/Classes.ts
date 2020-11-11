@@ -11,9 +11,6 @@ export class Paladin extends Component {
 
   attach(parent: ComponentContainer): void {
     this.parent = parent;
-    if(parent instanceof Entity) {
-      parent.grant(new Heal(), this);
-    }
   }
 
 }

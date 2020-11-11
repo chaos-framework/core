@@ -4,8 +4,10 @@ import Event from '../Events/Event';
 import Action from '../Events/Action';
 import { Listener, Modifier, Reacter, isModifier, isReacter } from '../Events/Interfaces';
 import Ability, { OptionalCastParameters, Grant } from './Ability';
-import EquipAction from '../Events/Actions/EquipAction';
-import AttachComponentAction from '../Events/Actions/AttachComponentAction';
+
+// Import actions that can be created by the component
+import AttachComponentAction, { AttachComponentActionParameters } from '../Events/Actions/AttachComponentAction';
+import EquipAction, { EquipActionParameters } from '../Events/Actions/EquipAction';
 
 export default class Entity implements Listener {
   private static idCounter = 0;
@@ -131,31 +133,6 @@ export default class Entity implements Listener {
     }
   }
 
-  attach(component: Component, {caster, using, tags}: 
-    {caster: Entity, using?: Entity | Component, tags?: string[]})
-    : Attach 
-  {
-    return new Attach({ caster, target: this, component, using, tags});
-  };
-
-  _attach(component: Component): boolean {
-    this.components.push(component); // TODO check for unique flag, return false if already attached
-    // Add listeners, if appropriate
-    switch(component.scope) {
-      default:
-        if(isModifier(component)) {
-          this.modifiers.push(component);
-        }
-        if(isReacter(component)) {
-          this.reacters.push(component);
-        }
-        break;
-    }
-    // Run component's attach method
-    //component.attach(this);
-    return true;
-  }
-
   detach(component: Component): boolean {
     const i = this.components.indexOf(component);
     if(i >= 0) {
@@ -179,27 +156,7 @@ export default class Entity implements Listener {
     }
   }
 
-  equip({ caster = this, slot, item, using, tags, force = false }: 
-        { caster?: Entity, slot: string, item: Entity, using?: Entity | Component, tags?: string[], force?: boolean })
-        : EquipItem
-  {
-    return new EquipItem(caster, this, slot, item, tags);
-  }
 
-  _equip(item: Entity | Component, slotName: string): boolean {
-    if(slotName in this.slots && this.slots[slotName] === undefined) {
-      this.slots[slotName] = item;
-      if(item instanceof Entity || isModifier(item)) {
-        this.modifiers.push(item);
-      }
-      if(item instanceof Entity || isReacter(item)) {
-        this.reacters.push(item);
-      }
-      // TODO should item decide to remove from parent container?
-      return true;
-    }
-    return false;
-  }
 
   // or just equip null? I feel like it needs to move into another slot, though
   unequip(): boolean {
@@ -238,6 +195,60 @@ export default class Entity implements Listener {
     }
     return undefined;
   }
+
+  /*****************************************
+   * 
+   *  ACTION GENERATORS / RESPONDERS
+   * 
+   *****************************************/
+
+  // Attaching components
+
+  attach({component, caster, using, tags}: AttachComponentActionParameters, force = false): AttachComponentAction {
+    let name = "Jenn";
+    return new AttachComponentAction({ caster, target: this, component, using, tags});
+  };
+
+
+  _attach(component: Component): boolean {
+    this.components.push(component); // TODO check for unique flag, return false if already attached
+    // Add listeners, if appropriate
+    switch(component.scope) {
+      default:
+        if(isModifier(component)) {
+          this.modifiers.push(component);
+        }
+        if(isReacter(component)) {
+          this.reacters.push(component);
+        }
+        break;
+    }
+    // Run component's attach method
+    //component.attach(this);
+    return true;
+  }
+
+  // Equipping items
+
+  equip({caster, slot, item, tags = []}: EquipActionParameters, force = false): EquipAction {
+    return new EquipAction({caster, target: this, slot, item, tags});
+  }
+
+  _equip(item: Entity | Component, slotName: string): boolean {
+    if(slotName in this.slots && this.slots[slotName] === undefined) {
+      this.slots[slotName] = item;
+      if(item instanceof Entity || isModifier(item)) {
+        this.modifiers.push(item);
+      }
+      if(item instanceof Entity || isReacter(item)) {
+        this.reacters.push(item);
+      }
+      // TODO should item decide to remove from parent container?
+      return true;
+    }
+    return false;
+  }
+  
 
   // TODO change maps, swap map listeners
 

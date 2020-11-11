@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --config jestconfig.json"
+    "test": "mocha"
   },
   "files": [
     "lib/**/*"
@@ -21,10 +21,15 @@
   },
   "homepage": "https://github.com/and0p/metarogue-core#readme",
   "devDependencies": {
+    "@types/assert": "^1.5.2",
     "@types/jest": "^24.0.21",
+    "@types/mocha": "^8.0.4",
+    "assert": "^2.0.0",
     "jest": "^24.9.0",
+    "mocha": "^8.2.1",
     "prettier": "^1.18.2",
     "ts-jest": "^24.1.0",
+    "ts-node": "^9.0.0",
     "tslint": "^6.0.0-beta0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.6.4"
