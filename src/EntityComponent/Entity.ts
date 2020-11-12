@@ -191,7 +191,7 @@ export default class Entity implements Listener {
 
   /*****************************************
    * 
-   *  ACTION GENERATORS / RESPONDERS
+   *  ACTION GENERATORS / IMPLEMENTATIONS
    * 
    *****************************************/
 
@@ -235,6 +235,35 @@ export default class Entity implements Listener {
     else {
       this.abilities[name].push(new Grant(ability, grantedBy, using));
     }
+    return true;
+  }
+
+  // Denying abilities
+
+  deny({caster, using, ability, tags}: AbilityActionParameters, force = false) {
+    return new DenyAbility({caster, target: this, using, ability, tags});
+  }
+
+  _deny(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
+    const name = ability.name;
+    if(!this.abilities[name]) {
+      return false;
+    }
+    let grants = this.abilities[name];
+    const grantIndex = grants.findIndex(grant => grant.grantedBy === grantedBy && grant.using === using);
+    if(grantIndex < 0) {
+      return false;
+    }
+
+    grants.splice(grantIndex, 1);
+
+    // Replace the array of grants for this ability, or delete if it's no longer granted by anything
+    if (grants.length > 0) {
+      this.abilities[name] = grants;
+    } else {
+      delete this.abilities[name];
+    }
+
     return true;
   }
 

@@ -1,15 +1,18 @@
 import Ability from '../../EntityComponent/Ability';
+import Component from '../../EntityComponent/Component';
 import Entity from '../../EntityComponent/Entity';
 import Action, { ActionParameters } from '../Action'
 
 export class GrantAbility extends Action {
   ability: Ability;
   target: Entity;
+  grantedBy?: Entity | Component;
 
-  constructor({caster, target, using, ability, tags = []}: AbilityActionParameters) {
+  constructor({caster, target, using, grantedBy, ability, tags = []}: AbilityActionParameters) {
     super(caster, using, tags);
     this.target = target ? target : caster;
     this.ability = ability;
+    this.grantedBy = grantedBy;
   }
 
   apply(): boolean {
@@ -20,15 +23,17 @@ export class GrantAbility extends Action {
 export class DenyAbility extends Action {
   ability: Ability;
   target: Entity;
+  grantedBy?: Entity | Component;
 
-  constructor({caster, target, using, ability, tags = []}: AbilityActionParameters) {
+  constructor({caster, target, using, grantedBy, ability, tags = []}: AbilityActionParameters) {
     super(caster, using, tags);
     this.target = target ? target : caster;
     this.ability = ability;
+    this.grantedBy = grantedBy;
   }
 
   apply(): boolean {
-    // TODO revoke ability
+    this.target._deny(this.ability, this.grantedBy, this.using);
     return false;
   }
 }
@@ -36,4 +41,5 @@ export class DenyAbility extends Action {
 
 export interface AbilityActionParameters extends ActionParameters {
   ability: Ability;
+  grantedBy?: Entity | Component;
 }
