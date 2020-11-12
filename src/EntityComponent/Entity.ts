@@ -6,8 +6,9 @@ import { Listener, Modifier, Reacter, isModifier, isReacter } from '../Events/In
 import Ability, { OptionalCastParameters, Grant } from './Ability';
 
 // Import actions that can be created by the component
-import AttachComponentAction, { AttachComponentActionParameters } from '../Events/Actions/AttachComponentAction';
-import EquipAction, { EquipActionParameters } from '../Events/Actions/EquipAction';
+import AttachComponentAction, { AttachComponentActionParameters } from '../Events/Actions/ComponentActions';
+import { GrantAbility, DenyAbility, AbilityActionParameters } from '../Events/Actions/AbilityActions';
+import EquipAction, { EquipActionParameters } from '../Events/Actions/EquipmentActions';
 
 export default class Entity implements Listener {
   private static idCounter = 0;
@@ -125,12 +126,16 @@ export default class Entity implements Listener {
   }
 
   has(component: string | Component): Component | undefined {
-    if(component instanceof String) {
+    if (component instanceof String) {
       return this.components.find(c => c.constructor === component.constructor);
     }
     else {
       return this.components.find(c => c.name === component);
     }
+  }
+
+  can(ability: string): boolean {
+    return this.abilities[ability] !== undefined;
   }
 
   detach(component: Component): boolean {
@@ -145,18 +150,6 @@ export default class Entity implements Listener {
       return false;
     }
   }
-
-  grant(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component) {
-    const name = ability.name;
-    if(!this.abilities[name]) {
-      this.abilities[name] = [new Grant(ability, grantedBy, using)];
-    }
-    else {
-      this.abilities[name].push(new Grant(ability, grantedBy, using));
-    }
-  }
-
-
 
   // or just equip null? I feel like it needs to move into another slot, though
   unequip(): boolean {
@@ -225,6 +218,23 @@ export default class Entity implements Listener {
     }
     // Run component's attach method
     //component.attach(this);
+    return true;
+  }
+
+  // Granting abilities
+
+  grant({caster, using, ability, tags}: AbilityActionParameters, force = false) {
+    return new GrantAbility({caster, target: this, using, ability, tags});
+  }
+
+  _grant(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
+    const name = ability.name;
+    if(!this.abilities[name]) {
+      this.abilities[name] = [new Grant(ability, grantedBy, using)];
+    }
+    else {
+      this.abilities[name].push(new Grant(ability, grantedBy, using));
+    }
     return true;
   }
 

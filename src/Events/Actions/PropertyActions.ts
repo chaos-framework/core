@@ -2,7 +2,7 @@ import Action from '../Action';
 import Entity from "../../EntityComponent/Entity";
 import Component from '../../EntityComponent/Component';
 
-export default class PropertyAdjustmentAction extends Action {
+export class PropertyAdjustmentAction extends Action {
   property: string;
   amount: number;
   finalAmount: number;
@@ -21,9 +21,10 @@ export default class PropertyAdjustmentAction extends Action {
     this.finalAmount = amount;
   }
 
-  apply() {
+  apply(): boolean {
     this.adjustments.map(amount => this.finalAmount += amount);
     this.multipliers.map(amount => this.finalAmount *= amount);
+    return true;
     // TODO figure out property adjustments
   }
 

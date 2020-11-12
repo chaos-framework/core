@@ -1,7 +1,7 @@
 import Entity from '../../../src/EntityComponent/Entity';
 import Ability, { OptionalCastParameters } from '../../../src/EntityComponent/Ability';
 import Event from '../../../src/Events/Event';
-import PropertyAdjustment from '../../../src/Events/Actions/PropertyAdjustment';
+import { PropertyAdjustmentAction } from '../../../src/Events/Actions/PropertyActions';
 
 export default class Heal extends Ability {
   name = "Heal";

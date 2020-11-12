@@ -5,8 +5,6 @@ import Component from '../../src/EntityComponent/Component';
 
 import EmptyComponent from '../Mocks/Components/Empty';
 
-
-
 describe('Components attaching to entities', () => {
   let e: Entity;
 
@@ -21,9 +19,5 @@ describe('Components attaching to entities', () => {
     ok(attached, 'Could not attach basic component to entity.');
     ok(e.is('Empty Component'), 'Did not find attached component on entity.');
   });
-
-  // it('Can grant abilities', () => {
-  //   let paladin = createPaladin();
-  //   expect(paladin.abilities['Heal'] !== null);
-  // })
+  
 });
