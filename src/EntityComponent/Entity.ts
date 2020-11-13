@@ -25,7 +25,7 @@ export default class Entity implements Listener {
   modifiers: Modifier[] = [];
   reacters: Reacter[] = [];
 
-  abilities: { [name: string]: Grant[] } = {};
+  abilities: Map<string, Grant[]> = new Map();
 
   // Places for items to be equipped
   slots: { [name: string]: Entity | Component | null } = {};
@@ -135,7 +135,7 @@ export default class Entity implements Listener {
   }
 
   can(ability: string): boolean {
-    return this.abilities[ability] !== undefined;
+    return this.abilities.has(ability);
   }
 
   detach(component: Component): boolean {
@@ -176,7 +176,7 @@ export default class Entity implements Listener {
   // Cast ability by name and optional lookup for specific version based on how we're casting it
   cast(abilityName: string, {using, target, options}: OptionalCastParameters = {}): Event | undefined {
     // See if we have this ability at all
-    const grants = this.abilities[abilityName];
+    const grants = this.abilities.get(abilityName);
     if(grants && grants.length > 0) {
       // Use the verion of this ability granted by 
       let grant: Grant | undefined = using ? grants.find(g => g.using === using) : undefined;
@@ -229,11 +229,17 @@ export default class Entity implements Listener {
 
   _grant(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
     const name = ability.name;
-    if(!this.abilities[name]) {
-      this.abilities[name] = [new Grant(ability, grantedBy, using)];
-    }
-    else {
-      this.abilities[name].push(new Grant(ability, grantedBy, using));
+    const grants = this.abilities.get(name);
+    if(grants) {
+      // check if ability already granted by this combo
+      const duplicate = grants.find(grant => grant.grantedBy === grantedBy && grant.using === using);
+      if(!duplicate) {
+        grants.push(new Grant(ability, grantedBy, using));
+      } else {
+        return false;
+      }
+    } else {
+      this.abilities.set(name, [new Grant(ability, grantedBy, using)]);
     }
     return true;
   }
@@ -246,10 +252,10 @@ export default class Entity implements Listener {
 
   _deny(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
     const name = ability.name;
-    if(!this.abilities[name]) {
+    let grants = this.abilities.get(name);
+    if(!grants) {
       return false;
     }
-    let grants = this.abilities[name];
     const grantIndex = grants.findIndex(grant => grant.grantedBy === grantedBy && grant.using === using);
     if(grantIndex < 0) {
       return false;
@@ -259,9 +265,9 @@ export default class Entity implements Listener {
 
     // Replace the array of grants for this ability, or delete if it's no longer granted by anything
     if (grants.length > 0) {
-      this.abilities[name] = grants;
+      this.abilities.set(name, grants);
     } else {
-      delete this.abilities[name];
+      this.abilities.delete(name);
     }
 
     return true;
