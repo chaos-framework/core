@@ -9,6 +9,7 @@ import Ability, { OptionalCastParameters, Grant } from './Ability';
 import AttachComponentAction, { AttachComponentActionParameters } from '../Events/Actions/ComponentActions';
 import { GrantAbility, DenyAbility, AbilityActionParameters } from '../Events/Actions/AbilityActions';
 import EquipAction, { EquipActionParameters } from '../Events/Actions/EquipmentActions';
+import { AddSlotAction, RemoveSlotAction, SlotActionParameters } from '../Events/Actions/SlotActions';
 
 export default class Entity implements Listener {
   private static idCounter = 0;
@@ -25,10 +26,10 @@ export default class Entity implements Listener {
   modifiers: Modifier[] = [];
   reacters: Reacter[] = [];
 
-  abilities: Map<string, Grant[]> = new Map();
+  abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
   // Places for items to be equipped
-  slots: { [name: string]: Entity | Component | null } = {};
+  slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
   // TODO position / coordinates
@@ -79,10 +80,9 @@ export default class Entity implements Listener {
         c.modify(a) 
       }
     });
-    for(let k in this.slots) {
-      let o = this.slots[k];
-      if(isModifier(o)) {
-        o._modify(a);
+    for(let item of this.slots) {
+      if(item instanceof Entity) {
+        item._modify(a);
       }
     }
   }
@@ -97,10 +97,9 @@ export default class Entity implements Listener {
         c.react(a) 
       }
     });
-    for(let k in this.slots) {
-      let o = this.slots[k];
-      if(isReacter(o)) {
-        o._react(a);
+    for(let item of this.slots) {
+      if(item instanceof Entity) {
+        item._react(a);
       }
     }
   }
@@ -153,23 +152,6 @@ export default class Entity implements Listener {
 
   // or just equip null? I feel like it needs to move into another slot, though
   unequip(): boolean {
-    return false;
-  }
-
-  grantSlot(name: string): boolean {
-    if(!this.slots[name]) {
-      this.slots[name] = null;
-      return true;
-    }
-    return false;
-  }
-
-  removeSlot(name: string): boolean {
-    if(this.slots[name]) {
-      // TODO, have to drop item on the ground, or something
-      delete this.slots[name];
-      return true;
-    }
     return false;
   }
 
@@ -279,9 +261,9 @@ export default class Entity implements Listener {
     return new EquipAction({caster, target: this, slot, item, tags});
   }
 
-  _equip(item: Entity | Component, slotName: string): boolean {
-    if(slotName in this.slots && this.slots[slotName] === undefined) {
-      this.slots[slotName] = item;
+  _equip(item: Entity, slotName: string): boolean {
+    if(this.slots.has(slotName) && this.slots.get(slotName) === undefined) {
+      this.slots.set(slotName, item);
       if(item instanceof Entity || isModifier(item)) {
         this.modifiers.push(item);
       }
@@ -289,6 +271,36 @@ export default class Entity implements Listener {
         this.reacters.push(item);
       }
       // TODO should item decide to remove from parent container?
+      return true;
+    }
+    return false;
+  }
+
+  // Unequipping items
+  // TODO
+
+  // Slot changes
+
+  addSlot({caster, name, tags = []}: SlotActionParameters, force = false): AddSlotAction {
+    return new AddSlotAction({caster, target: this, name, tags});
+  }
+
+  _addSlot(name: string): boolean {
+    if(!this.slots.has(name)) {
+      this.slots.set(name, undefined);
+      return true;
+    }
+    return false;
+  }
+
+  removeSlot({caster, name, tags = []}: SlotActionParameters, force = false): RemoveSlotAction {
+    return new RemoveSlotAction({caster, target: this, name, tags});
+  }
+
+  _removeSlot(name: string): boolean {
+    if(this.slots.has(name)) {
+      // TODO, have to drop item on the ground, or something
+      this.slots.delete(name);
       return true;
     }
     return false;

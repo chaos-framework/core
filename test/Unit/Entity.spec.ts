@@ -22,7 +22,7 @@ describe('Entity action direct methods', () => {
     it('Can be granted a single ability.', () => {
       // Granting single ability
       expect(e.abilities.size).to.equal(0);
-      e._grant(ability, undefined, undefined);
+      expect(e._grant(ability, undefined, undefined)).to.be.true;
       expect(e.abilities.size).to.equal(1);
       const grant = e.abilities.get(ability.name);
       expect(grant).to.exist;
@@ -34,10 +34,10 @@ describe('Entity action direct methods', () => {
     it('Cannot be granted duplicate abilities.', () => {
       expect(e.abilities.size).to.equal(0);
       // Attempt to grant the same ability the same way multiple times
-      e._grant(ability, undefined, undefined);
-      e._grant(ability, undefined, undefined);
-      e._grant(ability, undefined, undefined);
-      e._grant(ability, undefined, undefined);
+      expect(e._grant(ability, undefined, undefined)).to.be.true;
+      expect(e._grant(ability, undefined, undefined)).to.be.false;
+      expect(e._grant(ability, undefined, undefined)).to.be.false;
+      expect(e._grant(ability, undefined, undefined)).to.be.false;
       expect(e.abilities.size).to.equal(1);
       const grant = e.abilities.get(ability.name);
       expect(grant).to.exist;
@@ -49,8 +49,8 @@ describe('Entity action direct methods', () => {
     it('Can be granted the same ability using different entities or components.', () => {
       expect(e.abilities.size).to.equal(0);
       const someOtherEntity = new Entity();
-      e._grant(ability, undefined, undefined);
-      e._grant(ability, someOtherEntity, someOtherEntity);
+      expect(e._grant(ability, undefined, undefined)).to.be.true;
+      expect(e._grant(ability, someOtherEntity, someOtherEntity)).to.be.true;
       const grant = e.abilities.get(ability.name);
       expect(grant).to.exist;
       if(grant) { // typescript compile safety
@@ -66,14 +66,13 @@ describe('Entity action direct methods', () => {
 
     // Give the entity some abilities to deny for every test
     beforeEach(() => { 
-      e = new Entity(); 
       e._grant(ability, undefined, undefined);
       e._grant(ability, someOtherEntity, someOtherEntity);
     });
 
     it('Can deny an ability using or granted by one source.', () => {
       // Remove one 
-      e._deny(ability, undefined, undefined);
+      expect(e._deny(ability, undefined, undefined)).to.be.true;
       expect(e.abilities.size).to.equal(1);
       const grant = e.abilities.get(ability.name);
       expect(grant).to.exist;
@@ -84,8 +83,8 @@ describe('Entity action direct methods', () => {
 
     it('Can deny an entire ability by denying both sources.', () => {
       // Remove one 
-      e._deny(ability, undefined, undefined);
-      e._deny(ability, someOtherEntity, someOtherEntity);
+      expect(e._deny(ability, undefined, undefined)).to.be.true;
+      expect(e._deny(ability, someOtherEntity, someOtherEntity)).to.be.true;
       expect(e.abilities.size).to.equal(0);
       // Check both methods for seeing if an entity has an ability
       const grant = e.abilities.get(ability.name);
@@ -94,7 +93,52 @@ describe('Entity action direct methods', () => {
     });
   });
 
-  describe('Equipping items', () => {
-    
+  describe('Adding slots', () => {
+    const slotName = "Head";
+    const slots = ["Head", "Chest", "Hands", "Legs", "Feet"];
+
+    it('Grants a single slot', () => {
+      expect(e.slots.size).to.equal(0);
+      expect(e._addSlot(slotName)).to.be.true;
+      expect(e.slots.size).to.equal(1);
+      expect(e.slots.has(slotName)).to.be.true;
+    });
+
+    it('Fails to grant an existing slot', () => {
+      expect(e.slots.size).to.equal(0);
+      expect(e._addSlot(slotName)).to.be.true;
+      expect(e._addSlot(slotName)).to.be.false;
+      expect(e.slots.size).to.equal(1);
+    });
+
+    it('Can grant multiple slots', () => {
+      expect(e.slots.size).to.equal(0);
+      slots.map(slot => {
+        expect(e._addSlot(slot)).to.be.true;
+      });
+      expect(e.slots.size).to.equal(slots.length);
+    });
+  });
+
+  describe('Removing slots', () => {
+    const slotName = "Head";
+    const slots = ["Head", "Chest", "Hands", "Legs", "Feet"];
+
+    // Grant some default slots
+    beforeEach(() => {
+      slots.map(slot => {
+        e._addSlot(slot);
+      });
+    });
+
+    it('Can remove a single slot', () => {
+      expect(e._removeSlot(slotName)).to.be.true;
+      expect(e.slots.has(slotName)).to.be.false;
+      expect(e.slots.size).to.equal(slots.length - 1);
+    });
+
+    it('Cannot remove a nonexistant slot', () => {
+      expect(e._removeSlot("randomstringakldfjklsjflksjf")).to.be.false;
+    });
   });
 });
