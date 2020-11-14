@@ -150,11 +150,6 @@ export default class Entity implements Listener {
     }
   }
 
-  // or just equip null? I feel like it needs to move into another slot, though
-  unequip(): boolean {
-    return false;
-  }
-
   // Cast ability by name and optional lookup for specific version based on how we're casting it
   cast(abilityName: string, {using, target, options}: OptionalCastParameters = {}): Event | undefined {
     // See if we have this ability at all

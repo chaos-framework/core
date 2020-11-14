@@ -141,4 +141,27 @@ describe('Entity action direct methods', () => {
       expect(e._removeSlot("randomstringakldfjklsjflksjf")).to.be.false;
     });
   });
+
+  describe('Equipping items', () => {
+    const mainSlot = "Head";
+    const slots = ["Head", "Chest", "Hands", "Legs", "Feet"];
+    const item = new Entity();
+
+    beforeEach(() => {
+      slots.map(slot => {
+        e._addSlot(slot);
+      });
+    });
+
+    it('Can equip an item', () => {
+      expect(e.slots.get(mainSlot)).to.be.undefined;
+      expect(e._equip(item, mainSlot)).to.be.true;
+      expect(e.slots.get(mainSlot)).to.be.equal(item);
+    });
+
+    it('Cannot equip an item into an occupied slot', () => {
+      e._equip(item, mainSlot);
+      expect(e._equip(item, mainSlot)).to.be.false;
+    });
+  });
 });
