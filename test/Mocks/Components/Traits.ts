@@ -1,11 +1,12 @@
 import Component from '../../../src/EntityComponent/Component';
 import { Listener, Modifier } from '../../../src/Events/Interfaces';
-import Action from '../../../src/Events/Actions/Action';
-import PropertyAdjustment from '../../../src/Events/Actions/PropertyAdjustment';
+import Action from '../../../src/Events/Action';
+import { AttachComponentAction } from '../../../src/Events/Actions/ComponentActions';
 
 export class Humanoid extends Component implements Listener {
   name = "Humanoid";
-  tags=['body'];
+  tags = ['body'];
+  static readonly slots: Array<string> = ['Head', 'Neck', 'Torso', 'Hands', 'R. Hand', 'R. Finger', 'L. Hand', 'L. Finger', 'Legs', 'Feet'];
 
   modify(a: Action) {
 
@@ -13,7 +14,11 @@ export class Humanoid extends Component implements Listener {
 
   react(a: Action) {
     // Add human slots
-    ['Head', 'Neck', 'Torso', 'Hands', 'R. Hand', 'R. Finger', 'L. Hand', 'L. Finger', 'Legs', 'Feet'];    
+    if(a instanceof AttachComponentAction && a.component === this) {
+      Humanoid.slots.map(slot => {
+        a.react(a.target.addSlot({name: slot}));
+      })
+    }
   }
 }
 
@@ -24,11 +29,11 @@ export class Undead extends Component implements Modifier {
   tags = ['trait'];
 
   modify(a: Action) {
-    if (a instanceof PropertyAdjustment && a.effects('HP')) {
-      if ((a.is('heal') && a.amount > 0) || (a.is('poison') && a.amount < 0)) {
-        a.multiply(-1, ['undead'], true);
-      }
-    }
+    // if (a instanceof PropertyAdjustment && a.effects('HP')) {
+    //   if ((a.is('heal') && a.amount > 0) || (a.is('poison') && a.amount < 0)) {
+    //     a.multiply(-1, ['undead'], true);
+    //   }
+    // }
   }
   
 }

@@ -9,8 +9,8 @@ export class GrantAbility extends Action {
   grantedBy?: Entity | Component;
 
   constructor({caster, target, using, grantedBy, ability, tags = []}: AbilityActionParameters) {
-    super(caster, using, tags);
-    this.target = target ? target : caster;
+    super({caster, using, tags});
+    this.target = target;
     this.ability = ability;
     this.grantedBy = grantedBy;
   }
@@ -26,8 +26,8 @@ export class DenyAbility extends Action {
   grantedBy?: Entity | Component;
 
   constructor({caster, target, using, grantedBy, ability, tags = []}: AbilityActionParameters) {
-    super(caster, using, tags);
-    this.target = target ? target : caster;
+    super({caster, using, tags});
+    this.target = target;
     this.ability = ability;
     this.grantedBy = grantedBy;
   }
@@ -40,6 +40,12 @@ export class DenyAbility extends Action {
 
 
 export interface AbilityActionParameters extends ActionParameters {
+  target: Entity,
+  ability: Ability;
+  grantedBy?: Entity | Component;
+}
+
+export interface AbilityActionEntityParameters extends ActionParameters {
   ability: Ability;
   grantedBy?: Entity | Component;
 }

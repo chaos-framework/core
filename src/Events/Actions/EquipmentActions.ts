@@ -8,8 +8,8 @@ export default class EquipAction extends Action {
   permitted = false; // assume canceled until something allows it
 
   constructor({caster, target, slot, item, tags = []}: EquipActionParameters) {
-    super(caster, undefined, tags);
-    this.target = target ? target : caster;
+    super({caster, tags});
+    this.target = target;
     this.slot = slot;
     this.item = item;
     // Equipping is forbidden by default, until allowed by another component
@@ -22,6 +22,12 @@ export default class EquipAction extends Action {
 }
 
 export interface EquipActionParameters extends ActionParameters {
+  target: Entity;
+  slot: string,
+  item: Entity
+}
+
+export interface EquipActionEntityParameters extends ActionParameters {
   slot: string,
   item: Entity
 }

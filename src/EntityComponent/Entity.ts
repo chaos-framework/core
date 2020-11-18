@@ -6,10 +6,10 @@ import { Listener, Modifier, Reacter, isModifier, isReacter } from '../Events/In
 import Ability, { OptionalCastParameters, Grant } from './Ability';
 
 // Import actions that can be created by the component
-import AttachComponentAction, { AttachComponentActionParameters } from '../Events/Actions/ComponentActions';
-import { GrantAbility, DenyAbility, AbilityActionParameters } from '../Events/Actions/AbilityActions';
-import EquipAction, { EquipActionParameters } from '../Events/Actions/EquipmentActions';
-import { AddSlotAction, RemoveSlotAction, SlotActionParameters } from '../Events/Actions/SlotActions';
+import { AttachComponentAction, AttachComponentActionEntityParameters } from '../Events/Actions/ComponentActions';
+import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
+import EquipAction, { EquipActionEntityParameters } from '../Events/Actions/EquipmentActions';
+import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
 
 export default class Entity implements Listener {
   private static idCounter = 0;
@@ -167,18 +167,14 @@ export default class Entity implements Listener {
   }
 
   /*****************************************
-   * 
    *  ACTION GENERATORS / IMPLEMENTATIONS
-   * 
    *****************************************/
 
   // Attaching components
 
-  attach({component, caster, using, tags}: AttachComponentActionParameters, force = false): AttachComponentAction {
-    let name = "Jenn";
+  attach({component, caster, using, tags}: AttachComponentActionEntityParameters, force = false): AttachComponentAction {
     return new AttachComponentAction({ caster, target: this, component, using, tags});
   };
-
 
   _attach(component: Component): boolean {
     this.components.push(component); // TODO check for unique flag, return false if already attached
@@ -193,14 +189,12 @@ export default class Entity implements Listener {
         }
         break;
     }
-    // Run component's attach method
-    //component.attach(this);
     return true;
   }
 
   // Granting abilities
 
-  grant({caster, using, ability, tags}: AbilityActionParameters, force = false) {
+  grant({caster, using, ability, tags}: AbilityActionEntityParameters, force = false) {
     return new GrantAbility({caster, target: this, using, ability, tags});
   }
 
@@ -223,7 +217,7 @@ export default class Entity implements Listener {
 
   // Denying abilities
 
-  deny({caster, using, ability, tags}: AbilityActionParameters, force = false) {
+  deny({caster, using, ability, tags}: AbilityActionEntityParameters, force = false) {
     return new DenyAbility({caster, target: this, using, ability, tags});
   }
 
@@ -252,7 +246,7 @@ export default class Entity implements Listener {
 
   // Equipping items
 
-  equip({caster, slot, item, tags = []}: EquipActionParameters, force = false): EquipAction {
+  equip({caster, slot, item, tags = []}: EquipActionEntityParameters, force = false): EquipAction {
     return new EquipAction({caster, target: this, slot, item, tags});
   }
 
@@ -276,7 +270,7 @@ export default class Entity implements Listener {
 
   // Slot changes
 
-  addSlot({caster, name, tags = []}: SlotActionParameters, force = false): AddSlotAction {
+  addSlot({caster, name, tags = []}: SlotActionEntityParameters, force = false): AddSlotAction {
     return new AddSlotAction({caster, target: this, name, tags});
   }
 
@@ -288,7 +282,7 @@ export default class Entity implements Listener {
     return false;
   }
 
-  removeSlot({caster, name, tags = []}: SlotActionParameters, force = false): RemoveSlotAction {
+  removeSlot({caster, name, tags = []}: SlotActionEntityParameters, force = false): RemoveSlotAction {
     return new RemoveSlotAction({caster, target: this, name, tags});
   }
 

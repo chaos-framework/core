@@ -12,7 +12,7 @@ export default class Heal extends Ability {
     // default to casting on self
     target = target && target instanceof Entity ? target : caster;
     const event = new Event([
-      new PropertyAdjustment({ caster, target, property: "HP", amount, tags: ['heal'] })
+      new PropertyAdjustmentAction({ caster, target, property: "HP", amount, tags: ['heal'] })
     ]);
     return event;
   }

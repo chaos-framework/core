@@ -1,7 +1,7 @@
 import Component, { ComponentContainer } from '../../../src/EntityComponent/Component';
 import Entity from '../../../src/EntityComponent/Entity';
 import Action from '../../../src/Events/Action';
-import AttachComponentAction from '../../../src/Events/Actions/AttachComponentAction';
+import { AttachComponentAction } from '../../../src/Events/Actions/ComponentActions';
 import { Listener } from '../../../src/Events/Interfaces';
 import Heal from '../Abilities/Heal';
 
@@ -22,7 +22,7 @@ export class Paladin extends Component implements Listener {
 
   react(a: Action) {
     if(a instanceof AttachComponentAction && a.component === this) {
-      
+      a.react(a.target.grant({ ability: new Heal() }));
     }
   }
 

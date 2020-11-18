@@ -14,7 +14,7 @@ export class PropertyAdjustmentAction extends Action {
     {caster: Entity, target: Entity, property: string, 
      amount: number, using?: Entity | Component, tags?: string[]}
   ) {
-    super(caster, using, tags);
+    super({caster, using, tags});
     this.target = target;
     this.property = property;
     this.amount = amount;

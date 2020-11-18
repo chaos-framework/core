@@ -4,7 +4,7 @@ import { Listener } from './Interfaces';
 
 export default abstract class Action {
   // TODO implement player: Player;
-  readonly caster: Entity;
+  caster?: Entity;
   target?: Entity;
   using?: Entity | Component;
   tags: Set<string> = new Set<string>();
@@ -14,8 +14,9 @@ export default abstract class Action {
   private permissions: Map<number, Permission> = new Map();
   permitted: boolean = true;
   decidingPermission?: Permission;
+  nested: number = 0;
 
-  constructor(caster: Entity, using?: Entity | Component, tags?: string[]) {
+  constructor({caster, using, tags}: ActionParameters) {
     this.caster = caster;
     this.using = using;
     this.permissions.set(0, new Permission(true));
@@ -65,13 +66,13 @@ export default abstract class Action {
 
     // Apply this action to the target, checking for success
     let applied = this.apply();
+    
+    // TODO broadcast self to system
 
     // Let all listeners react
     for(let listener of listeners) {
       listener.react(this);
     }
-
-    // TODO broadcast self to system
 
     return applied;
   }
@@ -113,12 +114,25 @@ export default abstract class Action {
     return this.tags.has(key);
   }
 
+  counter(a: Action) {
+    a.nested = this.nested + 1;
+    if(a.nested < 5) {
+      a.execute();
+    }
+  };
+
+  react(a: Action) {
+    a.nested = this.nested + 1;
+    if(a.nested < 5) {
+      a.execute();
+    }
+  };
+
   abstract apply(): boolean;
 }
 
 export interface ActionParameters {
-  caster: Entity,
-  target?: Entity,
+  caster?: Entity,
   using?: Entity | Component,
   tags?: string[]
 }

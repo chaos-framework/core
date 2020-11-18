@@ -2,15 +2,15 @@ import Action, { ActionParameters } from '../Action';
 import Entity from "../../EntityComponent/Entity";
 import Component from '../../EntityComponent/Component';
 
-export default class AttachComponentAction extends Action {
+export class AttachComponentAction extends Action {
   target: Entity;
   component: Component;
 
   constructor(
     {caster, target, component, using, tags = []}: AttachComponentActionParameters
   ) {
-    super(caster, using, tags);
-    this.target = target ? target : caster;
+    super({caster, using, tags});
+    this.target = target;
     this.component = component;
   }
 
@@ -21,5 +21,10 @@ export default class AttachComponentAction extends Action {
 }
 
 export interface AttachComponentActionParameters extends ActionParameters {
+  target: Entity;
+  component: Component
+}
+
+export interface AttachComponentActionEntityParameters extends ActionParameters {
   component: Component
 }

@@ -6,8 +6,8 @@ export class AddSlotAction extends Action {
   target: Entity;
 
   constructor({caster, target, using, name, tags = []}: SlotActionParameters) {
-    super(caster, using, tags);
-    this.target = target? target : caster;
+    super({caster, using, tags});
+    this.target = target;
     this.name = name;
   }
 
@@ -21,8 +21,8 @@ export class RemoveSlotAction extends Action {
   target: Entity;
 
   constructor({caster, target, using, name, tags = []}: SlotActionParameters) {
-    super(caster, using, tags);
-    this.target = target? target : caster;
+    super({caster, using, tags});
+    this.target = target;
     this.name = name;
   }
 
@@ -32,5 +32,10 @@ export class RemoveSlotAction extends Action {
 }
 
 export interface SlotActionParameters extends ActionParameters {
+  name: string,
+  target: Entity;
+}
+
+export interface SlotActionEntityParameters extends ActionParameters {
   name: string,
 }
