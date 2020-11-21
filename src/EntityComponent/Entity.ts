@@ -160,7 +160,7 @@ export default class Entity implements Listener {
       if(!grant)
         grant = grants[0];
       const e = grant.ability.cast(this, { using, target, options });
-      e.execute();
+      // e.execute();
       return e;
     }
     return undefined;

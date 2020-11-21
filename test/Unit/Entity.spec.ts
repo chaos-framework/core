@@ -1,16 +1,34 @@
 import { expect } from 'chai';
 import 'mocha';
+import Ability from '../../src/EntityComponent/Ability';
 
 import Entity from '../../src/EntityComponent/Entity';
 
 import EmptyAbility from '../Mocks/Abilities/Empty';
+import Heal from '../Mocks/Abilities/Heal';
 
 describe('Entity', () => {
-  
+
 });
 
-describe('Entity action generators', () => {
+describe('Entity action/event generators', () => {
+  let e: Entity;
+  let heal: Ability;
+  beforeEach(() => { 
+    e = new Entity();
+    heal = new Heal();
+    e._grant(heal, e, e);
+  });
 
+  describe('Casting', () => {
+    it('Generates an event for an ability it does have', () => {
+      expect(e.cast(heal.name, { using: e })).to.exist;
+    });
+    
+    it('Does not generate and event for an ability it does not have', () => {
+      expect(e.cast("blah")).to.be.undefined;
+    });
+  });
 });
 
 describe('Entity action direct methods', () => {

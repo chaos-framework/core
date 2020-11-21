@@ -1,4 +1,4 @@
-import { Modification, ModificationType } from './Modification'
+import Modification, { ModificationType } from './Modification'
 
 export default class Value {
     base: number;
@@ -11,8 +11,8 @@ export default class Value {
         this.modifiers = [];
     }
 
-    // Calculate new value, dispatching event for optional modifier
-    public calculate(event?: null): void {
+    // Calculate new value
+    public calculate(): void {
         let newValue: number = this.base;
         // Iterate over all modifiers
         this.modifiers.map(m => {

@@ -4,7 +4,7 @@ export enum ModificationType {
     Absolute // sets and halts all future modifications when calculating
 }
 
-export class Modification {
+export default class Modification {
     _type: ModificationType = ModificationType.Adjust;
     _value: number;
     

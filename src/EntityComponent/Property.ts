@@ -7,7 +7,7 @@ export default class Property implements Property {
     min: Value;
     max: Value;
 
-    constructor(name: string, current: number, min?: number, max?: number) {
+    constructor(current: number, min?: number, max?: number) {
         this.current = new Value(current);
         this.min = new Value(min || -Infinity);
         this.max = new Value(max || Infinity);
