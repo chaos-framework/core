@@ -7,19 +7,22 @@ import Ability, { OptionalCastParameters, Grant } from './Ability';
 
 // Import actions that can be created by the component
 import { AttachComponentAction, AttachComponentActionEntityParameters } from '../Events/Actions/ComponentActions';
+import {  PropertyAdditionAction, PropertyAdditionActionEntityParameters,
+          PropertyRemovalAction, PropertyRemovalActionEntityParameters } from '../Events/Actions/PropertyActions';
 import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
 import EquipAction, { EquipActionEntityParameters } from '../Events/Actions/EquipmentActions';
 import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
+import Value from './Properties/Value';
 
-export default class Entity implements Listener {
+export default class Entity implements Listener, ComponentContainer {
   private static idCounter = 0;
   id?: number;
-  tags: Set<string>; // TODO make set
+  tags = new Set<string>();
   published = false;
   active = false;
   omnipotent = false; // listens to every action in the game
 
-  properties: { [name: string]: Property };
+  properties: Map<string, Property> = new Map<string, Property>();
 
   components: Component[] = [];
 
@@ -42,9 +45,6 @@ export default class Entity implements Listener {
 
   constructor(serialized?: object) {
     // TODO create from serialized to load from disk/db, and don't increment entity count
-    this.properties = {};
-    this.components = [];
-    this.tags = new Set<string>();
   }
 
   publish() {
@@ -104,8 +104,8 @@ export default class Entity implements Listener {
     }
   }
 
-  getProperty(k: string): Property {
-    return this.properties[k];
+  getProperty(k: string): Property | undefined {
+    return this.properties.get(k);
   }
 
   tag(tag: string) {
@@ -189,7 +189,41 @@ export default class Entity implements Listener {
         }
         break;
     }
+    component.attach(this);
     return true;
+  }
+
+  // Adding properties
+
+  addProperty({caster, using, name, current, min, max, tags}: PropertyAdditionActionEntityParameters, force = false) {
+    return new PropertyAdditionAction({ caster, target: this, using, name, current, min, max, tags});
+  }
+
+  _addProperty(name: string, p?: Property): boolean {
+    // Check that we don't already have this property
+    if(this.properties.has(name)) {
+      return false;
+    }
+    else {
+      this.properties.set(name, p ? p : new Property());
+      return true;
+    }
+  }
+
+  removeProperty({caster, using, name, tags}: PropertyRemovalActionEntityParameters, force = false) {
+    return new PropertyRemovalAction({ caster, target: this, using, name, tags});
+  }
+
+  _removeProperty(name: string, p?: Property): boolean {
+    // Check that we have this property
+    if(!this.properties.has(name)) {
+      return false;
+    }
+    else {
+      this.properties.delete(name);
+      // TODO unhook modifications on property values
+      return true;
+    }
   }
 
   // Granting abilities

@@ -40,17 +40,11 @@ export default abstract class Component {
   }
 
   destroy(): boolean {
-    // Detach from parent
-    if(this.parent && this.parent.detach(this)) {
-      // TODO delete from DB?
-      return true;
-    }
-    return false;
+    this.propertyModifications.map(mod => { mod.detach(); } );
+    return true;
   }
 }
 
 export interface ComponentContainer {
   components: Component[];
-  attach(component: Component): boolean;
-  detach(component: Component): boolean;
 }

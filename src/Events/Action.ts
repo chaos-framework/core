@@ -123,8 +123,10 @@ export default abstract class Action {
 
   react(a: Action) {
     a.nested = this.nested + 1;
-    if(a.nested < 5) {
+    if(a.nested < 10) {
       a.execute();
+    } else {
+      // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle
     }
   };
 
