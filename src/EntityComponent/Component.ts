@@ -1,3 +1,5 @@
+import Modification from "./Properties/Modification";
+
 export default abstract class Component {
   private static idCounter = 0;
 
@@ -6,13 +8,11 @@ export default abstract class Component {
   parent?: ComponentContainer;
   name?: string;
   tags: string[] = []; // usually frontend stuff, like filtering for traits vs statuses, etc
-
   scope: string = "Entity";
   public: boolean = false;    // can other entities see this component? TODO: needed?
   broadcast: boolean = false; // do we tell client about this component at all?
   unique: boolean = true;     // whether or not more of one of this type of class can be attached to an entity
-
-  // TODO listens to, reacts to
+  propertyModifications: Modification[] = [];
 
   constructor() {
     this.id = ++Component.idCounter;
@@ -33,6 +33,10 @@ export default abstract class Component {
 
   attach(parent: ComponentContainer) {
     this.parent = parent;
+  }
+
+  detach() {
+
   }
 
   destroy(): boolean {

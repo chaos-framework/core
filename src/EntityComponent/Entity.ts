@@ -1,4 +1,4 @@
-import Property from './Property';
+import Property from './Properties/Property';
 import Component, { ComponentContainer } from './Component';
 import Event from '../Events/Event';
 import Action from '../Events/Action';
