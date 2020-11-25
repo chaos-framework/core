@@ -3,8 +3,21 @@ import { Listener, Modifier } from '../../../src/Events/Interfaces';
 import Action from '../../../src/Events/Action';
 import { AttachComponentAction } from '../../../src/Events/Actions/ComponentActions';
 
+export class Physical extends Component implements Listener {
+
+  constructor(public weight: number) {
+    super();
+  }
+
+  modify(a: Action) {
+  }
+
+  react(a: Action) {
+  }
+}
+
 export class Humanoid extends Component implements Listener {
-  name = "Humanoid";
+  name = 'Humanoid';
   tags = ['body'];
   static readonly slots: Array<string> = ['Head', 'Neck', 'Torso', 'Hands', 'R. Hand', 'R. Finger', 'L. Hand', 'L. Finger', 'Legs', 'Feet'];
 

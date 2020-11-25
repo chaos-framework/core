@@ -4,7 +4,7 @@ export default abstract class Component {
   private static idCounter = 0;
 
   id: number;
-  data: { [key: string]: any };;
+  data: { [key: string]: any };
   parent?: ComponentContainer;
   name?: string;
   tags: string[] = []; // usually frontend stuff, like filtering for traits vs statuses, etc

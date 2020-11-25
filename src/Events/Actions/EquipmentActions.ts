@@ -1,7 +1,7 @@
 import Action, { ActionParameters } from '../Action';
 import Entity from "../../EntityComponent/Entity";
 
-export default class EquipAction extends Action {
+export class EquipAction extends Action {
   slot: string;
   target: Entity;
   item: Entity;

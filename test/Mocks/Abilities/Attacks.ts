@@ -6,7 +6,10 @@ import { PropertyAdjustmentAction } from '../../../src/Events/Actions/PropertyAc
 export class Slash extends Ability {
   name = "Slash"
 
-  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event {
+  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
+    if(!target) {
+      return undefined;
+    }
     const amount = -3; // TODO roll based on INT or something
     const event = new Event([
       new PropertyAdjustmentAction({ caster, target, using, property: "HP", amount, tags: ['attack', 'slash'] })
@@ -18,7 +21,10 @@ export class Slash extends Ability {
 export class Stab extends Ability {
   name = "Stab"
 
-  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event {
+  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
+    if(!target) {
+      return undefined;
+    }
     const amount = -5; // TODO roll based on INT or something
     const event = new Event([
       new PropertyAdjustmentAction({ caster, target, using, property: "HP", amount, tags: ['attack', 'pierce'] })

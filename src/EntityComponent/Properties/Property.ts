@@ -1,7 +1,7 @@
 import Entity from '../Entity';
 import Value from './Value';
 
-export enum PropertyType { Current, Min, Max }
+export enum ValueType { Current, Min, Max }
 
 export default class Property implements Property {
     current: Value;

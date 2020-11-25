@@ -34,13 +34,13 @@ export default class Value {
   }
 
   // Set the base value from a direct action
-  public set(value: number) {
+  public _set(value: number) {
     this.base = value;
     this.calculate();
   }
 
   // Adjust the base value from a direct action
-  public adjust(amount: number) {
+  public _adjust(amount: number) {
     this.base += amount;
     this.calculate();
   }
@@ -61,4 +61,5 @@ export default class Value {
     if(modification instanceof AbsoluteModification) { this.absolutes.splice(this.absolutes.indexOf(modification), 1); }
     this.calculate();
   }
+
 }

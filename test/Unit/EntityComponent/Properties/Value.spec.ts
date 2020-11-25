@@ -15,13 +15,13 @@ describe('Entity Property Values', () => {
   });
 
   it('Can set the base value directly and calculates immediately', () => {
-    v.set(1000);
+    v._set(1000);
     expect(v.base).to.equal(1000);
     expect(v.calculated).to.equal(1000);
   });
 
   it('Can adjust the base value directly and calculates immediately', () => {
-    v.adjust(100);
+    v._adjust(100);
     expect(v.base).to.equal(200);
     expect(v.calculated).to.equal(200);
   });

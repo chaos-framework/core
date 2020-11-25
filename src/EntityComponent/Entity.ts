@@ -10,9 +10,8 @@ import { AttachComponentAction, AttachComponentActionEntityParameters } from '..
 import {  PropertyAdditionAction, PropertyAdditionActionEntityParameters,
           PropertyRemovalAction, PropertyRemovalActionEntityParameters } from '../Events/Actions/PropertyActions';
 import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
-import EquipAction, { EquipActionEntityParameters } from '../Events/Actions/EquipmentActions';
+import { EquipAction, EquipActionEntityParameters } from '../Events/Actions/EquipmentActions';
 import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
-import Value from './Properties/Value';
 
 export default class Entity implements Listener, ComponentContainer {
   private static idCounter = 0;

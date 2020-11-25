@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { PropertyAdjustmentAction } from '../../../src/Events/Actions/PropertyActions';
 import Entity from '../../../src/EntityComponent/Entity';
+import { PropertyAdjustmentAction } from '../../../src/Events/Actions/PropertyActions';
 
 // describe('PropertyAddition Action', () => {
 //   let e: Entity;
