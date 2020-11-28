@@ -2,7 +2,8 @@ import Action, { ActionParameters } from '../Action';
 import Entity from "../../EntityComponent/Entity";
 import Component from '../../EntityComponent/Component';
 import { ValueType } from '../../EntityComponent/Properties/Property';
-import Value from '../../EntityComponent/Properties/Value';
+import Value, { ModificationMethod } from '../../EntityComponent/Properties/Value';
+import Modification, { AbsoluteModification, AdjustmentModification, MultiplierModification } from '../../EntityComponent/Properties/Modification';
 
 export class PropertyAdditionAction extends Action {
   target: Entity;
@@ -149,4 +150,73 @@ export interface PropertyChangeActionParameters extends PropertyChangeActionValu
   property: string,
   value?: ValueType,
   type?: PropertyChangeType
+}
+
+export class PropertyModificationAction extends Action {
+  property: string;             // What property to modify
+  value: ValueType;             // Current / Min / Max value
+  method: ModificationMethod;   // Absolute, Set, or Adjustment
+  amount: number;               // The value to modify by
+
+  constructor({ caster, target, property, value = ValueType.Current, method = ModificationMethod.Adjustment, amount, using, tags }: PropertyModificationActionParameters) {
+    super({caster, using, tags});
+    this.target = target;
+    this.property = property;
+    this.value = value;
+    this.method = method;
+    this.amount = amount;
+  }
+
+  apply(): boolean {
+    const { target, value, property, method, amount } = this;
+    const p = target?.properties.get(property);
+    // See if we have this property
+    if(p) {
+      // Figure out which value we're adjusting (current, min, or max)
+      let v: Value;
+      switch(value) {
+        case ValueType.Min:
+          v = p.min;
+          break;
+        case ValueType.Max:
+          v = p.max;
+          break;
+        default:
+          v = p.current;
+          break;
+      }
+      let m: Modification;
+      switch(method) {
+        case ModificationMethod.Absolute:
+          m = new AbsoluteModification(amount);
+          break;
+        case ModificationMethod.Multiplier:
+          m = new MultiplierModification(amount);
+          break;
+        default:
+          m = new AdjustmentModification(amount);
+          break;
+      }
+      v._apply(m);
+      return true;
+    }
+    return false;
+  }
+
+
+  effects(key: string): boolean {
+    return key === this.property;
+  }
+
+}
+
+export interface PropertyModificationActionValueParameters extends ActionParameters {
+  amount: number,
+}
+
+export interface PropertyModificationActionParameters extends PropertyModificationActionValueParameters {
+  target: Entity,
+  property: string,
+  value?: ValueType,
+  method?: ModificationMethod
 }

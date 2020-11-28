@@ -5,12 +5,11 @@ import Entity from '../../../src/EntityComponent/Entity';
 import Property from '../../../src/EntityComponent/Properties/Property';
 import { PropertyChangeAction } from '../../../src/Events/Actions/PropertyActions';
 
-describe('PropertyAdjustment Action', () => {
+describe('PropertyChange Action', () => {
   let e: Entity;
-  let p: Property;
   beforeEach(() => {
     e = new Entity();
-  })
+  });
 
   it('Calculates adjustments (add/subtract) correctly.', () => {
     const a = new PropertyChangeAction({caster: e, target: e, property: 'HP', amount: 100});
@@ -23,7 +22,7 @@ describe('PropertyAdjustment Action', () => {
   it('Calculates multipliers (multiply/divide) correctly.', () => {
     const a = new PropertyChangeAction({caster: e, target: e, property: 'HP', amount: 100});
     a.multiply(10);   // 100 * 10
-    a.multiply(0.5);   // 100 * 10 / 2
+    a.multiply(0.5);  // 100 * 10 / 2
     expect(a.calculate()).to.equal(500);
   });
 
@@ -31,7 +30,7 @@ describe('PropertyAdjustment Action', () => {
     const a = new PropertyChangeAction({caster: e, target: e, property: 'HP', amount: 100});
     a.multiply(10);   // 100 * 10
     a.adjust(100);    // (100 + 100) * 10
-    a.multiply(2);   // (100 + 100) * 10 * 2 = 4000
+    a.multiply(2);    // (100 + 100) * 10 * 2 = 4000
     expect(a.calculate()).to.equal(4000);
   });
 

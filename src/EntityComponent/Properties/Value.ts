@@ -1,6 +1,8 @@
-import { PropertyChangeAction, PropertyChangeActionValueParameters, PropertyChangeType } from '../../Events/Actions/PropertyActions';
+import { PropertyChangeAction, PropertyChangeActionValueParameters, PropertyChangeType, PropertyModificationAction, PropertyModificationValueParameters } from '../../Events/Actions/PropertyActions';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './Modification'
 import Property, { ValueType } from './Property';
+
+export enum ModificationMethod { Absolute, Adjustment, Multiplier }
 
 export default class Value {
   property: Property;  // parent property
@@ -75,6 +77,13 @@ export default class Value {
   public _adjust(amount: number) {
     this.base += amount;
     this.calculate();
+  }
+
+  // Create a modifier application action
+  public modify({ caster, method, amount, using, tags }: PropertyModificationValueParameters): PropertyModificationAction {
+    return new PropertyModificationAction({
+      property: this.property.name, target: this.property.entity, caster, method, amount, using, tags
+    });
   }
 
   // Apply a Modifier from an Effect and recalculate values
