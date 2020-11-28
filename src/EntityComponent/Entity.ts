@@ -7,8 +7,7 @@ import Ability, { OptionalCastParameters, Grant } from './Ability';
 
 // Import actions that can be created by the component
 import { AttachComponentAction, AttachComponentActionEntityParameters } from '../Events/Actions/ComponentActions';
-import {  PropertyAdditionAction, PropertyAdditionActionEntityParameters,
-          PropertyRemovalAction, PropertyRemovalActionEntityParameters } from '../Events/Actions/PropertyActions';
+import {  PropertyAdditionAction, PropertyRemovalAction } from '../Events/Actions/PropertyActions';
 import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
 import { EquipAction, EquipActionEntityParameters } from '../Events/Actions/EquipmentActions';
 import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
@@ -194,7 +193,7 @@ export default class Entity implements Listener, ComponentContainer {
 
   // Adding properties
 
-  addProperty({caster, using, name, current, min, max, tags}: PropertyAdditionActionEntityParameters, force = false) {
+  addProperty({caster, using, name, current, min, max, tags}: PropertyAdditionAction.EntityParams, force = false) {
     return new PropertyAdditionAction({ caster, target: this, using, name, current, min, max, tags});
   }
 
@@ -209,7 +208,7 @@ export default class Entity implements Listener, ComponentContainer {
     }
   }
 
-  removeProperty({caster, using, name, tags}: PropertyRemovalActionEntityParameters, force = false) {
+  removeProperty({caster, using, name, tags}: PropertyRemovalAction.EntityParams, force = false) {
     return new PropertyRemovalAction({ caster, target: this, using, name, tags});
   }
 

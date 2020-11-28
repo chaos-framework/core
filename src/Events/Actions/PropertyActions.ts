@@ -5,6 +5,7 @@ import { ValueType } from '../../EntityComponent/Properties/Property';
 import Value, { ModificationMethod } from '../../EntityComponent/Properties/Value';
 import Modification, { AbsoluteModification, AdjustmentModification, MultiplierModification } from '../../EntityComponent/Properties/Modification';
 
+// ADD
 export class PropertyAdditionAction extends Action {
   target: Entity;
   name: string;
@@ -12,7 +13,7 @@ export class PropertyAdditionAction extends Action {
   min?: number;
   max?: number;
 
-  constructor({ caster, target, name, current, min, max, using, tags }: PropertyAdditionActionParameters) {
+  constructor({ caster, target, name, current, min, max, using, tags }: PropertyAdditionAction.Params) {
     super({caster, using, tags});
     this.target = target;
     this.name = name;
@@ -26,22 +27,26 @@ export class PropertyAdditionAction extends Action {
   }
 }
 
-export interface PropertyAdditionActionEntityParameters extends ActionParameters {
-  name: string, 
-  current: number;
-  min?: number;
-  max?: number;
+export namespace PropertyAdditionAction {
+  export interface EntityParams extends ActionParameters {
+    name: string, 
+    current: number;
+    min?: number;
+    max?: number;
+  }
+  
+  export interface Params extends EntityParams {
+    target: Entity
+  }
 }
 
-export interface PropertyAdditionActionParameters extends PropertyAdditionActionEntityParameters {
-  target: Entity
-}
 
+// REMOVE
 export class PropertyRemovalAction extends Action {
   target: Entity;
   name: string;
 
-  constructor({ caster, target, name, using, tags }: PropertyRemovalActionParameters) {
+  constructor({ caster, target, name, using, tags }: PropertyRemovalAction.Params) {
     super({caster, using, tags});
     this.target = target;
     this.name = name;
@@ -52,25 +57,26 @@ export class PropertyRemovalAction extends Action {
   }
 }
 
-export interface PropertyRemovalActionEntityParameters extends ActionParameters {
-  name: string, 
-}
-export interface PropertyRemovalActionParameters extends PropertyRemovalActionEntityParameters {
-  target: Entity
+export namespace PropertyRemovalAction { 
+  export interface EntityParams extends ActionParameters {
+    name: string, 
+  }
+  export interface Params extends EntityParams {
+    target: Entity
+  }
 }
 
-export enum PropertyChangeType { Adjust, Set }
-
+// CHANGE (adjust/set)
 export class PropertyChangeAction extends Action {
   property: string;
-  type: PropertyChangeType;
-  value: ValueType;
+  type: 'adjust' | 'set';
+  value: 'current' | 'min' | 'max';
   amount: number;
   finalAmount: number;
   adjustments: { amount: number, by?: Entity | Component }[] = [];
   multipliers: { amount: number, by?: Entity | Component }[] = [];
 
-  constructor({ caster, target, property, type = PropertyChangeType.Adjust, value = ValueType.Current, amount, using, tags }: PropertyChangeActionParameters) {
+  constructor({ caster, target, property, type = 'adjust', value = 'current', amount, using, tags }: PropertyChangeAction.Params) {
     super({caster, using, tags});
     this.target = target;
     this.property = property;
@@ -89,10 +95,10 @@ export class PropertyChangeAction extends Action {
       // Figure out which value we're adjusting (current, min, or max)
       let v: Value;
       switch(this.value) {
-        case ValueType.Min:
+        case 'min':
           v = p.min;
           break;
-        case ValueType.Max:
+        case 'max':
           v = p.max;
           break;
         default:
@@ -100,7 +106,7 @@ export class PropertyChangeAction extends Action {
           break;
       }
       // Either adjust or set this number
-      type === PropertyChangeType.Adjust ? v._adjust(finalAmount) : v._set(finalAmount);
+      type === 'adjust' ? v._adjust(finalAmount) : v._set(finalAmount);
       return true;
     }
     return false;
@@ -141,24 +147,27 @@ export class PropertyChangeAction extends Action {
 
 }
 
-export interface PropertyChangeActionValueParameters extends ActionParameters {
-  amount: number,
+export namespace PropertyChangeAction {
+  export interface ValueParams extends ActionParameters {
+    amount: number,
+  }
+  
+  export interface Params extends ValueParams {
+    target: Entity,
+    property: string,
+    value?: 'current' | 'min' | 'max',
+    type?: 'adjust' | 'set'
+  }
 }
 
-export interface PropertyChangeActionParameters extends PropertyChangeActionValueParameters {
-  target: Entity,
-  property: string,
-  value?: ValueType,
-  type?: PropertyChangeType
-}
-
+// MODIFICATION
 export class PropertyModificationAction extends Action {
   property: string;             // What property to modify
   value: ValueType;             // Current / Min / Max value
   method: ModificationMethod;   // Absolute, Set, or Adjustment
   amount: number;               // The value to modify by
 
-  constructor({ caster, target, property, value = ValueType.Current, method = ModificationMethod.Adjustment, amount, using, tags }: PropertyModificationActionParameters) {
+  constructor({ caster, target, property, value = ValueType.Current, method = ModificationMethod.Adjustment, amount, using, tags }: PropertyModificationAction.Params) {
     super({caster, using, tags});
     this.target = target;
     this.property = property;
@@ -203,20 +212,21 @@ export class PropertyModificationAction extends Action {
     return false;
   }
 
-
   effects(key: string): boolean {
     return key === this.property;
   }
 
 }
 
-export interface PropertyModificationActionValueParameters extends ActionParameters {
-  amount: number,
-}
-
-export interface PropertyModificationActionParameters extends PropertyModificationActionValueParameters {
-  target: Entity,
-  property: string,
-  value?: ValueType,
-  method?: ModificationMethod
+export namespace PropertyModificationAction {
+  export interface ValueParams extends ActionParameters {
+    amount: number,
+    method?: ModificationMethod
+  }
+  
+  export interface Params extends ValueParams {
+    target: Entity,
+    property: string,
+    value?: ValueType,
+  }
 }

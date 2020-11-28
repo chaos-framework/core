@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import Entity from '../../../../src/EntityComponent/Entity';
 import { AbsoluteModification, AdjustmentModification, MultiplierModification } from '../../../../src/EntityComponent/Properties/Modification';
-import Property, { ValueType } from '../../../../src/EntityComponent/Properties/Property';
+import Property from '../../../../src/EntityComponent/Properties/Property';
 
 import Value from '../../../../src/EntityComponent/Properties/Value';
 import { PropertyChangeAction } from '../../../../src/Events/Actions/PropertyActions';
@@ -16,7 +16,7 @@ describe('Entity Property Values', () => {
     e = new Entity();
     p = new Property(e, "HP");
     // ValueType is irrelevant
-    v = new Value(p, ValueType.Current, 100);
+    v = new Value(p, 'current', 100);
   });
 
   it('Calculates the base value on initialization', () => {
@@ -78,7 +78,11 @@ describe('Entity Property Values', () => {
     // Target should be parent/property entity
     expect(a.target).to.equal(e);
     // Property should be parent property
-    expect(a.property).to.equal("HP");
+    expect(a.property).to.equal('HP');
+    // Should be "Current" value by default
+    expect(a.value).to.equal('current')
+    // Should be "Set" method by default
+    expect(a.type).to.equal('set');
     // Other values
     expect(a.amount).to.equal(12345);
   });

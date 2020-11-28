@@ -1,4 +1,4 @@
-import { PropertyChangeAction, PropertyChangeActionValueParameters, PropertyChangeType, PropertyModificationAction, PropertyModificationValueParameters } from '../../Events/Actions/PropertyActions';
+import { PropertyChangeAction, PropertyModificationAction } from '../../Events/Actions/PropertyActions';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './Modification'
 import Property, { ValueType } from './Property';
 
@@ -8,12 +8,12 @@ export default class Value {
   property: Property;  // parent property
   base: number;
   calculated: number;
-  type: ValueType;
+  type: 'current' | 'min' | 'max';
   absolutes: AbsoluteModification[] = [];
   adjustments: AdjustmentModification[] = [];
   multipliers: MultiplierModification[] = [];
 
-  constructor(property: Property, type: ValueType, base: number) {
+  constructor(property: Property, type: 'current' | 'min' | 'max', base: number) {
     this.property = property;
     this.type = type;
     this.base = base;
@@ -40,12 +40,12 @@ export default class Value {
   }
 
   // Create an adjust action
-  public set({ amount, caster, using, tags }: PropertyChangeActionValueParameters): PropertyChangeAction {
+  public set({ amount, caster, using, tags }: PropertyChangeAction.ValueParams): PropertyChangeAction {
     return new PropertyChangeAction({
       caster,
       target: this.property.entity,
       property: this.property.name,
-      type: PropertyChangeType.Set,
+      type: 'set',
       value: this.type,
       amount,
       using,
@@ -60,12 +60,12 @@ export default class Value {
   }
 
   // Create an adjust action
-  public adjust({amount, caster, using, tags}: PropertyChangeActionValueParameters): PropertyChangeAction {
+  public adjust({amount, caster, using, tags}: PropertyChangeAction.ValueParams): PropertyChangeAction {
     return new PropertyChangeAction({
       caster,
       target: this.property.entity,
       property: this.property.name,
-      type: PropertyChangeType.Adjust,
+      type: 'adjust',
       value: this.type,
       amount,
       using,
@@ -80,9 +80,9 @@ export default class Value {
   }
 
   // Create a modifier application action
-  public modify({ caster, method, amount, using, tags }: PropertyModificationValueParameters): PropertyModificationAction {
+  public modify({ caster, method, amount, using, tags }: PropertyModificationAction.ValueParams): PropertyModificationAction {
     return new PropertyModificationAction({
-      property: this.property.name, target: this.property.entity, caster, method, amount, using, tags
+      property: this.property.name, target: this.property.entity,caster, method, amount, using, tags
     });
   }
 
