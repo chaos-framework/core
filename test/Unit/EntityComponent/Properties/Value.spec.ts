@@ -1,13 +1,22 @@
 import { expect } from 'chai';
 import 'mocha';
+import Entity from '../../../../src/EntityComponent/Entity';
 import { AbsoluteModification, AdjustmentModification, MultiplierModification } from '../../../../src/EntityComponent/Properties/Modification';
+import Property, { ValueType } from '../../../../src/EntityComponent/Properties/Property';
 
 import Value from '../../../../src/EntityComponent/Properties/Value';
+import { PropertySetAction } from '../../../../src/Events/Actions/PropertyActions';
 
 describe('Entity Property Values', () => {
+  let e: Entity;
+  let p: Property;
   let v: Value;
   beforeEach(() => {
-    v = new Value(100);
+    // Create entity and property just to give the value a parent -- does not affect value logic
+    e = new Entity();
+    p = new Property(e, "test");
+    // ValueType is irrelevant
+    v = new Value(p, ValueType.Current, 100);
   });
 
   it('Calculates the base value on initialization', () => {
@@ -27,19 +36,19 @@ describe('Entity Property Values', () => {
   });
 
   it('Properly calculates values with adjustments and multiplication modifications.', () => {
-    v.apply(new AdjustmentModification(25));
+    v._apply(new AdjustmentModification(25));
     expect(v.base).to.equal(100);
     expect(v.calculated).to.equal(125);
-    v.apply(new MultiplierModification(2));
+    v._apply(new MultiplierModification(2));
     expect(v.base).to.equal(100);
     expect(v.calculated).to.equal(250);
   });
 
   it('Lets the first absolute value override any others.', () => {
-    v.apply(new AdjustmentModification(25));
-    v.apply(new MultiplierModification(2));
-    v.apply(new AbsoluteModification(0)); // the one we expect to use
-    v.apply(new AbsoluteModification(123)); // ignored, for now
+    v._apply(new AdjustmentModification(25));
+    v._apply(new MultiplierModification(2));
+    v._apply(new AbsoluteModification(0)); // the one we expect to use
+    v._apply(new AbsoluteModification(123)); // ignored, for now
     expect(v.base).to.equal(100);
     expect(v.calculated).to.equal(0);
   });
@@ -49,19 +58,33 @@ describe('Entity Property Values', () => {
     const multiplier = new MultiplierModification(2);
     const firstAbsolute = new AbsoluteModification(0);
     const secondAbsolute = new AbsoluteModification(123);
-    v.apply(adjustment);
-    v.apply(multiplier);
-    v.apply(firstAbsolute);
-    v.apply(secondAbsolute);
-    v.remove(firstAbsolute);
+    v._apply(adjustment);
+    v._apply(multiplier);
+    v._apply(firstAbsolute);
+    v._apply(secondAbsolute);
+    v._remove(firstAbsolute);
     expect(v.base).to.equal(100);
     expect(v.calculated).to.equal(123);
-    v.remove(secondAbsolute);
+    v._remove(secondAbsolute);
     expect(v.calculated).to.equal(250); // (100 base + 25 adjustment ) * 2 multiplier
-    v.remove(adjustment);
+    v._remove(adjustment);
     expect(v.calculated).to.equal(200); // 100 base * 2 multiplier
-    v.remove(multiplier);
+    v._remove(multiplier);
     expect(v.calculated).to.equal(100); // 100 base
+  });
+
+  it('Can generate set actions', () => {
+    const a: PropertySetAction = v.set(12345);
+    // Target should be parent/property entity
+    expect(a.target).to.equal(e);
+    // Property should be parent property
+    expect(a.property).to.equal(p);
+    // Other values
+    expect(a.value).to.equal(12345);
+  });
+
+  it('Can generate adjustment actions', () => {
+
   });
 
 });

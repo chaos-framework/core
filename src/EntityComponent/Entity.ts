@@ -198,13 +198,13 @@ export default class Entity implements Listener, ComponentContainer {
     return new PropertyAdditionAction({ caster, target: this, using, name, current, min, max, tags});
   }
 
-  _addProperty(name: string, p?: Property): boolean {
+  _addProperty(name: string, current?: number, min?: number, max?: number): boolean {
     // Check that we don't already have this property
     if(this.properties.has(name)) {
       return false;
     }
     else {
-      this.properties.set(name, p ? p : new Property());
+      this.properties.set(name, new Property(this, name, current, min, max));
       return true;
     }
   }

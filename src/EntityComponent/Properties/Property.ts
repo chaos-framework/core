@@ -4,14 +4,17 @@ import Value from './Value';
 export enum ValueType { Current, Min, Max }
 
 export default class Property implements Property {
+    entity: Entity;
+    name: string;
     current: Value;
     min: Value;
     max: Value;
-    entity?: Entity;
 
-    constructor(current?: Value, min?: Value, max?: Value) {
-        this.current = current ? current: new Value(0);
-        this.min = min ? min : new Value(-Infinity);
-        this.max = max ? max : new Value(Infinity);
+    constructor(entity: Entity, name: string, current: number = 0, min: number = -Infinity, max: number = Infinity) {
+        this.entity = entity;
+        this.name = name;
+        this.current = new Value(this, ValueType.Current, current);
+        this.min = new Value(this, ValueType.Min, min);
+        this.max = new Value(this, ValueType.Max, max);
     }
 }

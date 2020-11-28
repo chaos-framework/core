@@ -1,15 +1,20 @@
+import { PropertyAdjustmentAction, PropertySetAction } from '../../Events/Actions/PropertyActions';
+import Entity from '../Entity';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './Modification'
-import Property from './Property';
+import Property, { ValueType } from './Property';
 
 export default class Value {
+  property: Property;  // parent property
   base: number;
   calculated: number;
+  type: ValueType;
   absolutes: AbsoluteModification[] = [];
   adjustments: AdjustmentModification[] = [];
   multipliers: MultiplierModification[] = [];
-  property?: Property;
 
-  constructor(base: number) {
+  constructor(property: Property, type: ValueType, base: number) {
+    this.property = property;
+    this.type = type;
     this.base = base;
     this.calculated = base;
   }
@@ -33,10 +38,30 @@ export default class Value {
     this.calculated = newValue;
   }
 
+  // Create an adjust action
+  public set(value: number, caster?: Entity): PropertySetAction {
+    return new PropertySetAction({
+      caster,
+      target: this.property.entity,
+      property: this.property,
+      value
+    });
+  }
+
   // Set the base value from a direct action
   public _set(value: number) {
     this.base = value;
     this.calculate();
+  }
+
+  // Create an adjust action
+  public adjust(amount: number, caster?: Entity): PropertyAdjustmentAction {
+    return new PropertyAdjustmentAction({
+      caster,
+      target: this.property.entity,
+      property: this.property,
+      amount
+    });
   }
 
   // Adjust the base value from a direct action
@@ -46,7 +71,7 @@ export default class Value {
   }
 
   // Apply a Modifier from an Effect and recalculate values
-  public apply(modification: Modification): void {
+  public _apply(modification: Modification): void {
     if(modification instanceof AdjustmentModification) { this.adjustments.push(modification); }
     if(modification instanceof MultiplierModification) { this.multipliers.push(modification); }
     if(modification instanceof AbsoluteModification) { this.absolutes.push(modification); }
@@ -55,7 +80,7 @@ export default class Value {
   }
 
   // Remove a Modifier from an Effect and recalculate values
-  public remove(modification: Modification) {
+  public _remove(modification: Modification) {
     if(modification instanceof AdjustmentModification) { this.adjustments.splice(this.adjustments.indexOf(modification), 1); }
     if(modification instanceof MultiplierModification) { this.multipliers.splice(this.multipliers.indexOf(modification), 1); }
     if(modification instanceof AbsoluteModification) { this.absolutes.splice(this.absolutes.indexOf(modification), 1); }

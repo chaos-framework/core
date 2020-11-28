@@ -14,7 +14,7 @@ export default abstract class Modification {
   // Remove this modification from the parent value, which is always added by the value when attached
   detach() {
     if(this.value) {
-      this.value.remove(this);
+      this.value._remove(this);
     }
   }
 

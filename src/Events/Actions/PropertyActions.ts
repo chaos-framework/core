@@ -2,39 +2,36 @@ import Action, { ActionParameters } from '../Action';
 import Entity from "../../EntityComponent/Entity";
 import Component from '../../EntityComponent/Component';
 import Value from '../../EntityComponent/Properties/Value';
-import Property, { ValueType } from '../../EntityComponent/Properties/Property';
+import Property from '../../EntityComponent/Properties/Property';
 
 export class PropertyAdditionAction extends Action {
   target: Entity;
   name: string;
-  current: Value;
-  min?: Value;
-  max?: Value;
+  current: number;
+  min?: number;
+  max?: number;
 
   constructor({ caster, target, name, current, min, max, using, tags }: PropertyAdditionActionParameters) {
     super({caster, using, tags});
     this.target = target;
     this.name = name;
-    this.current = current instanceof Value ? current : new Value(current);
-    if(min) {
-      this.min = min instanceof Value ? min : new Value(min);
-    }
-    if(max) {
-      this.max = max instanceof Value ? max : new Value(max);
-    }
+    this.current = current;
+    this.min = min;
+    this.max = max;
   }
 
   apply(): boolean {
-    return this.target._addProperty(name, new Property(this.current, this.min, this.max));
+    return this.target._addProperty(name, this.current, this.min, this.max);
   }
 }
 
 export interface PropertyAdditionActionEntityParameters extends ActionParameters {
   name: string, 
-  current: Value | number;
-  min?: Value | number;
-  max?: Value | number;
+  current: number;
+  min?: number;
+  max?: number;
 }
+
 export interface PropertyAdditionActionParameters extends PropertyAdditionActionEntityParameters {
   target: Entity
 }
@@ -62,18 +59,16 @@ export interface PropertyRemovalActionParameters extends PropertyRemovalActionEn
 }
 
 export class PropertyAdjustmentAction extends Action {
-  property: string;
-  type: ValueType;
+  property: string | Property;
   amount: number;
   finalAmount: number;
   adjustments: { amount: number, by?: Entity | Component }[] = [];
   multipliers: { amount: number, by?: Entity | Component }[] = [];
 
-  constructor({ caster, target, property, type = ValueType.Current, amount, using, tags }: PropertyAdjustmentActionParameters) {
+  constructor({ caster, target, property, amount, using, tags }: PropertyAdjustmentActionParameters) {
     super({caster, using, tags});
     this.target = target;
     this.property = property;
-    this.type = type;
     this.amount = amount;
     this.finalAmount = amount;
   }
@@ -119,29 +114,26 @@ export class PropertyAdjustmentAction extends Action {
 
 }
 
-export interface PropertyAdjustmentActionEntityParameters extends ActionParameters {
-  property: string,
-  type?: ValueType,
+export interface PropertyAdjustmentActionValueParameters extends ActionParameters {
   amount: number,
 }
 
-export interface PropertyAdjustmentActionParameters extends PropertyAdjustmentActionEntityParameters {
+export interface PropertyAdjustmentActionParameters extends PropertyAdjustmentActionValueParameters {
+  property: string | Property,
   target: Entity,
 }
 
 export class PropertySetAction extends Action {
-  property: string;
-  type: ValueType;
+  property: string | Property;
   value: number;
   finalValue: number;
   adjustments: { amount: number, by?: Entity | Component }[] = [];
   multipliers: { amount: number, by?: Entity | Component }[] = [];
 
-  constructor({ caster, target, property, type = ValueType.Current, value, using, tags }: PropertySetActionParameters) {
+  constructor({ caster, target, property, value, using, tags }: PropertySetActionParameters) {
     super({caster, using, tags});
     this.target = target; 
     this.property = property;
-    this.type = type;
     this.value = value;
     this.finalValue = value;
   }
@@ -187,12 +179,11 @@ export class PropertySetAction extends Action {
 
 }
 
-export interface PropertySetActionEntityParameters extends ActionParameters {
-  property: string, 
-  type?: ValueType,
-  value: number,
+export interface PropertySetActionValueParameters extends ActionParameters {
+  property: Property, 
+  value: number
 }
 
-export interface PropertySetActionParameters extends PropertySetActionEntityParameters {
+export interface PropertySetActionParameters extends PropertySetActionValueParameters {
   target: Entity,
 }

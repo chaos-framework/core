@@ -6,8 +6,8 @@ import Property from '../../../src/EntityComponent/Properties/Property';
 import Value from '../../../src/EntityComponent/Properties/Value';
 
 const addRPGStats = (e: Entity, maxHp: number, maxMa: number): Entity => {
-  e._addProperty('HP', new Property(new Value(maxHp), undefined, new Value(maxHp))); // Hit Points
-  e._addProperty('MA', new Property(new Value(maxMa), undefined, new Value(maxMa))); // Mana or Magic
+  e._addProperty('HP', maxHp, undefined, maxHp); // Hit Points
+  e._addProperty('MA', maxMa, undefined, maxMa); // Mana or Magic
   return e;
 };
 
