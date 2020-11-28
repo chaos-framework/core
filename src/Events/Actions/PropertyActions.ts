@@ -21,7 +21,7 @@ export class PropertyAdditionAction extends Action {
   }
 
   apply(): boolean {
-    return this.target._addProperty(name, this.current, this.min, this.max);
+    return this.target._addProperty(this.name, this.current, this.min, this.max);
   }
 }
 
@@ -47,7 +47,7 @@ export class PropertyRemovalAction extends Action {
   }
 
   apply(): boolean {
-    return this.target._removeProperty(name);
+    return this.target._removeProperty(this.name);
   }
 }
 
