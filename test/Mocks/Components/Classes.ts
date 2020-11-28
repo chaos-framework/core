@@ -3,7 +3,7 @@ import Entity from '../../../src/EntityComponent/Entity';
 import Action from '../../../src/Events/Action';
 import { AttachComponentAction } from '../../../src/Events/Actions/ComponentActions';
 import { Listener, Reacter } from '../../../src/Events/Interfaces';
-import Heal from '../Abilities/Heal';
+import { Heal } from '../Abilities/Spells';
 
 export class Paladin extends Component implements Reacter {
   name = 'Paladin';

@@ -1,5 +1,4 @@
-import { PropertyAdjustmentAction, PropertySetAction } from '../../Events/Actions/PropertyActions';
-import Entity from '../Entity';
+import { PropertyChangeAction, PropertyChangeActionValueParameters, PropertyChangeType } from '../../Events/Actions/PropertyActions';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './Modification'
 import Property, { ValueType } from './Property';
 
@@ -39,12 +38,16 @@ export default class Value {
   }
 
   // Create an adjust action
-  public set(value: number, caster?: Entity): PropertySetAction {
-    return new PropertySetAction({
+  public set({ amount, caster, using, tags }: PropertyChangeActionValueParameters): PropertyChangeAction {
+    return new PropertyChangeAction({
       caster,
       target: this.property.entity,
-      property: this.property,
-      value
+      property: this.property.name,
+      type: PropertyChangeType.Set,
+      value: this.type,
+      amount,
+      using,
+      tags
     });
   }
 
@@ -55,12 +58,16 @@ export default class Value {
   }
 
   // Create an adjust action
-  public adjust(amount: number, caster?: Entity): PropertyAdjustmentAction {
-    return new PropertyAdjustmentAction({
+  public adjust({amount, caster, using, tags}: PropertyChangeActionValueParameters): PropertyChangeAction {
+    return new PropertyChangeAction({
       caster,
       target: this.property.entity,
-      property: this.property,
-      amount
+      property: this.property.name,
+      type: PropertyChangeType.Adjust,
+      value: this.type,
+      amount,
+      using,
+      tags
     });
   }
 

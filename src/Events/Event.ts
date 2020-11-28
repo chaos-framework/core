@@ -2,11 +2,11 @@ import Entity from "../EntityComponent/Entity";
 import Action from "./Action";
 
 export default class Event {
-  actions: Action[] = [];
+  actions: (Action|undefined)[] = [];
   caster?: Entity;
   executed = false; // prevent double executions
 
-  constructor(actions?: Action[]) {
+  constructor(actions?: (Action|undefined)[]) {
     if(actions) {
       this.actions = actions;
     }
@@ -19,7 +19,9 @@ export default class Event {
       return;
     }
     for(let a of this.actions) {
-      a.execute();
+      if(a) {
+        a.execute();
+      }
     }
     this.executed = true;
   }

@@ -5,7 +5,7 @@ import { AbsoluteModification, AdjustmentModification, MultiplierModification } 
 import Property, { ValueType } from '../../../../src/EntityComponent/Properties/Property';
 
 import Value from '../../../../src/EntityComponent/Properties/Value';
-import { PropertySetAction } from '../../../../src/Events/Actions/PropertyActions';
+import { PropertyChangeAction } from '../../../../src/Events/Actions/PropertyActions';
 
 describe('Entity Property Values', () => {
   let e: Entity;
@@ -14,7 +14,7 @@ describe('Entity Property Values', () => {
   beforeEach(() => {
     // Create entity and property just to give the value a parent -- does not affect value logic
     e = new Entity();
-    p = new Property(e, "test");
+    p = new Property(e, "HP");
     // ValueType is irrelevant
     v = new Value(p, ValueType.Current, 100);
   });
@@ -74,13 +74,13 @@ describe('Entity Property Values', () => {
   });
 
   it('Can generate set actions', () => {
-    const a: PropertySetAction = v.set(12345);
+    const a: PropertyChangeAction = v.set({ amount: 12345 });
     // Target should be parent/property entity
     expect(a.target).to.equal(e);
     // Property should be parent property
-    expect(a.property).to.equal(p);
+    expect(a.property).to.equal("HP");
     // Other values
-    expect(a.value).to.equal(12345);
+    expect(a.amount).to.equal(12345);
   });
 
   it('Can generate adjustment actions', () => {

@@ -1,7 +1,7 @@
 import Component from '../../../src/EntityComponent/Component';
 import Action from '../../../src/Events/Action';
 import { Listener, Modifier } from '../../../src/Events/Interfaces';
-import { PropertyAdjustmentAction } from '../../../src/Events/Actions/PropertyActions';
+import { PropertyChangeAction } from '../../../src/Events/Actions/PropertyActions';
 import { EquipAction } from '../../../src/Events/Actions/EquipmentActions';
 import { Slash, Stab } from '../Abilities/Attacks';
 
@@ -36,7 +36,7 @@ export class Iron extends Component implements Modifier {
 
   // Iron does a bit more damage than, say, wood
   modify(a: Action) {
-    if(a.using === this.parent && a instanceof PropertyAdjustmentAction && a.is('Attack') && a.property === 'HP' && a.amount < 0) {
+    if(a.using === this.parent && a instanceof PropertyChangeAction && a.is('Attack') && a.is('HP') && a.amount < 0) {
       a.multiply(1.1);
     }
   }
@@ -50,7 +50,7 @@ export class Silver extends Component implements Modifier {
 
   // Silver does a lot of damage, and even more to beasts
   modify(a: Action) {
-    if(a.using === this.parent && a instanceof PropertyAdjustmentAction && a.is('Attack') && a.property === 'HP' && a.amount < 0) {
+    if(a.using === this.parent && a instanceof PropertyChangeAction && a.is('Attack') && a.is('HP') && a.amount < 0) {
       a.multiply(1.3);
       if(a.target && a.target.is("Beast")) {
         a.multiply(1.1);
