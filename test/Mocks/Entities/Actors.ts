@@ -1,6 +1,6 @@
 import Entity from '../../../src/EntityComponent/Entity';
 import { Paladin } from '../Components/Classes';
-import { Humanoid, Physical } from '../Components/Traits';
+import { Humanoid, Physical, Undead } from '../Components/Traits';
 import { createSilverSword } from '../Entities/Items';
 import Property from '../../../src/EntityComponent/Properties/Property';
 import Value from '../../../src/EntityComponent/Properties/Value';
@@ -41,6 +41,21 @@ export function createPaladin(): Entity {
   });
   e.attach({ component: new Paladin() }, true).execute(); // also grants Heal
   e.equip({ item: createSilverSword(), slot: "R. Hand" }, true).execute(); // also grants Heal
+  return e;
+}
+
+export function createZombie(): Entity {
+  const e = createHuman();
+  addRPGStats(e, 10, 10);
+  addDNDStats(e, {
+    str: 14,
+    dex: 2,
+    cst: 2,
+    int: 1,
+    wis: 0,
+    chr: 0,
+  });
+  e.attach({ component: new Undead() }).execute();
   return e;
 }
 

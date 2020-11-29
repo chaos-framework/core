@@ -57,7 +57,6 @@ describe('Entity action direct methods', () => {
     it('Cannot remove a non-existant property', () => {
       expect(e._removeProperty("Something That Certainly Doesn't Exist")).to.be.false;
     });
-    
   });
 
   describe('Granting abilities', () => {

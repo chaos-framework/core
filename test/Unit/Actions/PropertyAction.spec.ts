@@ -35,3 +35,13 @@ describe('PropertyChange Action', () => {
   });
 
 });
+
+describe('PropertyModification Action', () => {
+  let e: Entity;
+  beforeEach(() => {
+    e = new Entity();
+  });
+
+  
+
+});

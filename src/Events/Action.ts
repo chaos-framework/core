@@ -16,7 +16,7 @@ export default abstract class Action {
   decidingPermission?: Permission;
   nested: number = 0;
 
-  constructor({caster, using, tags}: ActionParameters) {
+  constructor({caster, using, tags}: ActionParameters = {}) {
     this.caster = caster;
     this.using = using;
     this.permissions.set(0, new Permission(true));
@@ -103,9 +103,10 @@ export default abstract class Action {
     // Find the highest ranked allow/forbid
     let highest = 0;
     for (let [key, value] of this.permissions) {
-      if(key > highest) {
+      if(key >= highest) {
         highest = key;
         this.decidingPermission = value;
+        this.permitted = value.permitted;
       }
     }
   }

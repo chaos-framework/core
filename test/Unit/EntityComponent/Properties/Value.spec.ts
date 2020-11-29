@@ -88,7 +88,17 @@ describe('Entity Property Values', () => {
   });
 
   it('Can generate adjustment actions', () => {
-
+    const a: PropertyChangeAction = v.adjust({ amount: 12345 });
+    // Target should be parent/property entity
+    expect(a.target).to.equal(e);
+    // Property should be parent property
+    expect(a.property).to.equal('HP');
+    // Should be "Current" value by default
+    expect(a.value).to.equal('current')
+    // Should be "Set" method by default
+    expect(a.type).to.equal('adjust');
+    // Other values
+    expect(a.amount).to.equal(12345);
   });
 
 });

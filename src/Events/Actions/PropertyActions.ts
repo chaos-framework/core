@@ -40,7 +40,6 @@ export namespace PropertyAdditionAction {
   }
 }
 
-
 // REMOVE
 export class PropertyRemovalAction extends Action {
   target: Entity;
@@ -145,6 +144,22 @@ export class PropertyChangeAction extends Action {
     return key === this.property;
   }
 
+  increases(key: string): boolean {
+    return this.effects(key)&& this.amount > 0;
+  }
+
+  decreases(key: string): boolean {
+    return this.effects(key) && this.amount < 0;
+  }
+
+  buffs(key: string): boolean {
+    return this.effects(key)&& this.amount > 0;
+  }
+
+  damages(key: string): boolean {
+    return this.effects(key) && this.amount < 0;
+  }
+
 }
 
 export namespace PropertyChangeAction {
@@ -160,7 +175,7 @@ export namespace PropertyChangeAction {
   }
 }
 
-// MODIFICATION
+// MODIFY
 export class PropertyModificationAction extends Action {
   property: string;             // What property to modify
   value: ValueType;             // Current / Min / Max value

@@ -2,6 +2,7 @@ import Component from '../../../src/EntityComponent/Component';
 import { Listener, Modifier } from '../../../src/Events/Interfaces';
 import Action from '../../../src/Events/Action';
 import { AttachComponentAction } from '../../../src/Events/Actions/ComponentActions';
+import { PropertyChangeAction } from '../../../src/Events/Actions/PropertyActions';
 
 export class Physical extends Component implements Listener {
 
@@ -42,11 +43,9 @@ export class Undead extends Component implements Modifier {
   tags = ['trait'];
 
   modify(a: Action) {
-    // if (a instanceof PropertyAdjustment && a.effects('HP')) {
-    //   if ((a.is('heal') && a.amount > 0) || (a.is('poison') && a.amount < 0)) {
-    //     a.multiply(-1, ['undead'], true);
-    //   }
-    // }
+    if(a instanceof PropertyChangeAction && a.increases('HP')) {
+      a.multiply(-1, this, [this.name]);  // Note that the last param drops a breadcrumb and ensures another Undead hasn't run
+    }
   }
   
 }

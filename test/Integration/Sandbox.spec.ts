@@ -1,10 +1,13 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { createPaladin } from '../Mocks/Entities/Actors';
+import { createPaladin, createZombie } from '../Mocks/Entities/Actors';
 
-xdescribe('metaroguesandbox', () => {
+describe('metaroguesandbox', () => {
   it('Runs!', () => {
-    createPaladin();
+    const pali = createPaladin();
+    const zombie = createZombie();
+    const spell = pali.cast("Heal", { target: zombie });
+    spell?.execute();
   })
 });
