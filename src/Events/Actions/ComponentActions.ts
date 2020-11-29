@@ -6,9 +6,7 @@ export class AttachComponentAction extends Action {
   target: Entity;
   component: Component;
 
-  constructor(
-    {caster, target, component, using, tags = []}: AttachComponentActionParameters
-  ) {
+  constructor({caster, target, component, using, tags = []}: AttachComponentAction.Params) {
     super({caster, using, tags});
     this.target = target;
     this.component = component;
@@ -20,11 +18,12 @@ export class AttachComponentAction extends Action {
 
 }
 
-export interface AttachComponentActionParameters extends ActionParameters {
-  target: Entity;
-  component: Component
-}
+export namespace AttachComponentAction {
+  export interface EntityParams extends ActionParameters {
+    component: Component
+  }
 
-export interface AttachComponentActionEntityParameters extends ActionParameters {
-  component: Component
+  export interface Params extends EntityParams {
+    target: Entity;
+  }
 }

@@ -7,7 +7,7 @@ export class EquipAction extends Action {
   item: Entity;
   permitted = false; // assume canceled until something allows it
 
-  constructor({caster, target, slot, item, tags = []}: EquipActionParameters) {
+  constructor({caster, target, slot, item, tags = []}: EquipAction.Params) {
     super({caster, tags});
     this.target = target;
     this.slot = slot;
@@ -21,13 +21,13 @@ export class EquipAction extends Action {
   }
 }
 
-export interface EquipActionParameters extends ActionParameters {
-  target: Entity;
-  slot: string,
-  item: Entity
-}
-
-export interface EquipActionEntityParameters extends ActionParameters {
-  slot: string,
-  item: Entity
+export namespace EquipAction {
+  export interface Params extends EntityParams {
+    target: Entity;
+  }
+  
+  export interface EntityParams extends ActionParameters {
+    slot: string,
+    item: Entity
+  }
 }

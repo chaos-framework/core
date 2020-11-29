@@ -31,8 +31,7 @@ export class RemoveSlotAction extends Action {
   }
 }
 
-export interface SlotActionParameters extends ActionParameters {
-  name: string,
+export interface SlotActionParameters extends SlotActionEntityParameters {
   target: Entity;
 }
 

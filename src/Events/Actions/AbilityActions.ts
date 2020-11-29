@@ -38,7 +38,6 @@ export class DenyAbility extends Action {
   }
 }
 
-
 export interface AbilityActionParameters extends ActionParameters {
   target: Entity,
   ability: Ability;

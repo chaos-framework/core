@@ -6,10 +6,10 @@ import { Listener, Modifier, Reacter, isModifier, isReacter } from '../Events/In
 import Ability, { OptionalCastParameters, Grant } from './Ability';
 
 // Import actions that can be created by the component
-import { AttachComponentAction, AttachComponentActionEntityParameters } from '../Events/Actions/ComponentActions';
+import { AttachComponentAction } from '../Events/Actions/ComponentActions';
 import {  PropertyAdditionAction, PropertyRemovalAction } from '../Events/Actions/PropertyActions';
 import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
-import { EquipAction, EquipActionEntityParameters } from '../Events/Actions/EquipmentActions';
+import { EquipAction } from '../Events/Actions/EquipmentActions';
 import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
 
 export default class Entity implements Listener, ComponentContainer {
@@ -170,7 +170,7 @@ export default class Entity implements Listener, ComponentContainer {
 
   // Attaching components
 
-  attach({component, caster, using, tags}: AttachComponentActionEntityParameters, force = false): AttachComponentAction {
+  attach({component, caster, using, tags}: AttachComponentAction.EntityParams, force = false): AttachComponentAction {
     return new AttachComponentAction({ caster, target: this, component, using, tags});
   };
 
@@ -278,7 +278,7 @@ export default class Entity implements Listener, ComponentContainer {
 
   // Equipping items
 
-  equip({caster, slot, item, tags = []}: EquipActionEntityParameters, force = false): EquipAction {
+  equip({caster, slot, item, tags = []}: EquipAction.EntityParams, force = false): EquipAction {
     return new EquipAction({caster, target: this, slot, item, tags});
   }
 
