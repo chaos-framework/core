@@ -1,8 +1,8 @@
 import World from './World';
 
-export const CHUNK_WIDTH = 16;
+// Layers
 
-export default abstract class Layer<T extends Chunk<any>> {
+export default abstract class Layer<T extends IChunk> {
   chunks = new Map<string, T>();
   abstract update(): void;
 
@@ -41,7 +41,16 @@ export default abstract class Layer<T extends Chunk<any>> {
 
 }
 
-export abstract class Chunk<T> {
+export interface ILayer {
+  setTile(x: number, y: number, tile: any): void;
+  getTile(x: number, y: number): any;
+  getChunk(x: number, y: number): IChunk;
+}
+
+// Chunks (16x16 tiles)
+export const CHUNK_WIDTH = 16;
+
+export abstract class Chunk<T> implements IChunk {
   tiles: T[][] = [[]];
 
   constructor(fill?: T) {
@@ -55,7 +64,7 @@ export abstract class Chunk<T> {
     }
   }
 
-  setTile(x: number, y: number, tile: any) {
+  setTile(x: number, y: number, tile: T) {
     if(x < 0 || x >= 16 || y < 0 || y >= 16) {
       this.tiles[x][y] = tile;
     }
@@ -71,8 +80,8 @@ export abstract class Chunk<T> {
 }
 
 export class ShortChunk extends Chunk<number> {
-  constructor() {
-    super(0);
+  constructor(fill: number = 0) {
+    super(fill);
   }
 }
 
@@ -83,6 +92,9 @@ export class ShortLayer extends Layer<ShortChunk> {
 }
 
 export interface IChunk {
-  _setTile(x: number, y: number, tile: any): void;  // TODO make action generator
+  setTile(x: number, y: number, tile: any): void;  // TODO make action generator
   getTile(x: number, y: number): any;
 }
+
+export const s = new ShortLayer();
+const a:number = s.getTile(0,0);
