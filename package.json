@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "playground": "mocha -g metaroguesandbox"
+    "sandbox": "mocha -g metaroguesandbox"
   },
   "files": [
     "lib/**/*"
@@ -25,6 +25,7 @@
     "@types/assert": "^1.5.2",
     "@types/chai": "^4.2.14",
     "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.165",
     "@types/mocha": "^8.0.4",
     "@types/node": "^14.14.10",
     "assert": "^2.0.0",
