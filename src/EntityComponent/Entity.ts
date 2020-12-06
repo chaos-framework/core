@@ -11,6 +11,9 @@ import {  PropertyAdditionAction, PropertyRemovalAction } from '../Events/Action
 import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
 import { EquipAction } from '../Events/Actions/EquipmentActions';
 import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
+import { Game } from '../Game/Game';
+import Vector from '../Math/Vector';
+import World from '../World/World';
 
 export default class Entity implements Listener, ComponentContainer {
   private static idCounter = 0;
@@ -33,7 +36,7 @@ export default class Entity implements Listener, ComponentContainer {
   slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
-  // TODO position / coordinates
+  position: Vector = new Vector(0, 0);
 
   map: any;
   container: any; // TODO can this be combined with map?
@@ -45,9 +48,11 @@ export default class Entity implements Listener, ComponentContainer {
     // TODO create from serialized to load from disk/db, and don't increment entity count
   }
 
-  publish() {
+  publish(world: World, position: Vector) {
     this.id = ++Entity.idCounter;
     this.active = true;
+    Game.addEntity(this);
+    world.addEntity(this, position.x, position.y);
   }
 
   isPublished(): boolean {

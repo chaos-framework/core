@@ -1,7 +1,7 @@
 export const CHUNK_WIDTH = 16;
 
 export default abstract class Chunk<T> implements IChunk {
-  tiles: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+  tiles: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]; // 16 x 16
 
   constructor(fill?: T) {
     // Fill the chunk with an instance of a tile
