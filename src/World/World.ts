@@ -15,6 +15,9 @@ export default class World implements ComponentContainer, Listener {
   entities: Set<number> = new Set<number>();
   entitiesByChunk: Map<string, Set<number>> = new Map<string, Set<number>>();
 
+  width?: bigint;
+  height?: bigint;
+
   constructor(baseLayer: ILayer) {
     this.baseLayer = baseLayer;
   }

@@ -21,7 +21,7 @@ export default abstract class Chunk<T> implements IChunk {
     this.tiles[x][y] = tile;
   }
 
-  getTile(x: number, y: number): T {
+  getTile(x: number, y: number): T | undefined {
     if(x < 0 || x >= 16 || y < 0 || y >= 16) {
       throw Error();
     }
@@ -62,5 +62,5 @@ export default abstract class Chunk<T> implements IChunk {
 
 export interface IChunk {
   setTile(x: number, y: number, tile: any): void;
-  getTile(x: number, y: number): any;
+  getTile(x: number, y: number): any | undefined;
 }

@@ -2,25 +2,31 @@ import { CHUNK_WIDTH, IChunk } from './Chunk';
 
 // Layers
 
-export default abstract class Layer<T extends IChunk> {
+export default abstract class Layer<T extends IChunk> implements ILayer {
   chunks = new Map<string, T>();
 
   setTile(x: number, y: number, tile: any) { 
     const chunk = this.getChunk(x, y);
-    const relativeX = x % CHUNK_WIDTH;
-    const relativeY = y % CHUNK_WIDTH;
-    chunk.setTile(relativeX, relativeY, tile);
+    // TODO should load chunk if not defined -- someone can set a tile anywhere
+    if(chunk) {
+      const relativeX = x % CHUNK_WIDTH;
+      const relativeY = y % CHUNK_WIDTH;
+      chunk.setTile(relativeX, relativeY, tile);
+    }
   }
 
-  getTile(x: number, y: number): any {
+  getTile(x: number, y: number): any | undefined {
     const chunk = this.getChunk(x, y);
-    const relativeX = x % CHUNK_WIDTH;
-    const relativeY = y % CHUNK_WIDTH;
-    return chunk.getTile(relativeX, relativeY);
+    if(chunk) {
+      const relativeX = x % CHUNK_WIDTH;
+      const relativeY = y % CHUNK_WIDTH;
+      return chunk.getTile(relativeX, relativeY);
+    }
+    return undefined;
   };
 
   // Get the chunk that the absolute x/y coordinates fall under
-  getChunk(x: number, y: number): T {
+  getChunk(x: number, y: number): T | undefined {
     const chunkX = Math.floor(x / CHUNK_WIDTH);
     const chunkY = Math.floor(y / CHUNK_WIDTH);
     const key = Layer.getXYString(chunkX, chunkY);
@@ -28,7 +34,7 @@ export default abstract class Layer<T extends IChunk> {
     if(chunk) {
       return chunk;
     }
-    throw new Error();
+    return undefined;
   }
 
   static getXYString(x: number, y: number): string {
@@ -42,7 +48,7 @@ export default abstract class Layer<T extends IChunk> {
 
 export interface ILayer {
   setTile(x: number, y: number, tile: any): void;
-  getTile(x: number, y: number): any;
-  getChunk(x: number, y: number): IChunk;
+  getTile(x: number, y: number): any | undefined;
+  getChunk(x: number, y: number): IChunk | undefined;
 }
 

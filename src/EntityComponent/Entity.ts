@@ -7,8 +7,9 @@ import Ability, { OptionalCastParameters, Grant } from './Ability';
 
 // Import actions that can be created by the component
 import { AttachComponentAction } from '../Events/Actions/ComponentActions';
-import {  PropertyAdditionAction, PropertyRemovalAction } from '../Events/Actions/PropertyActions';
+import { PropertyAdditionAction, PropertyRemovalAction } from '../Events/Actions/PropertyActions';
 import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
+import { PublishEntityAction } from '../Events/Actions/EntityActons';
 import { EquipAction } from '../Events/Actions/EquipmentActions';
 import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
 import { Game } from '../Game/Game';
@@ -46,13 +47,6 @@ export default class Entity implements Listener, ComponentContainer {
 
   constructor(serialized?: object) {
     // TODO create from serialized to load from disk/db, and don't increment entity count
-  }
-
-  publish(world: World, position: Vector) {
-    this.id = ++Entity.idCounter;
-    this.active = true;
-    Game.addEntity(this);
-    world.addEntity(this, position.x, position.y);
   }
 
   isPublished(): boolean {
@@ -172,6 +166,20 @@ export default class Entity implements Listener, ComponentContainer {
   /*****************************************
    *  ACTION GENERATORS / IMPLEMENTATIONS
    *****************************************/
+
+  // Publishing
+  
+  publish({caster, target, world, position, using, tags}: PublishEntityAction.Params): PublishEntityAction {
+    return new PublishEntityAction({caster, target, entity: this, world, position, using, tags});
+  }
+
+  _publish(world: World, position: Vector) {
+    this.id = ++Entity.idCounter;
+    this.active = true;
+    this.position = position;
+    Game.addEntity(this);
+    world.addEntity(this, position.x, position.y);
+  }
 
   // Attaching components
 

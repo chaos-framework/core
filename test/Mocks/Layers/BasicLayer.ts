@@ -31,7 +31,7 @@ class JSONChunk extends Chunk<any> {
   }
 }
 
-class BasicLayer extends Layer<JSONChunk> {
+export default class BasicLayer extends Layer<JSONChunk> {
   setTile(x: number, y: number, tile: number) {
     if (tile >= 0 && tile < tiles.length) {
       super.setTile(x, y, tiles[tile]);
