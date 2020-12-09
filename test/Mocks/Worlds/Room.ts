@@ -1,17 +1,21 @@
 import World from '../../../src/World/World';
-import BasicLayer from '../Layers/BasicLayer';
+import BasicLayer, { BasicTiles } from '../Layers/BasicLayer';
 
 export default class Room extends World {
-  width = BigInt(10);
-  height = BigInt(10);
+  width = 10;
+  height = 10;
 
   constructor() {
-    super(new BasicLayer(0), {width: BigInt(10), height: BigInt(10)});
-
-  }
-
-  initializeChunk(x: number, y: number): void {
-
+    super(new BasicLayer(BasicTiles.Ground), {width: 10, height: 10});
+    // Build north and south walls
+    for(let x = 0; x < this.width; x++) {
+      this.baseLayer.setTile(x, 0, BasicTiles.Wall);
+      this.baseLayer.setTile(x, 9, BasicTiles.Wall);
+    }
+    for(let y = 0; y < this.width; y++) {
+      this.baseLayer.setTile(0, y, BasicTiles.Wall);
+      this.baseLayer.setTile(9, y, BasicTiles.Wall);
+    }
   }
 
   serialize(): string {

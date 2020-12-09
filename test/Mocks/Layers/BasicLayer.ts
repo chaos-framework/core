@@ -1,4 +1,3 @@
-import Chunk, { IChunk } from '../../../src/World/Chunk';
 import Layer from '../../../src/World/Layer';
 
 interface BasicTile {
@@ -7,7 +6,7 @@ interface BasicTile {
   floor: boolean
 }
 
-const tiles: readonly BasicTile[] = Object.freeze([
+export const basicTiles: readonly BasicTile[] = Object.freeze([
   {
     name: 'Air',  // Name
     height: 0,    // Height
@@ -25,7 +24,7 @@ const tiles: readonly BasicTile[] = Object.freeze([
   }
 ]);
 
-export enum Tiles {
+export enum BasicTiles {
   Air, Ground, Wall
 }
 
@@ -39,13 +38,11 @@ export default class BasicLayer extends Layer<BasicTile> {
   }
 
   static getTileFromInt(i: number) {
-    if (i >= 0 && i < tiles.length) {
-      return tiles[i];
+    if (i >= 0 && i < basicTiles.length) {
+      return basicTiles[i];
     } else {
       // TODO log error?
-      return tiles[0];
+      return basicTiles[0];
     }
   }
-
-  initializeChunk(x: number, y: number, base?: IChunk): void {};
 }

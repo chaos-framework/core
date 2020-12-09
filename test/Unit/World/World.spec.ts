@@ -1,14 +1,15 @@
 import { expect } from 'chai';
 import 'mocha';
 
+import { getXYString } from '../../../src/world/World';
 import Layer from '../../../src/World/Layer';
 import { ShortChunk } from '../../../src/World/Types';
 
 describe('Layers', () => {
   describe('Abstract class methods', () => {
     it('Creates a proper key string for chunks based on X&Y', () => {
-      expect(Layer.getXYString(1,1)).to.equal("1_1");
-      expect(Layer.getXYString(12345,67890)).to.equal("12345_67890");
+      expect(getXYString(1,1)).to.equal("1_1");
+      expect(getXYString(12345,67890)).to.equal("12345_67890");
     }); 
   });
 });

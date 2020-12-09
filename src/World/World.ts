@@ -2,10 +2,13 @@ import Component, { ComponentContainer } from '../EntityComponent/Component';
 import { Listener } from '../Events/Interfaces';
 import Action from '../Events/Action';
 
-import Layer, { ILayer } from './Layer';
+import { ILayer } from './Layer';
+import { IChunk } from './Chunk';
 import Entity from '../EntityComponent/Entity';
 import Vector from '../Math/Vector';
 import { Game } from '../Game/Game';
+
+export const CHUNK_WIDTH = 16;
 
 export default abstract class World implements ComponentContainer, Listener {
   components: Component[] = [];
@@ -15,28 +18,38 @@ export default abstract class World implements ComponentContainer, Listener {
   entities: Set<number> = new Set<number>();
   entitiesByChunk: Map<string, Set<number>> = new Map<string, Set<number>>();
 
-  width?: bigint;
-  height?: bigint;
-  private chunkWidth = 0;
-  private chunkHeight = 0;
+  width?: number;
+  height?: number;
 
   streaming: boolean = false; // whether or not to load/unload chunks from memory
   ephemeral: boolean = true;  // should be forgotten + all contained entities deleted when unloaded
 
-  constructor(baseLayer: ILayer, {width, height, streaming = false, additionalLayers}: {width: bigint, height: bigint, streaming?: boolean, additionalLayers?: any}) {
+  constructor(baseLayer: ILayer, {width, height, streaming = false, additionalLayers}: {width: number, height: number, streaming?: boolean, additionalLayers?: any}) {
     this.baseLayer = baseLayer;
     this.width = width;
     this.height = height;
     this.streaming = streaming;
+
     // TODO check for width and height and force streaming if undefined or the world is too large
     // TODO if not streaming, should this super constructor handle creating chunks with default values?
+
+    // Initialize the relevant layers with default values
+    if(!streaming && width && height) {
+      const chunkWidth = getChunkSpaceCoordinates(width);
+      const chunkHeight = getChunkSpaceCoordinates(height);
+      for(let x = 0; x <= chunkWidth; x++) {
+        for(let y = 0; y <= chunkHeight; y++) {
+          this.initializeChunk(x, y);
+        }
+      }
+    }
   }
 
   addEntity(e: Entity, x: number, y: number): boolean {
     if(e.id) {
       // Add the entity to full list
       this.entities.add(e.id);
-      const chunk = Layer.getXYString(x, y);
+      const chunk = getXYString(x, y);
       if(!this.entitiesByChunk.has(chunk)) {
         this.entitiesByChunk.set(chunk, new Set<number>());
       } else {
@@ -50,7 +63,7 @@ export default abstract class World implements ComponentContainer, Listener {
   removeEntity(e: Entity): boolean {
     if(e.id && this.entities.has(e.id)) {
       this.entities.delete(e.id);
-      const chunk = Layer.getXYString(e.position.x, e.position.y);
+      const chunk = getXYString(e.position.x, e.position.y);
       this.entitiesByChunk.get(chunk)?.delete(e.id); 
       return true;
     }
@@ -63,7 +76,7 @@ export default abstract class World implements ComponentContainer, Listener {
 
   getEntitiesAtCoordinates(x: number, y: number): Entity[] {
     let entities: Entity[] = [];
-    const chunk = Layer.getXYString(x, y);
+    const chunk = getXYString(x, y);
     const entitiesInChunk = this.entitiesByChunk.get(chunk);
     if(entitiesInChunk) {
       const v = new Vector(x, y);
@@ -93,6 +106,13 @@ export default abstract class World implements ComponentContainer, Listener {
     }
   }
 
+  initializeChunk(x: number, y: number) {
+    const baseChunk: IChunk = this.baseLayer.initializeChunk(x, y);
+    for(let k in this.additionalLayers) {
+      this.additionalLayers.get(k)?.initializeChunk(x, y, baseChunk);
+    }
+  }
+
   // TODO setTile and _setTile
 
   modify(a: Action) {
@@ -103,8 +123,18 @@ export default abstract class World implements ComponentContainer, Listener {
     
   };
 
-  abstract serialize(): string;
-  abstract unserialize(data: string): World;
+  abstract serialize(): string; // Serialize metadata
+  abstract unserialize(data: string): World;  // Unserialize metadata
 
-  abstract initializeChunk(x: number, y: number): void;
+}
+
+export function getChunkSpaceCoordinates(i: number): number {
+  return Math.floor(i / CHUNK_WIDTH);
+}
+
+export function getXYString(x: number, y: number): string {
+  if(Number.isInteger(x) && Number.isInteger(y)) {
+    return x.toString() + "_" + y.toString();
+  }
+  throw new Error();
 }

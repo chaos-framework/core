@@ -1,4 +1,5 @@
-import Chunk, { CHUNK_WIDTH, IChunk } from './Chunk';
+import { CHUNK_WIDTH, getXYString } from './World';
+import Chunk, { IChunk } from './Chunk';
 
 // Layers
 
@@ -34,7 +35,7 @@ export default abstract class Layer<T> implements ILayer {
   getChunk(x: number, y: number): Chunk<T> | undefined {
     const chunkX = Math.floor(x / CHUNK_WIDTH);
     const chunkY = Math.floor(y / CHUNK_WIDTH);
-    const key = Layer.getXYString(chunkX, chunkY);
+    const key = getXYString(chunkX, chunkY);
     const chunk = this.chunks.get(key);
     if(chunk) {
       return chunk;
@@ -42,18 +43,16 @@ export default abstract class Layer<T> implements ILayer {
     return undefined;
   }
 
-  static getXYString(x: number, y: number): string {
-    if(Number.isInteger(x) && Number.isInteger(y)) {
-      return x.toString() + "_" + y.toString();
-    }
-    throw new Error();
-  }
-
   // Initialize chunks, optionally with a base for context
-  initializeChunk(x: number, y: number, base?: IChunk) {
-    const k = Layer.getXYString(x, y);
-    if(!this.chunks.has(k)) {
-      this.chunks.set(k, new Chunk<T>(this.fill));
+  initializeChunk(x: number, y: number, base?: IChunk): IChunk {
+    const k = getXYString(x, y);
+    let chunk = this.chunks.get(k);
+    if(chunk) {
+      return chunk;
+    } else {
+      chunk = new Chunk<T>(this.fill);
+      this.chunks.set(k, chunk);
+      return chunk;
     }
   } 
 
@@ -63,5 +62,5 @@ export interface ILayer {
   setTile(x: number, y: number, tile: any): void;
   getTile(x: number, y: number): any | undefined;
   getChunk(x: number, y: number): IChunk | undefined;
-  initializeChunk(x: number, y: number, base?: IChunk): void;
+  initializeChunk(x: number, y: number, base?: IChunk): IChunk;
 }

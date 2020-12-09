@@ -1,4 +1,4 @@
-export const CHUNK_WIDTH = 16;
+import { CHUNK_WIDTH } from './World';
 
 export default class Chunk<T> implements IChunk {
   tiles: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]; // 16 x 16
