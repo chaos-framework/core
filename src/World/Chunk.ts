@@ -1,11 +1,9 @@
 export const CHUNK_WIDTH = 16;
 
-export default abstract class Chunk<T> implements IChunk {
+export default class Chunk<T> implements IChunk {
   tiles: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]; // 16 x 16
-  fill: T;
 
   constructor(fill: T) {
-    this.fill = fill;
     // Fill the chunk with an instance of a tile
     for(let x = 0; x < CHUNK_WIDTH; x++) {
       for(let y = 0; y < CHUNK_WIDTH; y++) {
@@ -38,7 +36,7 @@ export default abstract class Chunk<T> implements IChunk {
     return a;
   }
 
-  map(callback: (tile: T) => T): void {
+  each(callback: (tile: T) => T): void {
     let a = [];
     for(let x = 0; x < CHUNK_WIDTH; x++) {
       for(let y = 0; y < CHUNK_WIDTH; y++) {
@@ -56,11 +54,12 @@ export default abstract class Chunk<T> implements IChunk {
     }
     return a.join('');
   }
-
-  abstract serialize(): string;
 }
 
 export interface IChunk {
   setTile(x: number, y: number, tile: any): void;
   getTile(x: number, y: number): any | undefined;
+  toArray(): any[];
+  each(callback: (tile: any) => any): void;
+  stringify(callback: (tile: any) => string): string;
 }

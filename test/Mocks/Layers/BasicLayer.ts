@@ -1,4 +1,4 @@
-import Chunk from '../../../src/World/Chunk';
+import Chunk, { IChunk } from '../../../src/World/Chunk';
 import Layer from '../../../src/World/Layer';
 
 interface BasicTile {
@@ -29,19 +29,23 @@ export enum Tiles {
   Air, Ground, Wall
 }
 
-class JSONChunk extends Chunk<any> {
-  serialize() {
-    return JSON.stringify(this.toArray());
+export default class BasicLayer extends Layer<BasicTile> {
+  constructor(fill: number) {
+    super(BasicLayer.getTileFromInt(fill));
   }
-}
 
-export default class BasicLayer extends Layer<JSONChunk> {
   setTile(x: number, y: number, tile: number) {
-    if (tile >= 0 && tile < tiles.length) {
-      super.setTile(x, y, tiles[tile]);
+    super.setTile(x, y, BasicLayer.getTileFromInt(tile));
+  }
+
+  static getTileFromInt(i: number) {
+    if (i >= 0 && i < tiles.length) {
+      return tiles[i];
     } else {
-      // TODO log error
-      super.setTile(x, y, tiles[0]);
+      // TODO log error?
+      return tiles[0];
     }
   }
+
+  initializeChunk(x: number, y: number, base?: IChunk): void {};
 }
