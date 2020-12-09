@@ -7,7 +7,7 @@ import Entity from '../EntityComponent/Entity';
 import Vector from '../Math/Vector';
 import { Game } from '../Game/Game';
 
-export default class World implements ComponentContainer, Listener {
+export default abstract class World implements ComponentContainer, Listener {
   components: Component[] = [];
   baseLayer: ILayer;
   additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
@@ -17,9 +17,19 @@ export default class World implements ComponentContainer, Listener {
 
   width?: bigint;
   height?: bigint;
+  private chunkWidth = 0;
+  private chunkHeight = 0;
 
-  constructor(baseLayer: ILayer) {
+  streaming: boolean = false; // whether or not to load/unload chunks from memory
+  ephemeral: boolean = true;  // should be forgotten + all contained entities deleted when unloaded
+
+  constructor(baseLayer: ILayer, {width, height, streaming = false, additionalLayers}: {width: bigint, height: bigint, streaming?: boolean, additionalLayers?: any}) {
     this.baseLayer = baseLayer;
+    this.width = width;
+    this.height = height;
+    this.streaming = streaming;
+    // TODO check for width and height and force streaming if undefined or the world is too large
+    // TODO if not streaming, should this super constructor handle creating chunks with default values?
   }
 
   addEntity(e: Entity, x: number, y: number): boolean {
@@ -48,7 +58,7 @@ export default class World implements ComponentContainer, Listener {
   }
 
   getEntitiesWithRadius(x: number, y: number, radius: number) {
-    // TODO complete this
+    // TODO implement this
   }
 
   getEntitiesAtCoordinates(x: number, y: number): Entity[] {
@@ -83,6 +93,8 @@ export default class World implements ComponentContainer, Listener {
     }
   }
 
+  // TODO setTile and _setTile
+
   modify(a: Action) {
 
   };
@@ -90,4 +102,9 @@ export default class World implements ComponentContainer, Listener {
   react(a: Action) {
     
   };
+
+  abstract serialize(): string;
+  abstract unserialize(data: string): World;
+
+  abstract initializeChunk(x: number, y: number): void;
 }

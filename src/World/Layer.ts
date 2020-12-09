@@ -5,6 +5,8 @@ import { CHUNK_WIDTH, IChunk } from './Chunk';
 export default abstract class Layer<T extends IChunk> implements ILayer {
   chunks = new Map<string, T>();
 
+  constructor
+
   setTile(x: number, y: number, tile: any) { 
     const chunk = this.getChunk(x, y);
     // TODO should load chunk if not defined -- someone can set a tile anywhere
@@ -44,6 +46,8 @@ export default abstract class Layer<T extends IChunk> implements ILayer {
     throw new Error();
   }
 
+  abstract initializeChunk()
+
 }
 
 export interface ILayer {
@@ -51,4 +55,3 @@ export interface ILayer {
   getTile(x: number, y: number): any | undefined;
   getChunk(x: number, y: number): IChunk | undefined;
 }
-

@@ -25,6 +25,10 @@ const tiles: readonly BasicTile[] = Object.freeze([
   }
 ]);
 
+export enum Tiles {
+  Air, Ground, Wall
+}
+
 class JSONChunk extends Chunk<any> {
   serialize() {
     return JSON.stringify(this.toArray());
