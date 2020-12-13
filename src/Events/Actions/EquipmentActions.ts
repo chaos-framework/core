@@ -7,8 +7,8 @@ export class EquipAction extends Action {
   item: Entity;
   permitted = false; // assume canceled until something allows it
 
-  constructor({caster, target, slot, item, tags = []}: EquipAction.Params) {
-    super({caster, tags});
+  constructor({caster, target, slot, item, using, tags = []}: EquipAction.Params) {
+    super({caster, using, tags});
     this.target = target;
     this.slot = slot;
     this.item = item;

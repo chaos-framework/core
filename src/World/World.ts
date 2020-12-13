@@ -113,6 +113,10 @@ export default abstract class World implements ComponentContainer, Listener {
     }
   }
 
+  moveEntity(entity: Entity, from: Vector, to: Vector) {
+    
+  }
+
   // TODO setTile and _setTile
 
   modify(a: Action) {

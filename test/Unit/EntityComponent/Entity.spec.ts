@@ -1,11 +1,14 @@
 import { expect } from 'chai';
 import 'mocha';
-import Ability from '../../../src/EntityComponent/Ability';
 
 import Entity from '../../../src/EntityComponent/Entity';
+import Ability from '../../../src/EntityComponent/Ability';
 
+import Room from '../../Mocks/Worlds/Room';
 import EmptyAbility from '../../Mocks/Abilities/Empty';
 import { Heal }  from '../../Mocks/Abilities/Spells';
+import World from '../../../src/World/World';
+import Vector from '../../../src/Math/Vector';
 
 describe('Entity', () => {
 
@@ -204,6 +207,22 @@ describe('Entity action direct methods', () => {
     it('Cannot equip an item into an occupied slot', () => {
       e._equip(item, mainSlot);
       expect(e._equip(item, mainSlot)).to.be.false;
+    });
+  });
+
+  describe('Moving', () => {
+    // Give the entity a space to move in
+    let room: World;
+    beforeEach(() => {
+      room = new Room();
+      e._publish(room, Room.stageLeft);
+    });
+
+    it('Can move within in a World', () => {
+      expect(e.position.x).to.equal(Room.stageLeft.x);
+      expect(e.position.y).to.equal(Room.stageLeft.y);
+      e._move(Room.stageRight);
+      expect(e.position.equals(Room.stageRight)).to.be.true;
     });
   });
 });

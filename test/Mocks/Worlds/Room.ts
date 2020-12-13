@@ -1,7 +1,11 @@
+import Vector from '../../../src/Math/Vector';
 import World from '../../../src/World/World';
 import BasicLayer, { BasicTiles } from '../Layers/BasicLayer';
 
 export default class Room extends World {
+  static readonly stageLeft = new Vector(3,5);
+  static readonly stageRight = new Vector(6,5);
+
   width = 10;
   height = 10;
 
@@ -21,6 +25,7 @@ export default class Room extends World {
   serialize(): string {
     return "";
   }
+
   unserialize(data: string): Room {
     return new Room();
   }

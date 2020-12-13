@@ -15,6 +15,8 @@ import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../
 import { Game } from '../Game/Game';
 import Vector from '../Math/Vector';
 import World from '../World/World';
+import { MoveAction, RelativeMoveAction } from '../Events/Actions/MovementActions';
+import { relative } from 'path';
 
 export default class Entity implements Listener, ComponentContainer {
   private static idCounter = 0;
@@ -37,6 +39,7 @@ export default class Entity implements Listener, ComponentContainer {
   slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
+  world?: World;
   position: Vector = new Vector(0, 0);
 
   map: any;
@@ -173,12 +176,14 @@ export default class Entity implements Listener, ComponentContainer {
     return new PublishEntityAction({caster, target, entity: this, world, position, using, tags});
   }
 
-  _publish(world: World, position: Vector) {
+  _publish(world: World, position: Vector): boolean {
     this.id = ++Entity.idCounter;
     this.active = true;
     this.position = position;
     Game.addEntity(this);
     world.addEntity(this, position.x, position.y);
+    this.world = world;
+    return true;
   }
 
   // Attaching components
@@ -338,6 +343,23 @@ export default class Entity implements Listener, ComponentContainer {
       return true;
     }
     return false;
+  }
+
+  move({caster, to, using, tags}: MoveAction.EntityParams): MoveAction {
+    return new MoveAction({caster, target: this, to, using, tags});
+  }
+
+  moveRelative({caster, amount, using, tags}: RelativeMoveAction.EntityParams): RelativeMoveAction {
+    return new RelativeMoveAction({caster, target: this, amount, using, tags});
+  }
+
+  _move(to: Vector): boolean {
+    // Let the world know to to move to a different container if the destination is in a different chunk
+    if(this.world && this.position.differentChunkFrom(to)) {
+      this.world.moveEntity(this, this.position, to);
+    }
+    this.position = to;
+    return true;
   }
   
 
