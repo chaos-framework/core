@@ -46,7 +46,7 @@ export default abstract class World implements ComponentContainer, Listener {
   }
 
   addEntity(e: Entity): boolean {
-    if(e.id) {
+    if(e.id && !this.entities.has(e.id)) {
       // Add the entity to full list
       this.entities.add(e.id);
       const chunkIndex = e.position.toChunkSpace().getIndexString();

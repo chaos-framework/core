@@ -177,6 +177,9 @@ export default class Entity implements Listener, ComponentContainer {
   }
 
   _publish(world: World, position: Vector): boolean {
+    if(this.id) {
+      return false;
+    }
     this.id = ++Entity.idCounter;
     this.active = true;
     this.position = position;

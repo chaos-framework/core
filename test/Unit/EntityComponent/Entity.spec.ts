@@ -39,6 +39,23 @@ describe('Entity action direct methods', () => {
   let e: Entity;
   beforeEach(() => { e = new Entity(); });
 
+  describe('Publishing', () => {
+    let room: Room;
+    beforeEach(() => {
+      room = new Room(12, 12);
+    });
+
+    it('Can publish itself to a world.', () => {
+      expect(e._publish(room, room.stageLeft)).to.be.true;
+      expect(e.world).to.equal(room);
+    });
+    
+    it('Can cannot be published twice.', () => {
+      e._publish(room, room.stageLeft);
+      expect(e._publish(room, room.stageLeft)).to.be.false;
+    });
+  })
+
   describe('Adding properties', () => {
     it('Can add a property', () => {
       expect(e._addProperty("Test")).to.be.true;
