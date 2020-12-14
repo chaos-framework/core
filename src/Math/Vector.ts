@@ -17,8 +17,12 @@ export default class Vector {
     return new Vector(this.x + other.x, this.y + other.y);
   }
 
-  copy(v: Vector): Vector {
-    return new Vector(v.x, v.y);
+  copy(): Vector {
+    return new Vector(this.x, this.y);
+  }
+
+  copyAdjusted(x: number, y: number): Vector {
+    return new Vector(this.x + x , this.y + y);
   }
 
   toChunkSpace(): Vector {
@@ -27,6 +31,10 @@ export default class Vector {
 
   differentChunkFrom(other: Vector): boolean {
     return !this.toChunkSpace().equals(other.toChunkSpace());
+  }
+
+  getIndexString(): string {
+    return this.x.toString() + "_" + this.y.toString();
   }
 
   // TODO distance, cast ray between two points, etc

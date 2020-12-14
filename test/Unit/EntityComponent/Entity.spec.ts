@@ -212,17 +212,17 @@ describe('Entity action direct methods', () => {
 
   describe('Moving', () => {
     // Give the entity a space to move in
-    let room: World;
+    let room: Room;
     beforeEach(() => {
-      room = new Room();
-      e._publish(room, Room.stageLeft);
+      room = new Room(9, 9);
+      e._publish(room, room.stageLeft);
     });
 
     it('Can move within in a World', () => {
-      expect(e.position.x).to.equal(Room.stageLeft.x);
-      expect(e.position.y).to.equal(Room.stageLeft.y);
-      e._move(Room.stageRight);
-      expect(e.position.equals(Room.stageRight)).to.be.true;
+      expect(e.position.x).to.equal(room.stageLeft.x);
+      expect(e.position.y).to.equal(room.stageLeft.y);
+      e._move(room.stageRight);
+      expect(e.position.equals(room.stageRight)).to.be.true;
     });
   });
 });

@@ -45,16 +45,15 @@ export default abstract class World implements ComponentContainer, Listener {
     }
   }
 
-  addEntity(e: Entity, x: number, y: number): boolean {
+  addEntity(e: Entity): boolean {
     if(e.id) {
       // Add the entity to full list
       this.entities.add(e.id);
-      const chunk = getXYString(x, y);
-      if(!this.entitiesByChunk.has(chunk)) {
-        this.entitiesByChunk.set(chunk, new Set<number>());
-      } else {
-        this.entitiesByChunk.get(chunk)?.add(e.id);
+      const chunkIndex = e.position.toChunkSpace().getIndexString();
+      if(!this.entitiesByChunk.has(chunkIndex)) {
+        this.entitiesByChunk.set(chunkIndex, new Set<number>());        
       }
+      this.entitiesByChunk.get(chunkIndex)?.add(e.id);
       return true;
     }
     return false;
@@ -70,13 +69,36 @@ export default abstract class World implements ComponentContainer, Listener {
     return false;
   }
 
-  getEntitiesWithRadius(x: number, y: number, radius: number) {
+  moveEntity(entity: Entity, from: Vector, to: Vector) {
+    if(entity.id && this.entities.has(entity.id)) {
+      if(from.differentChunkFrom(to)) {
+        const oldString = from.toChunkSpace().getIndexString();
+        const old = this.entitiesByChunk.get(oldString);
+        if(old) {
+          old.delete(entity.id);
+          if(old.size === 0) {
+            this.entitiesByChunk.delete(oldString);
+          }
+        }
+        const newString = to.toChunkSpace().getIndexString();
+        if(!this.entitiesByChunk.has(newString)) {
+          this.entitiesByChunk.set(newString, new Set<number>([entity.id]));
+        }
+        else {
+          this.entitiesByChunk.get(newString)!.add(entity.id);
+        }
+      }
+    }
+  }
+
+  getEntitiesWithinRadius(point: Vector, radius: number) {
     // TODO implement this
   }
 
   getEntitiesAtCoordinates(x: number, y: number): Entity[] {
     let entities: Entity[] = [];
-    const chunk = getXYString(x, y);
+    const chunkSpacePosition = new Vector(x, y).toChunkSpace();
+    const chunk = getXYString(chunkSpacePosition.x, chunkSpacePosition.y);
     const entitiesInChunk = this.entitiesByChunk.get(chunk);
     if(entitiesInChunk) {
       const v = new Vector(x, y);
@@ -111,10 +133,6 @@ export default abstract class World implements ComponentContainer, Listener {
     for(let k in this.additionalLayers) {
       this.additionalLayers.get(k)?.initializeChunk(x, y, baseChunk);
     }
-  }
-
-  moveEntity(entity: Entity, from: Vector, to: Vector) {
-    
   }
 
   // TODO setTile and _setTile

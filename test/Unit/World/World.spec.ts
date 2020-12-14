@@ -1,37 +1,44 @@
 import { expect } from 'chai';
 import 'mocha';
+import Entity from '../../../src/EntityComponent/Entity';
+import Vector from '../../../src/Math/Vector';
+import { getXYString } from '../../../src/World/World';
 
-import { getXYString } from '../../../src/world/World';
-import Layer from '../../../src/World/Layer';
-import { ShortChunk } from '../../../src/World/Types';
+import Room from '../../Mocks/Worlds/Room';
 
-describe('Layers', () => {
-  describe('Abstract class methods', () => {
-    it('Creates a proper key string for chunks based on X&Y', () => {
-      expect(getXYString(1,1)).to.equal("1_1");
-      expect(getXYString(12345,67890)).to.equal("12345_67890");
-    }); 
-  });
-});
-
-describe('Chunks', () => {
-  describe('Short Chunk', () => {
-    let c: ShortChunk;
-    beforeEach(() => { c = new ShortChunk(0); });
-
-    it('Fills itself with specified fill number', () => {
-      expect(c.getTile(0,0)).to.eq(0);
-      expect(c.getTile(5,5)).to.eq(0);
-      let other = new ShortChunk(5);
-      expect(other.getTile(0,0)).to.eq(5);
-      expect(other.getTile(5,5)).to.eq(5);
-    }); 
-
-    it('Clamps values when set', () => {
-      c.setTile(0,0,-50);
-      expect(c.getTile(0,0)).to.eq(0);
-      c.setTile(0,0,12345);
-      expect(c.getTile(0,0)).to.eq(255);
+describe('Worlds', () => {
+  describe('Holding entities', () => {
+    let room: Room;
+    let e: Entity;
+    beforeEach(() => { 
+      room = new Room(32, 32);
+      e = new Entity();
+      e._publish(room, new Vector(2, 2));
     });
+
+    it('Holds entities', () => {
+      expect(room.entities.size).to.equal(1);
+    });
+
+    it('Stores entities based on occupied chunks', () => {
+      const startingVector = e.position.copy();
+      const startingChunk = startingVector.toChunkSpace().getIndexString();
+      const endingVector = new Vector(17, 17);
+      const endingChunk = endingVector.toChunkSpace().getIndexString();
+      // Check for existance in starting chunk
+      expect(room.entitiesByChunk.get(startingChunk)).to.exist;
+      expect(room.entitiesByChunk.get(startingChunk)!.size).to.equal(1);
+      e._move(endingVector);
+      // Moving out of it should delete the set from the world but create a new one in the new chunk
+      expect(room.entitiesByChunk.get(startingChunk)).to.not.exist;
+      expect(room.entitiesByChunk.get(endingChunk)).to.exist;
+      expect(room.entitiesByChunk.get(endingChunk)!.size).to.equal(1);
+      // Moving back should reverse this
+      e._move(startingVector);
+      expect(room.entitiesByChunk.get(endingChunk)).to.not.exist;
+      expect(room.entitiesByChunk.get(startingChunk)).to.exist;
+      expect(room.entitiesByChunk.get(startingChunk)!.size).to.equal(1);
+    });
+
   });
 });

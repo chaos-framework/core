@@ -3,23 +3,27 @@ import World from '../../../src/World/World';
 import BasicLayer, { BasicTiles } from '../Layers/BasicLayer';
 
 export default class Room extends World {
-  static readonly stageLeft = new Vector(3,5);
-  static readonly stageRight = new Vector(6,5);
+  readonly stageLeft: Vector;
+  readonly stageRight: Vector;
 
-  width = 10;
-  height = 10;
-
-  constructor() {
-    super(new BasicLayer(BasicTiles.Ground), {width: 10, height: 10});
+  constructor(public width: number, public height: number) {
+    super(new BasicLayer(BasicTiles.Ground), { width, height });
+    if(width < 5 || height < 5) {
+      throw new Error();
+    }
     // Build north and south walls
     for(let x = 0; x < this.width; x++) {
       this.baseLayer.setTile(x, 0, BasicTiles.Wall);
-      this.baseLayer.setTile(x, 9, BasicTiles.Wall);
+      this.baseLayer.setTile(x, width - 1, BasicTiles.Wall);
     }
     for(let y = 0; y < this.width; y++) {
       this.baseLayer.setTile(0, y, BasicTiles.Wall);
-      this.baseLayer.setTile(9, y, BasicTiles.Wall);
+      this.baseLayer.setTile(height - 1, y, BasicTiles.Wall);
     }
+    // Determine stage left/right
+    const midLines = new Vector(Math.floor(width / 2), Math.floor(height / 2));
+    this.stageLeft = midLines.copyAdjusted(-1, 0);
+    this.stageRight = midLines.copyAdjusted(1, 0);
   }
 
   serialize(): string {
@@ -27,6 +31,6 @@ export default class Room extends World {
   }
 
   unserialize(data: string): Room {
-    return new Room();
+    return new Room(5, 5);
   }
 }

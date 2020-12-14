@@ -181,7 +181,7 @@ export default class Entity implements Listener, ComponentContainer {
     this.active = true;
     this.position = position;
     Game.addEntity(this);
-    world.addEntity(this, position.x, position.y);
+    world.addEntity(this);
     this.world = world;
     return true;
   }
