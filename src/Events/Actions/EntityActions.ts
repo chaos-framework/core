@@ -34,4 +34,4 @@ export namespace PublishEntityAction {
 }
 
 // TODO unpublish
-// TODO replace? could be handy if you need to swap one entity with another.. allow for more specific modification/reaction
+// TODO replace (with same ID)? could be handy if you need to swap one entity with another.. allow for more specific modification/reaction

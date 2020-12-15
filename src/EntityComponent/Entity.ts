@@ -9,13 +9,13 @@ import Ability, { OptionalCastParameters, Grant } from './Ability';
 import { AttachComponentAction } from '../Events/Actions/ComponentActions';
 import { PropertyAdditionAction, PropertyRemovalAction } from '../Events/Actions/PropertyActions';
 import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
-import { PublishEntityAction } from '../Events/Actions/EntityActons';
+import { PublishEntityAction } from '../Events/Actions/EntityActions';
 import { EquipAction } from '../Events/Actions/EquipmentActions';
 import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
 import { Game } from '../Game/Game';
 import Vector from '../Math/Vector';
 import World from '../World/World';
-import { MoveAction, RelativeMoveAction } from '../Events/Actions/MovementActions';
+import { ChangeWorldAction, MoveAction, RelativeMoveAction } from '../Events/Actions/MovementActions';
 
 export default class Entity implements Listener, ComponentContainer {
 
@@ -166,25 +166,59 @@ export default class Entity implements Listener, ComponentContainer {
   }
 
   // Connect components which may have higher-order listeners upon publishing
-  connect() {
+  connectToWorld() {
     if(!this.isPublished() || ! this.world) {
       return;
     }
     const components = this.components;  // TODO also grab stored / equipped items and their listeners?
     for(let i = 0; i < components.length; i++) {
       const component = components[i];
-      if(component.scope != "Entity") {
+      if(component.scope === "World") {
         if(isModifier(component)) {
-          component.scope === "World" ? this.world.modifiers.push(component) : null; // TODO game-level listeners
-          this.modifiers.splice(this.modifiers.indexOf(component), 1);
+          this.world.modifiers.push(component);
+          const index = this.modifiers.indexOf(component);
+          if(index != undefined) {
+            this.modifiers.splice(this.modifiers.indexOf(component), 1);
+          }
         }
         if(isReacter(component)) {
-          component.scope === "World" ? this.world.reacters.push(component) : null; // TODO game-level listeners
-          this.reacters.splice(this.reacters.indexOf(component), 1);
+          this.world.reacters.push(component);
+          const index = this.reacters.indexOf(component);
+          if(index != undefined) {
+            this.reacters.splice(this.reacters.indexOf(component), 1);
+          }
         }
       }
     }
   }
+
+  // Disconnects world-level component listeners
+  disconnectFromWorld() {
+    if(!this.isPublished() || ! this.world) {
+      return;
+    }
+    const components = this.components;  // TODO also grab stored / equipped items and their listeners?
+    for(let i = 0; i < components.length; i++) {
+      const component = components[i];
+      if(component.scope === "World") {
+        if(isModifier(component)) {
+          const index = this.world.modifiers.indexOf(component);
+          if(index){ 
+            this.world.modifiers.splice(index, 1);
+          }
+        }
+        if(isReacter(component)) {
+          const index = this.world.reacters.indexOf(component);
+          if(index){ 
+            this.world.reacters.splice(index, 1);
+          }
+        }
+      }  
+    }
+  }
+
+  // Disconnects game-level component listeners
+  disconnectFromGame() {}
 
   /*****************************************
    *  ACTION GENERATORS / IMPLEMENTATIONS
@@ -206,7 +240,7 @@ export default class Entity implements Listener, ComponentContainer {
     Game.addEntity(this);
     world.addEntity(this);
     this.world = world;
-    this.connect(); // link up higher-scoped component listeners
+    this.connectToWorld();
     return true;
   }
 
@@ -385,7 +419,15 @@ export default class Entity implements Listener, ComponentContainer {
     return true;
   }
   
+  changeWorlds({caster, from, to, position, using, tags}: ChangeWorldAction.EntityParams): ChangeWorldAction {
+    return new ChangeWorldAction({caster, target: this, from, to, position, using, tags});
+  }
 
-  // TODO change maps, swap map listeners
+  _changeWorlds(to: World, position: Vector): boolean {
+    this.disconnectFromWorld();
+    this.world = to;
+    this.connectToWorld();
+    return true;
+  }
 
 }

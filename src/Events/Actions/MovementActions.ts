@@ -1,6 +1,7 @@
 import Action, { ActionParameters } from '../Action';
 import Entity from "../../EntityComponent/Entity";
 import Vector from '../../Math/Vector';
+import World from '../../World/World';
 
 export class MoveAction extends Action {
   target: Entity;
@@ -54,5 +55,38 @@ export namespace RelativeMoveAction {
   
   export interface EntityParams extends ActionParameters {
     amount: Vector;
+  }
+}
+
+export class ChangeWorldAction extends Action {
+  target: Entity;
+  from: World;
+  to: World;
+  originPosition: Vector;
+  position: Vector;
+
+  constructor({caster, target, from, to, position, using, tags = []}: ChangeWorldAction.Params) {
+    super({caster, using, tags});
+    this.target = target;
+    this.from = from;
+    this.to = to;
+    this.position = position;
+    this.originPosition = target.position;
+  }
+
+  apply(): boolean {
+    return this.target._changeWorlds(this.to, this.position);
+  }
+}
+
+export namespace ChangeWorldAction {
+  export interface Params extends EntityParams {
+    target: Entity;
+  }
+  
+  export interface EntityParams extends ActionParameters {
+    from: World,
+    to: World,
+    position: Vector;
   }
 }
