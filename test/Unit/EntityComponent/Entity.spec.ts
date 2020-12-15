@@ -9,6 +9,7 @@ import EmptyAbility from '../../Mocks/Abilities/Empty';
 import { Heal }  from '../../Mocks/Abilities/Spells';
 import World from '../../../src/World/World';
 import Vector from '../../../src/Math/Vector';
+import { ModifiesAndReactsAtWorldScope } from '../../Mocks/Components/Functional';
 
 describe('Entity', () => {
 
@@ -32,6 +33,22 @@ describe('Entity action/event generators', () => {
     it('Does not generate and event for an ability it does not have', () => {
       expect(e.cast("blah")).to.be.undefined;
     });
+  });
+});
+
+describe('Connecting higher-order component modifiers + reacters', () => {
+  it('Keeps all reacters/modifiers local until getting published', () => {
+    const room = new Room();
+    const e = new Entity();
+    const c = new ModifiesAndReactsAtWorldScope()
+    e._attach(c);
+    expect(e.modifiers).to.include(c);
+    expect(e.reacters).to.include(c);
+    e._publish(room, room.stageLeft);
+    expect(e.modifiers).to.not.include(c);
+    expect(e.reacters).to.not.include(c);
+    expect(room.modifiers).to.include(c);
+    expect(room.reacters).to.include(c);
   });
 });
 

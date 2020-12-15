@@ -1,5 +1,5 @@
 import Component, { ComponentContainer } from '../EntityComponent/Component';
-import { Listener } from '../Events/Interfaces';
+import { Listener, Modifier, Reacter } from '../Events/Interfaces';
 import Action from '../Events/Action';
 
 import { ILayer } from './Layer';
@@ -17,6 +17,9 @@ export default abstract class World implements ComponentContainer, Listener {
 
   entities: Set<number> = new Set<number>();
   entitiesByChunk: Map<string, Set<number>> = new Map<string, Set<number>>();
+
+  modifiers: Modifier[] = [];
+  reacters: Reacter[] = [];
 
   width?: number;
   height?: number;

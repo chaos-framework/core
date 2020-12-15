@@ -3,7 +3,7 @@ import 'mocha';
 
 import Entity from '../../../src/EntityComponent/Entity';
 
-import EmptyComponent from '../../Mocks/Components/Empty';
+import { EmptyComponent } from '../../Mocks/Components/Functional';
 import { Humanoid } from '../../Mocks/Components/Traits';
 import { Paladin } from '../../Mocks/Components/Classes';
 

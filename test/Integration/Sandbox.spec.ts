@@ -3,8 +3,11 @@ import 'mocha';
 
 import { createPaladin, createZombie } from '../Mocks/Entities/Actors';
 
-describe('metaroguesandbox', () => {
-  it('Runs!', () => {
+describe('Metarogue Sandbox', function() {
+  it('Sandbox', function() {
+    if(!process.env.METAROGUE_SANDBOX) {
+      this.skip();
+    }
     const pali = createPaladin();
     const zombie = createZombie();
     const spell = pali.cast("Heal", { target: zombie });

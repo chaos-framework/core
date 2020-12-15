@@ -16,9 +16,9 @@ import { Game } from '../Game/Game';
 import Vector from '../Math/Vector';
 import World from '../World/World';
 import { MoveAction, RelativeMoveAction } from '../Events/Actions/MovementActions';
-import { relative } from 'path';
 
 export default class Entity implements Listener, ComponentContainer {
+
   private static idCounter = 0;
   id?: number;
   tags = new Set<string>();
@@ -28,10 +28,9 @@ export default class Entity implements Listener, ComponentContainer {
 
   properties: Map<string, Property> = new Map<string, Property>();
 
-  components: Component[] = [];
-
-  modifiers: Modifier[] = [];
-  reacters: Reacter[] = [];
+  components: Component[] = []; // all components
+  modifiers: Modifier[] = [];   // all modifiers
+  reacters: Reacter[] = [];     // all reacters
 
   abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
@@ -166,6 +165,27 @@ export default class Entity implements Listener, ComponentContainer {
     return undefined;
   }
 
+  // Connect components which may have higher-order listeners upon publishing
+  connect() {
+    if(!this.isPublished() || ! this.world) {
+      return;
+    }
+    const components = this.components;  // TODO also grab stored / equipped items and their listeners?
+    for(let i = 0; i < components.length; i++) {
+      const component = components[i];
+      if(component.scope != "Entity") {
+        if(isModifier(component)) {
+          component.scope === "World" ? this.world.modifiers.push(component) : null; // TODO game-level listeners
+          this.modifiers.splice(this.modifiers.indexOf(component), 1);
+        }
+        if(isReacter(component)) {
+          component.scope === "World" ? this.world.reacters.push(component) : null; // TODO game-level listeners
+          this.reacters.splice(this.reacters.indexOf(component), 1);
+        }
+      }
+    }
+  }
+
   /*****************************************
    *  ACTION GENERATORS / IMPLEMENTATIONS
    *****************************************/
@@ -186,6 +206,7 @@ export default class Entity implements Listener, ComponentContainer {
     Game.addEntity(this);
     world.addEntity(this);
     this.world = world;
+    this.connect(); // link up higher-scoped component listeners
     return true;
   }
 
@@ -197,16 +218,15 @@ export default class Entity implements Listener, ComponentContainer {
 
   _attach(component: Component): boolean {
     this.components.push(component); // TODO check for unique flag, return false if already attached
-    // Add listeners, if appropriate
-    switch(component.scope) {
-      default:
-        if(isModifier(component)) {
-          this.modifiers.push(component);
-        }
-        if(isReacter(component)) {
-          this.reacters.push(component);
-        }
-        break;
+    // Add all listeners as local
+    // switch(component.scope) {
+    //   case "Game":
+    //     break;
+    if(isModifier(component)) {
+      this.modifiers.push(component);
+    }
+    if(isReacter(component)) {
+      this.reacters.push(component);
     }
     component.attach(this);
     return true;
