@@ -1,25 +1,29 @@
 import Entity from "../EntityComponent/Entity";
 import World from "../World/World";
 
-export namespace Game {
-  const worlds: Map<string, World> = new Map<string, World>();
-  const entities: Map<number, Entity> = new Map<number, Entity>();
+export default abstract class Game {
+  name = "Default Game";
+  worlds: Map<string, World> = new Map<string, World>();
+  entities: Map<number, Entity> = new Map<number, Entity>();
+  // TODO players, teams
 
-  export const getWorld = (id: string): World | undefined => {
-    return worlds.get(id);
+  getWorld = (id: string): World | undefined => {
+    return this.worlds.get(id);
   }
 
-  export const getEntity = (id: number): Entity | undefined => {
-    return entities.get(id);
+  getEntity = (id: number): Entity | undefined => {
+    return this.entities.get(id);
   }
 
-  export const addEntity = (e: Entity): boolean => {
+  addEntity = (e: Entity): boolean => {
     if(e.id) {
-      entities.set(e.id, e);
+      this.entities.set(e.id, e);
       return true;
     }
     return false;
   }
 
-  // TODO players, teams
+  // abstract classes..
+    // playerConnect, other callbacks
+
 }

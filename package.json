@@ -2,7 +2,8 @@
   "name": "@metarogue/core",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "test": "mocha",
     "sandbox": "env METAROGUE_SANDBOX=true mocha -g Sandbox"
@@ -14,8 +15,8 @@
     "type": "git",
     "url": "git+https://github.com/and0p/metarogue-core.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["metarogue"],
+  "author": "Andrew Peterson",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/and0p/metarogue-core/issues"

@@ -1,3 +1,3 @@
-exports.printMsg = function() {
-  console.log("demo export");
-}
+'use strict';
+
+module.exports = require('./src/index');

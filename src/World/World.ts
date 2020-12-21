@@ -6,7 +6,7 @@ import { ILayer } from './Layer';
 import { IChunk } from './Chunk';
 import Entity from '../EntityComponent/Entity';
 import Vector from '../Math/Vector';
-import { Game } from '../Game/Game';
+import Game from '../Game/Game';
 
 export const CHUNK_WIDTH = 16;
 
@@ -106,7 +106,7 @@ export default abstract class World implements ComponentContainer, Listener {
     if(entitiesInChunk) {
       const v = new Vector(x, y);
       for(const id of entitiesInChunk) {
-        const entity = Game.getEntity(id);
+        const entity = undefined;// Game.getEntity(id);
         if(entity) {
           entities.push(entity);
         }

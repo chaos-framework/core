@@ -12,7 +12,7 @@ import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Eve
 import { PublishEntityAction } from '../Events/Actions/EntityActions';
 import { EquipAction } from '../Events/Actions/EquipmentActions';
 import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
-import { Game } from '../Game/Game';
+import Game from '../Game/Game';
 import Vector from '../Math/Vector';
 import World from '../World/World';
 import { ChangeWorldAction, MoveAction, RelativeMoveAction } from '../Events/Actions/MovementActions';
@@ -237,7 +237,7 @@ export default class Entity implements Listener, ComponentContainer {
     this.id = ++Entity.idCounter;
     this.active = true;
     this.position = position;
-    Game.addEntity(this);
+    // Game.addEntity(this);
     world.addEntity(this);
     this.world = world;
     this.connectToWorld();

@@ -2,10 +2,9 @@ import Entity from './Entity';
 
 export default class Slot {
   size: number;
-  items: Entity[];
+  items: Entity[] = [];
 
-  constuctor(size: number) {
+  constructor(size: number) {
     this.size = size;
-    this.items = new Entity[](size);
   }
 }
