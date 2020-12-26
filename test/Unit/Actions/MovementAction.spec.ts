@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Entity from '../../../src/EntityComponent/Entity';
+import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
+import Entity from '../../../src/EntityComponent/Entity';
 import { ChangeWorldAction } from '../../../src/Events/Actions/MovementActions';
+import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 
 describe('World Changing Actions', () => {
   let room1: Room;
@@ -11,6 +13,7 @@ describe('World Changing Actions', () => {
   let e: Entity;
 
   beforeEach(() => {
+    new EmptyGame();
     room1 = new Room();
     room2 = new Room();
     e = new Entity();

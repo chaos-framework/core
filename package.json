@@ -2,11 +2,12 @@
   "name": "@metarogue/core",
   "version": "0.0.1",
   "description": "",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
-    "test": "mocha",
-    "sandbox": "env METAROGUE_SANDBOX=true mocha -g Sandbox"
+    "build": "tsc",
+    "test": "env DEBUG=true mocha",
+    "sandbox": "env DEBUG=true METAROGUE_SANDBOX=true mocha -g Sandbox"
   },
   "files": [
     "lib/**/*"
@@ -15,7 +16,9 @@
     "type": "git",
     "url": "git+https://github.com/and0p/metarogue-core.git"
   },
-  "keywords": ["metarogue"],
+  "keywords": [
+    "metarogue"
+  ],
   "author": "Andrew Peterson",
   "license": "ISC",
   "bugs": {
@@ -46,6 +49,7 @@
   "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
   "lint": "tslint -p tsconfig.json",
   "dependencies": {
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.20",
+    "queue-typescript": "^1.0.1"
   }
 }

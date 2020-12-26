@@ -1,5 +1,6 @@
-import Component from "../EntityComponent/Component";
+import Game from '../Game/Game';
 import Entity from "../EntityComponent/Entity";
+import Component from "../EntityComponent/Component";
 import { Listener } from './Interfaces';
 
 export default abstract class Action {
@@ -26,6 +27,8 @@ export default abstract class Action {
   }
 
   execute(force: boolean = true): boolean {
+    const game = Game.getInstance();
+
     // First check if the target is unpublished
     if(this.target && !this.target.isPublished()) {
       // Just let the target modify and react directly
@@ -48,7 +51,9 @@ export default abstract class Action {
         listeners.push(this.caster.map);
       }
     }
-    // TODO add systems
+    // TODO caster world
+    listeners.push(game);
+    // TODO target world, if different from caster's
     if(this.target && this.target != this.caster) {
       if(this.caster && this.caster.map != this.target.map) {
         listeners.push(this.target.map);
@@ -67,7 +72,8 @@ export default abstract class Action {
     // Apply this action to the target, checking for success
     let applied = this.apply();
     
-    // TODO broadcast self to system
+    // Queue in the game
+    game.enqueueAction(this);
 
     // Let all listeners react
     for(let listener of listeners) {
