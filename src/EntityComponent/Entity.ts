@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import Property from './Properties/Property';
 import Component, { ComponentContainer } from './Component';
 import Event from '../Events/Event';
@@ -18,11 +19,9 @@ import World from '../World/World';
 import { ChangeWorldAction, MoveAction, RelativeMoveAction } from '../Events/Actions/MovementActions';
 
 export default class Entity implements Listener, ComponentContainer {
-
-  private static idCounter = 0;
-  id?: number;
+  id: string;
   tags = new Set<string>();
-  published = false;
+  private published = false;
   active = false;
   omnipotent = false; // listens to every action in the game
 
@@ -48,11 +47,12 @@ export default class Entity implements Listener, ComponentContainer {
   // TODO single char for display in leiu of art asset
 
   constructor(serialized?: object) {
+    this.id = uuid();
     // TODO create from serialized to load from disk/db, and don't increment entity count
   }
 
   isPublished(): boolean {
-    return this.id !== undefined;
+    return this.published;
   }
 
   activate() {
@@ -63,10 +63,6 @@ export default class Entity implements Listener, ComponentContainer {
   deactivate() {
     this.active = false;
     // TODO remove listeners?
-  }
-
-  static setIdCount(i: number): void {
-    Entity.idCounter = i;
   }
 
   modify(a: Action) {
@@ -231,10 +227,7 @@ export default class Entity implements Listener, ComponentContainer {
   }
 
   _publish(world: World, position: Vector): boolean {
-    if(this.id) {
-      return false;
-    }
-    this.id = ++Entity.idCounter;
+    this.published = true;
     this.active = true;
     this.position = position;
     // Game.addEntity(this);

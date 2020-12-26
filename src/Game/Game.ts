@@ -4,12 +4,14 @@ import World from "../World/World";
 import { Queue } from 'queue-typescript';
 import Component, { ComponentContainer } from "../EntityComponent/Component";
 import { isModifier, isReacter, Listener, Modifier, Reacter } from "../Events/Interfaces";
+import Player from "./Player";
 
 export default abstract class Game {
   private static instance: Game;
 
   worlds: Map<string, World> = new Map<string, World>();
-  entities: Map<number, Entity> = new Map<number, Entity>();
+  entities: Map<string, Entity> = new Map<string, Entity>();
+  players: Map<string, Player> = new Map<string, Player>();
   components: Component[] = []; // all components
   modifiers: Modifier[] = [];   // all modifiers
   reacters: Reacter[] = [];     // all reacters
@@ -74,6 +76,7 @@ export default abstract class Game {
   }
 
   abstract initialize(options: any): void;
-  abstract onPlayerConnect(options: any): void;
+  abstract onPlayerConnect(p: Player, options: any): void;
+  abstract onPlayerDisconnect(options: any): void;
 
 }
