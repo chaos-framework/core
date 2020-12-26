@@ -40,7 +40,7 @@ export default abstract class Game {
     return this.worlds.get(id);
   }
 
-  getEntity = (id: number): Entity | undefined => {
+  getEntity = (id: string): Entity | undefined => {
     return this.entities.get(id);
   }
 

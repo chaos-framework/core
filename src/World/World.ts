@@ -15,8 +15,8 @@ export default abstract class World implements ComponentContainer, Listener {
   baseLayer: ILayer;
   additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
 
-  entities: Set<number> = new Set<number>();
-  entitiesByChunk: Map<string, Set<number>> = new Map<string, Set<number>>();
+  entities: Set<string> = new Set<string>();
+  entitiesByChunk: Map<string, Set<string>> = new Map<string, Set<string>>();
 
   modifiers: Modifier[] = [];
   reacters: Reacter[] = [];
@@ -54,7 +54,7 @@ export default abstract class World implements ComponentContainer, Listener {
       this.entities.add(e.id);
       const chunkIndex = e.position.toChunkSpace().getIndexString();
       if(!this.entitiesByChunk.has(chunkIndex)) {
-        this.entitiesByChunk.set(chunkIndex, new Set<number>());        
+        this.entitiesByChunk.set(chunkIndex, new Set<string>());        
       }
       this.entitiesByChunk.get(chunkIndex)?.add(e.id);
       return true;
@@ -85,7 +85,7 @@ export default abstract class World implements ComponentContainer, Listener {
         }
         const newString = to.toChunkSpace().getIndexString();
         if(!this.entitiesByChunk.has(newString)) {
-          this.entitiesByChunk.set(newString, new Set<number>([entity.id]));
+          this.entitiesByChunk.set(newString, new Set<string>([entity.id]));
         }
         else {
           this.entitiesByChunk.get(newString)!.add(entity.id);
