@@ -10,5 +10,9 @@ export default class EmptyGame extends Game {
   onPlayerConnect() {
 
   }
+
+  onPlayerDisconnect() {
+    
+  }
   
 }

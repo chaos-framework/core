@@ -227,10 +227,12 @@ export default class Entity implements Listener, ComponentContainer {
   }
 
   _publish(world: World, position: Vector): boolean {
+    if(this.published) {
+      return false;
+    }
     this.published = true;
     this.active = true;
     this.position = position;
-    // Game.addEntity(this);
     world.addEntity(this);
     this.world = world;
     this.connectToWorld();

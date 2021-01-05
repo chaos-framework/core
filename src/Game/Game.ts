@@ -16,6 +16,8 @@ export default abstract class Game {
   modifiers: Modifier[] = [];   // all modifiers
   reacters: Reacter[] = [];     // all reacters
   actionQueue: Queue<Action> = new Queue<Action>();
+
+  viewDistance = 6; // how far (in chunks) to load around active entities
   // TODO players, teams
 
   constructor() {
@@ -35,6 +37,11 @@ export default abstract class Game {
   enqueueAction = (a: Action): void => {
     this.actionQueue.enqueue(a);
   }
+
+  addWorld = (world: World): boolean => {
+    this.worlds.set(world.id, world);
+    return true;
+  } 
 
   getWorld = (id: string): World | undefined => {
     return this.worlds.get(id);

@@ -2,6 +2,7 @@ import Action, { ActionParameters } from '../Action';
 import Entity from "../../EntityComponent/Entity";
 import Vector from '../../Math/Vector';
 import World from '../../World/World';
+import Scope, { ScopeChange } from '../../World/Scope';
 
 export class MoveAction extends Action {
   target: Entity;
@@ -17,6 +18,25 @@ export class MoveAction extends Action {
 
   apply(): boolean {
     return this.target._move(this.to);
+  }
+
+  initialize() {
+    const { id, world } = this.target;
+    if(world && !this.from.equals(this.to)) {
+      world.addViewerTo(id, this.to, this.from);
+    }
+  }
+
+  teardown() {
+    const { id, world } = this.target;
+    if(world && !this.from.equals(this.to)) {
+      // If movement was successful remove old view, otherwise remove the new
+      if (this.permitted) {
+        world.removeViewerFrom(id, this.from, this.to);
+      } else {
+        world.removeViewerFrom(id, this.to, this.from);
+      }
+    }
   }
 }
 

@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid';
+
 import Component, { ComponentContainer } from '../EntityComponent/Component';
 import { Listener, Modifier, Reacter } from '../Events/Interfaces';
 import Action from '../Events/Action';
@@ -7,10 +9,13 @@ import { IChunk } from './Chunk';
 import Entity from '../EntityComponent/Entity';
 import Vector from '../Math/Vector';
 import Game from '../Game/Game';
+import Scope from './Scope';
+import { toInteger } from 'lodash';
 
 export const CHUNK_WIDTH = 16;
 
 export default abstract class World implements ComponentContainer, Listener {
+  id: string;
   components: Component[] = [];
   baseLayer: ILayer;
   additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
@@ -27,11 +32,15 @@ export default abstract class World implements ComponentContainer, Listener {
   streaming: boolean = false; // whether or not to load/unload chunks from memory
   ephemeral: boolean = true;  // should be forgotten + all contained entities deleted when unloaded
 
+  scope: Scope; // which parts of the world are seen by who
+
   constructor(baseLayer: ILayer, {width, height, streaming = false, additionalLayers}: {width: number, height: number, streaming?: boolean, additionalLayers?: any}) {
+    this.id = uuid();
     this.baseLayer = baseLayer;
     this.width = width;
     this.height = height;
     this.streaming = streaming;
+    this.scope = new Scope(width, height);
 
     // TODO check for width and height and force streaming if undefined or the world is too large
     // TODO if not streaming, should this super constructor handle creating chunks with default values?
@@ -46,6 +55,10 @@ export default abstract class World implements ComponentContainer, Listener {
         }
       }
     }
+  }
+
+  publish() {
+    Game.getInstance().addWorld(this);
   }
 
   addEntity(e: Entity): boolean {
@@ -91,6 +104,21 @@ export default abstract class World implements ComponentContainer, Listener {
           this.entitiesByChunk.get(newString)!.add(entity.id);
         }
       }
+    }
+  }
+
+  addViewerTo(id: string, to: Vector, from: Vector) {
+    const change = this.scope.addViewer(id, to, from);
+    for(let s in change.added) {
+      const v = getVectorFromXYString(s);
+      this.initializeChunk(v.x, v.y);
+    }
+  }
+
+  removeViewerFrom(id: string, from: Vector, to: Vector) {
+    const change = this.scope.removeViewer(id, to, from);
+    for(let s in change.removed) {
+      // TODO unload chunks + entities
     }
   }
 
@@ -150,7 +178,6 @@ export default abstract class World implements ComponentContainer, Listener {
 
   abstract serialize(): string; // Serialize metadata
   abstract unserialize(data: string): World;  // Unserialize metadata
-
 }
 
 export function getChunkSpaceCoordinates(i: number): number {
@@ -162,4 +189,9 @@ export function getXYString(x: number, y: number): string {
     return x.toString() + "_" + y.toString();
   }
   throw new Error();
+}
+
+export function getVectorFromXYString(s: string): Vector {
+  const values = s.split('_').map(v => toInteger(v));
+  return new Vector(values[0], values[1]);
 }

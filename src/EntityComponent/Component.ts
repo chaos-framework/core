@@ -1,9 +1,8 @@
+import { v4 as uuid } from 'uuid';
 import Modification from "./Properties/Modification";
 
 export default abstract class Component {
-  private static idCounter = 0;
-
-  id: number;
+  id: string;
   data: { [key: string]: any };
   parent?: ComponentContainer;
   name?: string;
@@ -15,12 +14,8 @@ export default abstract class Component {
   propertyModifications: Modification[] = [];
 
   constructor() {
-    this.id = ++Component.idCounter;
+    this.id = uuid();
     this.data = {};
-  }
-
-  static setIdCounter(i: number): void {
-    Component.idCounter = i;
   }
 
   serialize(): object {

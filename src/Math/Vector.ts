@@ -1,3 +1,4 @@
+import { clamp } from 'lodash';
 import { CHUNK_WIDTH } from '../World/World';
 
 export default class Vector {
@@ -19,6 +20,11 @@ export default class Vector {
 
   copy(): Vector {
     return new Vector(this.x, this.y);
+  }
+
+  // Clamps to zero-based square of size given
+  clamp(size: Vector): Vector {
+    return new Vector(clamp(this.x, 0, size.x), clamp(this.y, 0, size.y));
   }
 
   copyAdjusted(x: number, y: number): Vector {

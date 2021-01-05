@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import Entity from '../EntityComponent/Entity';
+import { Entity } from '..';
+import Scope from '../World/Scope';
 import Team from './Team';
 
 export default class Player {
@@ -7,9 +8,7 @@ export default class Player {
   entities = new Set<string>();
   teams = new Set<string>();
   admin = false;
-  activeChunks = new Map<string, string[]>();
-
-  // TODO worlds + active chunks
+  scopesByWorld = new Map<string, Scope>();
 
   constructor({ name, teams = [], admin = false}: {name:string, teams: string[], admin: boolean}) {
     this.id = uuid();
