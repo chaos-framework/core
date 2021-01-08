@@ -35,6 +35,14 @@ export default class Vector {
     return new Vector(Math.floor(this.x / 16), Math.floor(this.y / 16));
   }
 
+  toChunkSpaceCeil(): Vector {
+    return new Vector(Math.ceil(this.x / 16), Math.ceil(this.y / 16));
+  }
+
+  toBaseZero(): Vector {
+    return new Vector(this.x > 0 ? this.x - 1 : 0, this.y > 0 ? this.y - 1 : 0)
+  }
+
   differentChunkFrom(other: Vector): boolean {
     return !this.toChunkSpace().equals(other.toChunkSpace());
   }

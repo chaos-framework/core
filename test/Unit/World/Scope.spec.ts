@@ -10,7 +10,7 @@ describe ('Scopes', () => {
   let game: Game;
   beforeEach(() => {
     game = new EmptyGame();
-    scope = new Scope(500, 500);
+    scope = new Scope(256, 256);
   });
 
   it('Views nothing by default', () => {
@@ -77,9 +77,9 @@ describe ('Scopes', () => {
     game.viewDistance = 5;
     scope.addViewer('', new Vector(0, 0));
     expect(scope.active.has(new Vector(-1, -1).getIndexString())).to.be.false;
-    scope.addViewer('', new Vector(498, 498));
-    expect(scope.active.has(new Vector(500, 500).getIndexString())).to.be.false;
-    expect(scope.active.has(new Vector(499, 499).getIndexString())).to.be.true;
+    scope.addViewer('', new Vector(15, 15));
+    expect(scope.active.has(new Vector(16, 16).getIndexString())).to.be.false;
+    expect(scope.active.has(new Vector(15, 15).getIndexString())).to.be.true;
   });
 
 });

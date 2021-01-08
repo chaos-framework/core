@@ -34,7 +34,7 @@ export default abstract class World implements ComponentContainer, Listener {
 
   scope: Scope; // which parts of the world are seen by who
 
-  constructor(baseLayer: ILayer, {width, height, streaming = false, additionalLayers}: {width: number, height: number, streaming?: boolean, additionalLayers?: any}) {
+  constructor(baseLayer: ILayer, {width, height, streaming = false, additionalLayers}: {width?: number, height?: number, streaming?: boolean, additionalLayers?: any}) {
     this.id = uuid();
     this.baseLayer = baseLayer;
     this.width = width;
@@ -107,18 +107,23 @@ export default abstract class World implements ComponentContainer, Listener {
     }
   }
 
-  addViewerTo(id: string, to: Vector, from: Vector) {
-    const change = this.scope.addViewer(id, to, from);
-    for(let s in change.added) {
-      const v = getVectorFromXYString(s);
-      this.initializeChunk(v.x, v.y);
+  // Preload new 
+  preload(id: string, to: Vector, from: Vector) {
+    if(this.streaming && !to.equals(from)) {
+      const change = this.scope.addViewer(id, to, from);
+      for(let s in change.added) {
+        const v = getVectorFromXYString(s);
+        this.initializeChunk(v.x, v.y);
+      }
     }
   }
 
-  removeViewerFrom(id: string, from: Vector, to: Vector) {
-    const change = this.scope.removeViewer(id, to, from);
-    for(let s in change.removed) {
-      // TODO unload chunks + entities
+  unload(id: string, from: Vector, to: Vector) {
+    if(this.streaming && !to.equals(from)) {
+      const change = this.scope.removeViewer(id, to, from);
+      for(let s in change.removed) {
+        // TODO unload chunks + entities
+      }
     }
   }
 
@@ -164,7 +169,12 @@ export default abstract class World implements ComponentContainer, Listener {
     for(let k in this.additionalLayers) {
       this.additionalLayers.get(k)?.initializeChunk(x, y, baseChunk);
     }
+    if(this.streaming) {
+      this.populateChunk(x, y, baseChunk);
+    }
   }
+
+  populateChunk(x: number, y: number, chunk: IChunk): void { }
 
   // TODO setTile and _setTile
 

@@ -5,9 +5,10 @@ export default class Scope {
   chunkViewers = new Map<string, Set<string>>();
   size?: Vector;
 
+  // Optional width in tile-space (NOT chunk-space, converted here)
   constructor(width?: number, height?: number) {
     if(width && height) {
-      this.size = new Vector(width - 1, height - 1);
+      this.size = new Vector(width, height).toBaseZero().toChunkSpaceCeil();
     }
   }
   
@@ -39,6 +40,7 @@ export default class Scope {
 
   addViewer(viewer: string, to: Vector, from?: Vector): ScopeChange {
     const distance = Game.getInstance().viewDistance;
+    // Get newly viewed chunks, subtracting the previous view for this entity if provided
     const newChunks = from !== undefined ? subtract(this.getChunksInView(from, distance), this.getChunksInView(to, distance)) : this.getChunksInView(to, distance);
     const totalAdded: string[] = [];
     // Add new tiles + viewers
@@ -93,7 +95,7 @@ export default class Scope {
     let bottomRight = center.add(new Vector(distance, distance));
     if(this.size) {
       topLeft = topLeft.clamp(this.size);
-      bottomRight = bottomRight.clamp(this.size);
+      bottomRight = bottomRight.clamp(this.size.toBaseZero());
     }
     for (let x = topLeft.x; x <= bottomRight.x; x++) {
       for (let y = topLeft.y; y <= bottomRight.y; y++) {

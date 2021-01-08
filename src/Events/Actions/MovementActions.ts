@@ -21,20 +21,21 @@ export class MoveAction extends Action {
   }
 
   initialize() {
+    // Ask world to load new chunks if needed.
     const { id, world } = this.target;
-    if(world && !this.from.equals(this.to)) {
-      world.addViewerTo(id, this.to, this.from);
+    if(world && this.from.differentChunkFrom(this.to)) {
+      world.preload(id, this.to.toChunkSpace(), this.from.toChunkSpace());
     }
   }
 
   teardown() {
     const { id, world } = this.target;
-    if(world && !this.from.equals(this.to)) {
+    if(world && this.from.differentChunkFrom(this.to)) {
       // If movement was successful remove old view, otherwise remove the new
       if (this.permitted) {
-        world.removeViewerFrom(id, this.from, this.to);
+        world.unload(id, this.from.toChunkSpace(), this.to.toChunkSpace());
       } else {
-        world.removeViewerFrom(id, this.to, this.from);
+        world.unload(id, this.to.toChunkSpace(), this.from.toChunkSpace());
       }
     }
   }

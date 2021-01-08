@@ -2,9 +2,10 @@ import { expect } from 'chai';
 import 'mocha';
 import Entity from '../../../src/EntityComponent/Entity';
 import Vector from '../../../src/Math/Vector';
-import { getXYString } from '../../../src/World/World';
+import World, { getXYString } from '../../../src/World/World';
 
 import Room from '../../Mocks/Worlds/Room';
+import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld';
 
 describe('Worlds', () => {
   describe('Holding entities', () => {
@@ -60,5 +61,20 @@ describe('Worlds', () => {
 
     // TODO cannot publish same entity twice!
     // TODO also to worlds, different problem..
+  });
+
+  describe('Width and height limits', () => {
+
+  });
+
+  describe('Streaming world', () => {
+    let world: World;
+    beforeEach(() => {
+      world = new StreamingCheckerboardWorld();
+    });
+
+    it('Should be empty initially', () => {
+      expect(world.scope.active.size).to.equal(0);
+    })
   });
 });

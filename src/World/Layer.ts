@@ -11,7 +11,7 @@ export default abstract class Layer<T> implements ILayer {
     this.fill = fill;
   }
 
-  setTile(x: number, y: number, tile: any) { 
+  setTile(x: number, y: number, tile: any) {
     const chunk = this.getChunk(x, y);
     // TODO should load chunk if not defined -- someone can set a tile anywhere
     if(chunk) {

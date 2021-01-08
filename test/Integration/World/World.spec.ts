@@ -17,10 +17,6 @@ describe('World Integration Testing', () => {
     });
   });
 
-  describe('World width and height limits', () => {
-
-  });
-
   // TODO components, or maybe that should be in unit
 
 });
