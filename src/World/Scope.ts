@@ -55,7 +55,7 @@ export default class Scope {
     const oldChunks = to !== undefined ? subtract(this.getChunksInView(to, distance), this.getChunksInView(from, distance)) : this.getChunksInView(from, distance);
     const totalRemoved: string[] = [];
     // Add new tiles + viewers
-    for (let chunk in oldChunks) {
+    for (let chunk of oldChunks) {
       if (this.removeChunkViewer(viewer, chunk)) {
         totalRemoved.push(chunk);
       }
@@ -107,7 +107,7 @@ export default class Scope {
 
 const subtract = (sub: Set<string>, from: Set<string>): string[] => {
   const c: string[] = [];
-  for (let s in from) {
+  for (let s of from) {
     if (!sub.has(s)) {
       c.push(s);
     }
