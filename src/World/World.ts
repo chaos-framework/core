@@ -10,7 +10,6 @@ import Entity from '../EntityComponent/Entity';
 import Vector from '../Math/Vector';
 import Game from '../Game/Game';
 import Scope from './Scope';
-import { toInteger } from 'lodash';
 
 export const CHUNK_WIDTH = 16;
 
@@ -61,8 +60,12 @@ export default abstract class World implements ComponentContainer, Listener {
     Game.getInstance().addWorld(this);
   }
 
-  addEntity(e: Entity): boolean {
+  addEntity(e: Entity, preloaded = false): boolean {
     if(e.id && !this.entities.has(e.id)) {
+      // Load the location if needed
+      if(!preloaded) {
+        this.preload(e.id, e.position);
+      }
       // Add the entity to full list
       this.entities.add(e.id);
       const chunkIndex = e.position.toChunkSpace().getIndexString();
@@ -78,7 +81,7 @@ export default abstract class World implements ComponentContainer, Listener {
   removeEntity(e: Entity): boolean {
     if(e.id && this.entities.has(e.id)) {
       this.entities.delete(e.id);
-      const chunk = getXYString(e.position.x, e.position.y);
+      const chunk = e.position.toChunkSpace().getIndexString();
       this.entitiesByChunk.get(chunk)?.delete(e.id); 
       return true;
     }
@@ -108,19 +111,19 @@ export default abstract class World implements ComponentContainer, Listener {
   }
 
   // Preload new 
-  preload(id: string, to: Vector, from: Vector) {
-    if(this.streaming && !to.equals(from)) {
+  preload(id: string, to: Vector, from?: Vector) {
+    if(this.streaming) {
       const change = this.scope.addViewer(id, to, from);
-      for(let s in change.added) {
-        const v = getVectorFromXYString(s);
+      for(let s of change.added) {
+        const v = Vector.fromIndexString(s);
         this.initializeChunk(v.x, v.y);
       }
     }
   }
 
-  unload(id: string, from: Vector, to: Vector) {
-    if(this.streaming && !to.equals(from)) {
-      const change = this.scope.removeViewer(id, to, from);
+  unload(id: string, from: Vector, to?: Vector) {
+    if(this.streaming) {
+      const change = this.scope.removeViewer(id, from, to);
       for(let s in change.removed) {
         // TODO unload chunks + entities
       }
@@ -133,8 +136,7 @@ export default abstract class World implements ComponentContainer, Listener {
 
   getEntitiesAtCoordinates(x: number, y: number): Entity[] {
     let entities: Entity[] = [];
-    const chunkSpacePosition = new Vector(x, y).toChunkSpace();
-    const chunk = getXYString(chunkSpacePosition.x, chunkSpacePosition.y);
+    const chunk = new Vector(x, y).toChunkSpace().getIndexString();
     const entitiesInChunk = this.entitiesByChunk.get(chunk);
     if(entitiesInChunk) {
       const v = new Vector(x, y);
@@ -192,16 +194,4 @@ export default abstract class World implements ComponentContainer, Listener {
 
 export function getChunkSpaceCoordinates(i: number): number {
   return Math.floor(i / CHUNK_WIDTH);
-}
-
-export function getXYString(x: number, y: number): string {
-  if(Number.isInteger(x) && Number.isInteger(y)) {
-    return x.toString() + "_" + y.toString();
-  }
-  throw new Error();
-}
-
-export function getVectorFromXYString(s: string): Vector {
-  const values = s.split('_').map(v => toInteger(v));
-  return new Vector(values[0], values[1]);
 }

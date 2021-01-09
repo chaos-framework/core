@@ -1,9 +1,19 @@
 import { clamp } from 'lodash';
-import { CHUNK_WIDTH } from '../World/World';
+// import { CHUNK_WIDTH } from '../World/World';
+import { toInteger } from 'lodash';
+
+const CHUNK_WIDTH = 16;
 
 export default class Vector {
   x: number;
   y: number;
+
+  static fromIndexString(s: string): Vector {
+    const values = s.split('_').map(v => toInteger(v));
+    return new Vector(values[0], values[1]);
+  }
+
+  static zero = new Vector(0, 0);
 
   constructor(x: number, y: number) {
     this.x = x;
@@ -23,8 +33,8 @@ export default class Vector {
   }
 
   // Clamps to zero-based square of size given
-  clamp(size: Vector): Vector {
-    return new Vector(clamp(this.x, 0, size.x), clamp(this.y, 0, size.y));
+  clamp(size?: Vector): Vector {
+    return new Vector(clamp(this.x, 0, size ? size.x : Number.MAX_VALUE), clamp(this.y, 0, size ? size.y : Number.MAX_VALUE));
   }
 
   copyAdjusted(x: number, y: number): Vector {
@@ -32,11 +42,11 @@ export default class Vector {
   }
 
   toChunkSpace(): Vector {
-    return new Vector(Math.floor(this.x / 16), Math.floor(this.y / 16));
+    return new Vector(Math.floor(this.x / CHUNK_WIDTH), Math.floor(this.y / CHUNK_WIDTH));
   }
 
   toChunkSpaceCeil(): Vector {
-    return new Vector(Math.ceil(this.x / 16), Math.ceil(this.y / 16));
+    return new Vector(Math.ceil(this.x / CHUNK_WIDTH), Math.ceil(this.y / CHUNK_WIDTH));
   }
 
   toBaseZero(): Vector {

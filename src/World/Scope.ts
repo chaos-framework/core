@@ -93,8 +93,8 @@ export default class Scope {
     const chunks = new Set<string>();
     let topLeft = center.add(new Vector(-distance, -distance));
     let bottomRight = center.add(new Vector(distance, distance));
+    topLeft = topLeft.clamp();
     if(this.size) {
-      topLeft = topLeft.clamp(this.size);
       bottomRight = bottomRight.clamp(this.size.toBaseZero());
     }
     for (let x = topLeft.x; x <= bottomRight.x; x++) {

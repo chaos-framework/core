@@ -1,4 +1,5 @@
-import { CHUNK_WIDTH, getXYString } from './World';
+import { Vector } from '..';
+import { CHUNK_WIDTH } from './World';
 import Chunk, { IChunk } from './Chunk';
 
 // Layers
@@ -33,9 +34,7 @@ export default abstract class Layer<T> implements ILayer {
 
   // Get the chunk that the absolute x/y coordinates fall under
   getChunk(x: number, y: number): Chunk<T> | undefined {
-    const chunkX = Math.floor(x / CHUNK_WIDTH);
-    const chunkY = Math.floor(y / CHUNK_WIDTH);
-    const key = getXYString(chunkX, chunkY);
+    const key = new Vector(x, y).toChunkSpace().getIndexString();
     const chunk = this.chunks.get(key);
     if(chunk) {
       return chunk;
@@ -45,7 +44,7 @@ export default abstract class Layer<T> implements ILayer {
 
   // Initialize chunks, optionally with a base for context
   initializeChunk(x: number, y: number, base?: IChunk): IChunk {
-    const k = getXYString(x, y);
+    const k = new Vector(x, y).getIndexString();
     let chunk = this.chunks.get(k);
     if(chunk) {
       return chunk;

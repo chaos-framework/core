@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import 'mocha';
-import Entity from '../../../src/EntityComponent/Entity';
-import Vector from '../../../src/Math/Vector';
-import World, { getXYString } from '../../../src/World/World';
 
+import { Entity, Vector, World } from '../../../src';
+
+import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
 import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld';
 
@@ -70,11 +70,31 @@ describe('Worlds', () => {
   describe('Streaming world', () => {
     let world: World;
     beforeEach(() => {
+      new EmptyGame();
       world = new StreamingCheckerboardWorld();
     });
 
     it('Should be empty initially', () => {
       expect(world.scope.active.size).to.equal(0);
-    })
+      expect(world.getTile(0, 0)).to.be.undefined;
+    });
+
+    it('Should stream in as active entities are added', () => {
+      const e = new Entity();
+      e.active = true;
+      e._publish(world, new Vector(0,0));
+      expect(world.scope.active.size).to.be.greaterThan(0);
+      const t1 = world.getTile(0, 0);
+      const t2 = world.getTile(1, 0);
+      const t3 = world.getTile(2, 0);
+    });
+
+    it('Should unload old tiles as entities move', () => {
+      const e = new Entity();
+      e.active = true;
+      e._publish(world, new Vector(0,0));
+      e.move({ to: new Vector(400, 400) }).execute();
+    });
+    
   });
 });

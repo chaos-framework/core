@@ -172,51 +172,8 @@ export enum PermissionPriority {
   Max = Number.MAX_VALUE
 }
 
-// export class RelativeMovement extends Action {
-//   target: Entity;
-//   x: number;
-//   y: number;
-
-//   constructor(caster: Entity, target: Entity, x: number, y: number, tags?: string[]) {
-//     super(caster, tags);
-//     this.target = target;
-//     this.x = x;
-//     this.y = x;
-//   }
-
-//   apply() {
-//     // this.target.x += this.x;
-//     // this.target.y += this.y;
-//   }
-// }
-
-// export class AbsoluteMovement extends Action {
-//   x: number;
-//   y: number;
-//   target: Entity;
-
-//   constructor(caster: Entity, target: Entity, x: number, y: number, tags?: string[]) {
-//     super(caster, tags);
-//     this.target = target;
-//     this.x = x;
-//     this.y = x;
-//   }
-
-//   apply() {
-//     // this.target.x = this.x;
-//     // this.target.y = this.y;
-//   }
-// }
 
 // TODO Inventory resizing action
 // TODO inventory rearranging action
-
-// TODO PropertyModification -- in temporarily increase max
-
-// export class MapChange extends Action {
-//   constructor(caster: Entity) {
-//     super(caster);
-//   }
-// }
 
 // TODO speaking, in-character or otherwise

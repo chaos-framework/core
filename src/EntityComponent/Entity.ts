@@ -226,14 +226,14 @@ export default class Entity implements Listener, ComponentContainer {
     return new PublishEntityAction({caster, target, entity: this, world, position, using, tags});
   }
 
-  _publish(world: World, position: Vector): boolean {
+  _publish(world: World, position: Vector, preloaded = false): boolean {
     if(this.published) {
       return false;
     }
     this.published = true;
     this.active = true;
     this.position = position;
-    world.addEntity(this);
+    world.addEntity(this, preloaded);
     this.world = world;
     this.connectToWorld();
     return true;

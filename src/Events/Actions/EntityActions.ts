@@ -18,10 +18,17 @@ export class PublishEntityAction extends Action {
     this.target = target;
   }
 
+  initialize() {
+    // Ask world to load new chunks if needed.
+    const { id } = this.entity;
+    this.world.preload(id, this.position.toChunkSpace());
+  }
+
   apply(): boolean {
     this.entity._publish(this.world, this.position);
     return false;
   }
+
 }
 
 export namespace PublishEntityAction {

@@ -73,12 +73,22 @@ describe ('Scopes', () => {
     expect(change.removed).to.contain('0_0');
   });
 
-  it('Does not track anything outside the size of the world', () => {
+  it('Does not track anything outside the size of a fixed-size world', () => {
     game.viewDistance = 5;
     scope.addViewer('', new Vector(0, 0));
     expect(scope.active.has(new Vector(-1, -1).getIndexString())).to.be.false;
     scope.addViewer('', new Vector(15, 15));
     expect(scope.active.has(new Vector(16, 16).getIndexString())).to.be.false;
+    expect(scope.active.has(new Vector(15, 15).getIndexString())).to.be.true;
+  });
+
+  it('Does not track anything northwest of zero coordinates in a streaming world', () => {
+    scope = new Scope(); // infinite / streaming
+    game.viewDistance = 5;
+    scope.addViewer('', new Vector(0, 0));
+    expect(scope.active.has(new Vector(-1, -1).getIndexString())).to.be.false;
+    scope.addViewer('', new Vector(15, 15));
+    expect(scope.active.has(new Vector(16, 16).getIndexString())).to.be.true;
     expect(scope.active.has(new Vector(15, 15).getIndexString())).to.be.true;
   });
 
