@@ -64,7 +64,7 @@ export default abstract class World implements ComponentContainer, Listener {
     if(e.id && !this.entities.has(e.id)) {
       // Load the location if needed
       if(!preloaded) {
-        this.preload(e.id, e.position);
+        this.addView(e, e.position);
       }
       // Add the entity to full list
       this.entities.add(e.id);
@@ -110,22 +110,24 @@ export default abstract class World implements ComponentContainer, Listener {
     }
   }
 
-  // Preload new 
-  preload(id: string, to: Vector, from?: Vector) {
+  // Add 
+  addView(e: Entity, to: Vector, from?: Vector) {
     if(this.streaming) {
-      const change = this.scope.addViewer(id, to, from);
+      const { id, active } = e;
+      const change = this.scope.addViewer(id, active ? Game.getInstance().viewDistance : Game.getInstance().inactiveViewDistance, to, from);
       for(let s of change.added) {
         const v = Vector.fromIndexString(s);
         this.initializeChunk(v.x, v.y);
       }
     }
   }
-
-  unload(id: string, from: Vector, to?: Vector) {
+  
+  removeView(e: Entity, from: Vector, to?: Vector) {
     if(this.streaming) {
-      const change = this.scope.removeViewer(id, from, to);
-      for(let s in change.removed) {
-        // TODO unload chunks + entities
+      const { id, active } = e;
+      const change = this.scope.removeViewer(id, active ? Game.getInstance().viewDistance : Game.getInstance().inactiveViewDistance, from, to);
+      for(let s of change.removed) {
+        this.baseLayer.forgetChunk(s);
       }
     }
   }

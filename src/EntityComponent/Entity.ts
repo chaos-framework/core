@@ -46,8 +46,9 @@ export default class Entity implements Listener, ComponentContainer {
   // TODO art asset
   // TODO single char for display in leiu of art asset
 
-  constructor(serialized?: object) {
+  constructor(active = false) {
     this.id = uuid();
+    this.active = active;
     // TODO create from serialized to load from disk/db, and don't increment entity count
   }
 
@@ -231,7 +232,6 @@ export default class Entity implements Listener, ComponentContainer {
       return false;
     }
     this.published = true;
-    this.active = true;
     this.position = position;
     world.addEntity(this, preloaded);
     this.world = world;

@@ -1,4 +1,3 @@
-import Component from '../../EntityComponent/Component';
 import Entity from '../../EntityComponent/Entity';
 import Vector from '../../Math/Vector';
 import World from '../../World/World';
@@ -20,8 +19,15 @@ export class PublishEntityAction extends Action {
 
   initialize() {
     // Ask world to load new chunks if needed.
+    this.world.addView(this.entity, this.position.toChunkSpace());
+  }
+
+  teardown() {
+    // Unload new chunks if needed
     const { id } = this.entity;
-    this.world.preload(id, this.position.toChunkSpace());
+    if(!this.entity.active) {
+      this.world.removeView(this.entity, this.position.toChunkSpace());
+    }
   }
 
   apply(): boolean {

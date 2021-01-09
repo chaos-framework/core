@@ -84,9 +84,7 @@ describe('Worlds', () => {
       e.active = true;
       e._publish(world, new Vector(0,0));
       expect(world.scope.active.size).to.be.greaterThan(0);
-      const t1 = world.getTile(0, 0);
-      const t2 = world.getTile(1, 0);
-      const t3 = world.getTile(2, 0);
+      expect(world.getTile(0, 0)).to.be.not.undefined;
     });
 
     it('Should unload old tiles as entities move', () => {
@@ -94,7 +92,30 @@ describe('Worlds', () => {
       e.active = true;
       e._publish(world, new Vector(0,0));
       e.move({ to: new Vector(400, 400) }).execute();
+      expect(world.getTile(0, 0)).to.be.undefined;
     });
-    
+
+    it('Should not unload chunks still being viewed by other entities', () => {
+      const e = new Entity();
+      const other = new Entity;
+      e.active = true;
+      other.active = true;
+      e._publish(world, new Vector(0,0));
+      other._publish(world, new Vector(0,0));
+      e.move({ to: new Vector(400, 400) }).execute();
+      expect(world.scope.active.has(other.position.toChunkSpace().getIndexString())).to.be.true;
+      expect(world.getTile(0, 0)).to.not.be.undefined;
+    });
+
+    it('Should only persist chunks being viewed by active entities', () => {
+      const e = new Entity(true);
+      const other = new Entity();
+      e.publish({ entity: e, world, position: new Vector(0,0) }).execute();
+      other.publish({ entity: other, world, position: new Vector(0,0) }).execute();
+      e.move({ to: new Vector(400, 400) }).execute();
+      expect(world.scope.active.has(other.position.toChunkSpace().getIndexString())).to.be.false;
+      expect(world.getTile(0, 0)).to.be.undefined;
+    });
+
   });
 });

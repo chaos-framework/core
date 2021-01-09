@@ -2,8 +2,6 @@ import Action, { ActionParameters } from '../Action';
 import Entity from "../../EntityComponent/Entity";
 import Vector from '../../Math/Vector';
 import World from '../../World/World';
-import Scope, { ScopeChange } from '../../World/Scope';
-
 export class MoveAction extends Action {
   target: Entity;
   from: Vector;
@@ -22,20 +20,21 @@ export class MoveAction extends Action {
 
   initialize() {
     // Ask world to load new chunks if needed.
-    const { id, world } = this.target;
+    const { world } = this.target;
     if(world && this.from.differentChunkFrom(this.to)) {
-      world.preload(id, this.to.toChunkSpace(), this.from.toChunkSpace());
+      world.addView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());
     }
   }
 
   teardown() {
-    const { id, world } = this.target;
+    const { world } = this.target;
     if(world && this.from.differentChunkFrom(this.to)) {
-      // If movement was successful remove old view, otherwise remove the new
-      if (this.permitted) {
-        world.unload(id, this.from.toChunkSpace(), this.to.toChunkSpace());
+      // Check if this entity is active, and therefore needs to persist the world around it
+      // Also check if action was permitted. If so, remove old view. If neither is true, just remove old.
+      if(this.target.active && this.permitted) {
+        world.removeView(this.target, this.from.toChunkSpace(), this.to.toChunkSpace());
       } else {
-        world.unload(id, this.to.toChunkSpace(), this.from.toChunkSpace());
+        world.removeView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());
       }
     }
   }

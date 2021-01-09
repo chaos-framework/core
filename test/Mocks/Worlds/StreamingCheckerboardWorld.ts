@@ -5,6 +5,7 @@ import BasicLayer, { BasicTiles, basicTiles } from '../Layers/BasicLayer';
 import { chain } from 'lodash';
 
 export default class StreamingCheckerboardWorld extends World {
+  ephemeral = true;
 
   constructor() {
     super(new BasicLayer(BasicTiles.Ground), { streaming: true });

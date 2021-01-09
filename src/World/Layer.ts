@@ -55,6 +55,10 @@ export default abstract class Layer<T> implements ILayer {
     }
   } 
 
+  forgetChunk(key: string) {
+    this.chunks.delete(key);
+  }
+
 }
 
 export interface ILayer {
@@ -62,4 +66,5 @@ export interface ILayer {
   getTile(x: number, y: number): any | undefined;
   getChunk(x: number, y: number): IChunk | undefined;
   initializeChunk(x: number, y: number, base?: IChunk): IChunk;
+  forgetChunk(key: string): void;
 }

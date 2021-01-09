@@ -18,6 +18,7 @@ export default abstract class Game {
   actionQueue: Queue<Action> = new Queue<Action>();
 
   viewDistance = 6; // how far (in chunks) to load around active entities
+  inactiveViewDistance = 0; // how far (in chunks) to load around inactive entities when leaving active world
   // TODO players, teams
 
   constructor() {

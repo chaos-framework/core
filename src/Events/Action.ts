@@ -29,6 +29,8 @@ export default abstract class Action {
   execute(force: boolean = true): boolean {
     const game = Game.getInstance();
 
+    this.initialize();
+
     // First check if the target is unpublished
     if(this.target && !this.target.isPublished()) {
       // Just let the target modify and react directly
@@ -74,6 +76,8 @@ export default abstract class Action {
     
     // Queue in the game
     game.enqueueAction(this);
+
+    this.teardown();
 
     // Let all listeners react
     for(let listener of listeners) {
@@ -138,6 +142,8 @@ export default abstract class Action {
   };
 
   abstract apply(): boolean;
+  initialize(): void {};
+  teardown(): void {};
 }
 
 export interface ActionParameters {

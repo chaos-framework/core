@@ -33,13 +33,13 @@ export default class Scope {
     viewers.delete(viewer);
     const noViewersRemaining = viewers.size === 0;
     if (noViewersRemaining) {
+      this.active.delete(chunk);
       this.chunkViewers.delete(chunk);
     }
     return noViewersRemaining;
   }
 
-  addViewer(viewer: string, to: Vector, from?: Vector): ScopeChange {
-    const distance = Game.getInstance().viewDistance;
+  addViewer(viewer: string, distance: number, to: Vector, from?: Vector): ScopeChange {
     // Get newly viewed chunks, subtracting the previous view for this entity if provided
     const newChunks = from !== undefined ? subtract(this.getChunksInView(from, distance), this.getChunksInView(to, distance)) : this.getChunksInView(to, distance);
     const totalAdded: string[] = [];
@@ -52,8 +52,7 @@ export default class Scope {
     return new ScopeChange(totalAdded, []);
   }
 
-  removeViewer(viewer: string, from: Vector, to?: Vector): ScopeChange {
-    const distance = Game.getInstance().viewDistance;
+  removeViewer(viewer: string, distance: number, from: Vector, to?: Vector): ScopeChange {
     const oldChunks = to !== undefined ? subtract(this.getChunksInView(to, distance), this.getChunksInView(from, distance)) : this.getChunksInView(from, distance);
     const totalRemoved: string[] = [];
     // Add new tiles + viewers
@@ -65,8 +64,7 @@ export default class Scope {
     return new ScopeChange([], totalRemoved);
   }
 
-  getMoveChange(viewer: string, from: Vector, to: Vector): ScopeChange {
-    const distance = Game.getInstance().viewDistance;
+  getMoveChange(viewer: string, distance: number, from: Vector, to: Vector): ScopeChange {
     // Get the view areas from before and after
     const oldView = this.getChunksInView(from, distance);
     const newView = this.getChunksInView(to, distance);
