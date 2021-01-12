@@ -15,7 +15,6 @@ export default abstract class Game {
   components: Component[] = []; // all components
   modifiers: Modifier[] = [];   // all modifiers
   reacters: Reacter[] = [];     // all reacters
-  actionQueue: Queue<Action> = new Queue<Action>();
 
   viewDistance = 6; // how far (in chunks) to load around active entities
   inactiveViewDistance = 0; // how far (in chunks) to load around inactive entities when leaving active world
@@ -36,7 +35,7 @@ export default abstract class Game {
   }
 
   enqueueAction = (a: Action): void => {
-    this.actionQueue.enqueue(a);
+    //this.actionQueue.enqueue(a);
   }
 
   addWorld = (world: World): boolean => {

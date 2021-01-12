@@ -13,8 +13,6 @@ export default class Vector {
     return new Vector(values[0], values[1]);
   }
 
-  static zero = new Vector(0, 0);
-
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
@@ -59,6 +57,10 @@ export default class Vector {
 
   getIndexString(): string {
     return this.x.toString() + "_" + this.y.toString();
+  }
+
+  static zero(): Vector {
+    return new Vector(0, 0);
   }
 
   // TODO distance, cast ray between two points, etc

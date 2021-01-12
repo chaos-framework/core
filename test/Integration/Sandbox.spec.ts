@@ -11,6 +11,6 @@ describe('Metarogue Sandbox', function() {
     const pali = createPaladin();
     const zombie = createZombie();
     const spell = pali.cast("Heal", { target: zombie });
-    spell?.execute();
+    //spell?.execute();
   })
 });

@@ -1,5 +1,5 @@
 {
-  "name": "@metarogue/core",
+  "name": "@chaos/core",
   "version": "0.0.1",
   "description": "",
   "main": "./lib/index.js",
@@ -17,7 +17,7 @@
     "url": "git+https://github.com/and0p/metarogue-core.git"
   },
   "keywords": [
-    "metarogue"
+    "chaos"
   ],
   "author": "Andrew Peterson",
   "license": "ISC",

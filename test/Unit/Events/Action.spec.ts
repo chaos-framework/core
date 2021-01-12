@@ -1,4 +1,3 @@
-import { Test } from 'mocha';
 import { expect } from 'chai';
 import 'mocha';
 

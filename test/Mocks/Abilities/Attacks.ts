@@ -2,6 +2,7 @@ import Entity from '../../../src/EntityComponent/Entity';
 import Ability, { OptionalCastParameters } from '../../../src/EntityComponent/Ability';
 import Event from '../../../src/Events/Event';
 import { PropertyChangeAction } from '../../../src/Events/Actions/PropertyActions';
+import { SimpleEvent } from '../../../src';
 
 export class Slash extends Ability {
   name = "Slash"
@@ -11,7 +12,7 @@ export class Slash extends Ability {
       return undefined;
     }
     const amount = -3; // TODO roll based on INT or something
-    const event = new Event([
+    const event = new SimpleEvent([
       new PropertyChangeAction({ caster, target, using, property: "HP", amount, tags: ['attack', 'slash'] })
     ]);
     return event;
@@ -26,7 +27,7 @@ export class Stab extends Ability {
       return undefined;
     }
     const amount = -5; // TODO roll based on INT or something
-    const event = new Event([
+    const event = new SimpleEvent([
       new PropertyChangeAction({ caster, target, using, property: "HP", amount, tags: ['attack', 'pierce'] })
     ]);
     return event;
