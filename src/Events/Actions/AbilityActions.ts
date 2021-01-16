@@ -1,7 +1,4 @@
-import Ability from '../../EntityComponent/Ability';
-import Component from '../../EntityComponent/Component';
-import Entity from '../../EntityComponent/Entity';
-import Action, { ActionParameters } from '../Action'
+import { Action, Ability, ActionParameters, Entity, Component } from '../../internal'; 
 
 export class GrantAbility extends Action {
   ability: Ability;

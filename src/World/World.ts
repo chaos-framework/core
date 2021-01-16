@@ -1,17 +1,12 @@
 import { v4 as uuid } from 'uuid';
 
-import Component, { ComponentContainer } from '../EntityComponent/Component';
-import { Listener, Modifier, Reacter } from '../Events/Interfaces';
-import Action from '../Events/Action';
+import { 
+  Component, ComponentContainer,
+  Listener, Modifier, Reacter, Action, ILayer, IChunk,
+  Entity, Vector, Game, Scope
+} from '../internal';
 
-import { ILayer } from './Layer';
-import { IChunk } from './Chunk';
-import Entity from '../EntityComponent/Entity';
-import Vector from '../Math/Vector';
-import Game from '../Game/Game';
-import Scope from './Scope';
-
-export const CHUNK_WIDTH = 16;
+const CHUNK_WIDTH = 16;
 
 export default abstract class World implements ComponentContainer, Listener {
   id: string;

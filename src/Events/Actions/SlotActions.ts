@@ -1,5 +1,4 @@
-import Action, { ActionParameters } from '../Action';
-import Entity from "../../EntityComponent/Entity";
+import { Action, ActionParameters, Entity } from '../../internal';
 
 export class AddSlotAction extends Action {
   name: string;

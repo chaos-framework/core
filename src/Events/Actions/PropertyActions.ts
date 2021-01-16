@@ -1,9 +1,8 @@
-import Action, { ActionParameters } from '../Action';
-import { Entity } from "../../";
-import { Component } from '../../';
-import { ValueType } from '../../EntityComponent/Properties/Property';
-import Value, { ModificationMethod } from '../../EntityComponent/Properties/Value';
-import Modification, { AbsoluteModification, AdjustmentModification, MultiplierModification } from '../../EntityComponent/Properties/Modification';
+import { 
+  Action, ActionParameters, Entity, Component, ValueType, Value, 
+  ModificationMethod, Modification, AbsoluteModification, AdjustmentModification, MultiplierModification,
+
+} from '../../internal'; 
 
 // ADD
 export class PropertyAdditionAction extends Action {

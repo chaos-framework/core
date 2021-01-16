@@ -1,8 +1,10 @@
 import Vector from '../../../src/Math/Vector';
 import { IChunk } from '../../../src/World/Chunk';
-import World, { CHUNK_WIDTH } from '../../../src/World/World';
+import World from '../../../src/World/World';
 import BasicLayer, { BasicTiles, basicTiles } from '../Layers/BasicLayer';
 import { chain } from 'lodash';
+
+const CHUNK_WIDTH = 16;
 
 export default class StreamingCheckerboardWorld extends World {
   ephemeral = true;

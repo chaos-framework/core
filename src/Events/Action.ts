@@ -1,4 +1,8 @@
 import { Game, Entity, Component, Listener } from '../internal';
+console.log("INITIALIZING ACTION!!!!");
+console.log("INITIALIZING ACTION!!!!");
+console.log("INITIALIZING ACTION!!!!");
+console.log("INITIALIZING ACTION!!!!");
 
 export default abstract class Action {
   // TODO implement player: Player;

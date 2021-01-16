@@ -1,8 +1,5 @@
-import Action, { ActionParameters } from '../Action';
-import Entity from "../../EntityComponent/Entity";
-import Vector from '../../Math/Vector';
-import World from '../../World/World';
-import { Game } from '../..';
+import { Action, ActionParameters, Entity, Game, Vector, World } from '../../internal'; 
+
 export class MoveAction extends Action {
   target: Entity;
   from: Vector;

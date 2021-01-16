@@ -1,10 +1,9 @@
 import {
   Entity, Action, World, Component, ComponentContainer,
   Listener, Modifier, Reacter, isModifier, isReacter,
-  Player, Team
+  Player, Team, ActionQueue
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
-import ActionQueue from "../Events/ActionQueue";
 import { Broadcaster } from ".";
 import { fromPairs } from "lodash";
 

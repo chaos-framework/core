@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import 'mocha';
 
+import { Entity, ChangeWorldAction } from '../../../src/internal';
+
 import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
-import Entity from '../../../src/EntityComponent/Entity';
-import { ChangeWorldAction } from '../../../src/Events/Actions/MovementActions';
-import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 
 describe('World Changing Actions', () => {
   let room1: Room;

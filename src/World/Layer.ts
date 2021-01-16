@@ -1,5 +1,5 @@
 import { Vector } from '..';
-import { CHUNK_WIDTH } from './World';
+const CHUNK_WIDTH = 16;
 import Chunk, { IChunk } from './Chunk';
 
 // Layers

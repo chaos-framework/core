@@ -1,8 +1,4 @@
-import Entity from '../../EntityComponent/Entity';
-import Vector from '../../Math/Vector';
-import World from '../../World/World';
-import Action, { ActionParameters } from '../Action'
-
+import { Action, ActionParameters, World, Vector, Entity } from '../../internal'; 
 export class PublishEntityAction extends Action {
   entity: Entity;
   world: World;

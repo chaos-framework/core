@@ -1,12 +1,11 @@
 import {
   Entity, Component, ComponentContainer,
-  Ability, OptionalCastParameters, Grant, Property, Value,
-  Modification, AdjustmentModification, MultiplierModification, AbsoluteModification
+  Ability, OptionalCastParameters, Grant, Property, Value, ValueType,
+  Modification, ModificationMethod, AdjustmentModification, MultiplierModification, AbsoluteModification
 } from './EntityComponent';
-import { Game, Team, Player } from './Game/';
 import {
-  Event, SimpleEvent,
   Action, ActionParameters, Modifier, Reacter, Listener, isModifier, isReacter,
+  Event, SimpleEvent, ActionQueue,
   MoveAction, RelativeMoveAction, ChangeWorldAction,
   AttachComponentAction,
   PublishEntityAction,
@@ -15,17 +14,18 @@ import {
   AddSlotAction, RemoveSlotAction, SlotActionEntityParameters,
   PropertyAdditionAction, PropertyRemovalAction, PropertyChangeAction, PropertyModificationAction
 } from './Events/';
-import { World, Layer, Chunk, Scope } from './World/';
+import { Game, Team, Player } from './Game/';
+import { World, Layer, Chunk, Scope, IChunk, ILayer } from './World/';
 import Vector from './Math/Vector';
 
 export {
-  Entity, Component, ComponentContainer, Ability, Property, Value,
+  Entity, Component, ComponentContainer, Ability, Property, Value, ValueType,
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
-  OptionalCastParameters, Grant,
+  OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters, Modifier, Reacter, Listener, isModifier, isReacter,
   Game, Player, Team,
-  World, Layer, Chunk, Scope,
-  Event, SimpleEvent,
+  World, Layer, Chunk, Scope, IChunk, ILayer,
+  Event, SimpleEvent, ActionQueue,
   MoveAction, RelativeMoveAction, ChangeWorldAction,
   AttachComponentAction,
   PublishEntityAction,
