@@ -1,1 +1,1 @@
-# Metarogue Core
+# @chaos/core

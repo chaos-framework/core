@@ -1,23 +1,16 @@
 import { v4 as uuid } from 'uuid';
-import Property from './Properties/Property';
-import Component, { ComponentContainer } from './Component';
-import Event from '../Events/Event';
-import Action from '../Events/Action';
-import { Listener, Modifier, Reacter, isModifier, isReacter } from '../Events/Interfaces';
-import Ability, { OptionalCastParameters, Grant } from './Ability';
-
-// Import actions that can be created by the component
-import { AttachComponentAction } from '../Events/Actions/ComponentActions';
-import { PropertyAdditionAction, PropertyRemovalAction } from '../Events/Actions/PropertyActions';
-import { GrantAbility, DenyAbility, AbilityActionEntityParameters } from '../Events/Actions/AbilityActions';
-import { PublishEntityAction } from '../Events/Actions/EntityActions';
-import { EquipAction } from '../Events/Actions/EquipmentActions';
-import { AddSlotAction, RemoveSlotAction, SlotActionEntityParameters } from '../Events/Actions/SlotActions';
-import Game from '../Game/Game';
-import Vector from '../Math/Vector';
-import World from '../World/World';
-import { ChangeWorldAction, MoveAction, RelativeMoveAction } from '../Events/Actions/MovementActions';
-
+import {
+  Game, Vector, World,
+  Component, ComponentContainer, Event, Action,
+  Listener, Modifier, Reacter, isModifier, isReacter,
+  Ability, Property, AttachComponentAction,
+  ChangeWorldAction, MoveAction, RelativeMoveAction,
+  PropertyAdditionAction, PropertyRemovalAction,
+  GrantAbility, DenyAbility, AbilityActionEntityParameters,
+  PublishEntityAction, EquipAction,
+  AddSlotAction, RemoveSlotAction, SlotActionEntityParameters,
+  OptionalCastParameters, Grant
+} from '../internal';
 export default class Entity implements Listener, ComponentContainer {
   id: string;
   tags = new Set<string>();

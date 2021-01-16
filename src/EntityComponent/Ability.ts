@@ -1,6 +1,4 @@
-import Event from '../Events/Event';
-import Entity from './Entity';
-import Component from './Component';
+import { Event, Entity, Component } from '../internal';
 
 export default abstract class Ability {
   abstract name: string;

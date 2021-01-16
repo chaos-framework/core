@@ -70,7 +70,7 @@ describe('Worlds', () => {
   describe('Streaming world', () => {
     let world: World;
     beforeEach(() => {
-      new EmptyGame();
+      new EmptyGame({});
       world = new StreamingCheckerboardWorld();
     });
 

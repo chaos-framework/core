@@ -8,7 +8,7 @@ describe ('Scopes', () => {
   let scope: Scope;
   let game: Game;
   beforeEach(() => {
-    game = new EmptyGame();
+    game = new EmptyGame({});
     scope = new Scope(256, 256);
   });
 

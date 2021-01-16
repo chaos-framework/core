@@ -1,6 +1,4 @@
-import Action, { ActionParameters } from '../Action';
-import Entity from "../../EntityComponent/Entity";
-import Component from '../../EntityComponent/Component';
+import { Action, ActionParameters, Entity, Component } from '../../internal';
 
 export class AttachComponentAction extends Action {
   target: Entity;

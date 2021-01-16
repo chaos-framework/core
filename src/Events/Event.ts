@@ -1,5 +1,4 @@
-import Entity from "../EntityComponent/Entity";
-import Action from "./Action";
+import { Entity, Action } from "../internal";
 
 export default interface Event {
   caster?: Entity;

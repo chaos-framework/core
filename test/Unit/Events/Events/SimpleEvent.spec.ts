@@ -1,8 +1,7 @@
 import { expect } from 'chai';
-import { has } from 'lodash';
 import 'mocha';
 
-import { Entity, SimpleEvent, MoveAction, Vector } from '../../../../src/';
+import { Entity, SimpleEvent, Vector } from '../../../../src/';
 
 
 describe('Simple Events', () => {

@@ -13,7 +13,7 @@ describe('World Changing Actions', () => {
   let e: Entity;
 
   beforeEach(() => {
-    new EmptyGame();
+    new EmptyGame({});
     room1 = new Room();
     room2 = new Room();
     e = new Entity();

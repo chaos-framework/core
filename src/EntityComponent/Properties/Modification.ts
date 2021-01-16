@@ -1,6 +1,4 @@
-import Entity from "../Entity";
-import Component from "../Component";
-import Value from "./Value";
+import { Entity, Component, Value } from "../../internal";
 
 export default abstract class Modification {
   amount: number;

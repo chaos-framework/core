@@ -1,5 +1,4 @@
-import { clamp } from 'lodash';
-// import { CHUNK_WIDTH } from '../World/World';
+import { clamp, isInteger } from 'lodash';
 import { toInteger } from 'lodash';
 
 const CHUNK_WIDTH = 16;
@@ -10,7 +9,10 @@ export default class Vector {
 
   static fromIndexString(s: string): Vector {
     const values = s.split('_').map(v => toInteger(v));
-    return new Vector(values[0], values[1]);
+    if (values.length < 2) {
+      throw new Error();
+    }
+    return new Vector(toInteger(values[0]), toInteger(values[1]));
   }
 
   constructor(x: number, y: number) {
@@ -36,7 +38,7 @@ export default class Vector {
   }
 
   copyAdjusted(x: number, y: number): Vector {
-    return new Vector(this.x + x , this.y + y);
+    return new Vector(this.x + x, this.y + y);
   }
 
   toChunkSpace(): Vector {
@@ -57,6 +59,14 @@ export default class Vector {
 
   getIndexString(): string {
     return this.x.toString() + "_" + this.y.toString();
+  }
+
+  serialize(): string {
+    return this.getIndexString();
+  }
+
+  static unserialize(s: string): Vector {
+    return Vector.fromIndexString(s);
   }
 
   static zero(): Vector {

@@ -1,11 +1,9 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { GrantAbility, DenyAbility } from '../../../src/Events/Actions/AbilityActions';
-import EmptyAbility from '../../Mocks/Abilities/Empty';
+import { GrantAbility, DenyAbility, Entity, Game } from '../../../src/internal';
 
-import Entity from '../../../src/EntityComponent/Entity';
-import { Game } from '../../../src';
+import EmptyAbility from '../../Mocks/Abilities/Empty';
 import EmptyGame from '../../Mocks/Games/EmptyGame';
 
 describe('GrantAbility Action', () => {
@@ -14,7 +12,7 @@ describe('GrantAbility Action', () => {
   let game: Game;
 
   beforeEach(() => {
-    game = new EmptyGame();
+    game = new EmptyGame({});
     e = new Entity();
     ability = new EmptyAbility();
   });
@@ -34,7 +32,7 @@ describe('DenyAbility Action', () => {
   let game: Game;
 
   beforeEach(() => {
-    game = new EmptyGame();
+    game = new EmptyGame({});
     e = new Entity();
     ability = new EmptyAbility();
     e._grant(ability, undefined, undefined);

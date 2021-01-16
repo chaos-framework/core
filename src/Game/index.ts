@@ -1,7 +1,8 @@
 import Game from './Game';
+import Team from './Team';
 import Player from './Player';
-import Team from './Player';
+import Broadcaster from './Broadcaster';
 
 export {
-  Game, Team, Player
+  Game, Team, Player, Broadcaster
 }

@@ -2,10 +2,13 @@ import Action, { ActionParameters } from '../Action';
 import Entity from "../../EntityComponent/Entity";
 import Vector from '../../Math/Vector';
 import World from '../../World/World';
+import { Game } from '../..';
 export class MoveAction extends Action {
   target: Entity;
   from: Vector;
   to: Vector;
+
+  static requiredFields: string[] = ['target', 'to', 'from'];
 
   constructor({caster, target, to, using, tags = []}: MoveAction.Params) {
     super({caster, using, tags});
@@ -37,6 +40,26 @@ export class MoveAction extends Action {
         world.removeView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());
       }
     }
+  }
+
+  static unserialize(json: any): MoveAction {
+    if(!Action.serializedHasRequiredFields(json)) {
+      throw new Error();
+    }
+    const game = Game.getInstance();
+    const target: Entity | undefined = game.getEntity(json['target']);
+    if(target === undefined){
+      throw new Error();
+    }
+
+    const caster: Entity | undefined = game.getEntity(json['caster']);
+    const using: Entity | undefined = game.getEntity(json['using']);
+    const from: Vector = Vector.unserialize(json['from']);
+    const to: Vector = Vector.unserialize(json['to']);
+    // TODO tags
+
+    return new MoveAction({caster, target, using, to});
+
   }
 }
 

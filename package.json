@@ -7,14 +7,14 @@
   "scripts": {
     "build": "tsc",
     "test": "env DEBUG=true mocha",
-    "sandbox": "env DEBUG=true METAROGUE_SANDBOX=true mocha -g Sandbox"
+    "sandbox": "env DEBUG=true metarogue_SANDBOX=true mocha -g Sandbox"
   },
   "files": [
     "lib/**/*"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/and0p/metarogue-core.git"
+    "url": "git+https://github.com/and0p/chaos-core.git"
   },
   "keywords": [
     "chaos"
@@ -22,9 +22,9 @@
   "author": "Andrew Peterson",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/and0p/metarogue-core/issues"
+    "url": "https://github.com/and0p/chaos-core/issues"
   },
-  "homepage": "https://github.com/and0p/metarogue-core#readme",
+  "homepage": "https://github.com/and0p/chaos-core#readme",
   "devDependencies": {
     "@types/assert": "^1.5.2",
     "@types/chai": "^4.2.14",

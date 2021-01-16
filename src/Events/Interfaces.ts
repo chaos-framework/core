@@ -1,5 +1,4 @@
-import Component from '../EntityComponent/Component';
-import Action from './Action';
+import { Action } from '../internal';
 
 export interface Listener {
   modify(a: Action): void;

@@ -6,7 +6,7 @@ import EmptyGame from '../Mocks/Games/EmptyGame';
 
 describe('Game', () => {
   let game: Game;
-  beforeEach(() => { game = new EmptyGame() })
+  beforeEach(() => { game = new EmptyGame({}) })
 
   it('Should be a singleton', () => {
     expect(game).to.be.not.null;

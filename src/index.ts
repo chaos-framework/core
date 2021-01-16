@@ -1,15 +1,17 @@
-import { Game, Team, Player} from './Game/';
-import { World, Layer, Chunk, Scope } from './World/';
-import { Entity, Component, ComponentContainer } from './EntityComponent';
-import { Event, SimpleEvent, Action, Modifier, Reacter, Listener ,
-    MoveAction, RelativeMoveAction, ChangeWorldAction } from './Events/';
-import Vector from './Math/Vector';
-
-export {
-  Entity, Component, ComponentContainer,
+import { 
+  Entity, Component, ComponentContainer, Ability, Property, Value, Modification,
   Game, Team, Player,
   World, Layer, Chunk, Scope,
-  Event, SimpleEvent, Action, Modifier, Reacter, Listener,
+  Event, SimpleEvent, Action, Modifier, Reacter, Listener, isModifier, isReacter,
+  MoveAction, RelativeMoveAction, ChangeWorldAction,
+  Vector 
+} from './internal';
+
+export {
+  Entity, Component, ComponentContainer, Ability, Property, Value, Modification,
+  Game, Team, Player,
+  World, Layer, Chunk, Scope,
+  Event, SimpleEvent, Action, Modifier, Reacter, Listener, isModifier, isReacter,
   MoveAction, RelativeMoveAction, ChangeWorldAction,
   Vector
 }

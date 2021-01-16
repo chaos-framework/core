@@ -1,5 +1,4 @@
-import { Action, Event } from '..';
-import { Entity } from '../..';
+import { Action, Event, Entity} from '..';
 
 export default class SimpleEvent implements Event {
   index = 0;

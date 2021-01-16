@@ -1,6 +1,7 @@
-import { PropertyChangeAction, PropertyModificationAction } from '../../Events/Actions/PropertyActions';
-import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './Modification'
-import Property, { ValueType } from './Property';
+import { 
+  Property, Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
+  PropertyChangeAction, PropertyModificationAction
+} from '../../internal';
 
 export enum ModificationMethod { Absolute, Adjustment, Multiplier }
 
