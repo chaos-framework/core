@@ -1,4 +1,4 @@
-import { Action, Event, Entity} from '..';
+import { Action, Event, Entity} from '../../internal';
 
 export default class SimpleEvent implements Event {
   index = 0;

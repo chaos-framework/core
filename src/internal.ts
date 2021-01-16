@@ -3,10 +3,12 @@ import {
   Ability, OptionalCastParameters, Grant, Property, Value, ValueType,
   Modification, ModificationMethod, AdjustmentModification, MultiplierModification, AbsoluteModification
 } from './EntityComponent';
+import Action, { ActionParameters } from './Events/Action';
+import Event from './Events/Event';
+import { MoveAction, RelativeMoveAction, ChangeWorldAction } from './Events/Actions/MovementActions';
 import {
-  Action, ActionParameters, Modifier, Reacter, Listener, isModifier, isReacter,
-  Event, SimpleEvent, ActionQueue,
-  MoveAction, RelativeMoveAction, ChangeWorldAction,
+  Modifier, Reacter, Listener, isModifier, isReacter,
+  SimpleEvent, ActionQueue,
   AttachComponentAction,
   PublishEntityAction,
   GrantAbility, DenyAbility, AbilityActionParameters,
