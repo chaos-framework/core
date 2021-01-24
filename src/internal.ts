@@ -7,7 +7,7 @@ import Action, { ActionParameters } from './Events/Action';
 import Event from './Events/Event';
 import { MoveAction, RelativeMoveAction, ChangeWorldAction } from './Events/Actions/MovementActions';
 import {
-  Modifier, Reacter, Listener, isModifier, isReacter,
+  Modifier, Reacter, Listener, isModifier, isReacter, VisibilityType,
   SimpleEvent, ActionQueue,
   AttachComponentAction,
   PublishEntityAction,
@@ -27,7 +27,7 @@ export {
   Action, ActionParameters, Modifier, Reacter, Listener, isModifier, isReacter,
   Game, Player, Team,
   World, Layer, Chunk, Scope, IChunk, ILayer,
-  Event, SimpleEvent, ActionQueue,
+  Event, SimpleEvent, ActionQueue, VisibilityType,
   MoveAction, RelativeMoveAction, ChangeWorldAction,
   AttachComponentAction,
   PublishEntityAction,

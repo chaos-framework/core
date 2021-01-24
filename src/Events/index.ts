@@ -10,9 +10,10 @@ import { EquipAction } from './Actions/EquipmentActions';
 import Event from './Event';
 import SimpleEvent from './Events/SimpleEvent'
 import { Modifier, Reacter, Listener, isModifier, isReacter } from './Interfaces';
+import { VisibilityType } from './Enums';
 
 export {
-  Event, SimpleEvent, ActionQueue,
+  Event, SimpleEvent, ActionQueue, VisibilityType,
   Action, ActionParameters, Modifier, Reacter, Listener, isModifier, isReacter,
   MoveAction, RelativeMoveAction, ChangeWorldAction,
   AttachComponentAction,

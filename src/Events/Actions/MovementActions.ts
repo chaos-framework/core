@@ -4,6 +4,7 @@ export class MoveAction extends Action {
   target: Entity;
   from: Vector;
   to: Vector;
+  visibilityChangingAction = true;
 
   static requiredFields: string[] = ['target', 'to', 'from'];
 
@@ -74,6 +75,8 @@ export class RelativeMoveAction extends Action {
   target: Entity;
   from: Vector;
   amount: Vector;
+  finalPosition?: Vector;
+  visibilityChangingAction = true;
 
   constructor({caster, target, amount, using, tags = []}: RelativeMoveAction.Params) {
     super({caster, using, tags});
@@ -83,8 +86,9 @@ export class RelativeMoveAction extends Action {
   }
 
   apply(): boolean {
-    const finalPosition = this.target.position.add(this.amount);
-    return this.target._move(finalPosition);
+    // Cache the final position for later reference as needed
+    this.finalPosition = this.target.position.add(this.amount);
+    return this.target._move(this.finalPosition);
   }
 }
 
@@ -104,6 +108,7 @@ export class ChangeWorldAction extends Action {
   to: World;
   originPosition: Vector;
   position: Vector;
+  visibilityChangingAction = true;
 
   constructor({caster, target, from, to, position, using, tags = []}: ChangeWorldAction.Params) {
     super({caster, using, tags});

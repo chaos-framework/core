@@ -1,8 +1,4 @@
 import { Game, Entity, Component, Listener } from '../internal';
-console.log("INITIALIZING ACTION!!!!");
-console.log("INITIALIZING ACTION!!!!");
-console.log("INITIALIZING ACTION!!!!");
-console.log("INITIALIZING ACTION!!!!");
 
 export default abstract class Action {
   // TODO implement player: Player;
@@ -18,6 +14,7 @@ export default abstract class Action {
   decidingPermission?: Permission;
   nested: number = 0;
   verb?: string;
+  visibilityChangingAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
 
   static requiredFields: string[] = ['permitted'];
 

@@ -14,7 +14,7 @@ describe('Components attaching to entities', () => {
   let game: Game;
 
   beforeEach(() => {
-    game = new EmptyGame({});
+    game = new EmptyGame();
     e = new Entity();
   });
 
