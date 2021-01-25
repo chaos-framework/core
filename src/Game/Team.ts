@@ -51,13 +51,15 @@ export default class Team implements Broadcaster {
   // TODO action generator
 
   _addPlayer(playerId: string) {
-      this.players.add(playerId);
+    this.players.add(playerId);
+    this.entitiesInSight.add(playerId);
   }
 
   // TODO action generator
 
   _removePlayer(playerId: string) {
     this.players.delete(playerId);
+    // TODO remove from entities in sight
   }
 
   // TODO action generators for adding/removing players

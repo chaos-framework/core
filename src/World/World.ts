@@ -9,7 +9,7 @@ import {
 const CHUNK_WIDTH = 16;
 
 export default abstract class World implements ComponentContainer, Listener {
-  id: string;
+  readonly id: string = uuid();
   components: Component[] = [];
   baseLayer: ILayer;
   additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
@@ -29,7 +29,6 @@ export default abstract class World implements ComponentContainer, Listener {
   scope: Scope; // which parts of the world are seen by who
 
   constructor(baseLayer: ILayer, {width, height, streaming = false, additionalLayers}: {width?: number, height?: number, streaming?: boolean, additionalLayers?: any}) {
-    this.id = uuid();
     this.baseLayer = baseLayer;
     this.width = width;
     this.height = height;

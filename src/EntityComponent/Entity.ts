@@ -229,6 +229,7 @@ export default class Entity implements Listener, ComponentContainer {
     world.addEntity(this, preloaded);
     this.world = world;
     this.connectToWorld();
+    Game.getInstance().addEntity(this);
     return true;
   }
 

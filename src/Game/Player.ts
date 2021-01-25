@@ -16,6 +16,7 @@ export default class Player implements Broadcaster {
   broadcastQueue = new Queue<any>();
   entitiesInSight: Set<string>;
 
+  // TODO publishing this should be an action
   constructor({ username, teams = [], admin = false }: { username: string, teams?: string[], admin?: boolean }) {
     this.id = uuid();
     this.username = username;
@@ -43,6 +44,7 @@ export default class Player implements Broadcaster {
       this.scopesByWorld = new Map<string, Scope>();
       this.entitiesInSight = new Set<string>();
     }
+    game.players.set(this.id, this);
   }
 
   queueForBroadcast(a: Action, visibility: VisibilityType, serialized: string) {

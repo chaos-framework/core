@@ -43,7 +43,7 @@ export default abstract class Game implements Broadcaster {
   }
 
   enqueueAction = (a: Action): void => {
-    //this.actionQueue.enqueue(a);
+    this.queueForBroadcast(a);
   }
 
   addWorld = (world: World): boolean => {
@@ -95,15 +95,16 @@ export default abstract class Game implements Broadcaster {
     if (this.perceptionGrouping === 'team') {
       // Loop through teams and broadcast if visible
       for (const team of this.teams.values()) {
-        // Only care if team has players, not just AI entities
+        // Only care if team has players
         if(team.players.size === 0) {
-          break;
+          continue;
         }
         // Let the team visibility function determine if it passes, fails, or defers the visibility check to each member entity
         let visibility: VisibilityType = this.getVisibilityToTeam(a, team);
         // If not deferring, broadcast with resolved visibility
         if (visibility !== VisibilityType.DEFER) {
           this.percieveAndBroadcast(a, team, visibility);
+          continue;
         }
         // If deferred, we have to check at the player level and take the highest visibility found
         // (breaking immediately if full visibility is determined at any point)
@@ -113,7 +114,7 @@ export default abstract class Game implements Broadcaster {
           if (player) {
             const playerVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToPlayer(a, player));
             if(playerVisibility === VisibilityType.VISIBLE) {
-              break;
+              continue;
             }
           }
         }
@@ -128,7 +129,7 @@ export default abstract class Game implements Broadcaster {
           if (entity) {
             const entityVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(a, entity));
             if(entityVisibility === VisibilityType.VISIBLE) {
-              break;
+              continue;
             }
           }
         }
@@ -144,7 +145,7 @@ export default abstract class Game implements Broadcaster {
         if (player) {
           const playerVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToPlayer(a, player));
           if(playerVisibility === VisibilityType.VISIBLE) {
-            break;
+            continue;
           }
         }
         if(visibility !== VisibilityType.DEFER) {
@@ -158,7 +159,7 @@ export default abstract class Game implements Broadcaster {
           if (entity) {
             const entityVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(a, entity));
             if(entityVisibility === VisibilityType.VISIBLE) {
-              break;
+              continue;
             }
           }
         }
