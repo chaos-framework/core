@@ -103,6 +103,11 @@ export default class Scope {
     return chunks;
   }
 
+  // Check if this scope contains a vector in tile-space
+  containsPosition(v: Vector) {
+    return this.active.has(v.toChunkSpace().getIndexString());
+  }
+
 }
 
 const subtract = (sub: Set<string>, from: Set<string>): string[] => {

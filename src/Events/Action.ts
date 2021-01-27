@@ -1,4 +1,5 @@
-import { Game, Entity, Component, Listener } from '../internal';
+import { Viewer } from '../Game/Interfaces';
+import { Game, Entity, Component, Listener, Scope, Player, Team } from '../internal';
 
 export default abstract class Action {
   // TODO implement player: Player;
@@ -152,6 +153,18 @@ export default abstract class Action {
   }
 
   abstract apply(): boolean;
+
+  isInPlayerOrTeamScope(viewer: Viewer): boolean {
+    const worldScopes = viewer.getWorldScopes();
+    const { caster, target } = this;
+    if(caster && caster.world && worldScopes.has(caster.world.id) && worldScopes.get(caster.world.id)!.containsPosition(caster.position)) {
+      return true;
+    }
+    if(target && target.world && worldScopes.has(target.world.id) && worldScopes.get(target.world.id)!.containsPosition(target.position)) {
+      return true;
+    }
+    return false;
+  };
 
   serialize(forClient: boolean, overrides?: any): string {
     return '';

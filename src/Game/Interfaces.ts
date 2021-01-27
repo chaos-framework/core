@@ -1,5 +1,9 @@
-import { Action, VisibilityType } from '../internal';
+import { Action, Scope, VisibilityType } from '../internal';
 
 export interface Viewer {
-  // changeEntityVisibility(action: Action, type: VisibilityType): void;
+  getWorldScopes(): Map<string, Scope>;
+}
+
+export interface Broadcaster {
+  queueForBroadcast(a: Action, visibility: VisibilityType, serialized: string): void;
 }

@@ -1,12 +1,10 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
-import { Broadcaster, Game } from '.';
-import { Action, Entity } from '..';
+import { Game, Team, Action, Entity, Scope } from '../internal';
 import { VisibilityType } from '../internal';
-import Scope from '../World/Scope';
-import Team from './Team';
+import { Viewer, Broadcaster } from './Interfaces';
 
-export default class Player implements Broadcaster {
+export default class Player implements Viewer, Broadcaster {
   id: string = uuid();
   username: string;
   entities = new Set<string>();
@@ -33,7 +31,7 @@ export default class Player implements Broadcaster {
         throw new Error(); // TODO ERROR
       }
       this.teams.add(teamId);
-      game.teams.get(teamId)!._addPlayer(this.id);
+      game.teams.get(teamId)!._addPlayer(this);
     }
     // If game is has team visibility and assigned to a (single) team, reference that team's scope directly
     if(game.perceptionGrouping === 'team' && this.teams.size === 1) {
@@ -47,29 +45,56 @@ export default class Player implements Broadcaster {
     game.players.set(this.id, this);
   }
 
+  getWorldScopes(): Map<string, Scope> {
+    return this.scopesByWorld;
+  }
+
   queueForBroadcast(a: Action, visibility: VisibilityType, serialized: string) {
     this.broadcastQueue.enqueue(a);
   }
 
   disconnect() { };
 
-  _ownEntity(e: Entity): boolean {
-    this.entities.add(e.id);
-    // TODO modify active chunks
+  _ownEntity(entity: Entity): boolean {
+    this.entities.add(entity.id);
+    entity.owners.add(this.id);
+    if(this.teams.size > 0) {
+      const game = Game.getInstance();
+      for(let teamId of this.teams) {
+        const team = game.teams.get(teamId);
+        if(team) {
+          team.addEntity(this.id, entity.id);
+        }
+      }
+    }
+    // TODO modify scope
     return true;
   }
 
-  _disownEntity(e: Entity): boolean {
-    return this.entities.delete(e.id);
-  }
-
-  _joinTeam(team: string): boolean {
-    this.teams.add(team);
+  _disownEntity(entity: Entity): boolean {
+    entity.owners.delete(this.id);
+    if(this.teams.size > 0) {
+      const game = Game.getInstance();
+      for(let teamId of this.teams) {
+        const team = game.teams.get(teamId);
+        if(team) {
+          team.removeEntity(this.id, entity.id);
+        }
+      }
+    }
+    this.entities.delete(entity.id);
     return true;
   }
 
-  _leaveTeam(team: string): boolean {
-    return this.entities.delete(team);
+  _joinTeam(team: Team): boolean {
+    this.teams.add(team.id);
+    // Update any entities that this owns as well
+    return true;
+  }
+
+  _leaveTeam(team: Team): boolean {
+    this.teams.delete(team.id);
+    return this.entities.delete(team.id);
   }
 
 }

@@ -26,6 +26,9 @@ export default class Entity implements Listener, ComponentContainer {
 
   abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
+  owners = new Set<string>(); // players that can control this entity
+  teams = new Set<string>(); // teams that owning players belong to
+
   // Places for items to be equipped
   slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
@@ -404,6 +407,8 @@ export default class Entity implements Listener, ComponentContainer {
     if(this.world && this.position.differentChunkFrom(to)) {
       this.world.moveEntity(this, this.position, to);
     }
+    // Let owning players, if any, know for scope change
+    
     this.position = to;
     return true;
   }

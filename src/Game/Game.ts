@@ -4,7 +4,7 @@ import {
   Player, Team, ActionQueue
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
-import { Broadcaster } from ".";
+import { Broadcaster } from "./Interfaces";
 
 export default abstract class Game implements Broadcaster {
   private static instance: Game;
@@ -103,7 +103,9 @@ export default abstract class Game implements Broadcaster {
         let visibility: VisibilityType = this.getVisibilityToTeam(a, team);
         // If not deferring, broadcast with resolved visibility
         if (visibility !== VisibilityType.DEFER) {
-          this.percieveAndBroadcast(a, team, visibility);
+          if(visibility > VisibilityType.NOT_VISIBLE) {
+            this.percieveAndBroadcast(a, team, visibility);
+          }
           continue;
         }
         // If deferred, we have to check at the player level and take the highest visibility found
@@ -194,7 +196,7 @@ export default abstract class Game implements Broadcaster {
   }
 
   getVisibilityToTeam(a: Action, t: Team): VisibilityType {
-    return VisibilityType.VISIBLE;
+    return a.isInPlayerOrTeamScope(t) ? VisibilityType.VISIBLE : VisibilityType.NOT_VISIBLE;
   }
 
   getVisibilityToPlayer(a: Action, p: Player): VisibilityType {

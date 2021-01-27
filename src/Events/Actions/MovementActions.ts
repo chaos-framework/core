@@ -1,4 +1,5 @@
-import { Action, ActionParameters, Entity, Game, Vector, World } from '../../internal'; 
+import { Viewer } from '../../Game/Interfaces';
+import { Action, ActionParameters, Entity, Game, Scope, Vector, World } from '../../internal'; 
 
 export class MoveAction extends Action {
   target: Entity;
@@ -57,8 +58,21 @@ export class MoveAction extends Action {
     // TODO tags
 
     return new MoveAction({caster, target, using, to});
-
   }
+
+  isInPlayerOrTeamScope(viewer: Viewer): boolean {
+    if(super.isInPlayerOrTeamScope(viewer)) {
+      return true;
+    } 
+    if(this.target.world) {
+      const worldScope = viewer.getWorldScopes().get(this.target.world.id);
+      if(worldScope) {
+        return worldScope.containsPosition(this.from) || worldScope.containsPosition(this.to);
+      }
+    }
+    return false;
+  }
+
 }
 
 export namespace MoveAction {
@@ -90,6 +104,20 @@ export class RelativeMoveAction extends Action {
     this.finalPosition = this.target.position.add(this.amount);
     return this.target._move(this.finalPosition);
   }
+
+  isInPlayerOrTeamScope(viewer: Viewer): boolean {
+    if(super.isInPlayerOrTeamScope(viewer)) {
+      return true;
+    } 
+    if(this.target.world) {
+      const worldScope = viewer.getWorldScopes().get(this.target.world.id);
+      if(worldScope) {
+        return worldScope.containsPosition(this.from) || (this.finalPosition !== undefined && worldScope.containsPosition(this.finalPosition));
+      }
+    }
+    return false;
+  }
+
 }
 
 export namespace RelativeMoveAction {
@@ -121,6 +149,22 @@ export class ChangeWorldAction extends Action {
 
   apply(): boolean {
     return this.target._changeWorlds(this.to, this.position);
+  }
+
+  isInPlayerOrTeamScope(viewer: Viewer): boolean {
+    if(super.isInPlayerOrTeamScope(viewer)) {
+      return true;
+    } else {
+      const fromScope = viewer.getWorldScopes().get(this.from.id);
+      const toScope = viewer.getWorldScopes().get(this.to.id);
+      if(fromScope && fromScope.containsPosition(this.originPosition)) {
+        return true;
+      }
+      if(toScope && toScope.containsPosition(this.position)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
