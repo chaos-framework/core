@@ -67,7 +67,17 @@ export default class Player implements Viewer, Broadcaster {
         }
       }
     }
-    // TODO modify scope
+    // Modify scope, if appropriate
+    if (entity.world) {
+      let scope = this.scopesByWorld.get(entity.world.id);
+      if (scope) {
+        scope.addViewer(entity.id, Game.getInstance().viewDistance, entity.position.toChunkSpace());
+      } else {
+        scope = entity.world.createScope();
+        scope.addViewer(entity.id, Game.getInstance().viewDistance, entity.position.toChunkSpace());
+        this.scopesByWorld.set(entity.world.id, scope);
+      }
+    }
     return true;
   }
 

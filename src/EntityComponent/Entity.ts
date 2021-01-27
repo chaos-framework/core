@@ -183,9 +183,28 @@ export default class Entity implements Listener, ComponentContainer {
         }
       }
     }
+    // Also add this player tp any owning player(s) or team(s) scope for this world
+    const game = Game.getInstance();
+    const { perceptionGrouping } = game;
+    if (perceptionGrouping === 'team') {
+      for(let teamId of this.teams) {
+        const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
+        if(scope) {
+          // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
+          scope.addViewer(this.id, game.viewDistance, this.position.toChunkSpace());
+        }
+      }
+    } else {
+      for(let playerId of this.owners) {
+        const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
+        if(scope) {
+          scope.addViewer(this.id, game.viewDistance, this.position.toChunkSpace());
+        }
+      }
+    }
   }
 
-  // Disconnects world-level component listeners
+  // Disconnects world-level component listeners and adjusts scope of player or teams
   disconnectFromWorld() {
     if(!this.isPublished() || ! this.world) {
       return;
@@ -207,6 +226,25 @@ export default class Entity implements Listener, ComponentContainer {
           }
         }
       }  
+    }
+    // Also remove this player from owning player(s) or team(s) scope for this world
+    const game = Game.getInstance();
+    const { perceptionGrouping } = game;
+    if (perceptionGrouping === 'team') {
+      for(let teamId of this.teams) {
+        const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
+        if(scope) {
+          // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
+          scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace());
+        }
+      }
+    } else {
+      for(let playerId of this.owners) {
+        const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
+        if(scope) {
+          scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace());
+        }
+      }
     }
   }
 
@@ -404,11 +442,31 @@ export default class Entity implements Listener, ComponentContainer {
 
   _move(to: Vector): boolean {
     // Let the world know to to move to a different container if the destination is in a different chunk
-    if(this.world && this.position.differentChunkFrom(to)) {
+    if (this.world && this.position.differentChunkFrom(to)) {
       this.world.moveEntity(this, this.position, to);
+      // Let owning players or teams, if any, know for scope change.
+      const game = Game.getInstance();
+      const { perceptionGrouping } = game;
+      if (perceptionGrouping === 'team') {
+        for(let teamId of this.teams) {
+          const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
+          if(scope) {
+            // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
+            scope.addViewer(this.id, game.viewDistance, to, this.position.toChunkSpace());
+            scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace(), to);
+          }
+        }
+      } else {
+        for(let playerId of this.owners) {
+          const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
+          if(scope) {
+            scope.addViewer(this.id, game.viewDistance, to, this.position.toChunkSpace());
+            scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace(), to);
+          }
+        }
+      }
     }
-    // Let owning players, if any, know for scope change
-    
+    // Make the move
     this.position = to;
     return true;
   }
@@ -418,7 +476,9 @@ export default class Entity implements Listener, ComponentContainer {
   }
 
   _changeWorlds(to: World, position: Vector): boolean {
-    this.disconnectFromWorld();
+    if(this.world) {
+      this.disconnectFromWorld();
+    }
     this.world = to;
     this.connectToWorld();
     return true;

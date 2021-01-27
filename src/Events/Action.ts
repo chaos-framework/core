@@ -73,7 +73,8 @@ export default abstract class Action {
     // See if this action was not permitted by any modifiers
     this.decidePermission();
 
-    // Apply this action to the target, checking for success // TODO woah we're doing it regardless of permission
+    // Apply this action to the target, checking for success
+    // TODO woah we're doing it regardless of permission
     let applied = this.apply();
 
     // Queue in the game

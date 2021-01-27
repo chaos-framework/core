@@ -25,22 +25,22 @@ describe('Action visibility', () => {
       teams = [new Team(teamNames[Red]), new Team(teamNames[Blue])];
       players = [new Player({ username: 'Red',  teams: [teams[Red].id] }), 
                 new Player({ username: 'Blue', teams: [teams[Blue].id] })];
-      entities = [new Entity(), new Entity()];
-      players[Red]._ownEntity(entities[Red]);
-      players[Blue]._ownEntity(entities[Blue]);
       room = new Room(500, 500);
       game.worlds.set(room.id, room);
+      entities = [new Entity(), new Entity()];
+      entities[Red]._publish(room, new Vector(2, 2));
+      entities[Blue]._publish(room, new Vector(450, 450));
+      players[Red]._ownEntity(entities[Red]);
+      players[Blue]._ownEntity(entities[Blue]);
     });
 
-    // it.only('Only broadcasts to teams that have visibility', () => {
-    //   entities[Red]._publish(room, new Vector(2, 2));
-    //   entities[Blue]._publish(room, new Vector(450, 450));
-    //   // Execute an action that is visible to nearby entities
-    //   entities[Blue].moveRelative({ amount: new Vector(0, 1) }).execute();
-    //   // Make sure that only the second entity will see this action
-    //   expect(players[Blue].broadcastQueue.length).to.equal(1);
-    //   expect(players[Red].broadcastQueue.length).to.equal(0);
-    // });
+    it.only('Only broadcasts to teams that have visibility', () => {
+      // Execute an action that is visible to nearby entities
+      entities[Blue].moveRelative({ amount: new Vector(0, 1) }).execute();
+      // Make sure that only the second entity will see this action
+      expect(players[Blue].broadcastQueue.length).to.equal(1);
+      expect(players[Red].broadcastQueue.length).to.equal(0);
+    });
   });
   
 });

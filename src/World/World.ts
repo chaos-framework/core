@@ -184,6 +184,10 @@ export default abstract class World implements ComponentContainer, Listener {
     
   };
 
+  createScope(): Scope {
+    return new Scope(this.width, this.height);
+  }
+
   abstract serialize(): string; // Serialize metadata
   abstract unserialize(data: string): World;  // Unserialize metadata
 }

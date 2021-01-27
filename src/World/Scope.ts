@@ -64,6 +64,8 @@ export default class Scope {
     return new ScopeChange([], totalRemoved);
   }
 
+  // TODO move viewer, and use in Entity _move
+
   getMoveChange(viewer: string, distance: number, from: Vector, to: Vector): ScopeChange {
     // Get the view areas from before and after
     const oldView = this.getChunksInView(from, distance);
