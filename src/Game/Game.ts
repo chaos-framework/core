@@ -90,84 +90,98 @@ export default abstract class Game implements Broadcaster {
     this.reacters.map(r => r.react(a));
   }
 
-  queueForBroadcast(a: Action) {
+  queueForBroadcast(action: Action) {
     // Check what the perception level is, ie do teams percieve actions as a whole or individual players?
     if (this.perceptionGrouping === 'team') {
       // Loop through teams and broadcast if visible
       for (const team of this.teams.values()) {
-        // Only care if team has players
-        if(team.players.size === 0) {
-          continue;
-        }
-        // Let the team visibility function determine if it passes, fails, or defers the visibility check to each member entity
-        let visibility: VisibilityType = this.getVisibilityToTeam(a, team);
-        // If not deferring, broadcast with resolved visibility
-        if (visibility !== VisibilityType.DEFER) {
-          if(visibility > VisibilityType.NOT_VISIBLE) {
-            this.percieveAndBroadcast(a, team, visibility);
-          }
-          continue;
-        }
-        // If deferred, we have to check at the player level and take the highest visibility found
-        // (breaking immediately if full visibility is determined at any point)
-        visibility = VisibilityType.DEFER;
-        for (const playerId in team.players) {
-          const player = this.players.get(playerId);
-          if (player) {
-            const playerVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToPlayer(a, player));
-            if(playerVisibility === VisibilityType.VISIBLE) {
-              this.percieveAndBroadcast(a, team, visibility);
-              continue;
-            }
-          }
-        }
-        if(visibility !== VisibilityType.DEFER) {
-          this.percieveAndBroadcast(a, team, visibility);
-        }
-        // If deferred again, check for visibility on each individual entity
-        // Note that we don't use DEFER, since it's not possible to defer any further
-        visibility = VisibilityType.NOT_VISIBLE;
-        for (const entityId in team.entities) {
-          const entity = this.entities.get(entityId);
-          if (entity) {
-            const entityVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(a, entity));
-            if(entityVisibility === VisibilityType.VISIBLE) {
-              this.percieveAndBroadcast(a, team, visibility);
-              continue;
-            }
-          }
-        }
-        this.percieveAndBroadcast(a, team, visibility);
+        this.broadcastToTeam(action, team);
       }
-      // TODO leverage playersWithoutTeams to support some players existing outside them
+      // Also broadcast to any players without teams, falling back to player-level perception
+      for(const player of this.playersWithoutTeams.values()) {
+        this.broadcastToPlayer(action, player);
+      }
     } else if (this.perceptionGrouping === 'player') {
       // Loop through all players
       for (const player of this.players.values()) {
-        // Check at the player level and take the highest visibility found
-        // (breaking immediately if full visibility is determined at any point)
-        let visibility = Game.determineVisibilityCheckHeirarchy(VisibilityType.DEFER, this.getVisibilityToPlayer(a, player));
-        if(visibility !== VisibilityType.DEFER) {
-          if(visibility > VisibilityType.NOT_VISIBLE) {
-            this.percieveAndBroadcast(a, player, visibility);
-          }
+        this.broadcastToPlayer(action, player);
+      }
+    }
+  }
+
+  broadcastToTeam(action: Action, team: Team) {
+    // Only care if team has players
+    if(team.players.size === 0) {
+      return;
+    }
+    // Let the team visibility function determine if it passes, fails, or defers the visibility check to each member entity
+    let visibility: VisibilityType = this.getVisibilityToTeam(action, team);
+    // If not deferring, broadcast with resolved visibility
+    if (visibility !== VisibilityType.DEFER) {
+      if(visibility > VisibilityType.NOT_VISIBLE) {
+        this.percieveAndBroadcast(action, team, visibility);
+      }
+      return;
+    }
+    // If deferred, we have to check at the player level and take the highest visibility found
+    // (breaking immediately if full visibility is determined at any point)
+    visibility = VisibilityType.DEFER;
+    for (const playerId in team.players) {
+      const player = this.players.get(playerId);
+      if (player) {
+        const playerVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToPlayer(action, player));
+        if(playerVisibility === VisibilityType.VISIBLE) {
+          this.percieveAndBroadcast(action, team, visibility);
           continue;
         }
-        // If deferred, check for visibility on each individual entity
-        // Note that we don't use DEFER, since it's not possible to defer any further
-        visibility = VisibilityType.NOT_VISIBLE;
-        for (const entityId in player.entities) { 
-          const entity = this.entities.get(entityId);
-          if (entity) {
-            visibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(a, entity));
-            if(visibility === VisibilityType.VISIBLE) {
-              continue;
-            }
-          }
-        }
-        if(visibility >= VisibilityType.NOT_VISIBLE) {
-          this.percieveAndBroadcast(a, player, visibility);
+      }
+    }
+    if(visibility !== VisibilityType.DEFER) {
+      this.percieveAndBroadcast(action, team, visibility);
+    }
+    // If deferred again, check for visibility on each individual entity
+    // Note that we don't use DEFER, since it's not possible to defer any further
+    visibility = VisibilityType.NOT_VISIBLE;
+    for (const entityId in team.entities) {
+      const entity = this.entities.get(entityId);
+      if (entity) {
+        const entityVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(action, entity));
+        if(entityVisibility === VisibilityType.VISIBLE) {
+          this.percieveAndBroadcast(action, team, visibility);
+          continue;
         }
       }
+    }
+    // Broadcast if visible in any way to any entity on this team
+    if(visibility > VisibilityType.NOT_VISIBLE) {
+      this.percieveAndBroadcast(action, team, visibility);
+    }
+  }
+
+  broadcastToPlayer(action: Action, player: Player) {
+    // Check at the player level and take the highest visibility found
+    // (breaking immediately if full visibility is determined at any point)
+    let visibility = Game.determineVisibilityCheckHeirarchy(VisibilityType.DEFER, this.getVisibilityToPlayer(action, player));
+    if (visibility !== VisibilityType.DEFER) {
+      if (visibility > VisibilityType.NOT_VISIBLE) {
+        this.percieveAndBroadcast(action, player, visibility);
+      }
+      return;
+    }
+    // If deferred, check for visibility on each individual entity
+    // Note that we don't use DEFER, since it's not possible to defer any further
+    visibility = VisibilityType.NOT_VISIBLE;
+    for (const entityId in player.entities) {
+      const entity = this.entities.get(entityId);
+      if (entity) {
+        visibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(action, entity));
+        if (visibility === VisibilityType.VISIBLE) {
+          continue;
+        }
+      }
+    }
+    if (visibility >= VisibilityType.NOT_VISIBLE) {
+      this.percieveAndBroadcast(action, player, visibility);
     }
   }
 

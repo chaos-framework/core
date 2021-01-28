@@ -5,7 +5,7 @@ import { Game, Team, Player, Entity } from '../../../src/internal';
 
 import EmptyGame from '../../Mocks/Games/EmptyGame';
 
-describe.only('Player and Game integration', () => {
+describe('Player and Game integration', () => {
   let game: Game;
   let teams: Team[];
   beforeEach(() => {
