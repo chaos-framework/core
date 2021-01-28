@@ -58,14 +58,23 @@ describe('Team, Player, and Entity relationships', () => {
     expect(entity.teams.has(team.id)).to.be.false;
   });
 
-  // it('Team-Entity -- player leaves team', () => {
-  //   team._addPlayer(player);
-  //   player._ownEntity(entity);
-  //   expect(team.entities.has(entity.id)).to.be.true;
-  //   expect(entity.teams.has(team.id)).to.be.true;
-  //   player._disownEntity(entity);
-  //   expect(team.entities.has(entity.id)).to.be.false;
-  //   expect(entity.teams.has(team.id)).to.be.false;
-  // });
+  it('Team-Entity -- player leaves team', () => {
+    team._addPlayer(player);
+    player._ownEntity(entity);
+    team._removePlayer(player);
+    expect(team.entities.has(entity.id)).to.be.false;
+    expect(entity.teams.has(team.id)).to.be.false;
+  });
+
+  it('Team-Entity -- player leaves team but entity is connected through another player', () => {
+    const otherPlayer = new Player({ username: 'Blue Player' });
+    team._addPlayer(player);
+    team._addPlayer(otherPlayer);
+    player._ownEntity(entity);
+    otherPlayer._ownEntity(entity);
+    team._removePlayer(player);
+    expect(team.entities.has(entity.id)).to.be.true;
+    expect(entity.teams.has(team.id)).to.be.true;
+  });
 
 });

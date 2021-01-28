@@ -100,21 +100,18 @@ export default class Player implements Viewer, Broadcaster {
     return true;
   }
 
-  _joinTeam(team: Team): boolean {
+  _joinTeam(team: Team): void {
     this.teams.add(team.id);
     if(this.teams.size === 1) {
       Game.getInstance().playersWithoutTeams.delete(this.id);
     }
-    // Update any entities that this owns as well
-    return true;
   }
 
-  _leaveTeam(team: Team): boolean {
+  _leaveTeam(team: Team): void {
     this.teams.delete(team.id);
     if(this.teams.size === 0) {
       Game.getInstance().playersWithoutTeams.set(this.id, this);
     }
-    return this.entities.delete(team.id);
   }
 
 }
