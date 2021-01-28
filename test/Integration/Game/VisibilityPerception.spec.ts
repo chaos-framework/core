@@ -4,6 +4,7 @@ import 'mocha';
 import { Game, Team, Player, Entity, World, Vector } from '../../../src/internal';
 
 import EmptyGame from '../../Mocks/Games/EmptyGame';
+import EntityVisibilityGame from '../../Mocks/Games/EntityVisibilityGame';
 import Room from '../../Mocks/Worlds/Room';
 
 const Red = 0;
@@ -139,6 +140,38 @@ describe('Action visibility and visibility grouping', () => {
       entities[Blue].move({ to: new Vector(2, 2) }).execute();
       expect(players[Blue].broadcastQueue.length).to.equal(4);
       expect(players[Red].broadcastQueue.length).to.equal(3);
+    });
+  });
+
+  describe('Entity-level visibility deferral for team-based visibility', () => {
+    let game: Game;
+    let teams: Team[];
+    let players: Player[];
+    let entities: Entity[];
+    let room: Room;
+
+    beforeEach(() => {
+      game = new EntityVisibilityGame(); // note game class
+      game.perceptionGrouping = 'team';
+      game.viewDistance = 1;
+      teams = [new Team(teamNames[Red]), new Team(teamNames[Blue])];
+      players = [new Player({ username: 'Red',  teams: [teams[Red].id] }), 
+                new Player({ username: 'Blue', teams: [teams[Blue].id] })];
+      room = new Room(500, 500);
+      game.worlds.set(room.id, room);
+      entities = [new Entity(), new Entity()];
+      entities[Red]._publish(room, new Vector(2, 2));
+      entities[Blue]._publish(room, new Vector(3, 3));  // entities are already nearby
+      players[Red]._ownEntity(entities[Red]);
+      players[Blue]._ownEntity(entities[Blue]);
+    });
+
+    it('Will fall back to entity-level if team and player defers', () => {
+      // Execute an action that is visible only to nearby entities
+      entities[Blue].moveRelative({ amount: new Vector(0, 1) }).execute();
+      // Make sure that only the second entity will see this action
+      expect(players[Blue].broadcastQueue.length).to.equal(1);
+      expect(players[Red].broadcastQueue.length).to.equal(0);
     });
   });
   

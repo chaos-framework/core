@@ -5,6 +5,7 @@ import {
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 import { Broadcaster } from "./Interfaces";
+import { transform } from "lodash";
 
 export default abstract class Game implements Broadcaster {
   private static instance: Game;
@@ -126,7 +127,7 @@ export default abstract class Game implements Broadcaster {
     // If deferred, we have to check at the player level and take the highest visibility found
     // (breaking immediately if full visibility is determined at any point)
     visibility = VisibilityType.DEFER;
-    for (const playerId in team.players) {
+    for (const playerId of team.players) {
       const player = this.players.get(playerId);
       if (player) {
         const playerVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToPlayer(action, player));
@@ -142,7 +143,7 @@ export default abstract class Game implements Broadcaster {
     // If deferred again, check for visibility on each individual entity
     // Note that we don't use DEFER, since it's not possible to defer any further
     visibility = VisibilityType.NOT_VISIBLE;
-    for (const entityId in team.entities) {
+    for (const entityId of team.entities) {
       const entity = this.entities.get(entityId);
       if (entity) {
         const entityVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(action, entity));
@@ -211,14 +212,23 @@ export default abstract class Game implements Broadcaster {
   }
 
   getVisibilityToTeam(a: Action, t: Team): VisibilityType {
+    if((a.caster && t.entities.has(a.caster.id)) || (a.target && t.entities.has(a.target.id))) {
+      return VisibilityType.VISIBLE;
+    }
     return a.isInPlayerOrTeamScope(t) ? VisibilityType.VISIBLE : VisibilityType.NOT_VISIBLE;
   }
 
   getVisibilityToPlayer(a: Action, p: Player): VisibilityType {
+    if((a.caster && p.entities.has(a.caster.id)) || (a.target && p.entities.has(a.target.id))) {
+      return VisibilityType.VISIBLE;
+    }
     return a.isInPlayerOrTeamScope(p) ? VisibilityType.VISIBLE : VisibilityType.NOT_VISIBLE;
   }
 
   getVisibilityToEntity(a: Action, e: Entity): VisibilityType {
+    if(a.caster === e || a.target === e) {
+      return VisibilityType.VISIBLE;
+    }
     return VisibilityType.VISIBLE;
   }
 

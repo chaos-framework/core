@@ -124,6 +124,10 @@ export default abstract class Action {
     }
   }
 
+  tagged(key: string): boolean {
+    return this.tags.has(key);
+  }
+
   is(key: string): boolean {
     return this.tags.has(key);
   }
@@ -133,7 +137,7 @@ export default abstract class Action {
     if (a.nested < 5) {
       a.execute();
     }
-  };
+  }
 
   react(a: Action) {
     a.nested = this.nested + 1;
@@ -142,7 +146,7 @@ export default abstract class Action {
     } else {
       // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle
     }
-  };
+  }
 
   static serializedHasRequiredFields(json: any): boolean {
     for (const key of this.requiredFields) {
