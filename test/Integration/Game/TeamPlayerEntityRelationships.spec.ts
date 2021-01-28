@@ -58,4 +58,14 @@ describe('Team, Player, and Entity relationships', () => {
     expect(entity.teams.has(team.id)).to.be.false;
   });
 
+  // it('Team-Entity -- player leaves team', () => {
+  //   team._addPlayer(player);
+  //   player._ownEntity(entity);
+  //   expect(team.entities.has(entity.id)).to.be.true;
+  //   expect(entity.teams.has(team.id)).to.be.true;
+  //   player._disownEntity(entity);
+  //   expect(team.entities.has(entity.id)).to.be.false;
+  //   expect(entity.teams.has(team.id)).to.be.false;
+  // });
+
 });

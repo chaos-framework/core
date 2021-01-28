@@ -43,6 +43,10 @@ export default class Player implements Viewer, Broadcaster {
       this.entitiesInSight = new Set<string>();
     }
     game.players.set(this.id, this);
+    // If this player is not part of any teams indicate so in the game
+    if(this.teams.size === 0) {
+      game.playersWithoutTeams.set(this.id, this);
+    }
   }
 
   getWorldScopes(): Map<string, Scope> {
@@ -98,12 +102,18 @@ export default class Player implements Viewer, Broadcaster {
 
   _joinTeam(team: Team): boolean {
     this.teams.add(team.id);
+    if(this.teams.size === 1) {
+      Game.getInstance().playersWithoutTeams.delete(this.id);
+    }
     // Update any entities that this owns as well
     return true;
   }
 
   _leaveTeam(team: Team): boolean {
     this.teams.delete(team.id);
+    if(this.teams.size === 0) {
+      Game.getInstance().playersWithoutTeams.set(this.id, this);
+    }
     return this.entities.delete(team.id);
   }
 
