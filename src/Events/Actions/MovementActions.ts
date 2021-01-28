@@ -106,6 +106,7 @@ export class RelativeMoveAction extends Action {
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
+    // Check the default scope to see if the target's new position is in scope
     if(super.isInPlayerOrTeamScope(viewer)) {
       return true;
     } 

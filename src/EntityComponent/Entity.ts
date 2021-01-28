@@ -452,16 +452,16 @@ export default class Entity implements Listener, ComponentContainer {
           const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
           if(scope) {
             // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-            scope.addViewer(this.id, game.viewDistance, to, this.position.toChunkSpace());
-            scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace(), to);
+            scope.addViewer(this.id, game.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
+            scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
           }
         }
       } else {
         for(let playerId of this.owners) {
-          const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
+          const scope = game.players.get(playerId)!.scopesByWorld.get(this.world.id);
           if(scope) {
-            scope.addViewer(this.id, game.viewDistance, to, this.position.toChunkSpace());
-            scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace(), to);
+            scope.addViewer(this.id, game.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
+            scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
           }
         }
       }
