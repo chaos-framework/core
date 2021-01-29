@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
-import { Entity, Team, Vector, MoveAction, RelativeMoveAction, VisibilityType, Player } from '../../../src/internal';
+import { Game, Entity, Team, Vector, RelativeMoveAction, Player } from '../../../src/internal';
 
-import Game from '../../../src/Game/Game';
 import EmptyGame from '../../Mocks/Games/EmptyGame';
 
 describe('Game', () => {

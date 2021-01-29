@@ -23,18 +23,18 @@ export default class Player implements Viewer, Broadcaster {
     // Make sure that we weren't passed an array of teams if the game's perceptionGrouping is 'team'
     // This is because you can't (yet) meaningfully share a scope with multiple teams
     if (teams.length > 1 && game.perceptionGrouping === 'team') {
-      throw new Error(); // TODO ERROR
+      throw new Error('Cannot join multiple teams with team-level visibility'); // TODO ERROR
     }
     // Make sure the team(s) exists
     for (const teamId of teams) {
       if (!game.teams.has(teamId)) {
-        throw new Error(); // TODO ERROR
+        throw new Error('Team not found for player to join'); // TODO ERROR
       }
       this.teams.add(teamId);
       game.teams.get(teamId)!._addPlayer(this);
     }
     // If game is has team visibility and assigned to a (single) team, reference that team's scope directly
-    if(game.perceptionGrouping === 'team' && this.teams.size === 1) {
+    if (game.perceptionGrouping === 'team' && this.teams.size === 1) {
       const team = game.teams.get(this.teams.values().next().value)!;
       this.scopesByWorld = team.scopesByWorld;
       this.entitiesInSight = team.entitiesInSight;
@@ -44,7 +44,7 @@ export default class Player implements Viewer, Broadcaster {
     }
     game.players.set(this.id, this);
     // If this player is not part of any teams indicate so in the game
-    if(this.teams.size === 0) {
+    if (this.teams.size === 0) {
       game.playersWithoutTeams.set(this.id, this);
     }
   }
@@ -62,11 +62,11 @@ export default class Player implements Viewer, Broadcaster {
   _ownEntity(entity: Entity): boolean {
     this.entities.add(entity.id);
     entity.owners.add(this.id);
-    if(this.teams.size > 0) {
+    if (this.teams.size > 0) {
       const game = Game.getInstance();
-      for(let teamId of this.teams) {
+      for (let teamId of this.teams) {
         const team = game.teams.get(teamId);
-        if(team) {
+        if (team) {
           team.addEntity(this.id, entity.id);
         }
       }
@@ -87,11 +87,11 @@ export default class Player implements Viewer, Broadcaster {
 
   _disownEntity(entity: Entity): boolean {
     entity.owners.delete(this.id);
-    if(this.teams.size > 0) {
+    if (this.teams.size > 0) {
       const game = Game.getInstance();
-      for(let teamId of this.teams) {
+      for (let teamId of this.teams) {
         const team = game.teams.get(teamId);
-        if(team) {
+        if (team) {
           team.removeEntity(this.id, entity.id);
         }
       }
@@ -100,18 +100,26 @@ export default class Player implements Viewer, Broadcaster {
     return true;
   }
 
-  _joinTeam(team: Team): void {
+  _joinTeam(team: Team): boolean {
+    if (Game.getInstance().perceptionGrouping === 'team' || this.teams.has(team.id)) {
+      return false;
+    }
     this.teams.add(team.id);
-    if(this.teams.size === 1) {
+    if (this.teams.size === 1) {
       Game.getInstance().playersWithoutTeams.delete(this.id);
     }
+    return true;
   }
 
-  _leaveTeam(team: Team): void {
+  _leaveTeam(team: Team): boolean {
+    if (Game.getInstance().perceptionGrouping === 'team' || !this.teams.has(team.id)) {
+      return false;
+    }
     this.teams.delete(team.id);
-    if(this.teams.size === 0) {
+    if (this.teams.size === 0) {
       Game.getInstance().playersWithoutTeams.set(this.id, this);
     }
+    return true;
   }
 
 }
