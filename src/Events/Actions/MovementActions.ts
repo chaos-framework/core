@@ -7,7 +7,7 @@ export class MoveAction extends Action {
   to: Vector;
   visibilityChangingAction = true;
 
-  static requiredFields: string[] = ['target', 'to', 'from'];
+  static requiredFields: string[] = ['permitted', 'target', 'to'];
 
   constructor({caster, target, to, using, tags = []}: MoveAction.Params) {
     super({caster, using, tags});
@@ -41,11 +41,10 @@ export class MoveAction extends Action {
     }
   }
 
-  static unserialize(json: any): MoveAction {
+  static unserialize(json: any, game: Game): MoveAction {
     if(!Action.serializedHasRequiredFields(json)) {
       throw new Error();
     }
-    const game = Game.getInstance();
     const target: Entity | undefined = game.getEntity(json['target']);
     if(target === undefined){
       throw new Error();
@@ -53,7 +52,6 @@ export class MoveAction extends Action {
 
     const caster: Entity | undefined = game.getEntity(json['caster']);
     const using: Entity | undefined = game.getEntity(json['using']);
-    const from: Vector = Vector.unserialize(json['from']);
     const to: Vector = Vector.unserialize(json['to']);
     // TODO tags
 

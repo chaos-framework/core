@@ -17,7 +17,7 @@ export default abstract class Action {
   verb?: string;
   visibilityChangingAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
 
-  static requiredFields: string[] = ['permitted'];
+  static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
   constructor({ caster, using, tags }: ActionParameters = {}) {
     this.caster = caster;
@@ -149,7 +149,7 @@ export default abstract class Action {
   }
 
   static serializedHasRequiredFields(json: any): boolean {
-    for (const key of this.requiredFields) {
+    for (const key of this.universallyRequiredFields) {
       if (!json[key]) {
         return false;
       }
@@ -171,9 +171,12 @@ export default abstract class Action {
     return false;
   };
 
+  // TODO make abstract -- only concrete so I can run tests before fully implementing in all children
   serialize(forClient: boolean, overrides?: any): string {
     return '';
   }
+
+  // TODO abstract unserialize(json: any, game: Game): Action;
 
   initialize(): void { };
   teardown(): void { };
