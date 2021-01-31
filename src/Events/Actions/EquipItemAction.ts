@@ -1,12 +1,12 @@
 import { Action, ActionParameters, Entity } from '../../internal'; 
 
-export class EquipAction extends Action {
+export class EquipItemAction extends Action {
   slot: string;
   target: Entity;
   item: Entity;
   permitted = false; // assume canceled until something allows it
 
-  constructor({caster, target, slot, item, using, tags = []}: EquipAction.Params) {
+  constructor({caster, target, slot, item, using, tags = []}: EquipItemAction.Params) {
     super({caster, using, tags});
     this.target = target;
     this.slot = slot;
@@ -20,13 +20,13 @@ export class EquipAction extends Action {
   }
 }
 
-export namespace EquipAction {
-  export interface Params extends EntityParams {
-    target: Entity;
-  }
-  
+export namespace EquipItemAction {
   export interface EntityParams extends ActionParameters {
     slot: string,
     item: Entity
+  }
+
+  export interface Params extends EntityParams {
+    target: Entity;
   }
 }

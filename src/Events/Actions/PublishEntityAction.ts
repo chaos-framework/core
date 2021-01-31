@@ -1,4 +1,5 @@
-import { Action, ActionParameters, World, Vector, Entity } from '../../internal'; 
+import { Action, ActionParameters, World, Vector, Entity } from '../../internal';
+
 export class PublishEntityAction extends Action {
   entity: Entity;
   world: World;
@@ -35,13 +36,13 @@ export class PublishEntityAction extends Action {
 }
 
 export namespace PublishEntityAction {
-  export interface Params extends ActionParameters {
+  export interface EntityParams extends ActionParameters {
     entity: Entity,
     world: World,
-    position: Vector,
+    position: Vector
+  }
+
+  export interface Params extends EntityParams {
     target?: Entity
   }
 }
-
-// TODO unpublish
-// TODO replace (with same ID)? could be handy if you need to swap one entity with another.. allow for more specific modification/reaction
