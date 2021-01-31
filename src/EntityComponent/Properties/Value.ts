@@ -1,6 +1,6 @@
 import { 
   Property, Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
-  PropertyChangeAction, PropertyModificationAction
+  PropertyChangeAction, ModifyPropertyAction
 } from '../../internal';
 
 export enum ModificationMethod { Absolute, Adjustment, Multiplier }
@@ -81,8 +81,8 @@ export default class Value {
   }
 
   // Create a modifier application action
-  public modify({ caster, method, amount, using, tags }: PropertyModificationAction.ValueParams): PropertyModificationAction {
-    return new PropertyModificationAction({
+  public modify({ caster, method, amount, using, tags }: ModifyPropertyAction.ValueParams): ModifyPropertyAction {
+    return new ModifyPropertyAction({
       property: this.property.name, target: this.property.entity,caster, method, amount, using, tags
     });
   }

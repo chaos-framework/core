@@ -1,11 +1,11 @@
 import { Action, Ability, ActionParameters, Entity, Component } from '../../internal'; 
 
-export class UnlearnAbilityAction extends Action {
+export class ForgetAbilityAction extends Action {
   ability: Ability;
   target: Entity;
   grantedBy?: Entity | Component;
 
-  constructor({caster, target, using, grantedBy, ability, tags = []}: UnlearnAbilityAction.Params) {
+  constructor({caster, target, using, grantedBy, ability, tags = []}: ForgetAbilityAction.Params) {
     super({caster, using, tags});
     this.target = target;
     this.ability = ability;
@@ -13,12 +13,12 @@ export class UnlearnAbilityAction extends Action {
   }
 
   apply(): boolean {
-    this.target._deny(this.ability, this.grantedBy, this.using);
+    this.target._forget(this.ability, this.grantedBy, this.using);
     return false;
   }
 }
 
-export namespace UnlearnAbilityAction {
+export namespace ForgetAbilityAction {
   export interface EntityParams extends ActionParameters {
     ability: Ability;
     grantedBy?: Entity | Component;

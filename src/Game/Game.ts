@@ -1,11 +1,10 @@
 import {
-  Entity, Action, World, Component, ComponentContainer,
-  Listener, Modifier, Reacter, isModifier, isReacter,
+  Entity, Action, World, Component,
+  Modifier, Reacter, isModifier, isReacter,
   Player, Team, ActionQueue
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 import { Broadcaster } from "./Interfaces";
-import { transform } from "lodash";
 
 export default abstract class Game implements Broadcaster {
   private static instance: Game;

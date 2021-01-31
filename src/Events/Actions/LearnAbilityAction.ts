@@ -13,7 +13,7 @@ export class LearnAbilityAction extends Action {
   }
 
   apply(): boolean {
-    return this.target._grant(this.ability);
+    return this.target._learn(this.ability);
   }
 }
 

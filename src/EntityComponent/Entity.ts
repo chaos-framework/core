@@ -5,11 +5,9 @@ import {
   Listener, Modifier, Reacter, isModifier, isReacter,
   Ability, Property, AttachComponentAction,
   ChangeWorldAction, MoveAction, RelativeMoveAction,
-  PropertyAdditionAction, PropertyRemovalAction,
-  GrantAbility, DenyAbility, AbilityActionEntityParameters,
-  PublishEntityAction, EquipAction,
-  AddSlotAction, RemoveSlotAction, SlotActionEntityParameters,
-  OptionalCastParameters, Grant
+  PublishEntityAction,
+  AddSlotAction, RemoveSlotAction, AddPropertyAction,
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction
 } from '../internal';
 export default class Entity implements Listener, ComponentContainer {
   id: string;
@@ -298,8 +296,8 @@ export default class Entity implements Listener, ComponentContainer {
 
   // Adding properties
 
-  addProperty({caster, using, name, current, min, max, tags}: PropertyAdditionAction.EntityParams, force = false) {
-    return new PropertyAdditionAction({ caster, target: this, using, name, current, min, max, tags});
+  addProperty({caster, using, name, current, min, max, tags}: AddPropertyAction.EntityParams, force = false): AddPropertyAction {
+    return new AddPropertyAction({ caster, target: this, using, name, current, min, max, tags});
   }
 
   _addProperty(name: string, current?: number, min?: number, max?: number): boolean {
@@ -313,8 +311,8 @@ export default class Entity implements Listener, ComponentContainer {
     }
   }
 
-  removeProperty({caster, using, name, tags}: PropertyRemovalAction.EntityParams, force = false) {
-    return new PropertyRemovalAction({ caster, target: this, using, name, tags});
+  removeProperty({caster, using, name, tags}: RemovePropertyAction.EntityParams, force = false) {
+    return new RemovePropertyAction({ caster, target: this, using, name, tags});
   }
 
   _removeProperty(name: string, p?: Property): boolean {
@@ -331,11 +329,11 @@ export default class Entity implements Listener, ComponentContainer {
 
   // Granting abilities
 
-  grant({caster, using, ability, tags}: AbilityActionEntityParameters, force = false) {
-    return new GrantAbility({caster, target: this, using, ability, tags});
+  learn({caster, using, ability, tags}: LearnAbilityAction.EntityParams, force = false): LearnAbilityAction {
+    return new LearnAbilityAction({caster, target: this, using, ability, tags});
   }
 
-  _grant(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
+  _learn(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
     const name = ability.name;
     const grants = this.abilities.get(name);
     if(grants) {
@@ -354,11 +352,11 @@ export default class Entity implements Listener, ComponentContainer {
 
   // Denying abilities
 
-  deny({caster, using, ability, tags}: AbilityActionEntityParameters, force = false) {
-    return new DenyAbility({caster, target: this, using, ability, tags});
+  forget({caster, using, ability, tags}: ForgetAbilityAction.Params, force = false): ForgetAbilityAction {
+    return new ForgetAbilityAction({caster, target: this, using, ability, tags});
   }
 
-  _deny(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
+  _forget(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
     const name = ability.name;
     let grants = this.abilities.get(name);
     if(!grants) {
@@ -383,8 +381,8 @@ export default class Entity implements Listener, ComponentContainer {
 
   // Equipping items
 
-  equip({caster, slot, item, tags = []}: EquipAction.EntityParams, force = false): EquipAction {
-    return new EquipAction({caster, target: this, slot, item, tags});
+  equip({caster, slot, item, tags = []}: EquipItemAction.EntityParams, force = false): EquipItemAction {
+    return new EquipItemAction({caster, target: this, slot, item, tags});
   }
 
   _equip(item: Entity, slotName: string): boolean {
@@ -407,7 +405,7 @@ export default class Entity implements Listener, ComponentContainer {
 
   // Slot changes
 
-  addSlot({caster, name, tags = []}: SlotActionEntityParameters, force = false): AddSlotAction {
+  addSlot({caster, name, tags = []}: AddSlotAction.EntityParams, force = false): AddSlotAction {
     return new AddSlotAction({caster, target: this, name, tags});
   }
 
@@ -419,7 +417,7 @@ export default class Entity implements Listener, ComponentContainer {
     return false;
   }
 
-  removeSlot({caster, name, tags = []}: SlotActionEntityParameters, force = false): RemoveSlotAction {
+  removeSlot({caster, name, tags = []}: RemoveSlotAction.Params, force = false): RemoveSlotAction {
     return new RemoveSlotAction({caster, target: this, name, tags});
   }
 

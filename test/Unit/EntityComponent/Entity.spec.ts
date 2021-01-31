@@ -1,14 +1,11 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Entity from '../../../src/EntityComponent/Entity';
-import Ability from '../../../src/EntityComponent/Ability';
+import { Entity, Ability } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
 import EmptyAbility from '../../Mocks/Abilities/Empty';
 import { Heal }  from '../../Mocks/Abilities/Spells';
-import World from '../../../src/World/World';
-import Vector from '../../../src/Math/Vector';
 import { ModifiesAndReactsAtWorldScope } from '../../Mocks/Components/Functional';
 
 describe('Entity', () => {
@@ -22,7 +19,7 @@ describe('Entity action/event generators', () => {
     e = new Entity();
     e._addProperty("HP");
     heal = new Heal();
-    e._grant(heal, e, e);
+    e._learn(heal, e, e);
   });
 
   describe('Casting', () => {
@@ -101,7 +98,7 @@ describe('Entity action direct methods', () => {
     it('Can be granted a single ability.', () => {
       // Granting single ability
       expect(e.abilities.size).to.equal(0);
-      expect(e._grant(ability, undefined, undefined)).to.be.true;
+      expect(e._learn(ability, undefined, undefined)).to.be.true;
       expect(e.abilities.size).to.equal(1);
       const grant = e.abilities.get(ability.name);
       expect(grant).to.exist;
@@ -113,10 +110,10 @@ describe('Entity action direct methods', () => {
     it('Cannot be granted duplicate abilities.', () => {
       expect(e.abilities.size).to.equal(0);
       // Attempt to grant the same ability the same way multiple times
-      expect(e._grant(ability, undefined, undefined)).to.be.true;
-      expect(e._grant(ability, undefined, undefined)).to.be.false;
-      expect(e._grant(ability, undefined, undefined)).to.be.false;
-      expect(e._grant(ability, undefined, undefined)).to.be.false;
+      expect(e._learn(ability, undefined, undefined)).to.be.true;
+      expect(e._learn(ability, undefined, undefined)).to.be.false;
+      expect(e._learn(ability, undefined, undefined)).to.be.false;
+      expect(e._learn(ability, undefined, undefined)).to.be.false;
       expect(e.abilities.size).to.equal(1);
       const grant = e.abilities.get(ability.name);
       expect(grant).to.exist;
@@ -128,8 +125,8 @@ describe('Entity action direct methods', () => {
     it('Can be granted the same ability using different entities or components.', () => {
       expect(e.abilities.size).to.equal(0);
       const someOtherEntity = new Entity();
-      expect(e._grant(ability, undefined, undefined)).to.be.true;
-      expect(e._grant(ability, someOtherEntity, someOtherEntity)).to.be.true;
+      expect(e._learn(ability, undefined, undefined)).to.be.true;
+      expect(e._learn(ability, someOtherEntity, someOtherEntity)).to.be.true;
       const grant = e.abilities.get(ability.name);
       expect(grant).to.exist;
       if(grant) { // typescript compile safety
@@ -145,13 +142,13 @@ describe('Entity action direct methods', () => {
 
     // Give the entity some abilities to deny for every test
     beforeEach(() => { 
-      e._grant(ability, undefined, undefined);
-      e._grant(ability, someOtherEntity, someOtherEntity);
+      e._learn(ability, undefined, undefined);
+      e._learn(ability, someOtherEntity, someOtherEntity);
     });
 
     it('Can deny an ability using or granted by one source.', () => {
       // Remove one 
-      expect(e._deny(ability, undefined, undefined)).to.be.true;
+      expect(e._forget(ability, undefined, undefined)).to.be.true;
       expect(e.abilities.size).to.equal(1);
       const grant = e.abilities.get(ability.name);
       expect(grant).to.exist;
@@ -162,8 +159,8 @@ describe('Entity action direct methods', () => {
 
     it('Can deny an entire ability by denying both sources.', () => {
       // Remove one 
-      expect(e._deny(ability, undefined, undefined)).to.be.true;
-      expect(e._deny(ability, someOtherEntity, someOtherEntity)).to.be.true;
+      expect(e._forget(ability, undefined, undefined)).to.be.true;
+      expect(e._forget(ability, someOtherEntity, someOtherEntity)).to.be.true;
       expect(e.abilities.size).to.equal(0);
       // Check both methods for seeing if an entity has an ability
       const grant = e.abilities.get(ability.name);

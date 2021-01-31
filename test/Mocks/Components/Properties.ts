@@ -1,8 +1,6 @@
-import Component from '../../../src/EntityComponent/Component';
-import Action from '../../../src/Events/Action';
-import { Listener, Modifier } from '../../../src/Events/Interfaces';
-import { PropertyChangeAction } from '../../../src/Events/Actions/PropertyActions';
-import { EquipAction } from '../../../src/Events/Actions/EquipmentActions';
+import { Component, Action, PropertyChangeAction,
+  Listener, EquipItemAction, Modifier } from '../../../src/internal';
+
 import { Slash, Stab } from '../Abilities/Attacks';
 
 export class Sword extends Component implements Listener {
@@ -13,16 +11,16 @@ export class Sword extends Component implements Listener {
   unique = true;
 
   modify(a: Action) {
-    if(a instanceof EquipAction && a.item === this.parent && a.slot.toLowerCase().includes('hand')) {
+    if(a instanceof EquipItemAction && a.item === this.parent && a.slot.toLowerCase().includes('hand')) {
       a.permit(); // allow this action
     }
   };
 
   react(a: Action) {
-    if(a instanceof EquipAction && a.item === this.parent && a.slot.toLowerCase().includes('hand')) {
+    if(a instanceof EquipItemAction && a.item === this.parent && a.slot.toLowerCase().includes('hand')) {
       // TODO add slash and hack abilities to target
-      a.target.grant({ ability: new Slash(), using: this, grantedBy: this });
-      a.target.grant({ ability: new Stab(), using: this, grantedBy: this });
+      a.target.learn({ ability: new Slash(), using: this, grantedBy: this });
+      a.target.learn({ ability: new Stab(), using: this, grantedBy: this });
     }
   };
 

@@ -1,9 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Entity from '../../../src/EntityComponent/Entity';
-import Property from '../../../src/EntityComponent/Properties/Property';
-import { PropertyChangeAction } from '../../../src/Events/Actions/PropertyActions';
+import { Entity, Property, PropertyChangeAction } from '../../../src/internal';
 
 describe('PropertyChange Action', () => {
   let e: Entity;

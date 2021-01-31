@@ -15,7 +15,7 @@ export class RemoveSlotAction extends Action {
   }
 }
 
-namespace RemoveSlotAction {
+export namespace RemoveSlotAction {
   export interface EntityParams extends ActionParameters {
     name: string,
   }

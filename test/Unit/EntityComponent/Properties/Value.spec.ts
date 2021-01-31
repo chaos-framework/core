@@ -1,11 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
-import Entity from '../../../../src/EntityComponent/Entity';
-import { AbsoluteModification, AdjustmentModification, MultiplierModification } from '../../../../src/EntityComponent/Properties/Modification';
-import Property from '../../../../src/EntityComponent/Properties/Property';
 
-import Value from '../../../../src/EntityComponent/Properties/Value';
-import { PropertyChangeAction } from '../../../../src/Events/Actions/PropertyActions';
+import { Entity, AbsoluteModification, AdjustmentModification, MultiplierModification,
+Property, Value, PropertyChangeAction } from '../../../../src/internal';
 
 describe('Entity Property Values', () => {
   let e: Entity;

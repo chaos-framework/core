@@ -1,8 +1,6 @@
-import Component, { ComponentContainer } from '../../../src/EntityComponent/Component';
-import Entity from '../../../src/EntityComponent/Entity';
-import Action from '../../../src/Events/Action';
-import { AttachComponentAction } from '../../../src/Events/Actions/ComponentActions';
-import { Listener, Reacter } from '../../../src/Events/Interfaces';
+import { Component, Action, AttachComponentAction,
+  Listener, Reacter} from '../../../src/internal';
+
 import { Heal } from '../Abilities/Spells';
 
 export class Paladin extends Component implements Reacter {
@@ -14,7 +12,7 @@ export class Paladin extends Component implements Reacter {
 
   react(a: Action) {
     if(a instanceof AttachComponentAction && a.component === this) {
-      a.react(a.target.grant({ ability: new Heal() }));
+      a.react(a.target.learn({ ability: new Heal() }));
       // TODO add INT buff
     }
   }

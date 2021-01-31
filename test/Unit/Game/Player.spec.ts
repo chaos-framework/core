@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 import { validate as validateUuid } from 'uuid';
+
 import { Game, Entity, Team, Player } from '../../../src/internal';
 
 import EmptyGame from '../../Mocks/Games/EmptyGame';

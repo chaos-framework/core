@@ -1,5 +1,5 @@
 import { 
-  Action, Entity, Component, Value
+  Action, Entity, Component, Value, ActionParameters
 } from '../../internal';
 
 export class PropertyChangeAction extends Action {
@@ -96,4 +96,17 @@ export class PropertyChangeAction extends Action {
     return this.effects(key) && this.amount < 0;
   }
 
+}
+
+export namespace PropertyChangeAction {	
+  export interface ValueParams extends ActionParameters {	
+    amount: number,	
+  }	
+
+  export interface Params extends ValueParams {	
+    target: Entity,	
+    property: string,	
+    value?: 'current' | 'min' | 'max',	
+    type?: 'adjust' | 'set'	
+  }	
 }

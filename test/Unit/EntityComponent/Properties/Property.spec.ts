@@ -1,9 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
-import Entity from '../../../../src/EntityComponent/Entity';
 
-import Property from '../../../../src/EntityComponent/Properties/Property';
-import Value from '../../../../src/EntityComponent/Properties/Value';
+import { Entity, Property, Value } from '../../../../src/internal';
 
 describe('Entity Properties', () => {
   let e: Entity;

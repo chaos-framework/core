@@ -1,9 +1,4 @@
-import Component from '../../../src/EntityComponent/Component';
-import { Listener, Modifier } from '../../../src/Events/Interfaces';
-import Action from '../../../src/Events/Action';
-import { AttachComponentAction } from '../../../src/Events/Actions/ComponentActions';
-import { PropertyChangeAction } from '../../../src/Events/Actions/PropertyActions';
-
+import { Component, Listener, Modifier, Action, AttachComponentAction, PropertyChangeAction } from '../../../src/internal';
 export class Physical extends Component implements Listener {
 
   constructor(public weight: number) {

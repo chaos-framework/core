@@ -15,7 +15,7 @@ export class AddSlotAction extends Action {
   }
 }
 
-namespace AddSlotAction {
+export namespace AddSlotAction {
   export interface EntityParams extends ActionParameters {
     name: string,
   }

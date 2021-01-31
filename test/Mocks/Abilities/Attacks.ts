@@ -1,8 +1,5 @@
-import Entity from '../../../src/EntityComponent/Entity';
-import Ability, { OptionalCastParameters } from '../../../src/EntityComponent/Ability';
-import Event from '../../../src/Events/Event';
-import { PropertyChangeAction } from '../../../src/Events/Actions/PropertyActions';
-import { SimpleEvent } from '../../../src';
+import { Entity, Ability, OptionalCastParameters, PropertyChangeAction,
+  SimpleEvent, Event, } from '../../../src/internal';
 
 export class Slash extends Ability {
   name = "Slash"

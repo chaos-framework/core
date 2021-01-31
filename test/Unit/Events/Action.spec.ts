@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import 'mocha';
 
 import Action from '../../../src/Events/Action';
-import { isString } from 'util';
 
 // Fake concrete implementation
 class TestAction extends Action {
