@@ -1,9 +1,10 @@
-// CORE IMPORTS
-import {
-  Entity, Component, ComponentContainer,
-  Ability, OptionalCastParameters, Grant, Property, Value, ValueType,
-  Modification, ModificationMethod, AdjustmentModification, MultiplierModification, AbsoluteModification
-} from './EntityComponent';
+// ENTITY AND COMPONENT
+import Entity from './EntityComponent/Entity';
+import Component, { ComponentContainer } from './EntityComponent/Component';
+import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability';
+import Property, { ValueType } from './EntityComponent/Properties/Property'
+import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification'
+import Value, { ModificationMethod } from './EntityComponent/Properties/Value'
 // EVENT AND ACTION IMPORTS
 import Action, { ActionParameters } from './Events/Action';
 import Event from './Events/Event';
@@ -25,7 +26,9 @@ import {
   Modifier, Reacter, Listener, isModifier, isReacter, VisibilityType,
   SimpleEvent, ActionQueue } from './Events/';
 // GAME AND WORLD
-import { Game, Team, Player } from './Game/';
+import Game from './Game/Game';
+import Team from './Game/Team';
+import Player from './Game/Player';
 import { Viewer, Broadcaster } from './Game/Interfaces';
 import { World, Layer, Chunk, Scope, IChunk, ILayer } from './World/';
 
@@ -33,6 +36,7 @@ import Vector from './Math/Vector';
 
 export {
   Entity, Component, ComponentContainer, Ability, Property, Value, ValueType,
+  Game, Player, Team,
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters, Modifier, Reacter, Listener, isModifier, isReacter,
@@ -50,7 +54,6 @@ export {
   RemovePropertyAction,
   RemoveSlotAction,
   ForgetAbilityAction,
-  Game, Player, Team,
   World, Layer, Chunk, Scope, IChunk, ILayer,
   Viewer, Broadcaster,
   Event, SimpleEvent, ActionQueue, VisibilityType,

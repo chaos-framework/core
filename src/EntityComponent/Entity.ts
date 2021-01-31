@@ -9,6 +9,7 @@ import {
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction
 } from '../internal';
+
 export default class Entity implements Listener, ComponentContainer {
   id: string;
   tags = new Set<string>();
