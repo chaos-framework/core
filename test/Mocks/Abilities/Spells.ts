@@ -1,4 +1,4 @@
-import Entity from '../../../src/EntityComponent/Entity';
+import IEntity from '../../../src/EntityComponent/Entity';
 import Ability, { OptionalCastParameters } from '../../../src/EntityComponent/Ability';
 import Event from '../../../src/Events/Event';
 import { SimpleEvent } from '../../../src';
@@ -6,7 +6,7 @@ import { SimpleEvent } from '../../../src';
 export class Heal extends Ability {
   name = "Heal";
 
-  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
+  cast(caster: IEntity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
     if(!target) {
       return undefined;
     }
@@ -17,7 +17,7 @@ export class Heal extends Ability {
     // TODO check line-of-sight
     const amount = 5; // TODO roll based on INT or something
     // default to casting on self
-    target = target && target instanceof Entity ? target : caster;
+    target = target && target instanceof IEntity ? target : caster;
     const event = new SimpleEvent([
       hpValue.current.adjust({amount, caster, tags: ['heal'] })
     ]);

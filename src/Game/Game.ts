@@ -1,5 +1,6 @@
 import {
-  Entity, Action, World, Component,
+  IEntity,
+  Action, World, Component,
   Modifier, Reacter, isModifier, isReacter,
   Player, Team, ActionQueue
 } from "../internal";
@@ -7,10 +8,10 @@ import { VisibilityType } from '../Events/Enums';
 import { Broadcaster } from "./Interfaces";
 
 export default abstract class Game implements Broadcaster {
-  private static instance: Game;
+  static instance: Game;
 
   worlds: Map<string, World> = new Map<string, World>();
-  entities: Map<string, Entity> = new Map<string, Entity>();
+  entities: Map<string, IEntity> = new Map<string, IEntity>();
 
   teams: Map<string, Team> = new Map<string, Team>();
   teamsByName: Map<string, Team> = new Map<string, Team>();
@@ -55,11 +56,11 @@ export default abstract class Game implements Broadcaster {
     return this.worlds.get(id);
   }
 
-  getEntity = (id: string): Entity | undefined => {
+  getEntity = (id: string): IEntity | undefined => {
     return this.entities.get(id);
   }
 
-  addEntity = (e: Entity): boolean => {
+  addEntity = (e: IEntity): boolean => {
     if (e.id) {
       this.entities.set(e.id, e);
       return true;
@@ -114,7 +115,7 @@ export default abstract class Game implements Broadcaster {
     if(team.players.size === 0) {
       return;
     }
-    // Let the team visibility function determine if it passes, fails, or defers the visibility check to each member entity
+    // Let the team visibility function determine if it passes, fails, or defers the visibility check to each member IEntity
     let visibility: VisibilityType = this.getVisibilityToTeam(action, team);
     // If not deferring, broadcast with resolved visibility
     if (visibility !== VisibilityType.DEFER) {
@@ -139,20 +140,20 @@ export default abstract class Game implements Broadcaster {
     if(visibility !== VisibilityType.DEFER) {
       this.percieveAndBroadcast(action, team, visibility);
     }
-    // If deferred again, check for visibility on each individual entity
+    // If deferred again, check for visibility on each individual IEntity
     // Note that we don't use DEFER, since it's not possible to defer any further
     visibility = VisibilityType.NOT_VISIBLE;
     for (const entityId of team.entities) {
-      const entity = this.entities.get(entityId);
-      if (entity) {
-        const entityVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(action, entity));
+      const IEntity = this.entities.get(entityId);
+      if (IEntity) {
+        const entityVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(action, IEntity));
         if(entityVisibility === VisibilityType.VISIBLE) {
           this.percieveAndBroadcast(action, team, visibility);
           continue;
         }
       }
     }
-    // Broadcast if visible in any way to any entity on this team
+    // Broadcast if visible in any way to any IEntity on this team
     if(visibility > VisibilityType.NOT_VISIBLE) {
       this.percieveAndBroadcast(action, team, visibility);
     }
@@ -168,13 +169,13 @@ export default abstract class Game implements Broadcaster {
       }
       return;
     }
-    // If deferred, check for visibility on each individual entity
+    // If deferred, check for visibility on each individual IEntity
     // Note that we don't use DEFER, since it's not possible to defer any further
     visibility = VisibilityType.NOT_VISIBLE;
     for (const entityId in player.entities) {
-      const entity = this.entities.get(entityId);
-      if (entity) {
-        visibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(action, entity));
+      const IEntity = this.entities.get(entityId);
+      if (IEntity) {
+        visibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(action, IEntity));
         if (visibility === VisibilityType.VISIBLE) {
           continue;
         }
@@ -224,7 +225,7 @@ export default abstract class Game implements Broadcaster {
     return a.isInPlayerOrTeamScope(p) ? VisibilityType.VISIBLE : VisibilityType.NOT_VISIBLE;
   }
 
-  getVisibilityToEntity(a: Action, e: Entity): VisibilityType {
+  getVisibilityToEntity(a: Action, e: IEntity): VisibilityType {
     if(a.caster === e || a.target === e) {
       return VisibilityType.VISIBLE;
     }

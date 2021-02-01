@@ -1,7 +1,7 @@
-import { Entity, Action } from "../internal";
+import { IEntity, Action } from "../internal";
 
 export default interface Event {
-  caster?: Entity;
+  caster?: IEntity;
 
   getNextAction(previousAction?: Action): Action | undefined;
 }

@@ -25,7 +25,7 @@ export default class Entity implements Listener, ComponentContainer {
 
   abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
-  owners = new Set<string>(); // players that can control this entity
+  owners = new Set<string>(); // players that can control this Entity
   teams = new Set<string>(); // teams that owning players belong to
 
   // Places for items to be equipped
@@ -44,7 +44,7 @@ export default class Entity implements Listener, ComponentContainer {
   constructor(active = false) {
     this.id = uuid();
     this.active = active;
-    // TODO create from serialized to load from disk/db, and don't increment entity count
+    // TODO create from serialized to load from disk/db, and don't increment Entity count
   }
 
   isPublished(): boolean {
@@ -132,7 +132,7 @@ export default class Entity implements Listener, ComponentContainer {
     const i = this.components.indexOf(component);
     if(i >= 0) {
       this.components.splice(i, 1);
-      // TODO remove listeners on entity and others
+      // TODO remove listeners on Entity and others
       return true;
     }
     else {

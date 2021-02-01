@@ -1,6 +1,6 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
-import { Game, Team, Action, Entity, Scope } from '../internal';
+import { Game, Team, Action, IEntity, Scope } from '../internal';
 import { VisibilityType } from '../internal';
 import { Viewer, Broadcaster } from './Interfaces';
 
@@ -59,7 +59,7 @@ export default class Player implements Viewer, Broadcaster {
 
   disconnect() { };
 
-  _ownEntity(entity: Entity): boolean {
+  _ownEntity(entity: IEntity): boolean {
     this.entities.add(entity.id);
     entity.owners.add(this.id);
     if (this.teams.size > 0) {
@@ -85,7 +85,7 @@ export default class Player implements Viewer, Broadcaster {
     return true;
   }
 
-  _disownEntity(entity: Entity): boolean {
+  _disownEntity(entity: IEntity): boolean {
     entity.owners.delete(this.id);
     if (this.teams.size > 0) {
       const game = Game.getInstance();

@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { 
   Component, ComponentContainer,
   Listener, Modifier, Reacter, Action, ILayer, IChunk,
-  Entity, Vector, Game, Scope
+  IEntity, Vector, Game, Scope
 } from '../internal';
 
 const CHUNK_WIDTH = 16;
@@ -54,7 +54,7 @@ export default abstract class World implements ComponentContainer, Listener {
     Game.getInstance().addWorld(this);
   }
 
-  addEntity(e: Entity, preloaded = false): boolean {
+  addEntity(e: IEntity, preloaded = false): boolean {
     if(e.id && !this.entities.has(e.id)) {
       // Load the location if needed
       if(!preloaded) {
@@ -72,7 +72,7 @@ export default abstract class World implements ComponentContainer, Listener {
     return false;
   }
 
-  removeEntity(e: Entity): boolean {
+  removeEntity(e: IEntity): boolean {
     if(e.id && this.entities.has(e.id)) {
       this.entities.delete(e.id);
       const chunk = e.position.toChunkSpace().getIndexString();
@@ -82,7 +82,7 @@ export default abstract class World implements ComponentContainer, Listener {
     return false;
   }
 
-  moveEntity(entity: Entity, from: Vector, to: Vector) {
+  moveEntity(entity: IEntity, from: Vector, to: Vector) {
     if(entity.id && this.entities.has(entity.id)) {
       if(from.differentChunkFrom(to)) {
         const oldString = from.toChunkSpace().getIndexString();
@@ -105,7 +105,7 @@ export default abstract class World implements ComponentContainer, Listener {
   }
 
   // Add 
-  addView(e: Entity, to: Vector, from?: Vector) {
+  addView(e: IEntity, to: Vector, from?: Vector) {
     if(this.streaming) {
       const { id, active } = e;
       const change = this.scope.addViewer(id, active ? Game.getInstance().viewDistance : Game.getInstance().inactiveViewDistance, to, from);
@@ -116,7 +116,7 @@ export default abstract class World implements ComponentContainer, Listener {
     }
   }
   
-  removeView(e: Entity, from: Vector, to?: Vector) {
+  removeView(e: IEntity, from: Vector, to?: Vector) {
     if(this.streaming) {
       const { id, active } = e;
       const change = this.scope.removeViewer(id, active ? Game.getInstance().viewDistance : Game.getInstance().inactiveViewDistance, from, to);
@@ -130,8 +130,8 @@ export default abstract class World implements ComponentContainer, Listener {
     // TODO implement this
   }
 
-  getEntitiesAtCoordinates(x: number, y: number): Entity[] {
-    let entities: Entity[] = [];
+  getEntitiesAtCoordinates(x: number, y: number): IEntity[] {
+    let entities: IEntity[] = [];
     const chunk = new Vector(x, y).toChunkSpace().getIndexString();
     const entitiesInChunk = this.entitiesByChunk.get(chunk);
     if(entitiesInChunk) {

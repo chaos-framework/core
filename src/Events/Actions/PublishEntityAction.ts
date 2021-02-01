@@ -1,10 +1,10 @@
-import { Action, ActionParameters, World, Vector, Entity } from '../../internal';
+import { Action, ActionParameters, World, Vector, IEntity } from '../../internal';
 
 export class PublishEntityAction extends Action {
-  entity: Entity;
+  entity: IEntity;
   world: World;
   position: Vector;
-  target?: Entity; // likely unused; if the publishing is a hostile, could be cancelled by target in a meaningful way
+  target?: IEntity; // likely unused; if the publishing is a hostile, could be cancelled by target in a meaningful way
   visibilityChangingAction = true;
 
   constructor({ caster, target, entity, world, position, using, tags }: PublishEntityAction.Params) {
@@ -37,12 +37,12 @@ export class PublishEntityAction extends Action {
 
 export namespace PublishEntityAction {
   export interface EntityParams extends ActionParameters {
-    entity: Entity,
+    entity: IEntity,
     world: World,
     position: Vector
   }
 
   export interface Params extends EntityParams {
-    target?: Entity
+    target?: IEntity
   }
 }

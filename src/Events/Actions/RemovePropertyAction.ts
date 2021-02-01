@@ -1,10 +1,10 @@
 import { 
-  Action, ActionParameters, Entity
+  Action, ActionParameters, IEntity
 } from '../../internal'; 
 
 
 export class RemovePropertyAction extends Action {
-  target: Entity;
+  target: IEntity;
   name: string;
 
   constructor({ caster, target, name, using, tags }: RemovePropertyAction.Params) {
@@ -23,6 +23,6 @@ export namespace RemovePropertyAction {
     name: string, 
   }
   export interface Params extends EntityParams {
-    target: Entity
+    target: IEntity
   }
 }

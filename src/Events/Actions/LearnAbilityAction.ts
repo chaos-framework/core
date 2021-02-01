@@ -1,9 +1,9 @@
-import { Action, Ability, ActionParameters, Entity, Component } from '../../internal'; 
+import { Action, Ability, ActionParameters, IEntity, Component } from '../../internal'; 
 
 export class LearnAbilityAction extends Action {
   ability: Ability;
-  target: Entity;
-  grantedBy?: Entity | Component;
+  target: IEntity;
+  grantedBy?: IEntity | Component;
 
   constructor({caster, target, using, grantedBy, ability, tags = []}: LearnAbilityAction.Params) {
     super({caster, using, tags});
@@ -20,10 +20,10 @@ export class LearnAbilityAction extends Action {
 export namespace LearnAbilityAction {
   export interface EntityParams extends ActionParameters {
     ability: Ability;
-    grantedBy?: Entity | Component;
+    grantedBy?: IEntity | Component;
   }
   
   export interface Params extends EntityParams {
-    target: Entity,
+    target: IEntity,
   }
 }

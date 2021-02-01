@@ -1,10 +1,8 @@
 import { v4 as uuid } from 'uuid';
-import { Queue } from 'queue-typescript';
 
 import { VisibilityType } from '../Events';
 import { Game, Action, Scope, PublishEntityAction, Player } from '../internal';
 import { Viewer, Broadcaster } from './Interfaces';
-import { Entity } from '../EntityComponent';
 
 export default class Team implements Viewer, Broadcaster {
   id: string = uuid();

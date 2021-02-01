@@ -1,15 +1,15 @@
-import { Entity, Value } from '../../internal';
+import { IEntity, Value } from '../../internal';
 
 export enum ValueType { Current, Min, Max };
 
 export default class Property implements Property {
-    entity: Entity;
+    entity: IEntity;
     name: string;
     current: Value;
     min: Value;
     max: Value;
 
-    constructor(entity: Entity, name: string, current: number = 0, min: number = -Infinity, max: number = Infinity) {
+    constructor(entity: IEntity, name: string, current: number = 0, min: number = -Infinity, max: number = Infinity) {
         this.entity = entity;
         this.name = name;
         this.current = new Value(this, 'current', current);

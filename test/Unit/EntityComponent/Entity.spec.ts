@@ -137,11 +137,13 @@ describe('Entity action direct methods', () => {
   });
 
   describe('Denying (removing) abilities', () => {
-    const ability = new EmptyAbility();
-    const someOtherEntity = new Entity();
+    let ability: Ability;
+    let someOtherEntity: Entity;
 
     // Give the entity some abilities to deny for every test
     beforeEach(() => { 
+      ability = new EmptyAbility();
+      someOtherEntity = new Entity();
       e._learn(ability, undefined, undefined);
       e._learn(ability, someOtherEntity, someOtherEntity);
     });
@@ -221,9 +223,10 @@ describe('Entity action direct methods', () => {
   describe('Equipping items', () => {
     const mainSlot = "Head";
     const slots = ["Head", "Chest", "Hands", "Legs", "Feet"];
-    const item = new Entity();
+    let item: Entity;
 
     beforeEach(() => {
+      item = new Entity();
       slots.map(slot => {
         e._addSlot(slot);
       });

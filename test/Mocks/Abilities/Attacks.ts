@@ -1,10 +1,10 @@
-import { Entity, Ability, OptionalCastParameters, PropertyChangeAction,
+import { IEntity, Ability, OptionalCastParameters, PropertyChangeAction,
   SimpleEvent, Event, } from '../../../src/internal';
 
 export class Slash extends Ability {
   name = "Slash"
 
-  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
+  cast(caster: IEntity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
     if(!target) {
       return undefined;
     }
@@ -19,7 +19,7 @@ export class Slash extends Ability {
 export class Stab extends Ability {
   name = "Stab"
 
-  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
+  cast(caster: IEntity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
     if(!target) {
       return undefined;
     }

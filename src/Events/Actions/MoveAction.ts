@@ -1,8 +1,8 @@
 import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, Entity, Game, Vector } from '../../internal'; 
+import { Action, ActionParameters, IEntity, Game, Vector } from '../../internal'; 
 
 export class MoveAction extends Action {
-  target: Entity;
+  target: IEntity;
   from: Vector;
   to: Vector;
   visibilityChangingAction = true;
@@ -45,13 +45,13 @@ export class MoveAction extends Action {
     if(!Action.serializedHasRequiredFields(json)) {
       throw new Error();
     }
-    const target: Entity | undefined = game.getEntity(json['target']);
+    const target: IEntity | undefined = game.getEntity(json['target']);
     if(target === undefined){
       throw new Error();
     }
 
-    const caster: Entity | undefined = game.getEntity(json['caster']);
-    const using: Entity | undefined = game.getEntity(json['using']);
+    const caster: IEntity | undefined = game.getEntity(json['caster']);
+    const using: IEntity | undefined = game.getEntity(json['using']);
     const to: Vector = Vector.unserialize(json['to']);
     // TODO tags
 
@@ -75,7 +75,7 @@ export class MoveAction extends Action {
 
 export namespace MoveAction {
   export interface Params extends EntityParams {
-    target: Entity;
+    target: IEntity;
   }
   
   export interface EntityParams extends ActionParameters {

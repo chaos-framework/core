@@ -1,8 +1,8 @@
-import { Action, ActionParameters, Entity } from '../../internal';
+import { Action, ActionParameters, IEntity } from '../../internal';
 
 export class RemoveSlotAction extends Action {
   name: string;
-  target: Entity;
+  target: IEntity;
 
   constructor({caster, target, using, name, tags = []}: RemoveSlotAction.Params) {
     super({caster, using, tags});
@@ -21,7 +21,7 @@ export namespace RemoveSlotAction {
   }
 
   export interface Params extends EntityParams {
-    target: Entity;
+    target: IEntity;
   }
 
 }

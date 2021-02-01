@@ -1,9 +1,9 @@
-import { Entity, Component, Value } from "../../internal";
+import { IEntity, Component, Value } from "../../internal";
 
 export default abstract class Modification {
   amount: number;
   value?: Value;
-  by?: Entity | Component;
+  by?: IEntity | Component;
 
   constructor(amount: number) {
     this.amount = amount;

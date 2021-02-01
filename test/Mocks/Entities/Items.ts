@@ -1,7 +1,7 @@
-import Entity from '../../../src/EntityComponent/Entity';
+import { Entity, IEntity } from '../../../src/internal';
 import { Sword, Silver } from '../Components/Properties';
 
-export const createSilverSword = (): Entity => {
+export const createSilverSword = (): IEntity => {
   const e = new Entity();
   e.attach({component: new Sword()}).execute();
   e.attach({component: new Silver()}).execute();

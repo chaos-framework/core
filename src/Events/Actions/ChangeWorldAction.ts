@@ -1,8 +1,8 @@
-import { Action, ActionParameters, Entity, Vector, World } from '../../internal';
+import { Action, ActionParameters, IEntity, Vector, World } from '../../internal';
 import { Viewer } from '../../Game/Interfaces';
 
 export class ChangeWorldAction extends Action {
-  target: Entity;
+  target: IEntity;
   from: World;
   to: World;
   originPosition: Vector;
@@ -41,7 +41,7 @@ export class ChangeWorldAction extends Action {
 
 export namespace ChangeWorldAction {
   export interface Params extends EntityParams {
-    target: Entity;
+    target: IEntity;
   }
   
   export interface EntityParams extends ActionParameters {

@@ -1,11 +1,11 @@
 import { Viewer } from '../Game/Interfaces';
-import { Game, Entity, Component, Listener, Scope, Player, Team } from '../internal';
+import { Game, IEntity, Component, Listener, Scope, Player, Team } from '../internal';
 
 export default abstract class Action {
   // TODO implement player: Player;
-  caster?: Entity;
-  target?: Entity;
-  using?: Entity | Component;
+  caster?: IEntity;
+  target?: IEntity;
+  using?: IEntity | Component;
   tags: Set<string> = new Set<string>();
   breadcrumbs: Set<string> = new Set<string>();
   public: boolean = false;  // whether or not nearby entities (who are not omnipotent) can modify/react
@@ -90,15 +90,15 @@ export default abstract class Action {
     return applied;
   }
 
-  permit({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
+  permit({ priority = 0, by, using, message }: { priority?: number, by?: IEntity | Component, using?: IEntity | Component, message?: string } = {}) {
     this.addPermission(true, { priority, by, using, message });
   }
 
-  deny({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
+  deny({ priority = 0, by, using, message }: { priority?: number, by?: IEntity | Component, using?: IEntity | Component, message?: string } = {}) {
     this.addPermission(false, { priority, by, using, message });
   }
 
-  addPermission(permitted: boolean, { priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
+  addPermission(permitted: boolean, { priority = 0, by, using, message }: { priority?: number, by?: IEntity | Component, using?: IEntity | Component, message?: string } = {}) {
     const previous = this.permissions.get(priority);
     if (previous === undefined) {
       // Add directly if this has never been added
@@ -183,20 +183,20 @@ export default abstract class Action {
 }
 
 export interface ActionParameters {
-  caster?: Entity,
-  using?: Entity | Component,
+  caster?: IEntity,
+  using?: IEntity | Component,
   tags?: string[]
 }
 
 export class Permission {
   permitted: boolean;
-  by?: Entity | Component;
-  using?: Entity | Component;
+  by?: IEntity | Component;
+  using?: IEntity | Component;
   message?: string;
 
   constructor(permitted: boolean,
     { by, using, message }:
-      { by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
+      { by?: IEntity | Component, using?: IEntity | Component, message?: string } = {}) {
     this.permitted = permitted;
     this.by = by;
     this.using = using;

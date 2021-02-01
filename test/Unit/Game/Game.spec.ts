@@ -15,12 +15,15 @@ describe('Game', () => {
   });
 
   describe('Visibility functions', () => {
-    const e = new Entity();
-    const amount = new Vector(1,1);
-    const a = new RelativeMoveAction({caster: e, target: e, amount });
+    let e: Entity;
+    let amount: Vector;
+    let a: RelativeMoveAction;
     let team: Team;
     let player: Player;
     beforeEach(() => {
+      e = new Entity();
+      amount = new Vector(1,1);
+      a = new RelativeMoveAction({caster: e, target: e, amount });
       team = new Team('Test');
       game.teams.set('Test', team);
       player = new Player({ username: 'Test', teams: [team.id]})

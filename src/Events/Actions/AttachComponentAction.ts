@@ -1,7 +1,7 @@
-import { Action, ActionParameters, Entity, Component } from '../../internal';
+import { Action, ActionParameters, IEntity, Component } from '../../internal';
 
 export class AttachComponentAction extends Action {
-  target: Entity;
+  target: IEntity;
   component: Component;
 
   constructor({caster, target, component, using, tags = []}: AttachComponentAction.Params) {
@@ -22,6 +22,6 @@ export namespace AttachComponentAction {
   }
 
   export interface Params extends EntityParams {
-    target: Entity;
+    target: IEntity;
   }
 }
