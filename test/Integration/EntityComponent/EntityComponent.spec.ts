@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Entity from '../../../src/EntityComponent/Entity';
+import { Entity } from '../../../src/internal';
 
 import { EmptyComponent } from '../../Mocks/Components/Functional';
 import { Humanoid } from '../../Mocks/Components/Traits';

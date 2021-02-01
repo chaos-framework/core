@@ -7,10 +7,10 @@ import {
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, IEntity
 } from '../internal';
 
-export default class Entity implements Listener, ComponentContainer {
+export default class Entity implements IEntity, Listener, ComponentContainer {
   id: string;
   tags = new Set<string>();
   private published = false;

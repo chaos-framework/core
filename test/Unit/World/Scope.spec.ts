@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import EmptyGame from '../../Mocks/Games/EmptyGame';
-import { Entity, Game, Scope, Vector } from './../../../src/';
+import { Game, Scope, Vector } from './../../../src/internal';
 
 describe ('Scopes', () => {
   let scope: Scope;

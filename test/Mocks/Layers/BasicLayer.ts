@@ -1,4 +1,4 @@
-import Layer from '../../../src/World/Layer';
+import { Layer } from '../../../src/internal';
 
 interface BasicTile {
   name: string,

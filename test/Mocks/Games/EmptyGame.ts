@@ -1,4 +1,4 @@
-import { Action, Game } from '../../../src';
+import { Game } from '../../../src/internal';
 
 export default class EmptyGame extends Game {
   name = "Empty Game";

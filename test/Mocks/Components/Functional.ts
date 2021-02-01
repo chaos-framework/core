@@ -1,6 +1,4 @@
-import Component from '../../../src/EntityComponent/Component';
-import Action from '../../../src/Events/Action';
-import { Modifier, Reacter } from '../../../src/Events/Interfaces';
+import { Component, Action, Modifier, Reacter } from '../../../src/internal';
 
 export class EmptyComponent extends Component {
   name = "Empty Component";

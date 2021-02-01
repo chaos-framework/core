@@ -1,5 +1,5 @@
-import Vector from '../../../src/Math/Vector';
-import World from '../../../src/World/World';
+import { World, Vector } from '../../../src/internal';
+
 import BasicLayer, { BasicTiles } from '../Layers/BasicLayer';
 
 export default class Room extends World {

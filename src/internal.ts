@@ -1,6 +1,6 @@
 // ENTITY AND COMPONENT
-import Entity from './EntityComponent/Entity';
 import IEntity from './EntityComponent/Entity';
+import Entity from './EntityComponent/Entity';
 import Component, { ComponentContainer } from './EntityComponent/Component';
 import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability';
 import Property, { ValueType } from './EntityComponent/Properties/Property'
@@ -36,7 +36,7 @@ import { World, Layer, Chunk, Scope, IChunk, ILayer } from './World/';
 import Vector from './Math/Vector';
 
 export {
-  Entity, IEntity, Component, ComponentContainer, Ability, Property, Value, ValueType,
+  IEntity, Entity, Component, ComponentContainer, Ability, Property, Value, ValueType,
   Game, Player, Team,
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,

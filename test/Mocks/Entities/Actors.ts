@@ -1,4 +1,4 @@
-import IEntity from '../../../src/EntityComponent/Entity';
+import { IEntity } from '../../../src/internal';
 import { Paladin } from '../Components/Classes';
 import { Humanoid, Physical, Undead } from '../Components/Traits';
 import { createSilverSword } from '../Entities/Items';

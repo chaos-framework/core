@@ -1,5 +1,5 @@
 import { Component, Action, AttachComponentAction,
-  Listener, Reacter} from '../../../src/internal';
+  Reacter} from '../../../src/internal';
 
 import { Heal } from '../Abilities/Spells';
 

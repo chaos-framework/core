@@ -1,7 +1,4 @@
-import IEntity from '../../../src/EntityComponent/Entity';
-import Ability, { OptionalCastParameters } from '../../../src/EntityComponent/Ability';
-import Event from '../../../src/Events/Event';
-import { SimpleEvent } from '../../../src';
+import { IEntity, Ability, OptionalCastParameters, Event, SimpleEvent } from '../../../src/internal';
 
 export class Heal extends Ability {
   name = "Heal";

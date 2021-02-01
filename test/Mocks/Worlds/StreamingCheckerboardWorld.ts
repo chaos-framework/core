@@ -1,8 +1,5 @@
-import Vector from '../../../src/Math/Vector';
-import { IChunk } from '../../../src/World/Chunk';
-import World from '../../../src/World/World';
+import { IChunk, World } from '../../../src/internal';
 import BasicLayer, { BasicTiles, basicTiles } from '../Layers/BasicLayer';
-import { chain } from 'lodash';
 
 const CHUNK_WIDTH = 16;
 

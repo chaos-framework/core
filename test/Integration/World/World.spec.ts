@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-import World from '../../../src/World/World';
+
 import { basicTiles, BasicTiles } from '../../Mocks/Layers/BasicLayer';
 import Room from '../../Mocks/Worlds/Room';
 
