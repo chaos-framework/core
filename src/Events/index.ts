@@ -1,4 +1,4 @@
-import Action, { ActionParameters } from './Action';
+import { Action, ActionParameters } from './Action';
 import ActionQueue from './ActionQueue';
 import Event from './Event';
 import SimpleEvent from './Events/SimpleEvent'

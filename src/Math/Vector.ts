@@ -65,7 +65,7 @@ export default class Vector {
     return this.getIndexString();
   }
 
-  static unserialize(s: string): Vector {
+  static deserialize(s: string): Vector {
     return Vector.fromIndexString(s);
   }
 

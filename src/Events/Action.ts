@@ -1,7 +1,7 @@
 import { Viewer } from '../Game/Interfaces';
 import { Game, IEntity, Component, Listener, Scope, Player, Team } from '../internal';
 
-export default abstract class Action {
+export abstract class Action {
   // TODO implement player: Player;
   caster?: IEntity;
   target?: IEntity;
@@ -148,13 +148,29 @@ export default abstract class Action {
     }
   }
 
-  static serializedHasRequiredFields(json: any): boolean {
+  static serializedHasRequiredFields(json: any, additional: string[]): boolean {
     for (const key of this.universallyRequiredFields) {
       if (!json[key]) {
         return false;
       }
     }
+    for (const key of additional) {
+      if (!json[key]) {
+        return false;
+      }
+    }
     return true;
+  }
+
+  static deserializeCommonFields(json: Action.Serialized): Action.Deserialized {
+    const game = Game.getInstance();
+    const caster: IEntity | undefined = json.caster ? game.getEntity(json.caster) : undefined;
+    const target: IEntity | undefined = json.target ? game.getEntity(json.target) : undefined;
+    const using: IEntity | undefined = json.using ? game.getEntity(json.using) : undefined;
+    const tags = json.tags;
+    const breadcrumbs = json.breadcrumbs;
+    const permitted = json.permitted;
+    return { caster, target, using, tags, breadcrumbs, permitted };
   }
 
   abstract apply(): boolean;
@@ -180,6 +196,26 @@ export default abstract class Action {
 
   initialize(): void { };
   teardown(): void { };
+}
+
+export namespace Action {
+  export interface Serialized {
+    caster?: string,
+    target?: string,
+    using?: string,
+    tags?: string[],
+    breadcrumbs?: string[],
+    permitted: boolean
+  }
+
+  export interface Deserialized {
+    caster?: IEntity,
+    target?: IEntity,
+    using?: IEntity,
+    tags?: string[],
+    breadcrumbs?: string[],
+    permitted: boolean
+  }
 }
 
 export interface ActionParameters {
@@ -213,9 +249,3 @@ export enum PermissionPriority {
   Extreme = 4,
   Max = Number.MAX_VALUE
 }
-
-
-// TODO Inventory resizing action
-// TODO inventory rearranging action
-
-// TODO speaking, in-character or otherwise

@@ -20,3 +20,13 @@ export function isModifier(o: any): o is Modifier {
 export function isReacter(o: any): o is Reacter {
   return o.react !== undefined;
 }
+
+// Fields and types that are common to all 
+export interface CommonActionSerializedFields {
+  caster?: string,
+  target?: string,
+  using?: string,
+  tags?: string[],
+  breadcrumbs: string[],
+  permitted: boolean
+}

@@ -7,8 +7,6 @@ export class MoveAction extends Action {
   to: Vector;
   visibilityChangingAction = true;
 
-  static requiredFields: string[] = ['permitted', 'target', 'to'];
-
   constructor({caster, target, to, using, tags = []}: MoveAction.Params) {
     super({caster, using, tags});
     this.target = target;
@@ -41,21 +39,25 @@ export class MoveAction extends Action {
     }
   }
 
-  static unserialize(json: any, game: Game): MoveAction {
-    if(!Action.serializedHasRequiredFields(json)) {
-      throw new Error();
+  static deserialize(json: MoveAction.Serialized): MoveAction {
+    const game = Game.getInstance();
+    try {
+      // Deserialize common fields
+      const common = Action.deserializeCommonFields(json);
+      // Deserialize unique fields
+      const { target } = common;
+      const to: Vector = Vector.deserialize(json.to);
+      // Build the action if fields are proper, otherwise throw an error
+      if(target !== undefined && to) {
+        const a = new MoveAction({...common, target, to});
+        a.breadcrumbs = new Set<string>(common.breadcrumbs);
+        return a;
+      } else {
+        throw new Error('MoveAction fields not correct.');
+      }
+    } catch(error) {
+      throw error;
     }
-    const target: IEntity | undefined = game.getEntity(json['target']);
-    if(target === undefined){
-      throw new Error();
-    }
-
-    const caster: IEntity | undefined = game.getEntity(json['caster']);
-    const using: IEntity | undefined = game.getEntity(json['using']);
-    const to: Vector = Vector.unserialize(json['to']);
-    // TODO tags
-
-    return new MoveAction({caster, target, using, to});
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
@@ -80,5 +82,10 @@ export namespace MoveAction {
   
   export interface EntityParams extends ActionParameters {
     to: Vector;
+  }
+
+  export interface Serialized extends Action.Serialized {
+    target: string,
+    to: string
   }
 }
