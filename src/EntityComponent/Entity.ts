@@ -483,4 +483,18 @@ export default class Entity implements IEntity, Listener, ComponentContainer {
     return true;
   }
 
+  serialize(): Entity.Serialized {
+      return { id: this.id };
+  }
+
+}
+
+export namespace Entity {
+  export interface Serialized {
+    id: string
+  }
+
+  export interface Deserialized {
+
+  }
 }

@@ -59,3 +59,6 @@ export default interface IEntity {
   changeWorlds({caster, from, to, position, using, tags}: ChangeWorldAction.EntityParams): ChangeWorldAction;
   _changeWorlds(to: World, position: Vector): boolean;
 }
+
+export interface TestInterface {}
+

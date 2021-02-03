@@ -35,6 +35,35 @@ export class RelativeMoveAction extends Action {
     return false;
   }
 
+  serialize(): RelativeMoveAction.Serialized {
+    return {
+      ...super.serialize(),
+      amount: this.amount.serialize(),
+      target: this.target.id
+    };
+  };
+
+  static deserialize(json: RelativeMoveAction.Serialized): RelativeMoveAction {
+    const game = Game.getInstance();
+    try {
+      // Deserialize common fields
+      const common = Action.deserializeCommonFields(json);
+      // Deserialize unique fields
+      const { target } = common;
+      const amount: Vector = Vector.deserialize(json.amount);
+      // Build the action if fields are proper, otherwise throw an error
+      if(target !== undefined && amount) {
+        const a = new RelativeMoveAction({...common, target, amount});
+        return a;
+      } else {
+        throw new Error('MoveAction fields not correct.');
+      }
+    } catch(error) {
+      throw error;
+    }
+  }
+
+
 }
 
 export namespace RelativeMoveAction {
@@ -44,5 +73,10 @@ export namespace RelativeMoveAction {
   
   export interface EntityParams extends ActionParameters {
     amount: Vector;
+  }
+
+  export interface Serialized extends Action.Serialized {
+    target: string,
+    amount: string
   }
 }

@@ -168,9 +168,8 @@ export abstract class Action {
     const target: IEntity | undefined = json.target ? game.getEntity(json.target) : undefined;
     const using: IEntity | undefined = json.using ? game.getEntity(json.using) : undefined;
     const tags = json.tags;
-    const breadcrumbs = json.breadcrumbs;
     const permitted = json.permitted;
-    return { caster, target, using, tags, breadcrumbs, permitted };
+    return { caster, target, using, tags, permitted };
   }
 
   abstract apply(): boolean;
@@ -188,8 +187,14 @@ export abstract class Action {
   };
 
   // TODO make abstract -- only concrete so I can run tests before fully implementing in all children
-  serialize(forClient: boolean, overrides?: any): string {
-    return '';
+  serialize(): Action.Serialized {
+    return {
+      caster: this.caster?.id,
+      target: this.target?.id,
+      using: this.using?.id,
+      tags: Array.from(this.tags),
+      permitted: this.permitted
+    };
   }
 
   // TODO abstract unserialize(json: any, game: Game): Action;
@@ -204,7 +209,6 @@ export namespace Action {
     target?: string,
     using?: string,
     tags?: string[],
-    breadcrumbs?: string[],
     permitted: boolean
   }
 
@@ -213,7 +217,6 @@ export namespace Action {
     target?: IEntity,
     using?: IEntity,
     tags?: string[],
-    breadcrumbs?: string[],
     permitted: boolean
   }
 }

@@ -197,10 +197,10 @@ export default abstract class Game implements Broadcaster {
   }
 
   percieveAndBroadcast(a: Action, viewer: Player | Team, visibility: VisibilityType) {
-    const serializedNormally = a.serialize(true);
+    const serializedNormally = a.serialize();
     // TODO percieve
-    // TODO publish if needed
-    viewer.queueForBroadcast(a, visibility, serializedNormally);
+    // TODO publish if neededd
+    viewer.queueForBroadcast(a, visibility, JSON.stringify(serializedNormally));
 
     // TODO unpublish if needed
   }
