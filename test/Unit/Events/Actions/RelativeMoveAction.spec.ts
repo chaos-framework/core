@@ -13,7 +13,7 @@ describe('MoveAction', () => {
 
   beforeEach(() => {
     game = new EmptyGame({});
-    target = new Entity();
+    target = new Entity({ name: "Test Entity" });
     room = new Room(10, 10);
     target._publish(room, room.stageLeft);
   });

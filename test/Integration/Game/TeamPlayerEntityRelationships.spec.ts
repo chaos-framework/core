@@ -14,7 +14,7 @@ describe('Team, Player, and Entity relationships', () => {
     game = new EmptyGame();
     team = new Team('Red');
     player = new Player({ username: 'Red Player' });
-    entity = new Entity();
+    entity = new Entity({ name: "Test Entity" });
     game.addEntity(entity);
   });
 

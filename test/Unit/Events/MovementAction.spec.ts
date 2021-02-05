@@ -15,7 +15,7 @@ describe('World Changing Actions', () => {
     new EmptyGame({});
     room1 = new Room();
     room2 = new Room();
-    e = new Entity();
+    e = new Entity({ name: "Test Entity" });
     e._publish(room1, room1.stageLeft);
   });
 

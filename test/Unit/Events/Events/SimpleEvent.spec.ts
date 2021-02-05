@@ -6,7 +6,7 @@ import { Entity, SimpleEvent, Vector } from '../../../../src/internal';
 
 describe('Simple Events', () => {
   let e: Entity;
-  beforeEach(() => { e = new Entity() });
+  beforeEach(() => { e = new Entity({ name: "Test Entity" }) });
 
   it('Gives out actions no matter if the previous was permitted or not', () => {
     const first = e.move({ to: Vector.zero() });

@@ -1,6 +1,6 @@
 // ENTITY AND COMPONENT
-import IEntity from './EntityComponent/Entity';
-import Entity from './EntityComponent/Entity';
+import IEntity from './EntityComponent/IEntity';
+import { Entity } from './EntityComponent/Entity';
 import Component, { ComponentContainer } from './EntityComponent/Component';
 import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability';
 import Property, { ValueType } from './EntityComponent/Properties/Property'

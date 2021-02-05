@@ -21,7 +21,7 @@ describe('Game', () => {
     let team: Team;
     let player: Player;
     beforeEach(() => {
-      e = new Entity();
+      e = new Entity({ name: "Test Entity" });
       amount = new Vector(1,1);
       a = new RelativeMoveAction({caster: e, target: e, amount });
       team = new Team('Test');

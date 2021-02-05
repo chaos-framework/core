@@ -10,10 +10,11 @@ import {
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, IEntity
 } from '../internal';
 
-export default class Entity implements IEntity, Listener, ComponentContainer {
+export class Entity implements Listener, ComponentContainer {
   id: string;
+  name: string;
   tags = new Set<string>();
-  private published = false;
+  published = false;
   active = false;
   omnipotent = false; // listens to every action in the game
 
@@ -29,7 +30,7 @@ export default class Entity implements IEntity, Listener, ComponentContainer {
   teams = new Set<string>(); // teams that owning players belong to
 
   // Places for items to be equipped
-  slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
+  slots: Map<string, IEntity | undefined> = new Map<string, Entity | undefined>();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
   world?: World;
@@ -41,9 +42,12 @@ export default class Entity implements IEntity, Listener, ComponentContainer {
   // TODO art asset
   // TODO single char for display in leiu of art asset
 
-  constructor(active = false) {
-    this.id = uuid();
+  constructor({ id = uuid(), name = 'Unnamed Entity', tags = [], active = false, omnipotent = false }: Entity.ConstructorParams) { // TODO 
+    this.id = id;
+    this.name = name;
     this.active = active;
+    this.omnipotent = omnipotent;
+    this.tags = new Set<string>(tags);
     // TODO create from serialized to load from disk/db, and don't increment Entity count
   }
 
@@ -487,14 +491,45 @@ export default class Entity implements IEntity, Listener, ComponentContainer {
       return { id: this.id };
   }
 
+  serializeForClient(): Entity.SerializedForClient {
+      return { 
+        id: this.id,
+        name: this.name,
+        tags: Array.from(this.tags.values()),
+        active: this.active,
+        omnipotent: this.omnipotent
+      };
+  }
+
 }
 
 export namespace Entity {
-  export interface Serialized {
-    id: string
+  export interface ConstructorParams {
+    id?: string,
+    name: string,
+    tags?: string[],
+    active?: boolean,
+    omnipotent?: boolean
   }
 
-  export interface Deserialized {
+  export interface Serialized {
 
+  }
+  
+  export interface SerializedForClient {
+    id: string,
+    name: string,
+    tags?: string[],
+    active?: boolean,
+    omnipotent?: boolean
+  }
+
+  export function Deserialize(json: Entity.Serialized): IEntity {
+    throw new Error();
+  }
+
+  export function DeserializeAsClient(json: Entity.SerializedForClient): IEntity {
+    const { id, name, tags, active, omnipotent } = json;
+    return new Entity({ id, name, tags, active, omnipotent });
   }
 }

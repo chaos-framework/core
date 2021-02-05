@@ -13,7 +13,7 @@ describe('Worlds', () => {
     let e: Entity;
     beforeEach(() => { 
       room = new Room(32, 32);
-      e = new Entity();
+      e = new Entity({ name: "Test Entity" });
       e._publish(room, new Vector(2, 2));
     });
 
@@ -50,7 +50,7 @@ describe('Worlds', () => {
       expect(room.entitiesByChunk.get(startingChunk)!.size).to.equal(1);
 
       // Make sure we don't remove a chunk's list of entities if one move out but another is still there
-      const newEntity = new Entity;
+      const newEntity = new Entity({ name: "Test Entity" });
       newEntity._publish(room, new Vector(2, 3));
       expect(room.entitiesByChunk.get(startingChunk)).to.exist;
       expect(room.entitiesByChunk.get(startingChunk)!.size).to.equal(2);
@@ -80,7 +80,7 @@ describe('Worlds', () => {
     });
 
     it('Should stream in as active entities are added', () => {
-      const e = new Entity();
+      const e = new Entity({ name: "Test Entity" });
       e.active = true;
       e._publish(world, new Vector(0,0));
       expect(world.scope.active.size).to.be.greaterThan(0);
@@ -88,7 +88,7 @@ describe('Worlds', () => {
     });
 
     it('Should unload old tiles as entities move', () => {
-      const e = new Entity();
+      const e = new Entity({ name: "Test Entity" });
       e.active = true;
       e._publish(world, new Vector(0,0));
       e.move({ to: new Vector(400, 400) }).execute();
@@ -96,8 +96,8 @@ describe('Worlds', () => {
     });
 
     it('Should not unload chunks still being viewed by other entities', () => {
-      const e = new Entity();
-      const other = new Entity;
+      const e = new Entity({ name: "Test Entity" });
+      const other = new Entity({name: "Other Test Entity"});
       e.active = true;
       other.active = true;
       e._publish(world, new Vector(0,0));
@@ -108,8 +108,8 @@ describe('Worlds', () => {
     });
 
     it('Should only persist chunks being viewed by active entities', () => {
-      const e = new Entity(true);
-      const other = new Entity();
+      const e = new Entity({ name: "Test Entity", active: true });
+      const other = new Entity({ name: "Other Test Entity" });
       e.publish({ entity: e, world, position: new Vector(0,0) }).execute();
       other.publish({ entity: other, world, position: new Vector(0,0) }).execute();
       e.move({ to: new Vector(400, 400) }).execute();

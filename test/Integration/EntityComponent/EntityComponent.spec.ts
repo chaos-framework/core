@@ -15,7 +15,7 @@ describe('Components attaching to entities', () => {
 
   beforeEach(() => {
     game = new EmptyGame();
-    e = new Entity();
+    e = new Entity({ name: "Test Entity" });
   });
 
   it('Can attach to entities', () => {

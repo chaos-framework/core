@@ -6,7 +6,7 @@ import { Entity, Property, PropertyChangeAction } from '../../../src/internal';
 describe('PropertyChange Action', () => {
   let e: Entity;
   beforeEach(() => {
-    e = new Entity();
+    e = new Entity({ name: "Test Entity" });
   });
 
   it('Calculates adjustments (add/subtract) correctly.', () => {
@@ -37,7 +37,7 @@ describe('PropertyChange Action', () => {
 describe('PropertyModification Action', () => {
   let e: Entity;
   beforeEach(() => {
-    e = new Entity();
+    e = new Entity({ name: "Test Entity" });
   });
 
   

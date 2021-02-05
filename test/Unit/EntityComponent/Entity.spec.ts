@@ -10,13 +10,35 @@ import { ModifiesAndReactsAtWorldScope } from '../../Mocks/Components/Functional
 
 describe('Entity', () => {
 
+  describe('Serializing / Deserializing', () => {
+    let e: Entity;
+    beforeEach(() => {
+      e = new Entity({ name: "CS Test", active: true, omnipotent: false, tags: ['one', 'two', 'three'] });
+    });
+
+    it('Serializing for clients', () => {
+      const serializedForClient = e.serializeForClient();
+      expect(serializedForClient.id).to.equal(e.id);
+      expect(serializedForClient.tags).to.contain('two');
+      expect(serializedForClient.active).to.be.true;
+    });
+
+    it('Deserializing as a client', () => {
+      const serializedForClient = e.serializeForClient();
+      const deserializedAsClient = Entity.DeserializeAsClient(serializedForClient);
+      expect(deserializedAsClient.id).to.equal(e.id);
+      expect(deserializedAsClient.tags).to.contain('two');
+      expect(deserializedAsClient.active).to.be.true;
+    });
+  })
+
 });
 
 describe('Entity action/event generators', () => {
   let e: Entity;
   let heal: Ability;
   beforeEach(() => { 
-    e = new Entity();
+    e = new Entity({ name: "Unit Test Entity" });
     e._addProperty("HP");
     heal = new Heal();
     e._learn(heal, e, e);
@@ -36,7 +58,7 @@ describe('Entity action/event generators', () => {
 describe('Connecting higher-order component modifiers + reacters', () => {
   it('Keeps all reacters/modifiers local until getting published', () => {
     const room = new Room();
-    const e = new Entity();
+    const e = new Entity({ name: "Unit Test Entity" });
     const c = new ModifiesAndReactsAtWorldScope()
     e._attach(c);
     expect(e.modifiers).to.include(c);
@@ -51,7 +73,7 @@ describe('Connecting higher-order component modifiers + reacters', () => {
 
 describe('Entity action direct methods', () => {
   let e: Entity;
-  beforeEach(() => { e = new Entity(); });
+  beforeEach(() => { e = new Entity({ name: "Unit Test Entity" }); });
 
   describe('Publishing', () => {
     let room: Room;
@@ -124,7 +146,7 @@ describe('Entity action direct methods', () => {
     
     it('Can be granted the same ability using different entities or components.', () => {
       expect(e.abilities.size).to.equal(0);
-      const someOtherEntity = new Entity();
+      const someOtherEntity = new Entity({ name: "Unit Test Entity" });
       expect(e._learn(ability, undefined, undefined)).to.be.true;
       expect(e._learn(ability, someOtherEntity, someOtherEntity)).to.be.true;
       const grant = e.abilities.get(ability.name);
@@ -143,7 +165,7 @@ describe('Entity action direct methods', () => {
     // Give the entity some abilities to deny for every test
     beforeEach(() => { 
       ability = new EmptyAbility();
-      someOtherEntity = new Entity();
+      someOtherEntity = new Entity({ name: "Unit Test Entity" });
       e._learn(ability, undefined, undefined);
       e._learn(ability, someOtherEntity, someOtherEntity);
     });
@@ -226,7 +248,7 @@ describe('Entity action direct methods', () => {
     let item: Entity;
 
     beforeEach(() => {
-      item = new Entity();
+      item = new Entity({ name: "Unit Test Entity" });
       slots.map(slot => {
         e._addSlot(slot);
       });

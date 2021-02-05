@@ -29,7 +29,7 @@ describe('Action visibility and visibility grouping', () => {
                 new Player({ username: 'Blue', teams: [teams[Blue].id] })];
       room = new Room(500, 500);
       game.worlds.set(room.id, room);
-      entities = [new Entity(), new Entity()];
+      entities = [new Entity({ name: "Test Entity" }), new Entity({ name: "Test Entity" })];
       entities[Red]._publish(room, new Vector(2, 2));
       entities[Blue]._publish(room, new Vector(450, 450));
       players[Red]._ownEntity(entities[Red]);
@@ -71,7 +71,7 @@ describe('Action visibility and visibility grouping', () => {
                 new Player({ username: 'Blue' })];
       room = new Room(500, 500);
       game.worlds.set(room.id, room);
-      entities = [new Entity(), new Entity()];
+      entities = [new Entity({ name: "Test Entity" }), new Entity({ name: "Test Entity" })];
       entities[Red]._publish(room, new Vector(2, 2));
       entities[Blue]._publish(room, new Vector(450, 450));
       players[Red]._ownEntity(entities[Red]);
@@ -115,7 +115,7 @@ describe('Action visibility and visibility grouping', () => {
                 new Player({ username: 'Blue' })];  // note that the blue player has no team
       room = new Room(500, 500);
       game.worlds.set(room.id, room);
-      entities = [new Entity(), new Entity()];
+      entities = [new Entity({ name: "Test Entity" }), new Entity({ name: "Test Entity" })];
       entities[Red]._publish(room, new Vector(2, 2));
       entities[Blue]._publish(room, new Vector(450, 450));
       players[Red]._ownEntity(entities[Red]);
@@ -159,7 +159,7 @@ describe('Action visibility and visibility grouping', () => {
                 new Player({ username: 'Blue', teams: [teams[Blue].id] })];
       room = new Room(500, 500);
       game.worlds.set(room.id, room);
-      entities = [new Entity(), new Entity()];
+      entities = [new Entity({ name: "Test Entity" }), new Entity({ name: "Test Entity" })];
       entities[Red]._publish(room, new Vector(2, 2));
       entities[Blue]._publish(room, new Vector(3, 3));  // entities are already nearby
       players[Red]._ownEntity(entities[Red]);

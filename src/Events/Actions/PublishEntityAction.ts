@@ -1,10 +1,10 @@
-import { Action, ActionParameters, World, Vector, IEntity, Game, Entity } from '../../internal';
+import { Action, ActionParameters, World, Vector, Entity, Game } from '../../internal';
 
 export class PublishEntityAction extends Action {
-  entity: IEntity;
+  entity: Entity;
   world: World;
   position: Vector;
-  target?: IEntity; // likely unused; if the publishing is a hostile, could be cancelled by target in a meaningful way
+  target?: Entity; // likely unused; if the publishing is a hostile, could be cancelled by target in a meaningful way
   visibilityChangingAction = true;
 
   constructor({ caster, target, entity, world, position, using, tags }: PublishEntityAction.Params) {
@@ -38,7 +38,7 @@ export class PublishEntityAction extends Action {
       ...super.serialize(),
       position: this.position.serialize(),
       world: this.world.id,
-      entity: this.entity.id
+      entity: this.entity.serializeForClient()
     };
   };
 
@@ -48,7 +48,7 @@ export class PublishEntityAction extends Action {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);
       // Deserialize unique fields
-      const entity: IEntity | undefined = game.getEntity(json.entity);  // lol OOPS
+      const entity: Entity | undefined = Entity.DeserializeAsClient(json.entity);  // lol OOPS
       const world: World | undefined = game.worlds.get(json.world);
       const position: Vector = Vector.deserialize(json.position);
       // Build the action if fields are proper, otherwise throw an error
@@ -66,17 +66,17 @@ export class PublishEntityAction extends Action {
 
 export namespace PublishEntityAction {
   export interface EntityParams extends ActionParameters {
-    entity: IEntity,
+    entity: Entity,
     world: World,
     position: Vector
   }
 
   export interface Params extends EntityParams {
-    target?: IEntity
+    target?: Entity
   }
 
   export interface Serialized extends Action.Serialized {
-    entity: string;
+    entity: Entity.SerializedForClient;
     world: string;
     position: string;
   }

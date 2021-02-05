@@ -7,7 +7,7 @@ describe('Entity Properties', () => {
   let e: Entity;
 
   beforeEach(() => {
-    e = new Entity();
+    e = new Entity({ name: "Test Entity" });
   });
   
   it('Defaults to extremely low/high min/max.', () => {

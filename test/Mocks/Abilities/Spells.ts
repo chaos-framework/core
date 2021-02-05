@@ -1,9 +1,9 @@
-import { IEntity, Ability, OptionalCastParameters, Event, SimpleEvent } from '../../../src/internal';
+import { Entity, Ability, OptionalCastParameters, Event, SimpleEvent } from '../../../src/internal';
 
 export class Heal extends Ability {
   name = "Heal";
 
-  cast(caster: IEntity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
+  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
     if(!target) {
       return undefined;
     }
@@ -14,7 +14,7 @@ export class Heal extends Ability {
     // TODO check line-of-sight
     const amount = 5; // TODO roll based on INT or something
     // default to casting on self
-    target = target && target instanceof IEntity ? target : caster;
+    target = target && target instanceof Entity ? target : caster;
     const event = new SimpleEvent([
       hpValue.current.adjust({amount, caster, tags: ['heal'] })
     ]);

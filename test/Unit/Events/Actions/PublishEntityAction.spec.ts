@@ -14,8 +14,9 @@ describe('PublishEntityAction', () => {
 
   beforeEach(() => {
     game = new EmptyGame({});
-    entity = new Entity();
+    entity = new Entity({ name: "Test Entity" });
     world = new Room(10, 10);
+    game.worlds.set(world.id, world);
     position = world.stageLeft;
   });
 
@@ -30,16 +31,16 @@ describe('PublishEntityAction', () => {
   it('Serializes to a proper object', () => {
     const a = new PublishEntityAction({ entity, world, position });
     const o = a.serialize();
-    expect(o.entity).to.equal(entity.id);
+    expect(o.entity.id).to.equal(entity.id);
     expect(o.world).to.equal(world.id);
     expect(o.position).to.equal(position.serialize());
   });
 
   it('Can deserialize from proper json', () => {
-    const json: PublishEntityAction.Serialized = { entity: entity.id, world: world.id, position: position.serialize(), permitted: true };
+    const json: PublishEntityAction.Serialized = { entity: entity.serializeForClient(), world: world.id, position: position.serialize(), permitted: true };
     const a = PublishEntityAction.deserialize(json);
     expect(a instanceof PublishEntityAction).to.be.true;
-    expect(a.entity).to.equal(entity);
+    expect(a.entity.id).to.equal(entity.id);
     expect(a.world).to.equal(world);
     expect(a.position.equals(position)).to.be.true;
   });

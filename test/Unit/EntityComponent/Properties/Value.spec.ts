@@ -10,7 +10,7 @@ describe('Entity Property Values', () => {
   let v: Value;
   beforeEach(() => {
     // Create entity and property just to give the value a parent -- does not affect value logic
-    e = new Entity();
+    e = new Entity({ name: "Test Entity" });
     p = new Property(e, "HP");
     // ValueType is irrelevant
     v = new Value(p, 'current', 100);

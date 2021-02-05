@@ -13,7 +13,7 @@ describe('LearnAbilityAction Action', () => {
 
   beforeEach(() => {
     game = new EmptyGame({});
-    e = new Entity();
+    e = new Entity({ name: "Test Entity" });
     ability = new EmptyAbility();
   });
 

@@ -1,17 +1,17 @@
-import { IEntity } from '../../../src/internal';
+import { Entity } from '../../../src/internal';
 import { Paladin } from '../Components/Classes';
 import { Humanoid, Physical, Undead } from '../Components/Traits';
 import { createSilverSword } from '../Entities/Items';
 import Property from '../../../src/EntityComponent/Properties/Property';
 import Value from '../../../src/EntityComponent/Properties/Value';
 
-const addRPGStats = (e: IEntity, maxHp: number, maxMa: number): IEntity => {
+const addRPGStats = (e: Entity, maxHp: number, maxMa: number): Entity => {
   e._addProperty('HP', maxHp, undefined, maxHp); // Hit Points
   e._addProperty('MA', maxMa, undefined, maxMa); // Mana or Magic
   return e;
 };
 
-const addDNDStats = (e: IEntity, { str, dex, cst, int, wis, chr }: { str?: number, dex?: number, cst?: number, int?: number, wis?: number, chr?: number } = {}): IEntity => {
+const addDNDStats = (e: Entity, { str, dex, cst, int, wis, chr }: { str?: number, dex?: number, cst?: number, int?: number, wis?: number, chr?: number } = {}): Entity => {
   e._addProperty('STR'); // Strength
   e._addProperty('DEX'); // Dexterity
   e._addProperty('CST'); // Constitution
@@ -21,14 +21,14 @@ const addDNDStats = (e: IEntity, { str, dex, cst, int, wis, chr }: { str?: numbe
   return e;
 };
 
-const createHuman = (weight = 20): IEntity => {
-  const e = new IEntity();
+const createHuman = (weight = 20): Entity => {
+  const e = new Entity({ name: "Bob" });
   e.attach({ component: new Physical(weight) }, true).execute();
   e.attach({ component: new Humanoid() }, true).execute();
   return e;
 }
 
-export function createPaladin(): IEntity {
+export function createPaladin(): Entity {
   const e = createHuman();
   addRPGStats(e, 20, 20);
   addDNDStats(e, {
@@ -44,7 +44,7 @@ export function createPaladin(): IEntity {
   return e;
 }
 
-export function createZombie(): IEntity {
+export function createZombie(): Entity {
   const e = createHuman();
   addRPGStats(e, 10, 10);
   addDNDStats(e, {
@@ -59,8 +59,8 @@ export function createZombie(): IEntity {
   return e;
 }
 
-// export function createZombie(): IEntity {
-//   const e = new IEntity();
+// export function createZombie(): Entity {
+//   const e = new Entity();
 //   e.attach(new Physical(40));
 //   e.attach(new Undead());
 //   return e;

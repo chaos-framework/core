@@ -1,7 +1,10 @@
-import { Component, Property, Modifier, Reacter, Grant, Vector, Action, OptionalCastParameters, PublishEntityAction, AttachComponentAction, AddPropertyAction, RemovePropertyAction, Ability, ForgetAbilityAction, LearnAbilityAction, EquipItemAction, AddSlotAction, ChangeWorldAction, MoveAction, RelativeMoveAction, RemoveSlotAction, World } from "../internal";
+import { Component, Property, Event, Modifier, Reacter, Grant, Vector, Action, OptionalCastParameters, PublishEntityAction, AttachComponentAction, AddPropertyAction, RemovePropertyAction, Ability, ForgetAbilityAction, LearnAbilityAction, EquipItemAction, AddSlotAction, ChangeWorldAction, MoveAction, RelativeMoveAction, RemoveSlotAction, World, Entity } from "../internal";
 
 export default interface IEntity {
   id: string;
+  name: string;
+  published: boolean;
+  omnipotent: boolean;
   tags: Set<string>;
   active: boolean;
   properties: Map<string, Property>;
@@ -37,28 +40,27 @@ export default interface IEntity {
   disconnectFromGame(): void;
   publish({caster, target, world, position, using, tags}: PublishEntityAction.Params): PublishEntityAction
   _publish(world: World, position: Vector, preloaded: boolean): boolean;
-  attach({component, caster, using, tags}: AttachComponentAction.EntityParams, force: boolean): AttachComponentAction
+  attach({component, caster, using, tags}: AttachComponentAction.EntityParams, force?: boolean): AttachComponentAction
   _attach(component: Component): boolean;
-  addProperty({caster, using, name, current, min, max, tags}: AddPropertyAction.EntityParams, force: boolean): AddPropertyAction;
+  addProperty({caster, using, name, current, min, max, tags}: AddPropertyAction.EntityParams, force?: boolean): AddPropertyAction;
   _addProperty(name: string, current?: number, min?: number, max?: number): boolean;
-  removeProperty({caster, using, name, tags}: RemovePropertyAction.EntityParams, force: boolean): RemovePropertyAction;
+  removeProperty({caster, using, name, tags}: RemovePropertyAction.EntityParams, force?: boolean): RemovePropertyAction;
   _removeProperty(name: string, p?: Property): boolean;
-  learn({caster, using, ability, tags}: LearnAbilityAction.EntityParams, force: boolean): LearnAbilityAction;
+  learn({caster, using, ability, tags}: LearnAbilityAction.EntityParams, force?: boolean): LearnAbilityAction;
   _learn(ability: Ability, grantedBy?: IEntity | Component, using?: IEntity | Component): boolean;
-  forget({caster, using, ability, tags}: ForgetAbilityAction.Params, force: boolean): ForgetAbilityAction;
+  forget({caster, using, ability, tags}: ForgetAbilityAction.Params, force?: boolean): ForgetAbilityAction;
   _forget(ability: Ability, grantedBy?: IEntity | Component, using?: IEntity | Component): boolean;
-  equip({caster, slot, item, tags}: EquipItemAction.EntityParams, force: boolean): EquipItemAction;
+  equip({caster, slot, item, tags}: EquipItemAction.EntityParams, force?: boolean): EquipItemAction;
   _equip(item: IEntity, slotName: string): boolean;
-  addSlot({caster, name, tags}: AddSlotAction.EntityParams, force: boolean): AddSlotAction;
+  addSlot({caster, name, tags}: AddSlotAction.EntityParams, force?: boolean): AddSlotAction;
   _addSlot(name: string): boolean;
-  removeSlot({caster, name, tags}: RemoveSlotAction.Params, force: boolean): RemoveSlotAction
+  removeSlot({caster, name, tags}: RemoveSlotAction.Params, force?: boolean): RemoveSlotAction
   _removeSlot(name: string): boolean
   move({caster, to, using, tags}: MoveAction.EntityParams): MoveAction
   moveRelative({caster, amount, using, tags}: RelativeMoveAction.EntityParams): RelativeMoveAction
   _move(to: Vector): boolean;
   changeWorlds({caster, from, to, position, using, tags}: ChangeWorldAction.EntityParams): ChangeWorldAction;
   _changeWorlds(to: World, position: Vector): boolean;
+  serialize(): Entity.Serialized;
+  serializeForClient(): Entity.SerializedForClient;
 }
-
-export interface TestInterface {}
-
