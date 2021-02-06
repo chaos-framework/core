@@ -14,7 +14,7 @@ export class Physical extends Component implements Listener {
 
 export class Humanoid extends Component implements Listener {
   name = 'Humanoid';
-  tags = ['body'];
+  tags = new Set<string>(['body']);
   static readonly slots: Array<string> = ['Head', 'Neck', 'Torso', 'Hands', 'R. Hand', 'R. Finger', 'L. Hand', 'L. Finger', 'Legs', 'Feet'];
 
   modify(a: Action) {
@@ -35,7 +35,7 @@ export class Undead extends Component implements Modifier {
   name = "Undead";
   public = true;
   broadcast = true;
-  tags = ['trait'];
+  tags = new Set<string>(['trait']);
 
   modify(a: Action) {
     if(a instanceof PropertyChangeAction && a.increases('HP')) {

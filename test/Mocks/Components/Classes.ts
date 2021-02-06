@@ -7,7 +7,7 @@ export class Paladin extends Component implements Reacter {
   name = 'Paladin';
   public = true;
   broadcast = true;
-  tags = ['Class'];
+  tags = new Set<string>(['class']);
   unique = true;
 
   react(a: Action) {

@@ -7,7 +7,7 @@ export class Sword extends Component implements Listener {
   name = "Sword";
   public = true;
   broadcast = true;
-  tags = ['Property'];
+  tags = new Set<string>(['Property']);
   unique = true;
 
   modify(a: Action) {
@@ -29,7 +29,7 @@ export class Sword extends Component implements Listener {
 export class Iron extends Component implements Modifier {
   public = true;
   broadcast = true;
-  tags = ['Property'];
+  tags = new Set<string>(['Property']);
   unique = true;
 
   // Iron does a bit more damage than, say, wood
@@ -43,7 +43,7 @@ export class Iron extends Component implements Modifier {
 export class Silver extends Component implements Modifier {
   public = true;
   broadcast = true;
-  tags = ['Property'];
+  tags = new Set<string>(['Property']);
   unique = true;
 
   // Silver does a lot of damage, and even more to beasts
