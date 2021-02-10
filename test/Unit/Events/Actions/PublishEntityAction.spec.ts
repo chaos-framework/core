@@ -41,6 +41,7 @@ describe('PublishEntityAction', () => {
     const a = PublishEntityAction.deserialize(json);
     expect(a instanceof PublishEntityAction).to.be.true;
     expect(a.entity.id).to.equal(entity.id);
+    expect(a.entity.name).to.equal(entity.name);
     expect(a.world).to.equal(world);
     expect(a.position.equals(position)).to.be.true;
   });

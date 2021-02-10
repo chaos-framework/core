@@ -7,7 +7,7 @@ import {
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, IEntity
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, IEntity, DisplayComponent
 } from '../internal';
 
 export class Entity implements Listener, ComponentContainer {
@@ -289,11 +289,13 @@ export class Entity implements Listener, ComponentContainer {
     // switch(component.scope) {
     //   case "Game":
     //     break;
-    if(isModifier(component)) {
-      this.modifiers.push(component);
-    }
-    if(isReacter(component)) {
-      this.reacters.push(component);
+    if(!(component instanceof DisplayComponent)) {  // clients should never attach listeners
+      if(isModifier(component)) {
+        this.modifiers.push(component);
+      }
+      if(isReacter(component)) {
+        this.reacters.push(component);
+      }
     }
     component.attach(this);
     return true;
@@ -492,13 +494,20 @@ export class Entity implements Listener, ComponentContainer {
   }
 
   serializeForClient(): Entity.SerializedForClient {
-      return { 
-        id: this.id,
-        name: this.name,
-        tags: Array.from(this.tags.values()),
-        active: this.active,
-        omnipotent: this.omnipotent
-      };
+    const components: Component.SerializedForClient[] = [];
+    this.components.map(c => { 
+      if(c.broadcast) {
+        components.push(c.serializeForClient());
+      }
+    });
+    return { 
+      id: this.id,
+      name: this.name,
+      tags: Array.from(this.tags.values()),
+      active: this.active,
+      omnipotent: this.omnipotent,
+      components
+    };
   }
 
 }
@@ -521,7 +530,8 @@ export namespace Entity {
     name: string,
     tags?: string[],
     active?: boolean,
-    omnipotent?: boolean
+    omnipotent?: boolean,
+    components?: Component.SerializedForClient[]
   }
 
   export function Deserialize(json: Entity.Serialized): IEntity {
@@ -529,7 +539,17 @@ export namespace Entity {
   }
 
   export function DeserializeAsClient(json: Entity.SerializedForClient): IEntity {
-    const { id, name, tags, active, omnipotent } = json;
-    return new Entity({ id, name, tags, active, omnipotent });
+    try {
+      const { id, name, tags, active, omnipotent, components } = json;
+      const deserialized = new Entity({ id, name, tags, active, omnipotent });
+      if(components) {
+        for(let c of components) {
+          deserialized._attach(Component.DeserializeAsClient(c));
+        }
+      }
+      return deserialized;
+    } catch (error) {
+      throw new Error();
+    }
   }
 }

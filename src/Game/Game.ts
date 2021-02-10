@@ -2,7 +2,7 @@ import {
   IEntity,
   Action, World, Component,
   Modifier, Reacter, isModifier, isReacter,
-  Player, Team, ActionQueue
+  Player, Team, ActionQueue, Scope
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 import { Broadcaster } from "./Interfaces";
@@ -89,6 +89,14 @@ export default abstract class Game implements Broadcaster {
 
   react(a: Action) {
     this.reacters.map(r => r.react(a));
+  }
+  
+  publishAllInScopes(scopes: Map<string, Scope>) {
+    const toPublish = {};
+    // Gather all worlds and serialize
+    for(let worldId in scopes) {
+      
+    }
   }
 
   queueForBroadcast(action: Action) {
@@ -233,7 +241,7 @@ export default abstract class Game implements Broadcaster {
   }
 
   abstract initialize(options?: any): void;
-  abstract onPlayerConnect(p: Player, options: any): void;
-  abstract onPlayerDisconnect(options: any): void;
+  abstract onPlayerConnect(options: any): void;     // TODO solidify connection options w/ interface in ClientServer
+  abstract onPlayerDisconnect(options: any): void;  // TODO solidify connection options w/ interface in ClientServer
 
 }

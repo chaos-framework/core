@@ -8,11 +8,12 @@ import {
 
 const CHUNK_WIDTH = 16;
 
-export default abstract class World implements ComponentContainer, Listener {
+export abstract class World implements ComponentContainer, Listener {
   readonly id: string = uuid();
+  name: string = "Unnamed World";
   components: Component[] = [];
   baseLayer: ILayer;
-  additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
+  // additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
 
   entities: Set<string> = new Set<string>();
   entitiesByChunk: Map<string, Set<string>> = new Map<string, Set<string>>();
@@ -188,8 +189,30 @@ export default abstract class World implements ComponentContainer, Listener {
     return new Scope(this.width, this.height);
   }
 
-  abstract serialize(): string; // Serialize metadata
+  abstract serialize(): string;
   abstract unserialize(data: string): World;  // Unserialize metadata
+
+  serializeForClient(): World.Serialized {
+    return {
+      id: this.id,
+      name: this.name,
+      width: this.width,
+      height: this.height
+    }
+  }
+}
+
+export namespace World {
+  export interface Serialized {
+    id: string;
+    name: string;
+    width?: number;
+    height?: number;
+  }
+
+  export function deserializeAsClient(json: World.Serialized): World {
+
+  }
 }
 
 export function getChunkSpaceCoordinates(i: number): number {

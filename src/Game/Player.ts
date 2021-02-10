@@ -1,11 +1,13 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
+import Client from '../ClientServer/Client';
 import { Game, Team, Action, IEntity, Scope } from '../internal';
 import { VisibilityType } from '../internal';
 import { Viewer, Broadcaster } from './Interfaces';
 
 export default class Player implements Viewer, Broadcaster {
   id: string = uuid();
+  client?: Client;
   username: string;
   entities = new Set<string>();
   teams = new Set<string>();

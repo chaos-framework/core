@@ -1,34 +1,49 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, Ability } from '../../../src/internal';
+import { Entity, Ability, Component } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
 import EmptyAbility from '../../Mocks/Abilities/Empty';
 import { Heal }  from '../../Mocks/Abilities/Spells';
 import { ModifiesAndReactsAtWorldScope } from '../../Mocks/Components/Functional';
+import { Paladin } from '../../Mocks/Components/Classes';
+import { NonBroadcastingComponent } from '../../Mocks/Components/NonBroadcastingComponent';
 
 describe('Entity', () => {
 
   describe('Serializing / Deserializing', () => {
     let e: Entity;
+    let serializedForClient: Entity.SerializedForClient;
+    let paladin: Component;
     beforeEach(() => {
       e = new Entity({ name: "CS Test", active: true, omnipotent: false, tags: ['one', 'two', 'three'] });
+      paladin = new Paladin()
+      e._attach(paladin);
+      e._attach(new NonBroadcastingComponent());  // this should not get serialized for any client
+      serializedForClient = e.serializeForClient();
     });
 
     it('Serializing for clients', () => {
-      const serializedForClient = e.serializeForClient();
       expect(serializedForClient.id).to.equal(e.id);
       expect(serializedForClient.tags).to.contain('two');
       expect(serializedForClient.active).to.be.true;
     });
 
     it('Deserializing as a client', () => {
-      const serializedForClient = e.serializeForClient();
       const deserializedAsClient = Entity.DeserializeAsClient(serializedForClient);
       expect(deserializedAsClient.id).to.equal(e.id);
       expect(deserializedAsClient.tags).to.contain('two');
       expect(deserializedAsClient.active).to.be.true;
+    });
+
+    it('Includes components, public only, when serializing for clients', () => {
+      expect(serializedForClient.components).to.exist;
+      if(serializedForClient.components !== undefined) {
+        expect(serializedForClient.components.length).to.equal(1);
+        expect(serializedForClient.components[0].name).to.equal('Paladin');
+        expect(serializedForClient.components[0].id).to.equal(paladin.id);
+      }
     });
   })
 
