@@ -4,7 +4,8 @@ import { VisibilityType } from '../Events';
 import { Game, Action, Scope, PublishEntityAction, Player } from '../internal';
 import { Viewer, Broadcaster } from './Interfaces';
 
-export default class Team implements Viewer, Broadcaster {
+export class Team implements Viewer, Broadcaster {
+  name: string;
   id: string = uuid();
   players = new Set<string>();
   entities = new Set<string>();
@@ -12,8 +13,10 @@ export default class Team implements Viewer, Broadcaster {
   entitiesInSight = new Set<string>();
   scopesByWorld: Map<string, Scope> = new Map<string, Scope>();
 
-  constructor(public name: string) {
-    // TODO make addition / removal of teams possible post-initialization through actions
+  constructor({ id = uuid(), name, players = [] }: Team.ConstructorParams) {
+    this.id = id;
+    this.name = name ? name : this.id.substring(this.id.length - 8)
+    this.players = new Set<string>(players);
     Game.getInstance().teams.set(this.id, this);
     Game.getInstance().teamsByName.set(this.name, this);
   }
@@ -112,4 +115,36 @@ export default class Team implements Viewer, Broadcaster {
     return false;
   }
 
+  serializeForClient(): Team.SerializedForClient {
+    return { id: this.id, name: this.name, players: Array.from(this.players) };
+  }
+
+}
+
+export namespace Team {
+  export interface ConstructorParams {
+    id?: string,
+    name?: string,
+    players?: string[]
+  }
+
+  export interface Serialized {
+    id: string,
+    name: string,
+    players: string[]
+  }
+
+  export interface SerializedForClient {
+    id: string,
+    name?: string,
+    players?: string[]
+  }
+
+  export function Deserialize(json: Team.Serialized): Team {
+    return new Team(json);
+  }
+
+  export function DeserializeAsClient(json: Team.SerializedForClient): Team {
+    return new Team(json);
+  }
 }

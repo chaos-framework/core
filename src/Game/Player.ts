@@ -5,7 +5,7 @@ import { Game, Team, Action, IEntity, Scope } from '../internal';
 import { VisibilityType } from '../internal';
 import { Viewer, Broadcaster } from './Interfaces';
 
-export default class Player implements Viewer, Broadcaster {
+export class Player implements Viewer, Broadcaster {
   id: string = uuid();
   client?: Client;
   username: string;
@@ -16,10 +16,9 @@ export default class Player implements Viewer, Broadcaster {
   broadcastQueue = new Queue<any>();
   entitiesInSight: Set<string>;
 
-  // TODO publishing this should be an action
-  constructor({ username, teams = [], admin = false }: { username: string, teams?: string[], admin?: boolean }) {
-    this.id = uuid();
-    this.username = username;
+  constructor({ id = uuid(), username, teams = [], admin = false }: Player.ConstructorParams) {
+    this.id = id;
+    this.username = username ? username: this.id.substring(this.id.length - 6);
     this.admin = admin;
     const game = Game.getInstance();
     // Make sure that we weren't passed an array of teams if the game's perceptionGrouping is 'team'
@@ -59,7 +58,7 @@ export default class Player implements Viewer, Broadcaster {
     this.broadcastQueue.enqueue(a);
   }
 
-  disconnect() { };
+  disconnect() { }
 
   _ownEntity(entity: IEntity): boolean {
     this.entities.add(entity.id);
@@ -124,4 +123,39 @@ export default class Player implements Viewer, Broadcaster {
     return true;
   }
 
+  serializeForClient(): Player.SerializedForClient {
+    return { id: this.id, username: this.username, admin: this.admin, teams: Array.from(this.teams) };
+  }
+
+}
+
+export namespace Player {
+  export interface ConstructorParams {
+    id?: string,
+    username?: string,
+    teams?: string[],
+    admin?: boolean
+  }
+
+  export interface Serialized {
+    id: string,
+    username: string,
+    teams: string[],
+    admin: boolean
+  }
+
+  export interface SerializedForClient {
+    id: string,
+    username?: string,
+    teams?: string[],
+    admin?: boolean
+  }
+
+  export function Deserialize(json: Player.Serialized): Player {
+    return new Player(json);
+  }
+
+  export function DeserializeAsClient(json: Player.SerializedForClient): Player {
+    return new Player(json);
+  }
 }

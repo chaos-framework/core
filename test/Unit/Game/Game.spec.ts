@@ -24,7 +24,7 @@ describe('Game', () => {
       e = new Entity({ name: "Test Entity" });
       amount = new Vector(1,1);
       a = new RelativeMoveAction({caster: e, target: e, amount });
-      team = new Team('Test');
+      team = new Team({ name: 'Test' });
       game.teams.set('Test', team);
       player = new Player({ username: 'Test', teams: [team.id]})
       game.players.set(player.id, player);

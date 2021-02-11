@@ -10,7 +10,7 @@ describe('Player and Game integration', () => {
   let teams: Team[];
   beforeEach(() => {
     game = new EmptyGame();
-    teams = [new Team('Red'), new Team('Blue')];
+    teams = [new Team({ name: 'Red' }), new Team({ name: 'Blue' })];
   });
 
   describe('Tracking players without teams', () => {

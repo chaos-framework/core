@@ -24,7 +24,7 @@ describe('Action visibility and visibility grouping', () => {
       game = new EmptyGame();
       game.perceptionGrouping = 'team';
       game.viewDistance = 1;
-      teams = [new Team(teamNames[Red]), new Team(teamNames[Blue])];
+      teams = [new Team({ name: teamNames[Red] }), new Team( { name: teamNames[Blue] })];
       players = [new Player({ username: 'Red',  teams: [teams[Red].id] }), 
                 new Player({ username: 'Blue', teams: [teams[Blue].id] })];
       room = new Room(500, 500);
@@ -110,7 +110,7 @@ describe('Action visibility and visibility grouping', () => {
       game = new EmptyGame();
       game.perceptionGrouping = 'team';
       game.viewDistance = 1;
-      teams = [new Team(teamNames[Red])];
+      teams = [new Team({ name: teamNames[Red] })];
       players = [new Player({ username: 'Red',  teams: [teams[Red].id] }), 
                 new Player({ username: 'Blue' })];  // note that the blue player has no team
       room = new Room(500, 500);
@@ -154,7 +154,7 @@ describe('Action visibility and visibility grouping', () => {
       game = new EntityVisibilityGame(); // note game class
       game.perceptionGrouping = 'team';
       game.viewDistance = 1;
-      teams = [new Team(teamNames[Red]), new Team(teamNames[Blue])];
+      teams = [new Team({ name: teamNames[Red] } ), new Team({ name: teamNames[Blue] })];
       players = [new Player({ username: 'Red',  teams: [teams[Red].id] }), 
                 new Player({ username: 'Blue', teams: [teams[Blue].id] })];
       room = new Room(500, 500);

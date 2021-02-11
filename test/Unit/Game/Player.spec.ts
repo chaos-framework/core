@@ -12,10 +12,32 @@ describe('Player', () => {
   let otherTeam: Team;
   beforeEach(() => {
     game = new EmptyGame();
-    team = new Team('Red');
-    otherTeam = new Team('Blue');
+    team = new Team({ name: 'Red' });
+    otherTeam = new Team({ name: 'Blue' });
     game.teams.set(team.id, team);
     game.teams.set(otherTeam.id, otherTeam);
+  });
+
+  describe('Serializing and Deserializing', () => {
+    let player: Player;
+    beforeEach(() => {
+      player = new Player({ username: 'Serializing Test' });
+    });
+
+    it('Serializes for the client properly', () => {
+      const serialized = player.serializeForClient();
+      expect(serialized.id).to.equal(player.id);
+      expect(serialized.username).to.equal(player.username);
+      expect(serialized.admin).to.equal(player.admin);
+    });
+    
+    it('Deserializes for the client properly', () => {
+      const serialized = player.serializeForClient();
+      const deserialized = Player.DeserializeAsClient(serialized);
+      expect(deserialized.id).to.equal(player.id);
+      expect(deserialized.username).to.equal(player.username);
+      expect(deserialized.admin).to.equal(player.admin);
+    });
   });
 
   describe('Construction', () => {

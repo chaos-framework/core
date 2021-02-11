@@ -24,12 +24,13 @@ import { RemovePropertyAction } from './Events/Actions/RemovePropertyAction';
 import { RemoveSlotAction } from './Events/Actions/RemoveSlotAction';
 import { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction';
 import {
-  Modifier, Reacter, Listener, isModifier, isReacter, VisibilityType,
+  Modifier, Reacter, Listener,
+  isModifier, isReacter, VisibilityType,
   SimpleEvent, ActionQueue } from './Events/';
 // GAME AND WORLD
 import Game from './Game/Game';
-import Team from './Game/Team';
-import Player from './Game/Player';
+import { Team } from './Game/Team';
+import { Player } from './Game/Player';
 import { Viewer, Broadcaster } from './Game/Interfaces';
 import { World } from './World/World';
 import ClientWorld from './ClientServer/ClientWorld';
