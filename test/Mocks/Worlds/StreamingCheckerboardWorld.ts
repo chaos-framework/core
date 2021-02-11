@@ -7,7 +7,7 @@ export default class StreamingCheckerboardWorld extends World {
   ephemeral = true;
 
   constructor() {
-    super(new BasicLayer(BasicTiles.Ground), { streaming: true });
+    super({ fill: BasicTiles.Ground, streaming: true });
   }
 
   serialize(): string {

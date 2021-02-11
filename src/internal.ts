@@ -31,7 +31,12 @@ import Game from './Game/Game';
 import Team from './Game/Team';
 import Player from './Game/Player';
 import { Viewer, Broadcaster } from './Game/Interfaces';
-import { World, Layer, Chunk, Scope, IChunk, ILayer } from './World/';
+import { World } from './World/World';
+import ClientWorld from './ClientServer/ClientWorld';
+import Layer, { ILayer } from './World/Layer';
+import Chunk, { IChunk } from './World/Chunk';
+import Scope from './World/Scope';
+import ByteLayer from './World/Layers/ByteLayer';
 
 import Vector from './Math/Vector';
 
@@ -56,7 +61,8 @@ export {
   RemovePropertyAction,
   RemoveSlotAction,
   ForgetAbilityAction,
-  World, Layer, Chunk, Scope, IChunk, ILayer,
+  World, Layer, Chunk, Scope, IChunk, ILayer, ByteLayer,
+  ClientWorld,
   Viewer, Broadcaster,
   Event, SimpleEvent, ActionQueue, VisibilityType,
   Vector

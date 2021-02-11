@@ -3,16 +3,17 @@ import { v4 as uuid } from 'uuid';
 import { 
   Component, ComponentContainer,
   Listener, Modifier, Reacter, Action, ILayer, IChunk,
-  IEntity, Vector, Game, Scope
+  ByteLayer,
+  IEntity, Vector, Game, Scope, ClientWorld
 } from '../internal';
 
 const CHUNK_WIDTH = 16;
 
 export abstract class World implements ComponentContainer, Listener {
-  readonly id: string = uuid();
-  name: string = "Unnamed World";
+  readonly id: string;
+  name: string;
   components: Component[] = [];
-  baseLayer: ILayer;
+  baseLayer: ByteLayer;
   // additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
 
   entities: Set<string> = new Set<string>();
@@ -29,13 +30,15 @@ export abstract class World implements ComponentContainer, Listener {
 
   scope: Scope; // which parts of the world are seen by who
 
-  constructor(baseLayer: ILayer, {width, height, streaming = false, additionalLayers}: {width?: number, height?: number, streaming?: boolean, additionalLayers?: any}) {
-    this.baseLayer = baseLayer;
+  constructor({id = uuid(), name = 'Unnamed World', fill = 0, width, height, streaming = false, additionalLayers}: World.ConstructorParams) {
+    this.id = id;
+    this.name = name;
     this.width = width;
     this.height = height;
     this.streaming = streaming;
     this.scope = new Scope(width, height);
 
+    this.baseLayer = new ByteLayer(fill);
     // TODO check for width and height and force streaming if undefined or the world is too large
     // TODO if not streaming, should this super constructor handle creating chunks with default values?
 
@@ -148,26 +151,26 @@ export abstract class World implements ComponentContainer, Listener {
   }
 
   getTile(x: number, y: number, layer?: string): any {
-    if(layer && this.additionalLayers.has(layer)) {
-      return this.additionalLayers.get(layer)?.getTile(x, y);
-    } else {
+    // if(layer && this.additionalLayers.has(layer)) {
+    //   return this.additionalLayers.get(layer)?.getTile(x, y);
+    // } else {
       return this.baseLayer.getTile(x, y);
-    }
+    // }
   }
 
-  getTileAll(x: number, y: number): any {
-    const t:any = {};
-    t['base'] = this.baseLayer.getTile(x, y);
-    for(let k in this.additionalLayers) {
-      t[k] = this.additionalLayers.get(k)?.getTile(x, y);
-    }
-  }
+  // getTileAll(x: number, y: number): any {
+  //   const t:any = {};
+  //   t['base'] = this.baseLayer.getTile(x, y);
+  //   for(let k in this.additionalLayers) {
+  //     t[k] = this.additionalLayers.get(k)?.getTile(x, y);
+  //   }
+  // }
 
   initializeChunk(x: number, y: number) {
     const baseChunk: IChunk = this.baseLayer.initializeChunk(x, y);
-    for(let k in this.additionalLayers) {
-      this.additionalLayers.get(k)?.initializeChunk(x, y, baseChunk);
-    }
+    // for(let k in this.additionalLayers) {
+    //   this.additionalLayers.get(k)?.initializeChunk(x, y, baseChunk);
+    // }
     if(this.streaming) {
       this.populateChunk(x, y, baseChunk);
     }
@@ -190,9 +193,8 @@ export abstract class World implements ComponentContainer, Listener {
   }
 
   abstract serialize(): string;
-  abstract unserialize(data: string): World;  // Unserialize metadata
 
-  serializeForClient(): World.Serialized {
+  serializeForClient(): World.SerializedForClient {
     return {
       id: this.id,
       name: this.name,
@@ -203,6 +205,16 @@ export abstract class World implements ComponentContainer, Listener {
 }
 
 export namespace World {
+  export interface ConstructorParams {
+    id?: string,
+    name?: string,
+    fill?: number,
+    width?: number,
+    height?: number,
+    streaming?: boolean,
+    additionalLayers?: any
+  }
+
   export interface Serialized {
     id: string;
     name: string;
@@ -210,8 +222,15 @@ export namespace World {
     height?: number;
   }
 
-  export function deserializeAsClient(json: World.Serialized): World {
+  export interface SerializedForClient {
+    id: string;
+    name: string;
+    width?: number;
+    height?: number;
+  }
 
+  export function deserializeAsClient(json: World.SerializedForClient): World {
+    return new ClientWorld(json);
   }
 }
 

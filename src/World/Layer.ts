@@ -2,8 +2,6 @@ import { Vector } from '..';
 const CHUNK_WIDTH = 16;
 import Chunk, { IChunk } from './Chunk';
 
-// Layers
-
 export default abstract class Layer<T> implements ILayer {
   chunks = new Map<string, Chunk<T>>();
   fill: any;
@@ -14,7 +12,6 @@ export default abstract class Layer<T> implements ILayer {
 
   setTile(x: number, y: number, tile: any) {
     const chunk = this.getChunk(x, y);
-    // TODO should load chunk if not defined -- someone can set a tile anywhere
     if(chunk) {
       const relativeX = x % CHUNK_WIDTH;
       const relativeY = y % CHUNK_WIDTH;
@@ -43,7 +40,7 @@ export default abstract class Layer<T> implements ILayer {
   }
 
   // Initialize chunks, optionally with a base for context
-  initializeChunk(x: number, y: number, base?: IChunk): IChunk {
+  initializeChunk(x: number, y: number): IChunk {
     const k = new Vector(x, y).getIndexString();
     let chunk = this.chunks.get(k);
     if(chunk) {

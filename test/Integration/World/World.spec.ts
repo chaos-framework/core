@@ -9,11 +9,11 @@ describe('World Integration Testing', () => {
     it('Can be created with a simple base layer', () => {
       let w = new Room(5, 5);
       expect(w).to.exist;
-      expect(w.getTile(0, 0)).to.equal(basicTiles[BasicTiles.Wall]);
-      expect(w.getTile(0, 2)).to.equal(basicTiles[BasicTiles.Wall]);
-      expect(w.getTile(4, 4)).to.equal(basicTiles[BasicTiles.Wall]);
-      expect(w.getTile(1, 2)).to.equal(basicTiles[BasicTiles.Ground]);
-      expect(w.getTile(3, 3)).to.equal(basicTiles[BasicTiles.Ground]);
+      expect(w.getTile(0, 0)).to.equal(BasicTiles.Wall);
+      expect(w.getTile(0, 2)).to.equal(BasicTiles.Wall);
+      expect(w.getTile(4, 4)).to.equal(BasicTiles.Wall);
+      expect(w.getTile(1, 2)).to.equal(BasicTiles.Ground);
+      expect(w.getTile(3, 3)).to.equal(BasicTiles.Ground);
     });
   });
 

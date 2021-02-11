@@ -8,6 +8,31 @@ import Room from '../../Mocks/Worlds/Room';
 import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld';
 
 describe('Worlds', () => {
+  describe('Serializing / Deserializing', () => {
+    let world: World;
+    let serialized: World.SerializedForClient;
+    beforeEach(() => {
+      world = new Room(5, 5);
+      world.name = "Serialization Test";
+      serialized = world.serializeForClient();
+    });
+
+    it('Can serialize for a client', () => {
+      expect(serialized.id).to.equal(world.id);
+      expect(serialized.name).to.equal("Serialization Test");
+      expect(serialized.width).to.equal(world.width);
+      expect(serialized.height).to.equal(world.height);
+    });
+
+    it('Can deserialize as a a client', () => {
+      const clientWorld = World.deserializeAsClient(serialized);
+      expect(clientWorld.id).to.equal(world.id);
+      expect(clientWorld.name).to.equal("Serialization Test");
+      expect(clientWorld.width).to.equal(world.width);
+      expect(clientWorld.height).to.equal(world.height);
+    });
+  });
+
   describe('Holding entities', () => {
     let room: Room;
     let e: Entity;
