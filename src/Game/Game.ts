@@ -2,13 +2,14 @@ import {
   IEntity,
   Action, World, Component,
   Modifier, Reacter, isModifier, isReacter,
-  Player, Team, ActionQueue, Scope
+  Player, Team, ActionQueue, Entity, PublishEntityAction, Vector
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
-import { Broadcaster } from "./Interfaces";
+import { Broadcaster, Viewer } from "./Interfaces";
 
-export default abstract class Game implements Broadcaster {
+export abstract class Game implements Broadcaster {
   static instance: Game;
+  name: string = "New Game";
 
   worlds: Map<string, World> = new Map<string, World>();
   entities: Map<string, IEntity> = new Map<string, IEntity>();
@@ -43,7 +44,7 @@ export default abstract class Game implements Broadcaster {
     throw new Error();
   }
 
-  enqueueAction = (a: Action): void => {
+  broadcast = (a: Action): void => {
     this.queueForBroadcast(a);
   }
 
@@ -89,14 +90,6 @@ export default abstract class Game implements Broadcaster {
 
   react(a: Action) {
     this.reacters.map(r => r.react(a));
-  }
-  
-  publishAllInScopes(scopes: Map<string, Scope>) {
-    const toPublish = {};
-    // Gather all worlds and serialize
-    for(let worldId in scopes) {
-      
-    }
   }
 
   queueForBroadcast(action: Action) {
@@ -207,27 +200,45 @@ export default abstract class Game implements Broadcaster {
   percieveAndBroadcast(a: Action, viewer: Player | Team, visibility: VisibilityType) {
     const serializedNormally = a.serialize();
     // TODO percieve
-    // TODO publish if neededd
-    viewer.queueForBroadcast(a, visibility, JSON.stringify(serializedNormally));
 
-    // TODO unpublish if needed
+    // Check if this is an action that could affect entity/world scope
+    if(a.visibilityChangingAction) {
+      const movingEntity = a.getEntity();
+      const id = movingEntity !== undefined ? movingEntity.id : undefined;
+      // See if we're gaining visibility and prepend this broadcast with a publish if so
+      if(movingEntity && id && visibility >= VisibilityType.VISIBLE && !viewer.getEntitiesInSight().has(id)) {
+        viewer.entitiesInSight.add(id);
+        this.percieveAndBroadcast(new PublishEntityAction({ entity: movingEntity, world: movingEntity.world!, position: movingEntity.position }), viewer, VisibilityType.VISIBLE);
+      }
+      // Broadcast action itself
+      viewer.broadcast(a, visibility, JSON.stringify(serializedNormally));
+      // Publish if appropriate
+      if(id &&visibility === VisibilityType.LOSES_VISION && viewer.getEntitiesInSight().has(id)) {
+        viewer.entitiesInSight.delete(id);
+        // TODO unpublish
+      }
+    } else {
+      viewer.broadcast(a, visibility, JSON.stringify(serializedNormally));
+    }
   }
 
   // Optionally modify underlying serialized method to customize it for a team or player.
-  // Return undefined if 
+  // Return undefined if no modification is necessary
   percieve(a: Action, viewer: Player | Team, visibility: VisibilityType): string | undefined {
     return undefined;
   }
 
   getVisibilityToTeam(a: Action, t: Team): VisibilityType {
-    if((a.caster && t.entities.has(a.caster.id)) || (a.target && t.entities.has(a.target.id))) {
+    const relevantEntity = a.getEntity();
+    if((a.caster && t.entities.has(a.caster.id)) || (relevantEntity && t.entities.has(relevantEntity.id))) {
       return VisibilityType.VISIBLE;
     }
     return a.isInPlayerOrTeamScope(t) ? VisibilityType.VISIBLE : VisibilityType.NOT_VISIBLE;
   }
 
   getVisibilityToPlayer(a: Action, p: Player): VisibilityType {
-    if((a.caster && p.entities.has(a.caster.id)) || (a.target && p.entities.has(a.target.id))) {
+    const relevantEntity = a.getEntity();
+    if((a.caster && p.entities.has(a.caster.id)) || (relevantEntity && p.entities.has(relevantEntity.id))) {
       return VisibilityType.VISIBLE;
     }
     return a.isInPlayerOrTeamScope(p) ? VisibilityType.VISIBLE : VisibilityType.NOT_VISIBLE;
@@ -244,4 +255,41 @@ export default abstract class Game implements Broadcaster {
   abstract onPlayerConnect(options: any): void;     // TODO solidify connection options w/ interface in ClientServer
   abstract onPlayerDisconnect(options: any): void;  // TODO solidify connection options w/ interface in ClientServer
 
+  serializeForScope(viewer: Viewer): Game.SerializedForClient {
+    const o: Game.SerializedForClient = { name: this.name, players: [], teams: [], worlds: [], entities: [] }
+    // Serialize all players
+    for(let player of this.players.values()) {
+      o.players.push(player.serializeForClient());
+    }
+    // Serialize all teams
+    for(let team of this.teams.values()) {
+      o.teams.push(team.serializeForClient());
+    }
+    // Gather all worlds visible worlds and serialize. This will be empty if the player isn't joining an existing team with shared vision.
+    for(let worldId in viewer.getWorldScopes()) {
+      const world = this.worlds.get(worldId);
+      if(world !== undefined) {
+        o.worlds.push(world.serializeForClient());
+      }
+    }
+    // Gather all entities in sight
+    for(let entityId in viewer.getEntitiesInSight()) {
+      const entity = this.entities.get(entityId);
+      if(entity !== undefined) {
+        o.entities.push(entity.serializeForClient());
+      }
+    }
+    return o;
+  }
+}
+
+export namespace Game {
+  export interface SerializedForClient {
+    name: string,
+    // config?: any,  // TODO make config interface, GameConfiguration.ts or something
+    players: Player.SerializedForClient[],
+    teams: Team.SerializedForClient[],
+    worlds: World.SerializedForClient[],
+    entities: Entity.SerializedForClient[]
+  }
 }

@@ -78,7 +78,7 @@ export abstract class Action {
     let applied = this.apply();
 
     // Queue in the game
-    game.enqueueAction(this);
+    game.broadcast(this);
 
     this.teardown();
 
@@ -176,15 +176,21 @@ export abstract class Action {
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
     const worldScopes = viewer.getWorldScopes();
-    const { caster, target } = this;
+    const { caster } = this;
+    const relevantEntity = this.getEntity();
     if(caster && caster.world && worldScopes.has(caster.world.id) && worldScopes.get(caster.world.id)!.containsPosition(caster.position)) {
       return true;
     }
-    if(target && target.world && worldScopes.has(target.world.id) && worldScopes.get(target.world.id)!.containsPosition(target.position)) {
+    if(relevantEntity && relevantEntity.world && worldScopes.has(relevantEntity.world.id) && worldScopes.get(relevantEntity.world.id)!.containsPosition(relevantEntity.position)) {
       return true;
     }
     return false;
   };
+
+  // Get the relevant entity, by default the target but some actions apply to an entity that is not the target
+  getEntity(): IEntity | undefined {
+    return this.target;
+  }
 
   // TODO make abstract -- only concrete so I can run tests before fully implementing in all children
   serialize(): Action.Serialized {

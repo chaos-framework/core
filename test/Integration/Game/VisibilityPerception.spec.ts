@@ -44,16 +44,16 @@ describe('Action visibility and visibility grouping', () => {
       expect(players[Red].broadcastQueue.length).to.equal(0);
       // Move the red player nearer to the blue, ensure that they both have visibility
       entities[Red].move({ to: new Vector(449, 449) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(2);
-      expect(players[Red].broadcastQueue.length).to.equal(1);
+      expect(players[Blue].broadcastQueue.length).to.equal(3);  // inserted publish action 
+      expect(players[Red].broadcastQueue.length).to.equal(1);   // TODO inverse visibility.. bleh
       // Move the blue one tile again, ensure they both have visibility
       entities[Blue].moveRelative({ amount: new Vector(0, -1) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(3);
-      expect(players[Red].broadcastQueue.length).to.equal(2);
+      expect(players[Blue].broadcastQueue.length).to.equal(4);
+      expect(players[Red].broadcastQueue.length).to.equal(3);   // inserted publish action
       // Move the blue away, ensure they both have visibility
       entities[Blue].move({ to: new Vector(2, 2) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(4);
-      expect(players[Red].broadcastQueue.length).to.equal(3);
+      expect(players[Blue].broadcastQueue.length).to.equal(5);
+      expect(players[Red].broadcastQueue.length).to.equal(4);
     });
   });
 
@@ -86,16 +86,16 @@ describe('Action visibility and visibility grouping', () => {
       expect(players[Red].broadcastQueue.length).to.equal(0);
       // Move the red player nearer to the blue, ensure that they both have visibility
       entities[Red].move({ to: new Vector(449, 449) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(2);
+      expect(players[Blue].broadcastQueue.length).to.equal(3);  // inserted publish action
       expect(players[Red].broadcastQueue.length).to.equal(1);
       // Move the blue one tile again, ensure they both have visibility
       entities[Blue].moveRelative({ amount: new Vector(0, -1) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(3);
-      expect(players[Red].broadcastQueue.length).to.equal(2);
+      expect(players[Blue].broadcastQueue.length).to.equal(4);  // inserted publish action
+      expect(players[Red].broadcastQueue.length).to.equal(3);   // inserted publish action
       // Move the blue away, ensure they both have visibility
       entities[Blue].move({ to: new Vector(2, 2) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(4);
-      expect(players[Red].broadcastQueue.length).to.equal(3);
+      expect(players[Blue].broadcastQueue.length).to.equal(5);
+      expect(players[Red].broadcastQueue.length).to.equal(4);
     });
   });
 
@@ -130,16 +130,16 @@ describe('Action visibility and visibility grouping', () => {
       expect(players[Red].broadcastQueue.length).to.equal(0);
       // Move the red player nearer to the blue, ensure that they both have visibility
       entities[Red].move({ to: new Vector(449, 449) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(2);
+      expect(players[Blue].broadcastQueue.length).to.equal(3);  // prepended publish action
       expect(players[Red].broadcastQueue.length).to.equal(1);
       // Move the blue one tile again, ensure they both have visibility
       entities[Blue].moveRelative({ amount: new Vector(0, -1) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(3);
-      expect(players[Red].broadcastQueue.length).to.equal(2);
+      expect(players[Blue].broadcastQueue.length).to.equal(4);
+      expect(players[Red].broadcastQueue.length).to.equal(3); // prepended publish action
       // Move the blue away, ensure they both have visibility
       entities[Blue].move({ to: new Vector(2, 2) }).execute();
-      expect(players[Blue].broadcastQueue.length).to.equal(4);
-      expect(players[Red].broadcastQueue.length).to.equal(3);
+      expect(players[Blue].broadcastQueue.length).to.equal(5);
+      expect(players[Red].broadcastQueue.length).to.equal(4);
     });
   });
 

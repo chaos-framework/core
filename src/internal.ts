@@ -28,7 +28,7 @@ import {
   isModifier, isReacter, VisibilityType,
   SimpleEvent, ActionQueue } from './Events/';
 // GAME AND WORLD
-import Game from './Game/Game';
+import { Game } from './Game/Game';
 import { Team } from './Game/Team';
 import { Player } from './Game/Player';
 import { Viewer, Broadcaster } from './Game/Interfaces';

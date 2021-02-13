@@ -54,7 +54,11 @@ export class Player implements Viewer, Broadcaster {
     return this.scopesByWorld;
   }
 
-  queueForBroadcast(a: Action, visibility: VisibilityType, serialized: string) {
+  getEntitiesInSight(): Set<string> {
+    return this.entitiesInSight;
+  }
+
+  broadcast(a: Action, visibility: VisibilityType, serialized: string) {
     this.broadcastQueue.enqueue(a);
   }
 
@@ -83,6 +87,7 @@ export class Player implements Viewer, Broadcaster {
         this.scopesByWorld.set(entity.world.id, scope);
       }
     }
+    this.entitiesInSight.add(entity.id);  // TODO this needs to happen in perception...?
     return true;
   }
 

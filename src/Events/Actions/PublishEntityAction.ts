@@ -41,6 +41,10 @@ export class PublishEntityAction extends Action {
       entity: this.entity.serializeForClient()
     };
   };
+  
+  getEntity(): Entity {
+    return this.entity;
+  }
 
   static deserialize(json: PublishEntityAction.Serialized): PublishEntityAction {
     const game = Game.getInstance();
