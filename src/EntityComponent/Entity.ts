@@ -277,6 +277,18 @@ export class Entity implements Listener, ComponentContainer {
     return true;
   }
 
+  // Unpublishing
+
+  _unpublish(): boolean {
+    this.disconnectFromWorld();
+    this.disconnectFromGame();
+    Game.getInstance().removeEntity(this);
+    // TODO delete and deinit all components
+    // TODO and persistence stuff
+    this.published = false;
+    return true;
+  }
+
   // Attaching components
 
   attach({component, caster, using, tags}: AttachComponentAction.EntityParams, force = false): AttachComponentAction {

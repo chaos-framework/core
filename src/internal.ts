@@ -23,6 +23,7 @@ import { RelativeMoveAction } from './Events/Actions/RelativeMoveAction';
 import { RemovePropertyAction } from './Events/Actions/RemovePropertyAction';
 import { RemoveSlotAction } from './Events/Actions/RemoveSlotAction';
 import { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction';
+import { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction';
 import {
   Modifier, Reacter, Listener,
   isModifier, isReacter, VisibilityType,
@@ -62,6 +63,7 @@ export {
   RemovePropertyAction,
   RemoveSlotAction,
   ForgetAbilityAction,
+  UnpublishEntityAction,
   World, Layer, Chunk, Scope, IChunk, ILayer, ByteLayer,
   ClientWorld,
   Viewer, Broadcaster,

@@ -61,9 +61,17 @@ export abstract class Game implements Broadcaster {
     return this.entities.get(id);
   }
 
-  addEntity = (e: IEntity): boolean => {
+  addEntity(e: IEntity): boolean {
     if (e.id) {
       this.entities.set(e.id, e);
+      return true;
+    }
+    return false;
+  }
+
+  removeEntity(e: IEntity): boolean {
+    if (e.id) {
+      this.entities.delete(e.id);
       return true;
     }
     return false;

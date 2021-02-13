@@ -40,6 +40,7 @@ export default interface IEntity {
   disconnectFromGame(): void;
   publish({caster, target, world, position, using, tags}: PublishEntityAction.Params): PublishEntityAction
   _publish(world: World, position: Vector, preloaded: boolean): boolean;
+  _unpublish(): boolean;
   attach({component, caster, using, tags}: AttachComponentAction.EntityParams, force?: boolean): AttachComponentAction
   _attach(component: Component): boolean;
   addProperty({caster, using, name, current, min, max, tags}: AddPropertyAction.EntityParams, force?: boolean): AddPropertyAction;
