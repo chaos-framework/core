@@ -2,9 +2,9 @@ import { v4 as uuid } from 'uuid';
 
 import { VisibilityType } from '../Events';
 import { Game, Action, Scope, PublishEntityAction, Player } from '../internal';
-import { Viewer, Broadcaster } from './Interfaces';
+import { Viewer, ActionQueuer } from './Interfaces';
 
-export class Team implements Viewer, Broadcaster {
+export class Team implements Viewer, ActionQueuer {
   name: string;
   id: string = uuid();
   players = new Set<string>();
@@ -21,20 +21,13 @@ export class Team implements Viewer, Broadcaster {
     Game.getInstance().teamsByName.set(this.name, this);
   }
 
-  broadcast(a: Action, visibility: VisibilityType, serialized: string) {
+  enqueueAction(a: Action, visibility: VisibilityType, serialized: string) {
     const game = Game.getInstance();
-    // Add or remove entities from sight list based on visibility type and existing seen entities
-    const movingEntity = a instanceof PublishEntityAction ? a.entity : a.target;
-    if(game.perceptionGrouping === 'team' && movingEntity) {
-      // Cache entity ID
-      const id = movingEntity.id;
-
-    }
     // Queue broadcast for all players
     for(const id of this.players) {
       const p = game.players.get(id);
       if(p !== undefined) {
-        p.broadcast(a, visibility, serialized);
+        p.enqueueAction(a, visibility, serialized);
       }
     }
   }

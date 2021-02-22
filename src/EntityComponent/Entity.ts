@@ -42,7 +42,7 @@ export class Entity implements Listener, ComponentContainer {
   // TODO art asset
   // TODO single char for display in leiu of art asset
 
-  constructor({ id = uuid(), name = 'Unnamed Entity', tags = [], active = false, omnipotent = false }: Entity.ConstructorParams) { // TODO 
+  constructor({ id = uuid(), name = 'Unnamed Entity', tags = [], active = false, omnipotent = false }: Entity.ConstructorParams = {}) { // TODO 
     this.id = id;
     this.name = name;
     this.active = active;
@@ -527,7 +527,7 @@ export class Entity implements Listener, ComponentContainer {
 export namespace Entity {
   export interface ConstructorParams {
     id?: string,
-    name: string,
+    name?: string,
     tags?: string[],
     active?: boolean,
     omnipotent?: boolean

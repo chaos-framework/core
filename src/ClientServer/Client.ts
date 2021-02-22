@@ -1,4 +1,4 @@
-import { Player } from "../Game";
+import { Player } from "../internal";
 
 export default interface Client {
   player: Player; // keep a reference for the player, so it can clean up on unexpected loss of connection

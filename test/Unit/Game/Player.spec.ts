@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import { validate as validateUuid } from 'uuid';
 
-import { Game, Team, Player } from '../../../src/internal';
+import { Game, Team, Player, Entity } from '../../../src/internal';
 
 import EmptyGame from '../../Mocks/Games/EmptyGame';
 
@@ -20,8 +20,12 @@ describe('Player', () => {
 
   describe('Serializing and Deserializing', () => {
     let player: Player;
+    let e: Entity;
     beforeEach(() => {
       player = new Player({ username: 'Serializing Test' });
+      e = new Entity();
+      game.addEntity(e);
+      player._ownEntity(e);
     });
 
     it('Serializes for the client properly', () => {
@@ -29,6 +33,7 @@ describe('Player', () => {
       expect(serialized.id).to.equal(player.id);
       expect(serialized.username).to.equal(player.username);
       expect(serialized.admin).to.equal(player.admin);
+      expect(serialized.entities).to.contain(e.id);
     });
     
     it('Deserializes for the client properly', () => {
@@ -37,6 +42,7 @@ describe('Player', () => {
       expect(deserialized.id).to.equal(player.id);
       expect(deserialized.username).to.equal(player.username);
       expect(deserialized.admin).to.equal(player.admin);
+      expect(deserialized.entities.has(e.id)).to.be.true;
     });
   });
 

@@ -1,4 +1,4 @@
-import { Game } from '../internal';
+import { CONNECTION, CONNECTION_RESPONSE, Game } from '../internal';
 
 // Simple concrete implementation of abstract Game class -- for 
 export default class ClientGame extends Game {
@@ -6,7 +6,8 @@ export default class ClientGame extends Game {
     super();
   }
 
-  initialize() {}
-  onPlayerConnect() {}
+  onPlayerConnect(msg: CONNECTION): CONNECTION_RESPONSE {
+    throw new Error('This should never be called.');
+  }
   onPlayerDisconnect() {}
 }

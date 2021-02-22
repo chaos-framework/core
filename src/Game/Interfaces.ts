@@ -5,6 +5,6 @@ export interface Viewer {
   getEntitiesInSight(): Set<string>;
 }
 
-export interface Broadcaster {
-  broadcast(a: Action, visibility: VisibilityType, serialized: string): void;
+export interface ActionQueuer {
+  enqueueAction(a: Action, visibility: VisibilityType, serialized: string): void;
 }

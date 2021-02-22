@@ -4,7 +4,9 @@ import {
   World, Layer, Chunk, Scope,
   Event, SimpleEvent, Action, Modifier, Reacter, Listener, isModifier, isReacter,
   MoveAction, RelativeMoveAction, ChangeWorldAction,
-  Vector 
+  Vector,
+  ClientGame,
+  Message, MessageTypes, CONNECTION, CONNECTION_RESPONSE
 } from './internal';
 
 export {
@@ -13,5 +15,7 @@ export {
   World, Layer, Chunk, Scope,
   Event, SimpleEvent, Action, Modifier, Reacter, Listener, isModifier, isReacter,
   MoveAction, RelativeMoveAction, ChangeWorldAction,
-  Vector
+  Vector,
+  ClientGame,
+  Message, MessageTypes, CONNECTION, CONNECTION_RESPONSE
 }

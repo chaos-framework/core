@@ -3,9 +3,9 @@ import { v4 as uuid } from 'uuid';
 import Client from '../ClientServer/Client';
 import { Game, Team, Action, IEntity, Scope } from '../internal';
 import { VisibilityType } from '../internal';
-import { Viewer, Broadcaster } from './Interfaces';
+import { Viewer, ActionQueuer } from './Interfaces';
 
-export class Player implements Viewer, Broadcaster {
+export class Player implements Viewer, ActionQueuer {
   id: string = uuid();
   client?: Client;
   username: string;
@@ -16,10 +16,11 @@ export class Player implements Viewer, Broadcaster {
   broadcastQueue = new Queue<any>();
   entitiesInSight: Set<string>;
 
-  constructor({ id = uuid(), username, teams = [], admin = false }: Player.ConstructorParams) {
+  constructor({ id = uuid(), username, teams = [], admin = false, client }: Player.ConstructorParams) {
     this.id = id;
     this.username = username ? username: this.id.substring(this.id.length - 6);
     this.admin = admin;
+    this.client = client;
     const game = Game.getInstance();
     // Make sure that we weren't passed an array of teams if the game's perceptionGrouping is 'team'
     // This is because you can't (yet) meaningfully share a scope with multiple teams
@@ -58,7 +59,7 @@ export class Player implements Viewer, Broadcaster {
     return this.entitiesInSight;
   }
 
-  broadcast(a: Action, visibility: VisibilityType, serialized: string) {
+  enqueueAction(a: Action, visibility: VisibilityType, serialized: string) {
     this.broadcastQueue.enqueue(a);
   }
 
@@ -129,7 +130,7 @@ export class Player implements Viewer, Broadcaster {
   }
 
   serializeForClient(): Player.SerializedForClient {
-    return { id: this.id, username: this.username, admin: this.admin, teams: Array.from(this.teams) };
+    return { id: this.id, username: this.username, admin: this.admin, teams: Array.from(this.teams), entities: Array.from(this.entities) };
   }
 
 }
@@ -139,11 +140,13 @@ export namespace Player {
     id?: string,
     username?: string,
     teams?: string[],
-    admin?: boolean
+    admin?: boolean,
+    client?: Client
   }
 
   export interface Serialized {
     id: string,
+    entities: string[],
     username: string,
     teams: string[],
     admin: boolean
@@ -151,6 +154,7 @@ export namespace Player {
 
   export interface SerializedForClient {
     id: string,
+    entities: string[],
     username?: string,
     teams?: string[],
     admin?: boolean
@@ -161,6 +165,8 @@ export namespace Player {
   }
 
   export function DeserializeAsClient(json: Player.SerializedForClient): Player {
-    return new Player(json);
+    const p = new Player(json);
+    p.entities = new Set(json.entities);
+    return p;
   }
 }

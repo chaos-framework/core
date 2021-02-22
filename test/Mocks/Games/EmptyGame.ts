@@ -1,4 +1,4 @@
-import { Game } from '../../../src/internal';
+import { CONNECTION, CONNECTION_RESPONSE, Game, Player } from '../../../src/internal';
 
 export default class EmptyGame extends Game {
   name = "Empty Game";
@@ -7,8 +7,8 @@ export default class EmptyGame extends Game {
 
   }
 
-  onPlayerConnect() {
-
+  onPlayerConnect(msg: CONNECTION): CONNECTION_RESPONSE {
+    throw new Error();
   }
 
   onPlayerDisconnect() {

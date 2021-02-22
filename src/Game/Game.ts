@@ -2,12 +2,13 @@ import {
   IEntity,
   Action, World, Component,
   Modifier, Reacter, isModifier, isReacter,
-  Player, Team, ActionQueue, Entity, PublishEntityAction, Vector
+  Player, Team, ActionQueue, Entity, PublishEntityAction, Vector, UnpublishEntityAction, Command, ClientGame
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
-import { Broadcaster, Viewer } from "./Interfaces";
+import { ActionQueuer, Viewer } from "./Interfaces";
+import { CONNECTION, CONNECTION_RESPONSE } from "../ClientServer/Message";
 
-export abstract class Game implements Broadcaster {
+export abstract class Game {
   static instance: Game;
   name: string = "New Game";
 
@@ -34,7 +35,6 @@ export abstract class Game implements Broadcaster {
       throw new Error();
     }
     Game.instance = this;
-    this.initialize(options);
   }
 
   static getInstance = (): Game => {
@@ -44,9 +44,24 @@ export abstract class Game implements Broadcaster {
     throw new Error();
   }
 
-  broadcast = (a: Action): void => {
-    this.queueForBroadcast(a);
-  }
+  // process = (command: Command): boolean => {
+  //   const { player: playerId, entity: entityId, params } = command;
+  //   // See if the player exists
+  //   const player = this.players.get(command.player);
+  //   if(player === undefined) {
+  //     return false;
+  //   }
+  //   // See if the entity is specified, and if the player has rights on it
+  //   let entity;
+  //   if(command.entity) {
+  //     entity = this.getEntity(command.entity);
+  //     if(entity === undefined) {
+  //       return false;
+  //     }
+  //   }
+  //   this.queueForBroadcast(a);
+  //   return true;
+  // }
 
   addWorld = (world: World): boolean => {
     this.worlds.set(world.id, world);
@@ -105,21 +120,21 @@ export abstract class Game implements Broadcaster {
     if (this.perceptionGrouping === 'team') {
       // Loop through teams and broadcast if visible
       for (const team of this.teams.values()) {
-        this.broadcastToTeam(action, team);
+        this.enqueueForTeam(action, team);
       }
       // Also broadcast to any players without teams, falling back to player-level perception
       for(const player of this.playersWithoutTeams.values()) {
-        this.broadcastToPlayer(action, player);
+        this.enqueueForPlayer(action, player);
       }
     } else if (this.perceptionGrouping === 'player') {
       // Loop through all players
       for (const player of this.players.values()) {
-        this.broadcastToPlayer(action, player);
+        this.enqueueForPlayer(action, player);
       }
     }
   }
 
-  broadcastToTeam(action: Action, team: Team) {
+  enqueueForTeam(action: Action, team: Team) {
     // Only care if team has players
     if(team.players.size === 0) {
       return;
@@ -129,7 +144,7 @@ export abstract class Game implements Broadcaster {
     // If not deferring, broadcast with resolved visibility
     if (visibility !== VisibilityType.DEFER) {
       if(visibility > VisibilityType.NOT_VISIBLE) {
-        this.percieveAndBroadcast(action, team, visibility);
+        this.percieveAndEnqueue(action, team, visibility);
       }
       return;
     }
@@ -141,13 +156,13 @@ export abstract class Game implements Broadcaster {
       if (player) {
         const playerVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToPlayer(action, player));
         if(playerVisibility === VisibilityType.VISIBLE) {
-          this.percieveAndBroadcast(action, team, visibility);
+          this.percieveAndEnqueue(action, team, visibility);
           continue;
         }
       }
     }
     if(visibility !== VisibilityType.DEFER) {
-      this.percieveAndBroadcast(action, team, visibility);
+      this.percieveAndEnqueue(action, team, visibility);
     }
     // If deferred again, check for visibility on each individual IEntity
     // Note that we don't use DEFER, since it's not possible to defer any further
@@ -157,24 +172,24 @@ export abstract class Game implements Broadcaster {
       if (IEntity) {
         const entityVisibility = Game.determineVisibilityCheckHeirarchy(visibility, this.getVisibilityToEntity(action, IEntity));
         if(entityVisibility === VisibilityType.VISIBLE) {
-          this.percieveAndBroadcast(action, team, visibility);
+          this.percieveAndEnqueue(action, team, visibility);
           continue;
         }
       }
     }
     // Broadcast if visible in any way to any IEntity on this team
     if(visibility > VisibilityType.NOT_VISIBLE) {
-      this.percieveAndBroadcast(action, team, visibility);
+      this.percieveAndEnqueue(action, team, visibility);
     }
   }
 
-  broadcastToPlayer(action: Action, player: Player) {
+  enqueueForPlayer(action: Action, player: Player) {
     // Check at the player level and take the highest visibility found
     // (breaking immediately if full visibility is determined at any point)
     let visibility = Game.determineVisibilityCheckHeirarchy(VisibilityType.DEFER, this.getVisibilityToPlayer(action, player));
     if (visibility !== VisibilityType.DEFER) {
       if (visibility > VisibilityType.NOT_VISIBLE) {
-        this.percieveAndBroadcast(action, player, visibility);
+        this.percieveAndEnqueue(action, player, visibility);
       }
       return;
     }
@@ -191,7 +206,7 @@ export abstract class Game implements Broadcaster {
       }
     }
     if (visibility >= VisibilityType.NOT_VISIBLE) {
-      this.percieveAndBroadcast(action, player, visibility);
+      this.percieveAndEnqueue(action, player, visibility);
     }
   }
 
@@ -205,7 +220,7 @@ export abstract class Game implements Broadcaster {
     return currentHighest < newVisibility ? newVisibility : currentHighest;
   }
 
-  percieveAndBroadcast(a: Action, viewer: Player | Team, visibility: VisibilityType) {
+  percieveAndEnqueue(a: Action, viewer: Player | Team, visibility: VisibilityType = VisibilityType.VISIBLE) {
     const serializedNormally = a.serialize();
     // TODO percieve
 
@@ -216,17 +231,17 @@ export abstract class Game implements Broadcaster {
       // See if we're gaining visibility and prepend this broadcast with a publish if so
       if(movingEntity && id && visibility >= VisibilityType.VISIBLE && !viewer.getEntitiesInSight().has(id)) {
         viewer.entitiesInSight.add(id);
-        this.percieveAndBroadcast(new PublishEntityAction({ entity: movingEntity, world: movingEntity.world!, position: movingEntity.position }), viewer, VisibilityType.VISIBLE);
+        this.percieveAndEnqueue(new PublishEntityAction({ entity: movingEntity, world: movingEntity.world!, position: movingEntity.position }), viewer);
       }
       // Broadcast action itself
-      viewer.broadcast(a, visibility, JSON.stringify(serializedNormally));
+      viewer.enqueueAction(a, visibility, JSON.stringify(serializedNormally));
       // Publish if appropriate
-      if(id &&visibility === VisibilityType.LOSES_VISION && viewer.getEntitiesInSight().has(id)) {
+      if(movingEntity && id &&visibility === VisibilityType.LOSES_VISION && viewer.getEntitiesInSight().has(id)) {
         viewer.entitiesInSight.delete(id);
-        // TODO unpublish
+        this.percieveAndEnqueue(new UnpublishEntityAction({ entity: movingEntity }), viewer);
       }
     } else {
-      viewer.broadcast(a, visibility, JSON.stringify(serializedNormally));
+      viewer.enqueueAction(a, visibility, JSON.stringify(serializedNormally));
     }
   }
 
@@ -259,9 +274,8 @@ export abstract class Game implements Broadcaster {
     return VisibilityType.VISIBLE;
   }
 
-  abstract initialize(options?: any): void;
-  abstract onPlayerConnect(options: any): void;     // TODO solidify connection options w/ interface in ClientServer
-  abstract onPlayerDisconnect(options: any): void;  // TODO solidify connection options w/ interface in ClientServer
+  abstract onPlayerConnect(msg: CONNECTION): CONNECTION_RESPONSE;
+  abstract onPlayerDisconnect(options: any): void;  // TODO solidify disconnection options w/ interface in ClientServer
 
   serializeForScope(viewer: Viewer): Game.SerializedForClient {
     const o: Game.SerializedForClient = { name: this.name, players: [], teams: [], worlds: [], entities: [] }
@@ -273,16 +287,16 @@ export abstract class Game implements Broadcaster {
     for(let team of this.teams.values()) {
       o.teams.push(team.serializeForClient());
     }
-    // Gather all worlds visible worlds and serialize. This will be empty if the player isn't joining an existing team with shared vision.
-    for(let worldId in viewer.getWorldScopes()) {
-      const world = this.worlds.get(worldId);
+    // Gather all worlds visible worlds and serialize.
+    for(let kv of viewer.getWorldScopes()) {
+      const world = this.worlds.get(kv[0]);
       if(world !== undefined) {
         o.worlds.push(world.serializeForClient());
       }
     }
     // Gather all entities in sight
-    for(let entityId in viewer.getEntitiesInSight()) {
-      const entity = this.entities.get(entityId);
+    for(let kv of viewer.getEntitiesInSight()) {
+      const entity = this.entities.get(kv[0]);
       if(entity !== undefined) {
         o.entities.push(entity.serializeForClient());
       }
@@ -299,5 +313,26 @@ export namespace Game {
     teams: Team.SerializedForClient[],
     worlds: World.SerializedForClient[],
     entities: Entity.SerializedForClient[]
+  }
+
+  export function DeserializeAsClient(serialized: Game.SerializedForClient): ClientGame {
+    const game = new ClientGame();
+    for(let team of serialized.teams) {
+      const deserialized = Team.DeserializeAsClient(team);
+      game.teams.set(deserialized.id, deserialized);  // TODO addTeam
+    }
+    for(let player of serialized.players) {
+      const deserialized = Player.DeserializeAsClient(player);
+      game.players.set(deserialized.id, deserialized);  // TODO addPlayer..
+    }
+    for(let world of serialized.worlds) {
+      const deserialized = World.deserializeAsClient(world);
+      game.addWorld(deserialized);
+    }
+    for(let entity of serialized.entities) {
+      const deserialized = Entity.DeserializeAsClient(entity);
+      game.addEntity(deserialized);
+    }
+    return game;
   }
 }
