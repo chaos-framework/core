@@ -77,19 +77,19 @@ export abstract class Game {
   }
 
   addEntity(e: IEntity): boolean {
-    if (e.id) {
-      this.entities.set(e.id, e);
-      return true;
+    this.entities.set(e.id, e);
+    if(e.world && this.worlds.has(e.world.id)) {
+      e.world.addEntity(e);
     }
-    return false;
+    return true;
   }
 
   removeEntity(e: IEntity): boolean {
-    if (e.id) {
-      this.entities.delete(e.id);
-      return true;
+    this.entities.delete(e.id);
+    if(e.world) {
+      e.world.removeEntity(e);
     }
-    return false;
+    return true;
   }
 
   attach(c: Component): boolean {
@@ -287,7 +287,7 @@ export abstract class Game {
     for(let team of this.teams.values()) {
       o.teams.push(team.serializeForClient());
     }
-    // Gather all worlds visible worlds and serialize.
+    // Gather all visible worlds and serialize with visible baselayer chunks
     for(let kv of viewer.getWorldScopes()) {
       const world = this.worlds.get(kv[0]);
       if(world !== undefined) {
@@ -295,8 +295,8 @@ export abstract class Game {
       }
     }
     // Gather all entities in sight
-    for(let kv of viewer.getEntitiesInSight()) {
-      const entity = this.entities.get(kv[0]);
+    for(let entityId of viewer.getEntitiesInSight()) {
+      const entity = this.entities.get(entityId);
       if(entity !== undefined) {
         o.entities.push(entity.serializeForClient());
       }

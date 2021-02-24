@@ -540,6 +540,7 @@ export namespace Entity {
   export interface SerializedForClient {
     id: string,
     name: string,
+    world?: string,
     tags?: string[],
     active?: boolean,
     omnipotent?: boolean,
@@ -552,8 +553,14 @@ export namespace Entity {
 
   export function DeserializeAsClient(json: Entity.SerializedForClient): IEntity {
     try {
-      const { id, name, tags, active, omnipotent, components } = json;
+      const { id, name, tags, active, omnipotent, components, world: worldId } = json;
       const deserialized = new Entity({ id, name, tags, active, omnipotent });
+      if(worldId !== undefined) {
+        const world = Game.getInstance().getWorld(worldId);
+        if(world !== undefined) {
+          deserialized.world = world;
+        }
+      }
       if(components) {
         for(let c of components) {
           deserialized._attach(Component.DeserializeAsClient(c));

@@ -19,13 +19,14 @@ describe('Game', () => {
     let serialized: Game.SerializedForClient;
     beforeEach(() => {
       p = new Player({ username: 'Viewer'});
-      e = new Entity();
+      game.players.set(p.id, p);
       red = new Team({name: 'Red'});
       blue = new Team({name: 'Blue'});
       red._addPlayer(p);
       room = new Room();
       otherRoom = new Room();
       game.addWorld(room);
+      e = new Entity();
       e._publish(room, room.stageLeft);
       p._ownEntity(e);
       serialized = game.serializeForScope(p);
@@ -50,6 +51,7 @@ describe('Game', () => {
 
     it('Deserializes into a ClientGame correctly', () => {
       const clientGame = Game.DeserializeAsClient(serialized);
+      expect(clientGame.entities.has(e.id)).to.be.true;
     });
   })
 
