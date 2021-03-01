@@ -237,7 +237,7 @@ export abstract class Game {
       viewer.enqueueAction(a, visibility, JSON.stringify(serializedNormally));
       // Publish if appropriate
       if(movingEntity && id &&visibility === VisibilityType.LOSES_VISION && viewer.getEntitiesInSight().has(id)) {
-        viewer.entitiesInSight.delete(id);
+        viewer.entitiesInSight.delete(id);  // TODO woah, super naive
         this.percieveAndEnqueue(new UnpublishEntityAction({ entity: movingEntity }), viewer);
       }
     } else {

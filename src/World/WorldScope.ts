@@ -1,6 +1,6 @@
 import { Game, Vector, World } from "..";
 
-export default class Scope {
+export default class WorldScope {
   active = new Set<string>();
   chunkViewers = new Map<string, Set<string>>();
   size?: Vector;

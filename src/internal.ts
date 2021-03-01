@@ -33,6 +33,7 @@ import { Game } from './Game/Game';
 import { Team } from './Game/Team';
 import { Player } from './Game/Player';
 import { Viewer, ActionQueuer } from './Game/Interfaces';
+import EntityScope from './Game/EntityScope';
 import { World } from './World/World';
 // CLIENT/SERVER
 import { Command, AbilityCommand, isCommand, isAbilityCommand } from './ClientServer/Command';
@@ -42,7 +43,7 @@ import Message, { MessageTypes, CONNECTION, CONNECTION_RESPONSE } from './Client
 // WORLDS
 import Layer, { ILayer } from './World/Layer';
 import Chunk, { IChunk } from './World/Chunk';
-import Scope from './World/Scope';
+import WorldScope from './World/WorldScope';
 import ByteLayer from './World/Layers/ByteLayer';
 import Vector from './Math/Vector';
 
@@ -68,9 +69,9 @@ export {
   RemoveSlotAction,
   ForgetAbilityAction,
   UnpublishEntityAction,
-  World, Layer, Chunk, Scope, IChunk, ILayer, ByteLayer,
+  World, Layer, Chunk, WorldScope as Scope, IChunk, ILayer, ByteLayer,
   ClientGame, ClientWorld,
-  Viewer, ActionQueuer as Broadcaster,
+  Viewer, ActionQueuer as Broadcaster, EntityScope,
   Event, SimpleEvent, ActionQueue, VisibilityType,
   Vector,
   Command, AbilityCommand, isCommand, isAbilityCommand,
