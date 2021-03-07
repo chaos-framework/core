@@ -16,6 +16,7 @@ export class Entity implements Listener, ComponentContainer {
   tags = new Set<string>();
   published = false;
   active = false;
+  perceives = false;  // when assigned to a player/team it contributes to visibility
   omnipotent = false; // listens to every action in the game
 
   properties: Map<string, Property> = new Map<string, Property>();

@@ -3,9 +3,14 @@ import IEntity from './EntityComponent/IEntity';
 import { Entity } from './EntityComponent/Entity';
 import { Component, DisplayComponent, ComponentContainer } from './EntityComponent/Component';
 import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability';
-import Property, { ValueType } from './EntityComponent/Properties/Property'
-import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification'
-import Value, { ModificationMethod } from './EntityComponent/Properties/Value'
+import Property, { ValueType } from './EntityComponent/Properties/Property';
+import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification';
+import Value, { ModificationMethod } from './EntityComponent/Properties/Value';
+import { 
+  Listener,
+  Modifier, Reacter, Sensor, 
+  isModifier, isReacter, isSensor 
+} from './EntityComponent/Interfaces';
 // EVENT AND ACTION IMPORTS
 import { Action, ActionParameters } from './Events/Action';
 import Event from './Events/Event';
@@ -24,10 +29,8 @@ import { RemovePropertyAction } from './Events/Actions/RemovePropertyAction';
 import { RemoveSlotAction } from './Events/Actions/RemoveSlotAction';
 import { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction';
 import { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction';
-import {
-  Modifier, Reacter, Listener,
-  isModifier, isReacter, VisibilityType,
-  SimpleEvent, ActionQueue } from './Events/';
+import { VisibilityType } from './Events/Enums';
+import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD
 import { Game } from './Game/Game';
 import { Team } from './Game/Team';
@@ -53,7 +56,9 @@ export {
   Game, Player, Team,
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
-  Action, ActionParameters, Modifier, Reacter, Listener, isModifier, isReacter,
+  Action, ActionParameters,
+  Modifier, Reacter, Sensor, Listener, 
+  isModifier, isReacter, isSensor,
   AddPropertyAction,
   AddSlotAction,
   AttachComponentAction,
@@ -72,7 +77,7 @@ export {
   World, Layer, Chunk, WorldScope as Scope, IChunk, ILayer, ByteLayer,
   ClientGame, ClientWorld,
   Viewer, ActionQueuer as Broadcaster, EntityScope,
-  Event, SimpleEvent, ActionQueue, VisibilityType,
+  Event, ActionQueue, VisibilityType,
   Vector,
   Command, AbilityCommand, isCommand, isAbilityCommand,
   Message, MessageTypes, CONNECTION, CONNECTION_RESPONSE 

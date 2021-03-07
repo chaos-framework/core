@@ -130,8 +130,16 @@ export abstract class World implements ComponentContainer, Listener {
     }
   }
 
-  getEntitiesWithinRadius(point: Vector, radius: number) {
-    // TODO implement this
+  getEntitiesWithinRadius(origin: Vector, radius: number): IEntity[] {
+    const entities: IEntity[] = []
+    const game = Game.getInstance();
+    for(let id in this.entities) {
+      const e = game.getEntity(id);
+      if(e && origin.withinRadius(e.position, radius)) {
+        entities.push(e);
+      }
+    }
+    return entities;
   }
 
   getEntitiesAtCoordinates(x: number, y: number): IEntity[] {

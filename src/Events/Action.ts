@@ -78,7 +78,7 @@ export abstract class Action {
     let applied = this.apply();
 
     // Queue in the game
-    game.queueForBroadcast(this);
+    game.broadcast(this);
 
     this.teardown();
 

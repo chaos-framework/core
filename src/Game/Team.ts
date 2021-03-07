@@ -1,7 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-import { VisibilityType } from '../Events';
-import { Game, Action, Scope, PublishEntityAction, Player } from '../internal';
+import { Game, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType } from '../internal';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Team implements Viewer, ActionQueuer {
@@ -10,7 +9,7 @@ export class Team implements Viewer, ActionQueuer {
   players = new Set<string>();
   entities = new Set<string>();
   entitiesThrough = new Map<string, Set<string>>();
-  entitiesInSight = new Set<string>();
+  scopesByEntity = new EntityScope();
   scopesByWorld: Map<string, Scope> = new Map<string, Scope>();
 
   constructor({ id = uuid(), name, players = [] }: Team.ConstructorParams) {
@@ -36,8 +35,8 @@ export class Team implements Viewer, ActionQueuer {
     return this.scopesByWorld;
   }
 
-  getEntitiesInSight(): Set<string> {
-    return this.entitiesInSight;
+  getEntityScope(): EntityScope {
+    return this.scopesByEntity;
   }
 
 
@@ -92,7 +91,7 @@ export class Team implements Viewer, ActionQueuer {
     playersThisTeamHasThisEntityThrough.delete(playerId);
     if(playersThisTeamHasThisEntityThrough.size === 0) {
       this.entities.delete(entityId);
-      this.entitiesInSight.delete(entityId);
+      // this.scopesByEntity.loseSightOfEntity(entityId); TODO ahhhh
       this.entitiesThrough.delete(entityId);
       Game.getInstance().getEntity(entityId)!.teams.delete(this.id);
       return true;

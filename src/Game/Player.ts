@@ -1,7 +1,7 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
 import Client from '../ClientServer/Client';
-import { Game, Team, Action, IEntity, Scope } from '../internal';
+import { Game, Team, Action, IEntity, Scope, EntityScope } from '../internal';
 import { VisibilityType } from '../internal';
 import { Viewer, ActionQueuer } from './Interfaces';
 
@@ -13,8 +13,8 @@ export class Player implements Viewer, ActionQueuer {
   teams = new Set<string>();
   admin = false;
   scopesByWorld: Map<string, Scope>;
+  scopesByEntity: EntityScope;
   broadcastQueue = new Queue<any>();
-  entitiesInSight: Set<string>;
 
   constructor({ id = uuid(), username, teams = [], admin = false, client }: Player.ConstructorParams) {
     this.id = id;
@@ -39,10 +39,10 @@ export class Player implements Viewer, ActionQueuer {
     if (game.perceptionGrouping === 'team' && this.teams.size === 1) {
       const team = game.teams.get(this.teams.values().next().value)!;
       this.scopesByWorld = team.scopesByWorld;
-      this.entitiesInSight = team.entitiesInSight;
+      this.scopesByEntity = team.scopesByEntity;
     } else {
       this.scopesByWorld = new Map<string, Scope>();
-      this.entitiesInSight = new Set<string>();
+      this.scopesByEntity = new EntityScope();
     }
     game.players.set(this.id, this);
     // If this player is not part of any teams indicate so in the game
@@ -55,8 +55,8 @@ export class Player implements Viewer, ActionQueuer {
     return this.scopesByWorld;
   }
 
-  getEntitiesInSight(): Set<string> {
-    return this.entitiesInSight;
+  getEntityScope(): EntityScope {
+    return this.scopesByEntity;
   }
 
   enqueueAction(a: Action, visibility: VisibilityType, serialized: string) {
@@ -88,7 +88,7 @@ export class Player implements Viewer, ActionQueuer {
         this.scopesByWorld.set(entity.world.id, scope);
       }
     }
-    this.entitiesInSight.add(entity.id);  // TODO this needs to happen in perception...?
+    this.scopesByEntity.gainSightOfEntity(entity.id);  // TODO this needs to happen in perception...?
     return true;
   }
 

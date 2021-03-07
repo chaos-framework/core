@@ -86,31 +86,31 @@ describe('Game', () => {
     
     it('Should return VISIBLE for team visibility if the entity is on the team', () => {
       const a = new RelativeMoveAction({caster: e, target: e, amount });
-      expect(game.getVisibilityToTeam(a, team)).to.equal(VisibilityType.VISIBLE);
+      expect(game.getActionVisibilityToTeam(a, team)).to.equal(VisibilityType.VISIBLE);
     });
 
     it('Should return VISIBLE for player visibility if the entity is owned by the player', () => {
       const a = new RelativeMoveAction({caster: e, target: e, amount });
-      expect(game.getVisibilityToPlayer(a, player)).to.equal(VisibilityType.VISIBLE);
+      expect(game.getActionVisibilityToPlayer(a, player)).to.equal(VisibilityType.VISIBLE);
     });
 
     it('Should return VISIBLE for team visibility if an unowned entity is in scope', () => {
       const newEntity = new Entity({ name: "Unowned" });
       newEntity._publish(world, world.stageRight);
       const a = new RelativeMoveAction({caster: newEntity, target: newEntity, amount });
-      expect(game.getVisibilityToTeam(a, team)).to.equal(VisibilityType.VISIBLE);
+      expect(game.getActionVisibilityToTeam(a, team)).to.equal(VisibilityType.VISIBLE);
     });
 
     it('Should return VISIBLE for player visibility if an unowned entity is in scope', () => {
       const newEntity = new Entity({ name: "Unowned" });
       newEntity._publish(world, world.stageRight);
       const a = new RelativeMoveAction({caster: newEntity, target: newEntity, amount });
-      expect(game.getVisibilityToPlayer(a, player)).to.equal(VisibilityType.VISIBLE);
+      expect(game.getActionVisibilityToPlayer(a, player)).to.equal(VisibilityType.VISIBLE);
     });
 
     it('Should return VISIBLE for entity visibility no matter what', () => {
       const a = new RelativeMoveAction({caster: e, target: e, amount });
-      expect(game.getVisibilityToEntity(a, e)).to.equal(VisibilityType.VISIBLE);
+      expect(game.getActionVisibilityToEntity(a, e)).to.equal(VisibilityType.VISIBLE);
     });
   });
 });

@@ -1,3 +1,4 @@
+import { SSL_OP_NO_QUERY_MTU } from 'constants';
 import { clamp, isInteger } from 'lodash';
 import { toInteger } from 'lodash';
 
@@ -26,6 +27,12 @@ export default class Vector {
 
   add(other: Vector): Vector {
     return new Vector(this.x + other.x, this.y + other.y);
+  }
+
+  // Check if another vector is within (less than OR EQUAL to) a circular range
+  withinRadius(other: Vector, radius: number): boolean {
+    const magnitude = 0.0 + Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y,2));
+    return magnitude <= radius;
   }
 
   copy(): Vector {

@@ -63,14 +63,14 @@ describe('Player', () => {
       game.perceptionGrouping = 'player'; // default
       const player = new Player({ username: 'Test', teams: [team.id] });
       expect(player.scopesByWorld != team.scopesByWorld).to.be.true;
-      expect(player.entitiesInSight != team.entitiesInSight).to.be.true;
+      expect(player.scopesByEntity != team.scopesByEntity).to.be.true;
     });
 
     it('Shares scope and entities in sight with a team if visibility grouping is at team level', () => {
       game.perceptionGrouping = 'team';
       const player = new Player({ username: 'Test', teams: [team.id] });
       expect(player.scopesByWorld === team.scopesByWorld).to.be.true;
-      expect(player.entitiesInSight === team.entitiesInSight).to.be.true;
+      expect(player.scopesByEntity === team.scopesByEntity).to.be.true;
     });
 
     it('Cannot join more than one team if visibility grouping is at team level', () => {

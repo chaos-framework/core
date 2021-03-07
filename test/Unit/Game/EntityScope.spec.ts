@@ -3,7 +3,7 @@ import 'mocha';
 
 import { EntityScope } from '../../../src/internal';
 
-describe.only('EntityScope', () => {
+describe('EntityScope', () => {
   let scope: EntityScope;
   beforeEach(() => {
     scope = new EntityScope();

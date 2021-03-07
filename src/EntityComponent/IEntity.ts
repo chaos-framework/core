@@ -7,6 +7,7 @@ export default interface IEntity {
   omnipotent: boolean;
   tags: Set<string>;
   active: boolean;
+  perceives: boolean;
   properties: Map<string, Property>;
   components: Component[];
   modifiers: Modifier[];

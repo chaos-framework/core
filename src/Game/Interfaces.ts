@@ -1,8 +1,8 @@
-import { Action, Scope, VisibilityType } from '../internal';
+import { Action, EntityScope, Scope, VisibilityType } from '../internal';
 
 export interface Viewer {
   getWorldScopes(): Map<string, Scope>;
-  getEntitiesInSight(): Set<string>;
+  getEntityScope(): EntityScope;
 }
 
 export interface ActionQueuer {
