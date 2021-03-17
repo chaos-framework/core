@@ -1,10 +1,8 @@
 import { IEntity, Action } from "../internal";
 
 // CORE INTERFACES
-export interface Listener {
-  modify(a: Action): void;
-  react(a: Action): void;
-}
+export type ComponentType = 'Sensor' | 'Roller' | 'Modifier' | 'Reacter';
+
 export interface Modifier {
   modify(a: Action): void; // TODO determine return type..
 }
@@ -34,19 +32,12 @@ export function isSensor(o: any): o is Sensor {
 
 // SCOPE
 
-export enum Scope {
-  Local,
-  Nearby, // default for everything
-  World,
-  Player,
-  Team,
-  Game
-}
+export type Scope = 'entity' | 'world' | 'player' | 'team' | 'game';
 
 export interface ComponentScope {
-  sensor: Scope,
+  sensor?: Scope,
   // roller
-  modifier: Scope,
-  reacter: Scope,
+  modifier?: Scope,
+  reacter?: Scope,
   // perceiver?
 }

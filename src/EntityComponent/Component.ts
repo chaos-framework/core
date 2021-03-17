@@ -1,5 +1,7 @@
+import { fromPairs } from 'lodash';
 import { v4 as uuid } from 'uuid';
-import Modification from "./Properties/Modification";
+//import { Modification } from "./Properties/Modification";
+import { Scope, ComponentScope } from '../internal'
 
 export abstract class Component {
   id: string;
@@ -7,11 +9,12 @@ export abstract class Component {
   parent?: ComponentContainer;
   name: string = '';
   tags = new Set<string>(); // usually frontend stuff, like filtering for traits vs statuses, etc
-  scope: "Entity" | "World" | "Game" = "Entity";
   public: boolean = false;    // can other entities see this component? TODO: needed?
   broadcast: boolean = false; // do we tell client about this component at all?
   unique: boolean = true;     // whether or not more of one of this type of class can be attached to an entity
-  propertyModifications: Modification[] = [];
+  //propertyModifications: Modification[] = [];
+
+  scope: ComponentScope = {};
 
   constructor({ id = uuid(), name = 'Unnamed Component', tags }: Component.ConstructorParams = {}) {
     this.id = id;
@@ -39,7 +42,7 @@ export abstract class Component {
   }
 
   destroy(): boolean {
-    this.propertyModifications.map(mod => { mod.detach(); } );
+    // this.propertyModifications.map(mod => { mod.detach(); } );
     return true;
   }
 

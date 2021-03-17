@@ -6,10 +6,11 @@ import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Abilit
 import Property, { ValueType } from './EntityComponent/Properties/Property';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification';
 import Value, { ModificationMethod } from './EntityComponent/Properties/Value';
-import { 
-  Listener,
+export { 
+  ComponentType,
   Modifier, Reacter, Sensor, 
-  isModifier, isReacter, isSensor 
+  isModifier, isReacter, isSensor,
+  Scope, ComponentScope
 } from './EntityComponent/Interfaces';
 // EVENT AND ACTION IMPORTS
 import { Action, ActionParameters } from './Events/Action';
@@ -57,8 +58,6 @@ export {
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters,
-  Modifier, Reacter, Sensor, Listener, 
-  isModifier, isReacter, isSensor,
   AddPropertyAction,
   AddSlotAction,
   AttachComponentAction,
@@ -74,7 +73,7 @@ export {
   RemoveSlotAction,
   ForgetAbilityAction,
   UnpublishEntityAction,
-  World, Layer, Chunk, WorldScope as Scope, IChunk, ILayer, ByteLayer,
+  World, Layer, Chunk, WorldScope, IChunk, ILayer, ByteLayer,
   ClientGame, ClientWorld,
   Viewer, ActionQueuer as Broadcaster, EntityScope,
   Event, ActionQueue, VisibilityType,
