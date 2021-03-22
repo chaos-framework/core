@@ -1,9 +1,9 @@
-import { Action, Ability, ActionParameters, IEntity, Component } from '../../internal'; 
+import { Action, Ability, ActionParameters, Entity, Component } from '../../internal'; 
 
 export class ForgetAbilityAction extends Action {
   ability: Ability;
-  target: IEntity;
-  grantedBy?: IEntity | Component;
+  target: Entity;
+  grantedBy?: Entity | Component;
 
   constructor({caster, target, using, grantedBy, ability, tags = []}: ForgetAbilityAction.Params) {
     super({caster, using, tags});
@@ -21,10 +21,10 @@ export class ForgetAbilityAction extends Action {
 export namespace ForgetAbilityAction {
   export interface EntityParams extends ActionParameters {
     ability: Ability;
-    grantedBy?: IEntity | Component;
+    grantedBy?: Entity | Component;
   }
   
   export interface Params extends EntityParams {
-    target: IEntity,
+    target: Entity,
   }
 }

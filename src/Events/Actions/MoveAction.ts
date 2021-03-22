@@ -1,8 +1,8 @@
 import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, IEntity, Game, Vector } from '../../internal';
+import { Action, ActionParameters, Entity, Game, Vector } from '../../internal';
 
 export class MoveAction extends Action {
-  target: IEntity;
+  target: Entity;
   from: Vector;
   to: Vector;
   visibilityChangingAction = true;
@@ -84,7 +84,7 @@ export class MoveAction extends Action {
 
 export namespace MoveAction {
   export interface Params extends EntityParams {
-    target: IEntity;
+    target: Entity;
   }
 
   export interface EntityParams extends ActionParameters {

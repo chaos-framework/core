@@ -1,8 +1,8 @@
 import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, IEntity, Game, Scope, Vector, World } from '../../internal';
+import { Action, ActionParameters, Entity, Game, Scope, Vector, World } from '../../internal';
 
 export class RelativeMoveAction extends Action {
-  target: IEntity;
+  target: Entity;
   from: Vector;
   amount: Vector;
   finalPosition?: Vector;
@@ -68,7 +68,7 @@ export class RelativeMoveAction extends Action {
 
 export namespace RelativeMoveAction {
   export interface Params extends EntityParams {
-    target: IEntity;
+    target: Entity;
   }
   
   export interface EntityParams extends ActionParameters {

@@ -1,5 +1,5 @@
 import { 
-  Action, ActionParameters, IEntity, ValueType, Value, 
+  Action, ActionParameters, Entity, ValueType, Value, 
   ModificationMethod, Modification, AbsoluteModification, AdjustmentModification, MultiplierModification,
 } from '../../internal'; 
 
@@ -67,7 +67,7 @@ export namespace ModifyPropertyAction {
   }
   
   export interface Params extends ValueParams {
-    target: IEntity,
+    target: Entity,
     property: string,
     value?: ValueType,
   }

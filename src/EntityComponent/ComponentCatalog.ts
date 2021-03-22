@@ -1,3 +1,4 @@
+import { has } from 'lodash';
 import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity } from '../internal';
 
 interface Subscription {
@@ -212,6 +213,16 @@ export class ComponentCatalog {
 
   react(a: Action) {
 
+  }
+
+
+  // MISC
+  is(componentName: string): Component | undefined {
+    return this.has(componentName);
+  }
+
+  has(componentName: string): Component | undefined {
+    return Array.from(this.all.values()).find(c => c.name === componentName);
   }
 
 }

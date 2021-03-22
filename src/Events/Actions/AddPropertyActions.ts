@@ -1,9 +1,9 @@
 import { 
-  Action, ActionParameters, IEntity
+  Action, ActionParameters, Entity
 } from '../../internal'; 
 
 export class AddPropertyAction extends Action {
-  target: IEntity;
+  target: Entity;
   name: string;
   current: number;
   min?: number;
@@ -32,6 +32,6 @@ export namespace AddPropertyAction {
   }
   
   export interface Params extends EntityParams {
-    target: IEntity
+    target: Entity
   }
 }

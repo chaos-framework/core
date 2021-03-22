@@ -7,7 +7,7 @@ import {
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, IEntity, DisplayComponent, Scope
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Entity, DisplayComponent, Scope
 } from '../internal';
 import { ComponentCatalog } from './ComponentCatalog';
 
@@ -106,34 +106,22 @@ export class Entity implements Listener, ComponentContainer {
     return this.tags.has(tag);
   }
 
-  is(component: string | Component): Component | undefined  {
-    return this.has(component);
+  is(componentName: string): Component | undefined  {
+    return this.components.is(componentName);
   }
 
-  has(component: string | Component): Component | undefined {
-    if (component instanceof String) {
-      return this.components.find(c => c.constructor === component.constructor);
-    }
-    else {
-      return this.components.find(c => c.name === component);
-    }
+  has(componentName: string): Component | undefined {
+    return this.components.has(componentName);
   }
+
+  // TODO "all" method to get all components of a type
 
   can(ability: string): boolean {
     return this.abilities.has(ability);
   }
 
-  detach(component: Component): boolean {
-    const i = this.components.indexOf(component);
-    if(i >= 0) {
-      this.components.splice(i, 1);
-      // TODO remove listeners on Entity and others
-      return true;
-    }
-    else {
-      // TODO handle error
-      return false;
-    }
+  detach(component: Component) {
+    return this.components.removeComponent(component);
   }
 
   // Cast ability by name and optional lookup for specific version based on how we're casting it
@@ -154,30 +142,10 @@ export class Entity implements Listener, ComponentContainer {
 
   // Connect components which may have higher-order listeners upon publishing
   connectToWorld() {
-    if(!this.isPublished() || ! this.world) {
+    if(!this.isPublished() || !this.world) {
       return;
     }
-    const components = this.components;  // TODO also grab stored / equipped items and their listeners?
-    for(let i = 0; i < components.length; i++) {
-      const component = components[i];
-      if(component.scope === "World") {
-        if(isModifier(component)) {
-          this.world.modifiers.push(component);
-          const index = this.modifiers.indexOf(component);
-          if(index != undefined) {
-            this.modifiers.splice(this.modifiers.indexOf(component), 1);
-          }
-        }
-        if(isReacter(component)) {
-          this.world.reacters.push(component);
-          const index = this.reacters.indexOf(component);
-          if(index != undefined) {
-            this.reacters.splice(this.reacters.indexOf(component), 1);
-          }
-        }
-      }
-    }
-    // Also add this player tp any owning player(s) or team(s) scope for this world
+    // Add this player tp any owning player(s) or team(s) scope for this world
     const game = Game.getInstance();
     const { perceptionGrouping } = game;
     if (perceptionGrouping === 'team') {
@@ -203,25 +171,7 @@ export class Entity implements Listener, ComponentContainer {
     if(!this.isPublished() || ! this.world) {
       return;
     }
-    const components = this.components;  // TODO also grab stored / equipped items and their listeners?
-    for(let i = 0; i < components.length; i++) {
-      const component = components[i];
-      if(component.scope === "World") {
-        if(isModifier(component)) {
-          const index = this.world.modifiers.indexOf(component);
-          if(index){ 
-            this.world.modifiers.splice(index, 1);
-          }
-        }
-        if(isReacter(component)) {
-          const index = this.world.reacters.indexOf(component);
-          if(index){ 
-            this.world.reacters.splice(index, 1);
-          }
-        }
-      }  
-    }
-    // Also remove this player from owning player(s) or team(s) scope for this world
+    // Remove this player from owning player(s) or team(s) scope for this world
     const game = Game.getInstance();
     const { perceptionGrouping } = game;
     if (perceptionGrouping === 'team') {
@@ -287,16 +237,7 @@ export class Entity implements Listener, ComponentContainer {
   };
 
   _attach(component: Component): boolean {
-    this.components.push(component); // TODO check for unique flag, return false if already attached
-    if(!(component instanceof DisplayComponent)) {  // clients should never attach listeners
-      if(isModifier(component)) {
-        this.modifiers.push(component);
-      }
-      if(isReacter(component)) {
-        this.reacters.push(component);
-      }
-    }
-    component.attach(this);
+    this.components.addComponent(component); // TODO check for unique flag, return false if already attached
     return true;
   }
 
@@ -534,11 +475,11 @@ export namespace Entity {
     components?: Component.SerializedForClient[]
   }
 
-  export function Deserialize(json: Entity.Serialized): IEntity {
+  export function Deserialize(json: Entity.Serialized): Entity {
     throw new Error();
   }
 
-  export function DeserializeAsClient(json: Entity.SerializedForClient): IEntity {
+  export function DeserializeAsClient(json: Entity.SerializedForClient): Entity {
     try {
       const { id, name, tags, active, omnipotent, components, world: worldId } = json;
       const deserialized = new Entity({ id, name, tags, active, omnipotent });

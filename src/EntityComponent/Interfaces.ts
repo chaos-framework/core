@@ -1,4 +1,4 @@
-import { IEntity, Action } from "../internal";
+import { Entity, Action } from "../internal";
 
 // CORE INTERFACES
 export type ComponentType = 'sensor' | 'roller' | 'modifier' | 'reacter';
@@ -12,7 +12,7 @@ export interface Reacter {
 }
 
 export interface Sensor {
-  senseEntity(e: IEntity, a?: Action): object | undefined;
+  senseEntity(e: Entity, a?: Action): object | undefined;
   senseAction(a: Action): object | undefined;
 }
 

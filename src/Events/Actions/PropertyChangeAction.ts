@@ -1,5 +1,5 @@
 import { 
-  Action, IEntity, Component, Value, ActionParameters
+  Action, Entity, Component, Value, ActionParameters
 } from '../../internal';
 
 export class PropertyChangeAction extends Action {
@@ -8,8 +8,8 @@ export class PropertyChangeAction extends Action {
   value: 'current' | 'min' | 'max';
   amount: number;
   finalAmount: number;
-  adjustments: { amount: number, by?: IEntity | Component }[] = [];
-  multipliers: { amount: number, by?: IEntity | Component }[] = [];
+  adjustments: { amount: number, by?: Entity | Component }[] = [];
+  multipliers: { amount: number, by?: Entity | Component }[] = [];
 
   constructor({ caster, target, property, type = 'adjust', value = 'current', amount, using, tags }: PropertyChangeAction.Params) {
     super({caster, using, tags});
@@ -53,7 +53,7 @@ export class PropertyChangeAction extends Action {
     return this.finalAmount;
   }
 
-  adjust(amount: number, by?: IEntity | Component, breadcrumbs?: string[], unique?: boolean) {
+  adjust(amount: number, by?: Entity | Component, breadcrumbs?: string[], unique?: boolean) {
     // TODO this logic should be lifted up into Action itself
     if(breadcrumbs) {
       // If unique, make sure we haven't already applied an adjustment with any of these tags
@@ -65,7 +65,7 @@ export class PropertyChangeAction extends Action {
     this.adjustments.push({ amount, by });
   }
 
-  multiply(amount: number, by?: IEntity | Component, breadcrumbs?: string[], unique?: boolean) {
+  multiply(amount: number, by?: Entity | Component, breadcrumbs?: string[], unique?: boolean) {
     if(breadcrumbs) {
       // If unique, make sure we haven't already applied an adjustment with any of these tags
       if(unique && breadcrumbs.some(r => this.breadcrumbs.has(r))) {
@@ -104,7 +104,7 @@ export namespace PropertyChangeAction {
   }	
 
   export interface Params extends ValueParams {	
-    target: IEntity,	
+    target: Entity,	
     property: string,	
     value?: 'current' | 'min' | 'max',	
     type?: 'adjust' | 'set'	

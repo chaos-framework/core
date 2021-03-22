@@ -1,7 +1,7 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
 import Client from '../ClientServer/Client';
-import { Game, Team, Action, IEntity, Scope, EntityScope } from '../internal';
+import { Game, Team, Action, Entity, WorldScope, EntityScope } from '../internal';
 import { VisibilityType } from '../internal';
 import { Viewer, ActionQueuer } from './Interfaces';
 
@@ -12,7 +12,7 @@ export class Player implements Viewer, ActionQueuer {
   entities = new Set<string>();
   teams = new Set<string>();
   admin = false;
-  scopesByWorld: Map<string, Scope>;
+  scopesByWorld: Map<string, WorldScope>;
   scopesByEntity: EntityScope;
   broadcastQueue = new Queue<any>();
 
@@ -51,7 +51,7 @@ export class Player implements Viewer, ActionQueuer {
     }
   }
 
-  getWorldScopes(): Map<string, Scope> {
+  getWorldScopes(): Map<string, WorldScope> {
     return this.scopesByWorld;
   }
 
@@ -65,7 +65,7 @@ export class Player implements Viewer, ActionQueuer {
 
   disconnect() { }
 
-  _ownEntity(entity: IEntity): boolean {
+  _ownEntity(entity: Entity): boolean {
     this.entities.add(entity.id);
     entity.owners.add(this.id);
     if (this.teams.size > 0) {
@@ -92,7 +92,7 @@ export class Player implements Viewer, ActionQueuer {
     return true;
   }
 
-  _disownEntity(entity: IEntity): boolean {
+  _disownEntity(entity: Entity): boolean {
     entity.owners.delete(this.id);
     if (this.teams.size > 0) {
       const game = Game.getInstance();

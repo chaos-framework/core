@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-import { Game, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType } from '../internal';
+import { Game, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType, WorldScope } from '../internal';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Team implements Viewer, ActionQueuer {
@@ -10,7 +10,7 @@ export class Team implements Viewer, ActionQueuer {
   entities = new Set<string>();
   entitiesThrough = new Map<string, Set<string>>();
   scopesByEntity = new EntityScope();
-  scopesByWorld: Map<string, Scope> = new Map<string, Scope>();
+  scopesByWorld: Map<string, WorldScope> = new Map<string, WorldScope>();
 
   constructor({ id = uuid(), name, players = [] }: Team.ConstructorParams) {
     this.id = id;
@@ -31,7 +31,7 @@ export class Team implements Viewer, ActionQueuer {
     }
   }
 
-  getWorldScopes(): Map<string, Scope> {
+  getWorldScopes(): Map<string, WorldScope> {
     return this.scopesByWorld;
   }
 

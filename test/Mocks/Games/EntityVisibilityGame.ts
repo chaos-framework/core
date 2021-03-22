@@ -1,8 +1,8 @@
-import { Action, IEntity, Game, Player, Team, VisibilityType, CONNECTION_RESPONSE } from '../../../src/internal';
+import { Action, Entity, Game, Player, Team, VisibilityType, CONNECTION_RESPONSE } from '../../../src/internal';
 
 // Game that only lets uninvolved entities see actions tagged 'visible' 
 export default class EntityVisibilityGame extends Game {
-  name = "IEntity Visibility Game";
+  name = "Entity Visibility Game";
 
   initialize() {
   }
@@ -22,7 +22,7 @@ export default class EntityVisibilityGame extends Game {
     return VisibilityType.DEFER;
   }
 
-  getVisibilityToEntity(a: Action, e: IEntity): VisibilityType {
+  getVisibilityToEntity(a: Action, e: Entity): VisibilityType {
     if(a.caster === e || a.target === e) {
       return VisibilityType.VISIBLE;
     }

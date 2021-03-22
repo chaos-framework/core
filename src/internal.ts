@@ -1,5 +1,5 @@
 // ENTITY AND COMPONENT
-import IEntity from './EntityComponent/IEntity';
+import Entity from './EntityComponent/Entity';
 import { Entity } from './EntityComponent/Entity';
 import { Component, DisplayComponent } from './EntityComponent/Component';
 export { ComponentContainer } from './EntityComponent/ComponentContainer';
@@ -54,7 +54,7 @@ import ByteLayer from './World/Layers/ByteLayer';
 import Vector from './Math/Vector';
 
 export {
-  IEntity, Entity, Component, DisplayComponent,
+  Entity, Entity, Component, DisplayComponent,
   Ability, Property, Value, ValueType,
   Game, Player, Team,
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,

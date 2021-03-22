@@ -1,11 +1,11 @@
 import { Viewer } from '../Game/Interfaces';
-import { Game, IEntity, Component, Listener, Scope, Player, Team } from '../internal';
+import { Game, Entity, Component, Listener, Scope, Player, Team } from '../internal';
 
 export abstract class Action {
   // TODO implement player: Player;
-  caster?: IEntity;
-  target?: IEntity;
-  using?: IEntity | Component;
+  caster?: Entity;
+  target?: Entity;
+  using?: Entity | Component;
   tags: Set<string> = new Set<string>();
   breadcrumbs: Set<string> = new Set<string>();
   public: boolean = false;  // whether or not nearby entities (who are not omnipotent) can modify/react
@@ -90,15 +90,15 @@ export abstract class Action {
     return applied;
   }
 
-  permit({ priority = 0, by, using, message }: { priority?: number, by?: IEntity | Component, using?: IEntity | Component, message?: string } = {}) {
+  permit({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
     this.addPermission(true, { priority, by, using, message });
   }
 
-  deny({ priority = 0, by, using, message }: { priority?: number, by?: IEntity | Component, using?: IEntity | Component, message?: string } = {}) {
+  deny({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
     this.addPermission(false, { priority, by, using, message });
   }
 
-  addPermission(permitted: boolean, { priority = 0, by, using, message }: { priority?: number, by?: IEntity | Component, using?: IEntity | Component, message?: string } = {}) {
+  addPermission(permitted: boolean, { priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
     const previous = this.permissions.get(priority);
     if (previous === undefined) {
       // Add directly if this has never been added
@@ -164,9 +164,9 @@ export abstract class Action {
 
   static deserializeCommonFields(json: Action.Serialized): Action.Deserialized {
     const game = Game.getInstance();
-    const caster: IEntity | undefined = json.caster ? game.getEntity(json.caster) : undefined;
-    const target: IEntity | undefined = json.target ? game.getEntity(json.target) : undefined;
-    const using: IEntity | undefined = json.using ? game.getEntity(json.using) : undefined;
+    const caster: Entity | undefined = json.caster ? game.getEntity(json.caster) : undefined;
+    const target: Entity | undefined = json.target ? game.getEntity(json.target) : undefined;
+    const using: Entity | undefined = json.using ? game.getEntity(json.using) : undefined;
     const tags = json.tags;
     const permitted = json.permitted;
     return { caster, target, using, tags, permitted };
@@ -188,7 +188,7 @@ export abstract class Action {
   };
 
   // Get the relevant entity, by default the target but some actions apply to an entity that is not the target
-  getEntity(): IEntity | undefined {
+  getEntity(): Entity | undefined {
     return this.target;
   }
 
@@ -219,29 +219,29 @@ export namespace Action {
   }
 
   export interface Deserialized {
-    caster?: IEntity,
-    target?: IEntity,
-    using?: IEntity,
+    caster?: Entity,
+    target?: Entity,
+    using?: Entity,
     tags?: string[],
     permitted: boolean
   }
 }
 
 export interface ActionParameters {
-  caster?: IEntity,
-  using?: IEntity | Component,
+  caster?: Entity,
+  using?: Entity | Component,
   tags?: string[]
 }
 
 export class Permission {
   permitted: boolean;
-  by?: IEntity | Component;
-  using?: IEntity | Component;
+  by?: Entity | Component;
+  using?: Entity | Component;
   message?: string;
 
   constructor(permitted: boolean,
     { by, using, message }:
-      { by?: IEntity | Component, using?: IEntity | Component, message?: string } = {}) {
+      { by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
     this.permitted = permitted;
     this.by = by;
     this.using = using;

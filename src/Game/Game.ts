@@ -1,5 +1,5 @@
 import {
-  IEntity,
+  Entity,
   Action, World, Component,
   Modifier, Reacter, isModifier, isReacter,
   Player, Team, ActionQueue, Entity, PublishEntityAction, Vector, UnpublishEntityAction, Command, ClientGame
@@ -13,7 +13,7 @@ export abstract class Game {
   name: string = "New Game";
 
   worlds: Map<string, World> = new Map<string, World>();
-  entities: Map<string, IEntity> = new Map<string, IEntity>();
+  entities: Map<string, Entity> = new Map<string, Entity>();
 
   teams: Map<string, Team> = new Map<string, Team>();
   teamsByName: Map<string, Team> = new Map<string, Team>();
@@ -72,11 +72,11 @@ export abstract class Game {
     return this.worlds.get(id);
   }
 
-  getEntity = (id: string): IEntity | undefined => {
+  getEntity = (id: string): Entity | undefined => {
     return this.entities.get(id);
   }
 
-  addEntity(e: IEntity): boolean {
+  addEntity(e: Entity): boolean {
     this.entities.set(e.id, e);
     if(e.world && this.worlds.has(e.world.id)) {
       e.world.addEntity(e);
@@ -84,7 +84,7 @@ export abstract class Game {
     return true;
   }
 
-  removeEntity(e: IEntity): boolean {
+  removeEntity(e: Entity): boolean {
     this.entities.delete(e.id);
     if(e.world) {
       e.world.removeEntity(e);
@@ -206,7 +206,7 @@ export abstract class Game {
   // ACTION VISIBILITY
 
   determineActionVisibilityToTeam(action: Action, team: Team) {
-    // Let the team visibility function determine if it passes, fails, or defers the visibility check to each member IEntity
+    // Let the team visibility function determine if it passes, fails, or defers the visibility check to each member Entity
     let visibility: VisibilityType = this.checkActionVisibilityToTeam(action, team);
     // Return result if not deferring
     if (visibility !== VisibilityType.DEFER) {
@@ -284,7 +284,7 @@ export abstract class Game {
     return a.isInPlayerOrTeamScope(p) ? VisibilityType.VISIBLE : VisibilityType.NOT_VISIBLE;
   }
 
-  checkActionVisibilityToEntity(a: Action, e: IEntity): VisibilityType {
+  checkActionVisibilityToEntity(a: Action, e: Entity): VisibilityType {
     if(a.caster === e || a.target === e) {
       return VisibilityType.VISIBLE;
     }
@@ -300,7 +300,7 @@ export abstract class Game {
     return p.entities.has(e.id) ? VisibilityType.VISIBLE : VisibilityType.VISIBLE;
   }
 
-  checkEntityVisibilityToEntity(e: Entity, viewer: IEntity): VisibilityType {
+  checkEntityVisibilityToEntity(e: Entity, viewer: Entity): VisibilityType {
     if(e === viewer) {
       return VisibilityType.VISIBLE;
     }

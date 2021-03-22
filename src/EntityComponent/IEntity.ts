@@ -1,6 +1,6 @@
 import { Component, Property, Event, Modifier, Reacter, Grant, Vector, Action, OptionalCastParameters, PublishEntityAction, AttachComponentAction, AddPropertyAction, RemovePropertyAction, Ability, ForgetAbilityAction, LearnAbilityAction, EquipItemAction, AddSlotAction, ChangeWorldAction, MoveAction, RelativeMoveAction, RemoveSlotAction, World, Entity, ComponentCatalog } from "../internal";
 
-export default interface IEntity {
+export default interface Entity {
   id: string;
   name: string;
   published: boolean;
@@ -15,7 +15,7 @@ export default interface IEntity {
   abilities: Map<string, Grant[]>;
   owners: Set<string>;
   teams: Set<string>;
-  slots: Map<string, IEntity | undefined>;
+  slots: Map<string, Entity | undefined>;
   world?: World;
   position: Vector;
   map: any;
@@ -49,11 +49,11 @@ export default interface IEntity {
   removeProperty({caster, using, name, tags}: RemovePropertyAction.EntityParams, force?: boolean): RemovePropertyAction;
   _removeProperty(name: string, p?: Property): boolean;
   learn({caster, using, ability, tags}: LearnAbilityAction.EntityParams, force?: boolean): LearnAbilityAction;
-  _learn(ability: Ability, grantedBy?: IEntity | Component, using?: IEntity | Component): boolean;
+  _learn(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean;
   forget({caster, using, ability, tags}: ForgetAbilityAction.Params, force?: boolean): ForgetAbilityAction;
-  _forget(ability: Ability, grantedBy?: IEntity | Component, using?: IEntity | Component): boolean;
+  _forget(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean;
   equip({caster, slot, item, tags}: EquipItemAction.EntityParams, force?: boolean): EquipItemAction;
-  _equip(item: IEntity, slotName: string): boolean;
+  _equip(item: Entity, slotName: string): boolean;
   addSlot({caster, name, tags}: AddSlotAction.EntityParams, force?: boolean): AddSlotAction;
   _addSlot(name: string): boolean;
   removeSlot({caster, name, tags}: RemoveSlotAction.Params, force?: boolean): RemoveSlotAction

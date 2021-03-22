@@ -1,7 +1,7 @@
-import { Action, EntityScope, Scope, VisibilityType } from '../internal';
+import { Action, EntityScope, WorldScope, VisibilityType } from '../internal';
 
 export interface Viewer {
-  getWorldScopes(): Map<string, Scope>;
+  getWorldScopes(): Map<string, WorldScope>;
   getEntityScope(): EntityScope;
 }
 

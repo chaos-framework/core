@@ -1,8 +1,8 @@
-import { IEntity } from "../internal";
+import { Entity } from "../internal";
 
 export default class Inventory {
   size: number = 0;
-  items: (IEntity | undefined)[] = [];
+  items: (Entity | undefined)[] = [];
 
   constuctor(size: number = 0) {
     this.size = size;

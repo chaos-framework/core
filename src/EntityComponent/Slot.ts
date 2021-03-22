@@ -1,8 +1,8 @@
-import { IEntity } from '../internal';
+import { Entity } from '../internal';
 
 export default class Slot {
   size: number;
-  items: IEntity[] = [];
+  items: Entity[] = [];
 
   constructor(size: number) {
     this.size = size;
