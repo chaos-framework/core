@@ -11,7 +11,7 @@ import {
 } from '../internal';
 import { ComponentCatalog } from './ComponentCatalog';
 
-export class Entity implements IEntity, Listener, ComponentContainer {
+export class Entity implements Listener, ComponentContainer {
   id: string;
   name: string;
   tags = new Set<string>();
@@ -32,7 +32,7 @@ export class Entity implements IEntity, Listener, ComponentContainer {
   teams = new Set<string>(); // teams that owning players belong to
 
   // Places for items to be equipped
-  slots: Map<string, IEntity | undefined> = new Map<string, Entity | undefined>();
+  slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
   world?: World;
@@ -85,35 +85,9 @@ export class Entity implements IEntity, Listener, ComponentContainer {
   modify(a: Action) {
     this.modifiers.map(r => r.modify(a));
   }
-
-  _modify(a: Action) {
-    this.components.map(c => { 
-      if(isModifier(c)) { 
-        c.modify(a) 
-      }
-    });
-    for(let item of this.slots) {
-      if(item instanceof Entity) {
-        item._modify(a);
-      }
-    }
-  }
   
   react(a: Action) {
    this.reacters.map(r => r.react(a));
-  }
-  
-  _react(a: Action) {
-    this.components.map(c => { 
-      if(isReacter(c)) { 
-        c.react(a) 
-      }
-    });
-    for(let item of this.slots) {
-      if(item instanceof Entity) {
-        item._react(a);
-      }
-    }
   }
 
   getProperty(k: string): Property | undefined {

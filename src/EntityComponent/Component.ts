@@ -1,7 +1,6 @@
 import { fromPairs } from 'lodash';
 import { v4 as uuid } from 'uuid';
-//import { Modification } from "./Properties/Modification";
-import { Scope, ComponentScope } from '../internal'
+import { ComponentScope, ComponentContainer } from '../internal'
 
 export abstract class Component {
   id: string;

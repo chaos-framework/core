@@ -1,4 +1,4 @@
-import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World } from '../internal';
+import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity } from '../internal';
 
 interface Subscription {
   component: Component,
@@ -140,22 +140,34 @@ export class ComponentCatalog {
     if(isSensor(c)) {
       this.byType.sensor.set(id, c);
       const scope = c.scope.sensor;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-        this.subscribeToOther(c, 'sensor', scope);
+      if(scope !== undefined) {
+        if(validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+          this.subscribeToOther(c, 'sensor', scope);
+        }
+      } else {
+        this.byType.sensor.set(id, c);
       }
     }
     if(isModifier(c)) {
       this.byType.modifier.set(id, c);
       const scope = c.scope.modifier;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-        this.subscribeToOther(c, 'modifier', scope);
+      if(scope !== undefined) {
+        if(validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+          this.subscribeToOther(c, 'modifier', scope);
+        }
+      } else {
+        this.byType.modifier.set(id, c);
       }
     }
     if(isReacter(c)) {
       this.byType.reacter.set(id, c);
       const scope = c.scope.reacter;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-        this.subscribeToOther(c, 'reacter', scope);
+      if(scope !== undefined) {
+        if(validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+          this.subscribeToOther(c, 'reacter', scope);
+        }
+      } else {
+        this.byType.reacter.set(id, c);
       }
     }
   }
@@ -183,6 +195,23 @@ export class ComponentCatalog {
 
   removeSubscriber(id: string, type: ComponentType) {
     this.subscribers[type].delete(id);
+  }
+
+  // ACTION METHODS
+  senseEntity(e: Entity) {
+
+  }
+
+  senseAction(a: Action) {
+
+  }
+
+  modify(a: Action) {
+
+  }
+
+  react(a: Action) {
+
   }
 
 }
