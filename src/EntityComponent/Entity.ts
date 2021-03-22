@@ -7,10 +7,11 @@ import {
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, IEntity, DisplayComponent
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, IEntity, DisplayComponent, Scope
 } from '../internal';
+import { ComponentCatalog } from './ComponentCatalog';
 
-export class Entity implements Listener, ComponentContainer {
+export class Entity implements IEntity, Listener, ComponentContainer {
   id: string;
   name: string;
   tags = new Set<string>();
@@ -21,7 +22,7 @@ export class Entity implements Listener, ComponentContainer {
 
   properties: Map<string, Property> = new Map<string, Property>();
 
-  components: Component[] = []; // all components
+  components: ComponentCatalog = new ComponentCatalog(this); // all components
   modifiers: Modifier[] = [];   // all modifiers
   reacters: Reacter[] = [];     // all reacters
 
@@ -64,6 +65,21 @@ export class Entity implements Listener, ComponentContainer {
   deactivate() {
     this.active = false;
     // TODO remove listeners?
+  }
+
+  // MESSAGING
+
+  getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
+    switch(scope) {
+      case 'entity':
+        return this;
+      case 'world':
+        return this.world;
+      case 'game':
+        return Game.getInstance();
+      default:
+        return undefined;
+    }
   }
 
   modify(a: Action) {
@@ -298,10 +314,6 @@ export class Entity implements Listener, ComponentContainer {
 
   _attach(component: Component): boolean {
     this.components.push(component); // TODO check for unique flag, return false if already attached
-    // Add all listeners as local
-    // switch(component.scope) {
-    //   case "Game":
-    //     break;
     if(!(component instanceof DisplayComponent)) {  // clients should never attach listeners
       if(isModifier(component)) {
         this.modifiers.push(component);

@@ -1,14 +1,16 @@
 // ENTITY AND COMPONENT
 import IEntity from './EntityComponent/IEntity';
 import { Entity } from './EntityComponent/Entity';
-import { Component, DisplayComponent, ComponentContainer } from './EntityComponent/Component';
+import { Component, DisplayComponent } from './EntityComponent/Component';
+export { ComponentContainer } from './EntityComponent/ComponentContainer';
+export { ComponentCatalog } from './EntityComponent/ComponentCatalog';
 import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability';
 import Property, { ValueType } from './EntityComponent/Properties/Property';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification';
 import Value, { ModificationMethod } from './EntityComponent/Properties/Value';
 export { 
   ComponentType,
-  Modifier, Reacter, Sensor, 
+  Listener, Modifier, Reacter, Sensor, 
   isModifier, isReacter, isSensor,
   Scope, ComponentScope
 } from './EntityComponent/Interfaces';
@@ -52,7 +54,7 @@ import ByteLayer from './World/Layers/ByteLayer';
 import Vector from './Math/Vector';
 
 export {
-  IEntity, Entity, Component, DisplayComponent, ComponentContainer,
+  IEntity, Entity, Component, DisplayComponent,
   Ability, Property, Value, ValueType,
   Game, Player, Team,
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,

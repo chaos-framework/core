@@ -83,7 +83,3 @@ export namespace Component {
     return new DisplayComponent(json);
   }
 }
-
-export interface ComponentContainer {
-  components: Component[];
-}

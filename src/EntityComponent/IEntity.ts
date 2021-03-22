@@ -1,4 +1,4 @@
-import { Component, Property, Event, Modifier, Reacter, Grant, Vector, Action, OptionalCastParameters, PublishEntityAction, AttachComponentAction, AddPropertyAction, RemovePropertyAction, Ability, ForgetAbilityAction, LearnAbilityAction, EquipItemAction, AddSlotAction, ChangeWorldAction, MoveAction, RelativeMoveAction, RemoveSlotAction, World, Entity } from "../internal";
+import { Component, Property, Event, Modifier, Reacter, Grant, Vector, Action, OptionalCastParameters, PublishEntityAction, AttachComponentAction, AddPropertyAction, RemovePropertyAction, Ability, ForgetAbilityAction, LearnAbilityAction, EquipItemAction, AddSlotAction, ChangeWorldAction, MoveAction, RelativeMoveAction, RemoveSlotAction, World, Entity, ComponentCatalog } from "../internal";
 
 export default interface IEntity {
   id: string;
@@ -9,7 +9,7 @@ export default interface IEntity {
   active: boolean;
   perceives: boolean;
   properties: Map<string, Property>;
-  components: Component[];
+  components: ComponentCatalog;
   modifiers: Modifier[];
   reacters: Reacter[];
   abilities: Map<string, Grant[]>;

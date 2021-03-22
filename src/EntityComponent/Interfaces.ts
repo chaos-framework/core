@@ -1,7 +1,7 @@
 import { IEntity, Action } from "../internal";
 
 // CORE INTERFACES
-export type ComponentType = 'Sensor' | 'Roller' | 'Modifier' | 'Reacter';
+export type ComponentType = 'sensor' | 'roller' | 'modifier' | 'reacter';
 
 export interface Modifier {
   modify(a: Action): void; // TODO determine return type..
@@ -15,6 +15,8 @@ export interface Sensor {
   senseEntity(e: IEntity, a?: Action): object | undefined;
   senseAction(a: Action): object | undefined;
 }
+
+export interface Listener extends Sensor, Modifier, Reacter { }
 
 // TYPE GUARDS
 
