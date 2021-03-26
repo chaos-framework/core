@@ -70,22 +70,6 @@ describe('Entity action/event generators', () => {
   });
 });
 
-describe('Connecting higher-order component modifiers + reacters', () => {
-  it('Keeps all reacters/modifiers local until getting published', () => {
-    const room = new Room();
-    const e = new Entity({ name: "Unit Test Entity" });
-    const c = new ModifiesAndReactsAtWorldScope()
-    e._attach(c);
-    expect(e.modifiers).to.include(c);
-    expect(e.reacters).to.include(c);
-    e._publish(room, room.stageLeft);
-    expect(e.modifiers).to.not.include(c);
-    expect(e.reacters).to.not.include(c);
-    expect(room.modifiers).to.include(c);
-    expect(room.reacters).to.include(c);
-  });
-});
-
 describe('Entity action direct methods', () => {
   let e: Entity;
   beforeEach(() => { e = new Entity({ name: "Unit Test Entity" }); });

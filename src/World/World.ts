@@ -1,10 +1,11 @@
 import { v4 as uuid } from 'uuid';
+import { ComponentCatalog } from '../EntityComponent/ComponentCatalog';
 
 import { 
   Component, ComponentContainer,
-  Listener, Modifier, Reacter, Action, ILayer, IChunk,
+  Listener, Modifier, Reacter, Action, IChunk,
   ByteLayer,
-  Entity, Vector, Game, Scope, ClientWorld
+  Entity, Vector, Game, ClientWorld, WorldScope, Scope
 } from '../internal';
 
 const CHUNK_WIDTH = 16;
@@ -12,15 +13,13 @@ const CHUNK_WIDTH = 16;
 export abstract class World implements ComponentContainer, Listener {
   readonly id: string;
   name: string;
-  components: Component[] = [];
+  published = false;
+  components: ComponentCatalog = new ComponentCatalog(this);
   baseLayer: ByteLayer;
   // additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
 
   entities: Set<string> = new Set<string>();
   entitiesByChunk: Map<string, Set<string>> = new Map<string, Set<string>>();
-
-  modifiers: Modifier[] = [];
-  reacters: Reacter[] = [];
 
   width?: number;
   height?: number;
@@ -28,7 +27,7 @@ export abstract class World implements ComponentContainer, Listener {
   streaming: boolean = false; // whether or not to load/unload chunks from memory
   ephemeral: boolean = true;  // should be forgotten + all contained entities deleted when unloaded
 
-  scope: Scope; // which parts of the world are seen by who
+  scope: WorldScope; // which parts of the world are seen by who
 
   constructor({id = uuid(), name = 'Unnamed World', fill = 0, width, height, streaming = false, additionalLayers}: World.ConstructorParams) {
     this.id = id;
@@ -36,7 +35,7 @@ export abstract class World implements ComponentContainer, Listener {
     this.width = width;
     this.height = height;
     this.streaming = streaming;
-    this.scope = new Scope(width, height);
+    this.scope = new WorldScope(width, height);
 
     this.baseLayer = new ByteLayer(fill);
     // TODO check for width and height and force streaming if undefined or the world is too large
@@ -56,7 +55,19 @@ export abstract class World implements ComponentContainer, Listener {
 
   publish() {
     Game.getInstance().addWorld(this);
+    this.published = true;
   }
+
+  isPublished(): boolean {
+    return this.published;
+  }
+
+  getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
+    if(scope === 'game') {
+      return Game.getInstance();
+    }
+    return undefined;
+  };
 
   addEntity(e: Entity, preloaded = false): boolean {
     if(e.id && !this.entities.has(e.id)) {
@@ -196,8 +207,16 @@ export abstract class World implements ComponentContainer, Listener {
     
   };
 
-  createScope(): Scope {
-    return new Scope(this.width, this.height);
+  senseAction(a: Action): object | undefined {
+    return;
+  }
+
+  senseEntity(e: Entity): object | undefined {
+    return;
+  }
+
+  createScope(): WorldScope {
+    return new WorldScope(this.width, this.height);
   }
 
   abstract serialize(): string;

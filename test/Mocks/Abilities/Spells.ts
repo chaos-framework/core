@@ -1,4 +1,6 @@
-import { Entity, Ability, OptionalCastParameters, Event, SimpleEvent } from '../../../src/internal';
+import { Entity, Ability, OptionalCastParameters, Event } from '../../../src/internal';
+
+import { SimpleEvent } from '../Events/SimpleEvent';
 
 export class Heal extends Ability {
   name = "Heal";

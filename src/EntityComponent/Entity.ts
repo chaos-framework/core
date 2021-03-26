@@ -7,7 +7,7 @@ import {
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Entity, DisplayComponent, Scope
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope
 } from '../internal';
 import { ComponentCatalog } from './ComponentCatalog';
 
@@ -23,8 +23,6 @@ export class Entity implements Listener, ComponentContainer {
   properties: Map<string, Property> = new Map<string, Property>();
 
   components: ComponentCatalog = new ComponentCatalog(this); // all components
-  modifiers: Modifier[] = [];   // all modifiers
-  reacters: Reacter[] = [];     // all reacters
 
   abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
@@ -83,11 +81,19 @@ export class Entity implements Listener, ComponentContainer {
   }
 
   modify(a: Action) {
-    this.modifiers.map(r => r.modify(a));
+    // this.modifiers.map(r => r.modify(a));
   }
   
   react(a: Action) {
-   this.reacters.map(r => r.react(a));
+  //  this.reacters.map(r => r.react(a));
+  }
+
+  senseAction(a: Action): object | undefined {
+    return;
+  }
+
+  senseEntity(e: Entity): object | undefined {
+    return;
   }
 
   getProperty(k: string): Property | undefined {
@@ -335,12 +341,6 @@ export class Entity implements Listener, ComponentContainer {
   _equip(item: Entity, slotName: string): boolean {
     if(this.slots.has(slotName) && this.slots.get(slotName) === undefined) {
       this.slots.set(slotName, item);
-      if(item instanceof Entity || isModifier(item)) {
-        this.modifiers.push(item);
-      }
-      if(item instanceof Entity || isReacter(item)) {
-        this.reacters.push(item);
-      }
       // TODO should item decide to remove from parent container?
       return true;
     }
@@ -435,7 +435,7 @@ export class Entity implements Listener, ComponentContainer {
 
   serializeForClient(): Entity.SerializedForClient {
     const components: Component.SerializedForClient[] = [];
-    this.components.map(c => { 
+    this.components.all.forEach(c => { 
       if(c.broadcast) {
         components.push(c.serializeForClient());
       }

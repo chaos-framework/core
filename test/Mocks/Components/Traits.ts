@@ -1,5 +1,5 @@
-import { Component, Listener, Modifier, Action, AttachComponentAction, PropertyChangeAction } from '../../../src/internal';
-export class Physical extends Component implements Listener {
+import { Component, Listener, Modifier, Action, AttachComponentAction, PropertyChangeAction, Reacter } from '../../../src/internal';
+export class Physical extends Component implements Modifier, Reacter {
 
   constructor(public weight: number) {
     super();
@@ -12,7 +12,7 @@ export class Physical extends Component implements Listener {
   }
 }
 
-export class Humanoid extends Component implements Listener {
+export class Humanoid extends Component implements Modifier, Reacter {
   name = 'Humanoid';
   tags = new Set<string>(['body']);
   static readonly slots: Array<string> = ['Head', 'Neck', 'Torso', 'Hands', 'R. Hand', 'R. Finger', 'L. Hand', 'L. Finger', 'Legs', 'Feet'];

@@ -36,13 +36,13 @@ export abstract class Action {
     // First check if the target is unpublished
     if (this.target && !this.target.isPublished()) {
       // Just let the target modify and react directly
-      this.target._modify(this);
+      this.target.modify(this);
       this.decidePermission();
       let applied = false;
       if (this.permitted || force) {
         applied = this.apply();
       }
-      this.target._react(this);
+      this.target.react(this);
       return true;
     }
 

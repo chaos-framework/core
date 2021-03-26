@@ -1,4 +1,6 @@
-import { Ability, OptionalCastParameters, Event, Entity, SimpleEvent } from '../../../src/internal';
+import { Ability, OptionalCastParameters, Event, Entity } from '../../../src/internal';
+
+import { SimpleEvent } from '../Events/SimpleEvent';
 
 export default class EmptyAbility extends Ability {
   name = "Fake Ability";

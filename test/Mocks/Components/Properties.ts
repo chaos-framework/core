@@ -1,9 +1,8 @@
-import { Component, Action, PropertyChangeAction,
-  Listener, EquipItemAction, Modifier } from '../../../src/internal';
+import { Component, Action, PropertyChangeAction, EquipItemAction, Modifier, Reacter } from '../../../src/internal';
 
 import { Slash, Stab } from '../Abilities/Attacks';
 
-export class Sword extends Component implements Listener {
+export class Sword extends Component implements Modifier, Reacter {
   name = "Sword";
   public = true;
   broadcast = true;

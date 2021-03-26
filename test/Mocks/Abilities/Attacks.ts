@@ -1,5 +1,6 @@
-import { Entity, Ability, OptionalCastParameters, PropertyChangeAction,
-  SimpleEvent, Event, } from '../../../src/internal';
+import { Entity, Ability, OptionalCastParameters, PropertyChangeAction, Event, } from '../../../src/internal';
+
+import { SimpleEvent } from '../Events/SimpleEvent';
 
 export class Slash extends Ability {
   name = "Slash"

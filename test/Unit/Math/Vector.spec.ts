@@ -3,7 +3,7 @@ import 'mocha';
 
 import { Vector } from '../../../src/internal';
 
-describe.only('Vector', () => {
+describe('Vector', () => {
   it('Can check if another vector is within range', () => {
     const origin = new Vector(0, 0);
     expect(origin.withinRadius(new Vector(0,0), 1)).to.be.true;

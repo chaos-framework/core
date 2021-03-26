@@ -1,7 +1,6 @@
 // ENTITY AND COMPONENT
-import Entity from './EntityComponent/Entity';
-import { Entity } from './EntityComponent/Entity';
-import { Component, DisplayComponent } from './EntityComponent/Component';
+export { Entity } from './EntityComponent/Entity';
+export { Component, DisplayComponent } from './EntityComponent/Component';
 export { ComponentContainer } from './EntityComponent/ComponentContainer';
 export { ComponentCatalog } from './EntityComponent/ComponentCatalog';
 import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability';
@@ -17,22 +16,22 @@ export {
 // EVENT AND ACTION IMPORTS
 import { Action, ActionParameters } from './Events/Action';
 import Event from './Events/Event';
-import { AddPropertyAction } from './Events/Actions/AddPropertyActions';
-import { AddSlotAction } from './Events/Actions/AddSlotAction';
-import { AttachComponentAction } from './Events/Actions/AttachComponentAction';
-import { ChangeWorldAction } from './Events/Actions/ChangeWorldAction';
-import { EquipItemAction } from './Events/Actions/EquipItemAction';
-import { LearnAbilityAction } from './Events/Actions/LearnAbilityAction';
-import { ModifyPropertyAction } from './Events/Actions/ModifyPropertyAction';
-import { MoveAction } from './Events/Actions/MoveAction';
-import { PropertyChangeAction } from './Events/Actions/PropertyChangeAction';
-import { PublishEntityAction } from './Events/Actions/PublishEntityAction';
-import { RelativeMoveAction } from './Events/Actions/RelativeMoveAction';
-import { RemovePropertyAction } from './Events/Actions/RemovePropertyAction';
-import { RemoveSlotAction } from './Events/Actions/RemoveSlotAction';
-import { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction';
-import { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction';
-import { VisibilityType } from './Events/Enums';
+export { AddPropertyAction } from './Events/Actions/AddPropertyActions';
+export { AddSlotAction } from './Events/Actions/AddSlotAction';
+export { AttachComponentAction } from './Events/Actions/AttachComponentAction';
+export { ChangeWorldAction } from './Events/Actions/ChangeWorldAction';
+export { EquipItemAction } from './Events/Actions/EquipItemAction';
+export { LearnAbilityAction } from './Events/Actions/LearnAbilityAction';
+export { ModifyPropertyAction } from './Events/Actions/ModifyPropertyAction';
+export { MoveAction } from './Events/Actions/MoveAction';
+export { PropertyChangeAction } from './Events/Actions/PropertyChangeAction';
+export { PublishEntityAction } from './Events/Actions/PublishEntityAction';
+export { RelativeMoveAction } from './Events/Actions/RelativeMoveAction';
+export { RemovePropertyAction } from './Events/Actions/RemovePropertyAction';
+export { RemoveSlotAction } from './Events/Actions/RemoveSlotAction';
+export { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction';
+export { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction';
+export { VisibilityType } from './Events/Enums';
 import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD
 import { Game } from './Game/Game';
@@ -54,31 +53,15 @@ import ByteLayer from './World/Layers/ByteLayer';
 import Vector from './Math/Vector';
 
 export {
-  Entity, Entity, Component, DisplayComponent,
   Ability, Property, Value, ValueType,
   Game, Player, Team,
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters,
-  AddPropertyAction,
-  AddSlotAction,
-  AttachComponentAction,
-  ChangeWorldAction,
-  EquipItemAction,
-  LearnAbilityAction,
-  ModifyPropertyAction,
-  MoveAction,
-  PropertyChangeAction,
-  PublishEntityAction,
-  RelativeMoveAction,
-  RemovePropertyAction,
-  RemoveSlotAction,
-  ForgetAbilityAction,
-  UnpublishEntityAction,
   World, Layer, Chunk, WorldScope, IChunk, ILayer, ByteLayer,
   ClientGame, ClientWorld,
   Viewer, ActionQueuer as Broadcaster, EntityScope,
-  Event, ActionQueue, VisibilityType,
+  Event, ActionQueue,
   Vector,
   Command, AbilityCommand, isCommand, isAbilityCommand,
   Message, MessageTypes, CONNECTION, CONNECTION_RESPONSE 

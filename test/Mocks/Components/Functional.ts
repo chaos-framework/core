@@ -10,7 +10,6 @@ export class ModifiesAndReactsAtWorldScope extends Component implements Modifier
 
   constructor() {
     super();
-    this.scope = "World";
   }
 
   modify(a: Action) {

@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import 'mocha';
 
 import EmptyGame from '../../Mocks/Games/EmptyGame';
-import { Game, Scope, Vector } from './../../../src/internal';
+import { Game, Scope, Vector, WorldScope } from './../../../src/internal';
 
-describe ('Scopes', () => {
-  let scope: Scope;
+describe ('WorldScopes', () => {
+  let scope: WorldScope;
   let game: Game;
   beforeEach(() => {
     game = new EmptyGame({});
-    scope = new Scope(256, 256);
+    scope = new WorldScope(256, 256);
   });
 
   it('Views nothing by default', () => {
@@ -80,7 +80,7 @@ describe ('Scopes', () => {
   });
 
   it('Does not track anything northwest of zero coordinates in a streaming world', () => {
-    scope = new Scope(); // infinite / streaming
+    scope = new WorldScope(); // infinite / streaming
     game.viewDistance = 5;
     scope.addViewer('', game.viewDistance, new Vector(0, 0));
     expect(scope.active.has(new Vector(-1, -1).getIndexString())).to.be.false;

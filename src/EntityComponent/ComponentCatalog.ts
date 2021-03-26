@@ -82,10 +82,12 @@ export class ComponentCatalog {
   unload() {}
 
   // Add a component to this catalog
-  addComponent(c: Component) {
+  addComponent(c: Component): boolean {
+    // TODO check for uniqueness
     const { id } = c;
     this.all.set(id, c);
     this.createSubscriptions(c);
+    return true;
   }
 
   // Remove a component from this catalog, unsubscribing all

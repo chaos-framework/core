@@ -2,13 +2,13 @@ import {
   Entity,
   Action, World, Component,
   Modifier, Reacter, isModifier, isReacter,
-  Player, Team, ActionQueue, Entity, PublishEntityAction, Vector, UnpublishEntityAction, Command, ClientGame
+  Player, Team, ActionQueue, PublishEntityAction, UnpublishEntityAction, ComponentCatalog, ComponentContainer, ClientGame, Scope
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 import { ActionQueuer, Viewer } from "./Interfaces";
 import { CONNECTION, CONNECTION_RESPONSE } from "../ClientServer/Message";
 
-export abstract class Game {
+export abstract class Game implements ComponentContainer {
   static instance: Game;
   name: string = "New Game";
 
@@ -20,9 +20,7 @@ export abstract class Game {
   players: Map<string, Player> = new Map<string, Player>();
   playersWithoutTeams = new Map<string, Player>();
 
-  components: Component[] = []; // all components
-  modifiers: Modifier[] = [];   // all modifiers
-  reacters: Reacter[] = [];     // all reacters
+  components: ComponentCatalog = new ComponentCatalog(this); // all components
 
   actionQueue = new ActionQueue();
 
@@ -92,27 +90,37 @@ export abstract class Game {
     return true;
   }
 
+  isPublished() {
+    return true; // needed for an interface..
+  }
+
+  getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
+    return undefined;
+  }
+
   attach(c: Component): boolean {
-    this.components.push(c); // TODO check for unique flag, return false if already attached
-    if (isModifier(c)) {
-      this.modifiers.push(c);
-    }
-    if (isReacter(c)) {
-      this.reacters.push(c);
-    }
+    this.components.addComponent(c);
     return true;
   }
 
   detach(c: Component): void {
-    // TODO
+    this.components.removeComponent(c);
   }
 
   modify(a: Action) {
-    this.modifiers.map(r => r.modify(a));
-  }
+
+  };
 
   react(a: Action) {
-    this.reacters.map(r => r.react(a));
+    
+  };
+
+  senseAction(a: Action): object | undefined {
+    return;
+  }
+
+  senseEntity(e: Entity): object | undefined {
+    return;
   }
 
   broadcast(action: Action) {

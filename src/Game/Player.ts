@@ -41,7 +41,7 @@ export class Player implements Viewer, ActionQueuer {
       this.scopesByWorld = team.scopesByWorld;
       this.scopesByEntity = team.scopesByEntity;
     } else {
-      this.scopesByWorld = new Map<string, Scope>();
+      this.scopesByWorld = new Map<string, WorldScope>();
       this.scopesByEntity = new EntityScope();
     }
     game.players.set(this.id, this);

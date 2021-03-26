@@ -1,6 +1,6 @@
-import { Action, Event, Entity} from '../../internal';
+import { Action, Event, Entity} from '../../../src/internal';
 
-export default class SimpleEvent implements Event {
+export class SimpleEvent implements Event {
   index = 0;
 
   constructor(private actions: Action[], caster?: Entity) { };
