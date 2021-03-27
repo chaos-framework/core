@@ -1,4 +1,3 @@
-import { has } from 'lodash';
 import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity } from '../internal';
 
 interface Subscription {
@@ -37,14 +36,6 @@ export class ComponentCatalog {
 
   // All components owned by this ComponentContainer
   all: Map<string, Component> = new Map<string, Component>();
-
-  // Components owned by this ComponentContainer by type
-  byType: ComponentsByType = { 
-    sensor: new Map<string, Component>(),
-    roller: new Map<string, Component>(),
-    modifier: new Map<string, Component>(),
-    reacter: new Map<string, Component>() 
-  };
 
   // Components from other containers subscribed (listening/interacting) to this ComponentContainer
   subscribers: ComponentsByType = { 
@@ -94,10 +85,6 @@ export class ComponentCatalog {
   removeComponent(c: Component) {
     const { id } = c;
     this.all.delete(id);
-    this.byType.sensor.delete(id);
-    this.byType.roller.delete(id);
-    this.byType.modifier.delete(id);
-    this.byType.reacter.delete(id);
     // Unsubscribe from other components if needed
     if(this.subscriptions.entity.has(id)) {
       const subscription = this.subscriptions.entity.get(id)!;
@@ -141,36 +128,27 @@ export class ComponentCatalog {
     const { id } = c;
     // Figure out which, if any, interactive types this components is and connect appropriately
     if(isSensor(c)) {
-      this.byType.sensor.set(id, c);
       const scope = c.scope.sensor;
-      if(scope !== undefined) {
-        if(validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-          this.subscribeToOther(c, 'sensor', scope);
-        }
+      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+        this.subscribeToOther(c, 'sensor', scope);
       } else {
-        this.byType.sensor.set(id, c);
+        this.attachSubscriber(c, 'sensor');
       }
     }
     if(isModifier(c)) {
-      this.byType.modifier.set(id, c);
       const scope = c.scope.modifier;
-      if(scope !== undefined) {
-        if(validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-          this.subscribeToOther(c, 'modifier', scope);
-        }
+      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+        this.subscribeToOther(c, 'modifier', scope);
       } else {
-        this.byType.modifier.set(id, c);
+        this.attachSubscriber(c, 'modifier');
       }
     }
     if(isReacter(c)) {
-      this.byType.reacter.set(id, c);
       const scope = c.scope.reacter;
-      if(scope !== undefined) {
-        if(validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-          this.subscribeToOther(c, 'reacter', scope);
-        }
+      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+        this.subscribeToOther(c, 'reacter', scope);
       } else {
-        this.byType.reacter.set(id, c);
+        this.attachSubscriber(c, 'reacter');
       }
     }
   }
@@ -216,7 +194,6 @@ export class ComponentCatalog {
   react(a: Action) {
 
   }
-
 
   // MISC
   is(componentName: string): Component | undefined {

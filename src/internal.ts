@@ -15,6 +15,7 @@ export {
 } from './EntityComponent/Interfaces';
 // EVENT AND ACTION IMPORTS
 import { Action, ActionParameters } from './Events/Action';
+export { Permission } from './Events/Permission';
 import Event from './Events/Event';
 export { AddPropertyAction } from './Events/Actions/AddPropertyActions';
 export { AddSlotAction } from './Events/Actions/AddSlotAction';

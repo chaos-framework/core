@@ -57,6 +57,7 @@ export abstract class Component {
 export class DisplayComponent extends Component {
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace Component {
   export interface ConstructorParams {
     id?: string,

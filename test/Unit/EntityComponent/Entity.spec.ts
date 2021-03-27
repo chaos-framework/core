@@ -6,7 +6,6 @@ import { Entity, Ability, Component } from '../../../src/internal';
 import Room from '../../Mocks/Worlds/Room';
 import EmptyAbility from '../../Mocks/Abilities/Empty';
 import { Heal }  from '../../Mocks/Abilities/Spells';
-import { ModifiesAndReactsAtWorldScope } from '../../Mocks/Components/Functional';
 import { Paladin } from '../../Mocks/Components/Classes';
 import { NonBroadcastingComponent } from '../../Mocks/Components/NonBroadcastingComponent';
 

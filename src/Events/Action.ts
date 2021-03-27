@@ -1,5 +1,5 @@
 import { Viewer } from '../Game/Interfaces';
-import { Game, Entity, Component, Listener, Scope, Player, Team } from '../internal';
+import { Game, Entity, Component, Listener, Scope, Player, Team, Permission } from '../internal';
 
 export abstract class Action {
   // TODO implement player: Player;
@@ -231,30 +231,4 @@ export interface ActionParameters {
   caster?: Entity,
   using?: Entity | Component,
   tags?: string[]
-}
-
-export class Permission {
-  permitted: boolean;
-  by?: Entity | Component;
-  using?: Entity | Component;
-  message?: string;
-
-  constructor(permitted: boolean,
-    { by, using, message }:
-      { by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
-    this.permitted = permitted;
-    this.by = by;
-    this.using = using;
-    this.message = message;
-  }
-}
-
-export enum PermissionPriority {
-  Base = 0,
-  Low = 1,
-  Medium = 2,
-  High = 3,
-  Dead = 3,
-  Extreme = 4,
-  Max = Number.MAX_VALUE
 }
