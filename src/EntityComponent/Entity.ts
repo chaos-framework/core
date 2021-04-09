@@ -147,59 +147,59 @@ export class Entity implements Listener, ComponentContainer {
   }
 
   // Connect components which may have higher-order listeners upon publishing
-  connectToWorld() {
-    if(!this.isPublished() || !this.world) {
-      return;
-    }
-    // Add this player tp any owning player(s) or team(s) scope for this world
-    const game = Game.getInstance();
-    const { perceptionGrouping } = game;
-    if (perceptionGrouping === 'team') {
-      for(let teamId of this.teams) {
-        const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
-        if(scope) {
-          // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-          scope.addViewer(this.id, game.viewDistance, this.position.toChunkSpace());
-        }
-      }
-    } else {
-      for(let playerId of this.owners) {
-        const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
-        if(scope) {
-          scope.addViewer(this.id, game.viewDistance, this.position.toChunkSpace());
-        }
-      }
-    }
-  }
+  // connectToWorld() {
+  //   if(!this.isPublished() || !this.world) {
+  //     return;
+  //   }
+  //   // Add this player tp any owning player(s) or team(s) scope for this world
+  //   const game = Game.getInstance();
+  //   const { perceptionGrouping } = game;
+  //   if (perceptionGrouping === 'team') {
+  //     for(let teamId of this.teams) {
+  //       const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
+  //       if(scope) {
+  //         // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
+  //         scope.addViewer(this.id, game.viewDistance, this.position.toChunkSpace());
+  //       }
+  //     }
+  //   } else {
+  //     for(let playerId of this.owners) {
+  //       const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
+  //       if(scope) {
+  //         scope.addViewer(this.id, game.viewDistance, this.position.toChunkSpace());
+  //       }
+  //     }
+  //   }
+  // }
 
   // Disconnects world-level component listeners and adjusts scope of player or teams
-  disconnectFromWorld() {
-    if(!this.isPublished() || ! this.world) {
-      return;
-    }
-    // Remove this player from owning player(s) or team(s) scope for this world
-    const game = Game.getInstance();
-    const { perceptionGrouping } = game;
-    if (perceptionGrouping === 'team') {
-      for(let teamId of this.teams) {
-        const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
-        if(scope) {
-          // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-          scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace());
-        }
-      }
-    } else {
-      for(let playerId of this.owners) {
-        const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
-        if(scope) {
-          scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace());
-        }
-      }
-    }
-  }
+  // disconnectFromWorld() {
+  //   if(!this.isPublished() || ! this.world) {
+  //     return;
+  //   }
+  //   // Remove this player from owning player(s) or team(s) scope for this world
+  //   const game = Game.getInstance();
+  //   const { perceptionGrouping } = game;
+  //   if (perceptionGrouping === 'team') {
+  //     for(let teamId of this.teams) {
+  //       const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
+  //       if(scope) {
+  //         // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
+  //         scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace());
+  //       }
+  //     }
+  //   } else {
+  //     for(let playerId of this.owners) {
+  //       const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
+  //       if(scope) {
+  //         scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace());
+  //       }
+  //     }
+  //   }
+  // }
 
-  // Disconnects game-level component listeners
-  disconnectFromGame() {}
+  // // Disconnects game-level component listeners
+  // disconnectFromGame() {}
 
   /*****************************************
    *  ACTION GENERATORS / IMPLEMENTATIONS
@@ -219,18 +219,17 @@ export class Entity implements Listener, ComponentContainer {
     this.position = position;
     world.addEntity(this, preloaded);
     this.world = world;
-    this.connectToWorld();
     Game.getInstance().addEntity(this);
+    this.components.subscribeToAll();
     return true;
   }
 
   // Unpublishing
 
   _unpublish(): boolean {
-    this.disconnectFromWorld();
-    this.disconnectFromGame();
     Game.getInstance().removeEntity(this);
-    // TODO delete and deinit all components
+    this.components.removeAllSubscriptions();
+    this.components.unsubscribeFromAll();
     // TODO and persistence stuff
     this.published = false;
     return true;
@@ -421,11 +420,8 @@ export class Entity implements Listener, ComponentContainer {
   }
 
   _changeWorlds(to: World, position: Vector): boolean {
-    if(this.world) {
-      this.disconnectFromWorld();
-    }
     this.world = to;
-    this.connectToWorld();
+    // TODO component catalog callback
     return true;
   }
 

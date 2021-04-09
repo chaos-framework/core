@@ -1,9 +1,10 @@
 import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity } from '../internal';
+import { SubscriptionSet } from './ComponentCatalog/SubscriptionSet';
 
 interface Subscription {
   component: Component,
   to: ComponentContainer,
-  type: ComponentType,
+  types: ComponentType[],
   scope: Scope
 }
 
@@ -22,14 +23,6 @@ interface ComponentsByType {
   reacter: Map<string, Component>
 }
 
-interface SubscriptionsByScope {
-  entity: Map<string, Subscription>,
-  world: Map<string, Subscription>,
-  player: Map<string, Subscription>,
-  team: Map<string, Subscription>,
-  game: Map<string, Subscription>
-}
-
 export class ComponentCatalog {
   // Scope of parent object -- ie being owned by a World would be 'world'
   parentScope: Scope;
@@ -45,13 +38,13 @@ export class ComponentCatalog {
     reacter: new Map<string, Component>() 
   };
 
-  // Components owned by this ComponentContainer that are subscribed to components in other
-  subscriptions: SubscriptionsByScope = {
-    entity: new Map<string, Subscription>(),
-    world: new Map<string, Subscription>(),
-    player: new Map<string, Subscription>(),
-    team: new Map<string, Subscription>(),
-    game: new Map<string, Subscription>(),
+  // Components owned by this catalog that are subscribed to other catalogs
+  subscriptions = {
+    entity: new SubscriptionSet(),
+    world: new SubscriptionSet(),
+    player: new SubscriptionSet(),
+    team: new SubscriptionSet(),
+    game: new SubscriptionSet()
   };
 
   constructor(private parent: ComponentContainer) {
@@ -114,14 +107,35 @@ export class ComponentCatalog {
 
   // Create all outgoing subscriptions
   subscribeToAll() {
-    this.unsubscribeFromAll();  // clear any old subscriptions
+    this.removeAllSubscriptions();  // clear any old internal subscriptions
     for(let [id, component] of this.all) {
       this.createSubscriptions(component);
     }
   }
 
-  unsubscribeFromAll() {
+  removeAllSubscriptions() {
+    for(const [id, subscriber] of this.subscribers.sensor) {
+      this.removeSubscriber(subscriber.id, 'sensor');
+    }
+    for(const [id, subscriber] of this.subscribers.modifier) {
+      this.removeSubscriber(subscriber.id, 'modifier');
+    }
+    for(const [id, subscriber] of this.subscribers.reacter) {
+      this.removeSubscriber(subscriber.id, 'reacter');
+    }
+  }
 
+  unsubscribeFromAll() {
+    for(const [id, subscription] of this.subscriptions.entity) {
+      subscription.to.components.removeSubscriber(subscription.component.id, subscription.type);
+    }
+    for(const [id, subscription] of this.subscriptions.world) {
+      subscription.to.components.removeSubscriber(subscription.component.id, subscription.type);
+
+    }
+    for(const [id, subscription] of this.subscriptions.game) {
+      subscription.to.components.removeSubscriber(subscription.component.id, subscription.type);
+    }
   }
 
   private createSubscriptions(c: Component) {
