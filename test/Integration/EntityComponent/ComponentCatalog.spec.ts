@@ -9,7 +9,7 @@ import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
 import { EntityScopeSpecified, GameScopeSpecified, NoScopeSpecified, WorldScopeSpecified } from '../../Mocks/Components/Functional';
 
-describe.only('ComponentCatalog and ComponentContainer integration', () => {
+describe('ComponentCatalog and ComponentContainer integration', () => {
   let game: Game;
   let entity: Entity;
   let room: Room;
@@ -32,33 +32,33 @@ describe.only('ComponentCatalog and ComponentContainer integration', () => {
           it('Subscribes at default scopes if none specified', () => {
             const c = new NoScopeSpecified();
             entity.components.addComponent(c);
-            expect(entity.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(entity.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(entity.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to self for entity-scoped components', () => {
             const c = new EntityScopeSpecified();
             entity.components.addComponent(c);
-            expect(entity.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(entity.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(entity.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to the world if scoped appropriately and published to one', () => {
             const c = new WorldScopeSpecified();
             entity.components.addComponent(c);
-            expect(room.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(room.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(room.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to game if scoped appropriately', () => {
             const c = new GameScopeSpecified();
             entity.components.addComponent(c);
-            expect(game.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(game.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(game.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(game.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(game.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(game.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
         });
       });
@@ -68,33 +68,33 @@ describe.only('ComponentCatalog and ComponentContainer integration', () => {
           it('Subscribes at default scopes if none specified', () => {
             const c = new NoScopeSpecified();
             entity.components.addComponent(c);
-            expect(entity.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(entity.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(entity.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to self for entity-scoped components', () => {
             const c = new EntityScopeSpecified();
             entity.components.addComponent(c);
-            expect(entity.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(entity.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(entity.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to self for world-scoped components', () => {
             const c = new WorldScopeSpecified();
             entity.components.addComponent(c);
-            expect(entity.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(entity.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(entity.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to self for game-scoped components', () => {
             const c = new GameScopeSpecified();
             entity.components.addComponent(c);
-            expect(entity.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(entity.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(entity.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(entity.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
         });
       });
@@ -116,30 +116,30 @@ describe.only('ComponentCatalog and ComponentContainer integration', () => {
         });
 
         it('Should keep the entity-scoped components subscribed locally', () => {
-          expect(entity.components.subscribers.sensor.get(entityScoped.id)).to.exist;
-          expect(entity.components.subscribers.modifier.get(entityScoped.id)).to.exist;
-          expect(entity.components.subscribers.reacter.get(entityScoped.id)).to.exist;
+          expect(entity.components.subscribersByType.sensor.get(entityScoped.id)).to.exist;
+          expect(entity.components.subscribersByType.modifier.get(entityScoped.id)).to.exist;
+          expect(entity.components.subscribersByType.reacter.get(entityScoped.id)).to.exist;
         });
 
         it('Should NOT keep the world or game-scoped components subscribed locally', () => {
-          expect(entity.components.subscribers.sensor.get(worldScoped.id)).to.not.exist;
-          expect(entity.components.subscribers.modifier.get(worldScoped.id)).to.not.exist;
-          expect(entity.components.subscribers.reacter.get(worldScoped.id)).to.not.exist;
-          expect(entity.components.subscribers.sensor.get(gameScoped.id)).to.not.exist;
-          expect(entity.components.subscribers.modifier.get(gameScoped.id)).to.not.exist;
-          expect(entity.components.subscribers.reacter.get(gameScoped.id)).to.not.exist;
+          expect(entity.components.subscribersByType.sensor.get(worldScoped.id)).to.not.exist;
+          expect(entity.components.subscribersByType.modifier.get(worldScoped.id)).to.not.exist;
+          expect(entity.components.subscribersByType.reacter.get(worldScoped.id)).to.not.exist;
+          expect(entity.components.subscribersByType.sensor.get(gameScoped.id)).to.not.exist;
+          expect(entity.components.subscribersByType.modifier.get(gameScoped.id)).to.not.exist;
+          expect(entity.components.subscribersByType.reacter.get(gameScoped.id)).to.not.exist;
         });
 
         it('Should subscribe to world scope when published', () => {
-          expect(room.components.subscribers.sensor.get(worldScoped.id)).to.exist;
-          expect(room.components.subscribers.modifier.get(worldScoped.id)).to.exist;
-          expect(room.components.subscribers.reacter.get(worldScoped.id)).to.exist;
+          expect(room.components.subscribersByType.sensor.get(worldScoped.id)).to.exist;
+          expect(room.components.subscribersByType.modifier.get(worldScoped.id)).to.exist;
+          expect(room.components.subscribersByType.reacter.get(worldScoped.id)).to.exist;
         });
 
         it('Should subscribe to game scope when published', () => {
-          expect(game.components.subscribers.sensor.get(gameScoped.id)).to.exist;
-          expect(game.components.subscribers.modifier.get(gameScoped.id)).to.exist;
-          expect(game.components.subscribers.reacter.get(gameScoped.id)).to.exist;
+          expect(game.components.subscribersByType.sensor.get(gameScoped.id)).to.exist;
+          expect(game.components.subscribersByType.modifier.get(gameScoped.id)).to.exist;
+          expect(game.components.subscribersByType.reacter.get(gameScoped.id)).to.exist;
         });
       });
 
@@ -161,9 +161,12 @@ describe.only('ComponentCatalog and ComponentContainer integration', () => {
         });
 
         it('Should no longer be subscribed to other components', () => {
-          expect(room.components.subscribers.sensor.get(worldScoped.id)).to.not.exist;
-          expect(room.components.subscribers.modifier.get(worldScoped.id)).to.not.exist;
-          expect(room.components.subscribers.reacter.get(worldScoped.id)).to.not.exist;
+          expect(room.components.subscribersByType.sensor.get(worldScoped.id)).to.not.exist;
+          expect(room.components.subscribersByType.modifier.get(worldScoped.id)).to.not.exist;
+          expect(room.components.subscribersByType.reacter.get(worldScoped.id)).to.not.exist;
+          expect(game.components.subscribersByType.sensor.get(gameScoped.id)).to.not.exist;
+          expect(game.components.subscribersByType.modifier.get(gameScoped.id)).to.not.exist;
+          expect(game.components.subscribersByType.reacter.get(gameScoped.id)).to.not.exist;
         });
       });
     });
@@ -178,25 +181,25 @@ describe.only('ComponentCatalog and ComponentContainer integration', () => {
           it('Subscribes at default scopes if none specified', () => {
             const c = new NoScopeSpecified();
             room.components.addComponent(c);
-            expect(room.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(room.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(room.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to self for world-scoped components', () => {
             const c = new WorldScopeSpecified();
             room.components.addComponent(c);
-            expect(room.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(room.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(room.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to game if scoped appropriately', () => {
             const c = new GameScopeSpecified();
             room.components.addComponent(c);
-            expect(game.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(game.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(game.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(game.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(game.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(game.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
         });
       });
@@ -206,25 +209,25 @@ describe.only('ComponentCatalog and ComponentContainer integration', () => {
           it('Subscribes at default scopes if none specified', () => {
             const c = new NoScopeSpecified();
             room.components.addComponent(c);
-            expect(room.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(room.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(room.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to self for world-scoped components', () => {
             const c = new WorldScopeSpecified();
             room.components.addComponent(c);
-            expect(room.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(room.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(room.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
 
           it('Subscribes to self for game-scoped components', () => {
             const c = new GameScopeSpecified();
             room.components.addComponent(c);
-            expect(room.components.subscribers.sensor.get(c.id)).to.exist;
-            expect(room.components.subscribers.modifier.get(c.id)).to.exist;
-            expect(room.components.subscribers.reacter.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.sensor.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.modifier.get(c.id)).to.exist;
+            expect(room.components.subscribersByType.reacter.get(c.id)).to.exist;
           });
         });
       });
@@ -238,33 +241,33 @@ describe.only('ComponentCatalog and ComponentContainer integration', () => {
         it('Subscribes at default scopes if none specified', () => {
           const c = new NoScopeSpecified();
           game.components.addComponent(c);
-          expect(game.components.subscribers.sensor.get(c.id)).to.exist;
-          expect(game.components.subscribers.modifier.get(c.id)).to.exist;
-          expect(game.components.subscribers.reacter.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.sensor.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.modifier.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.reacter.get(c.id)).to.exist;
         });
 
         it('Subscribes to self for entity-scoped components', () => {
           const c = new EntityScopeSpecified();
           game.components.addComponent(c);
-          expect(game.components.subscribers.sensor.get(c.id)).to.exist;
-          expect(game.components.subscribers.modifier.get(c.id)).to.exist;
-          expect(game.components.subscribers.reacter.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.sensor.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.modifier.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.reacter.get(c.id)).to.exist;
         });
 
         it('Subscribes to self for world-scoped components', () => {
           const c = new WorldScopeSpecified();
           game.components.addComponent(c);
-          expect(game.components.subscribers.sensor.get(c.id)).to.exist;
-          expect(game.components.subscribers.modifier.get(c.id)).to.exist;
-          expect(game.components.subscribers.reacter.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.sensor.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.modifier.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.reacter.get(c.id)).to.exist;
         });
 
-        it('Subscribes to game if scoped appropriately', () => {
+        it('Subscribes to game (self) if scoped appropriately', () => {
           const c = new GameScopeSpecified();
           game.components.addComponent(c);
-          expect(game.components.subscribers.sensor.get(c.id)).to.exist;
-          expect(game.components.subscribers.modifier.get(c.id)).to.exist;
-          expect(game.components.subscribers.reacter.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.sensor.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.modifier.get(c.id)).to.exist;
+          expect(game.components.subscribersByType.reacter.get(c.id)).to.exist;
         });
       });
     });

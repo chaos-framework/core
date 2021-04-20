@@ -34,7 +34,7 @@ describe('Game', () => {
 
     it('Serializes everything a client would need', () => {
       // Name
-      expect(serialized.name).to.equal(game.name);
+      expect(serialized.id).to.equal(game.id);
       // Teams
       expect(serialized.teams.find(team => team.id === red.id)).to.exist;
       expect(serialized.teams.find(team => team.id === red.id)!.players).to.contain(p.id);

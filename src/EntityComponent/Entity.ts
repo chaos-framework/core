@@ -220,7 +220,7 @@ export class Entity implements Listener, ComponentContainer {
     world.addEntity(this, preloaded);
     this.world = world;
     Game.getInstance().addEntity(this);
-    this.components.subscribeToAll();
+    this.components.publish();
     return true;
   }
 
@@ -228,8 +228,7 @@ export class Entity implements Listener, ComponentContainer {
 
   _unpublish(): boolean {
     Game.getInstance().removeEntity(this);
-    this.components.removeAllSubscriptions();
-    this.components.unsubscribeFromAll();
+    this.components.unpublish();
     // TODO and persistence stuff
     this.published = false;
     return true;

@@ -1,4 +1,5 @@
 import { compact } from 'lodash';
+import _ = require('lodash');
 import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity, Listener } from '../internal';
 import { Subscription } from './ComponentCatalog/Subscription';
 import { SubscriptionSet } from './ComponentCatalog/SubscriptionSet';
@@ -46,6 +47,10 @@ export class ComponentCatalog implements Listener {
 
   addComponent(component: Component) {
     this.all.set(component.id, component);
+    this.createComponentSubscriptions(component);
+  }
+
+  createComponentSubscriptions(component: Component) {
     // See if this component modifies, react, etc and which scopes if so
     if(isSensor(component)){
       const scope = component.scope.sensor;
@@ -112,6 +117,24 @@ export class ComponentCatalog implements Listener {
     }
   }
 
+  // Resets all subscriptions, if there were any, from before the parent being published
+  publish() {
+    if(this.subscribers.size > 0) {
+      this.clearSubscriptions();
+    }
+    this.all.forEach(component => this.createComponentSubscriptions(component));
+  }
+
+  clearSubscriptions() {
+    this.subscribers = new Map<string, Subscription>();
+    this.subscribersByType = { 
+      sensor: new Map<string, Component>(),
+      roller: new Map<string, Component>(),
+      modifier: new Map<string, Component>(),
+      reacter: new Map<string, Component>() 
+    };
+  }
+
   // Delete all components and terminate all incoming / outgoing subscriptions
   unpublish() {
     // Notify all external subscribers
@@ -123,7 +146,9 @@ export class ComponentCatalog implements Listener {
       subscription.target.detach(subscription);
     }
     // Unpublish all contained components
-    // TODO
+    for(const [id, component] of this.all) {
+      component.unpublish();
+    }
   }
 
   // Subscribe one of these components to another catalog
@@ -134,6 +159,8 @@ export class ComponentCatalog implements Listener {
       const subscription = new Subscription(component, this, target.components, type, scope);
       // Subscribe to these containers
       target.components.attach(subscription);
+      // Store general
+      this.subscriptions.set(subscription.id, subscription);
       // Store by local component
       if(!this.subscriptionsByComponent.has(component.id)) {
         this.subscriptionsByComponent.set(component.id, new Map<string, Subscription>());

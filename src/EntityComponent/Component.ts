@@ -52,6 +52,10 @@ export abstract class Component {
       tags: Array.from(this.tags.values())
     }
   }
+
+  unpublish() {
+    // TODO any potential DB removals
+  }
 }
 
 export class DisplayComponent extends Component {
