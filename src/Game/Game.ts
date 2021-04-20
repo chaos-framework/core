@@ -10,7 +10,7 @@ import { CONNECTION, CONNECTION_RESPONSE } from "../ClientServer/Message";
 
 export abstract class Game implements ComponentContainer {
   static instance: Game;
-  name: string = "New Game";
+  id: string = "New Game";
 
   worlds: Map<string, World> = new Map<string, World>();
   entities: Map<string, Entity> = new Map<string, Entity>();
@@ -319,7 +319,7 @@ export abstract class Game implements ComponentContainer {
   abstract onPlayerDisconnect(options: any): void;  // TODO solidify disconnection options w/ interface in ClientServer
 
   serializeForScope(viewer: Viewer): Game.SerializedForClient {
-    const o: Game.SerializedForClient = { name: this.name, players: [], teams: [], worlds: [], entities: [] }
+    const o: Game.SerializedForClient = { id: this.id, players: [], teams: [], worlds: [], entities: [] }
     // Serialize all players
     for(let player of this.players.values()) {
       o.players.push(player.serializeForClient());
@@ -346,9 +346,10 @@ export abstract class Game implements ComponentContainer {
   }
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace Game {
   export interface SerializedForClient {
-    name: string,
+    id: string,
     // config?: any,  // TODO make config interface, GameConfiguration.ts or something
     players: Player.SerializedForClient[],
     teams: Team.SerializedForClient[],

@@ -34,7 +34,7 @@ export function isSensor(o: any): o is Sensor {
 
 // SCOPE
 
-export type Scope = 'entity' | 'world' | 'player' | 'team' | 'game';
+export type Scope = 'entity' | 'world' | 'game'; //player' | 'team' | 'game';
 
 export interface ComponentScope {
   sensor?: Scope,
