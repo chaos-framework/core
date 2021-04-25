@@ -6,7 +6,7 @@ import { ComponentCatalog, Entity, Component, ComponentContainer, Game } from '.
 import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
 
-describe.only('ComponentCatalog', () => {
+describe('ComponentCatalog', () => {
   let game: Game;
   let entity: Entity;
   let world: Room;

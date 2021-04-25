@@ -1,8 +1,9 @@
 import { compact } from 'lodash';
 import _ = require('lodash');
-import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity, Listener } from '../internal';
+import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity, Listener, Modifier, Reacter } from '../internal';
 import { Subscription } from './ComponentCatalog/Subscription';
 import { SubscriptionSet } from './ComponentCatalog/SubscriptionSet';
+import { Sensor } from './Interfaces';
 
 const validSubscriptions = {
   entity: ['world', 'player', 'team', 'game'],
@@ -22,10 +23,10 @@ export class ComponentCatalog implements Listener {
   // Components from other containers subscribed (listening/interacting) to this ComponentContainer
   subscribers = new Map<string, Subscription>();
   subscribersByType = { 
-    sensor: new Map<string, Component>(),
+    sensor: new Map<string, Sensor>(),
     roller: new Map<string, Component>(),
-    modifier: new Map<string, Component>(),
-    reacter: new Map<string, Component>() 
+    modifier: new Map<string, Modifier>(),
+    reacter: new Map<string, Reacter>() 
   };
 
   // Things we're subscribed to, mapped out in different dimensions
@@ -94,7 +95,20 @@ export class ComponentCatalog implements Listener {
     // Add subscriber to full list
     this.subscribers.set(subscription.id, subscription);
     // Attach by type, ie modifier or reacter
-    this.subscribersByType[type].set(component.id, component);
+    switch(type) {
+      case 'sensor':
+        const sensor = component as unknown as Sensor;
+        this.subscribersByType[type].set(component.id, sensor);
+        break;
+      case 'modifier':
+        const modifier = component as unknown as Modifier;
+        this.subscribersByType[type].set(component.id, modifier);
+        break;
+      case 'reacter':
+        const reacter = component as unknown as Reacter;
+        this.subscribersByType[type].set(component.id, reacter);
+        break;
+    }
   }
 
   // Detach subscriber from this
@@ -128,10 +142,10 @@ export class ComponentCatalog implements Listener {
   clearSubscriptions() {
     this.subscribers = new Map<string, Subscription>();
     this.subscribersByType = { 
-      sensor: new Map<string, Component>(),
+      sensor: new Map<string, Sensor>(),
       roller: new Map<string, Component>(),
-      modifier: new Map<string, Component>(),
-      reacter: new Map<string, Component>() 
+      modifier: new Map<string, Modifier>(),
+      reacter: new Map<string, Reacter>() 
     };
   }
 
@@ -180,20 +194,24 @@ export class ComponentCatalog implements Listener {
   }
 
   // ACTION METHODS
-  senseEntity(e: Entity): any {
+  senseEntity(action: Entity): any {
 
   }
 
-  senseAction(a: Action): any {
+  senseAction(action: Action): any {
 
   }
 
-  modify(a: Action) {
-
+  modify(action: Action) {
+    for(const [id, component] of this.subscribersByType.modifier) {
+      component.modify(action);
+    }
   }
 
-  react(a: Action) {
-
+  react(action: Action) {
+    for(const [id, component] of this.subscribersByType.reacter) {
+      component.react(action);
+    }
   }
 
   // MISC

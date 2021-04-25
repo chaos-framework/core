@@ -80,12 +80,12 @@ export class Entity implements Listener, ComponentContainer {
     }
   }
 
-  modify(a: Action) {
-    // this.modifiers.map(r => r.modify(a));
+  modify(action: Action) {
+    this.components.modify(action);
   }
   
-  react(a: Action) {
-  //  this.reacters.map(r => r.react(a));
+  react(action: Action) {
+    this.components.react(action);
   }
 
   senseAction(a: Action): object | undefined {
@@ -238,7 +238,7 @@ export class Entity implements Listener, ComponentContainer {
 
   attach({component, caster, using, tags}: AttachComponentAction.EntityParams, force = false): AttachComponentAction {
     return new AttachComponentAction({ caster, target: this, component, using, tags});
-  };
+  }
 
   _attach(component: Component): boolean {
     this.components.addComponent(component); // TODO check for unique flag, return false if already attached
