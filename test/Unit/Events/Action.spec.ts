@@ -11,6 +11,7 @@ class TestAction extends Action {
 }
 
 describe('Action Abstract Functionality', () => {
+
   describe('Permits or forbids actions intelligently', () => {
     let a: TestAction;
     beforeEach(() => { a = new TestAction() });
@@ -50,6 +51,5 @@ describe('Action Abstract Functionality', () => {
       expect(a.permitted).to.be.false;
     });
 
-    
   });
 });

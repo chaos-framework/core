@@ -19,6 +19,7 @@ export {
 import { Action, ActionParameters } from './Events/Action';
 export { Permission } from './Events/Permission';
 import Event from './Events/Event';
+export { SensoryInformation } from './Events/Interfaces';
 export { AddPropertyAction } from './Events/Actions/AddPropertyActions';
 export { AddSlotAction } from './Events/Actions/AddSlotAction';
 export { AttachComponentAction } from './Events/Actions/AttachComponentAction';
@@ -34,17 +35,19 @@ export { RemovePropertyAction } from './Events/Actions/RemovePropertyAction';
 export { RemoveSlotAction } from './Events/Actions/RemoveSlotAction';
 export { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction';
 export { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction';
+export { SenseEntityAction } from './Events/Actions/SenseEntityAction';
+export { LoseEntityAction } from './Events/Actions/LoseEntityAction';
 export { VisibilityType } from './Events/Enums';
 import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD
-import { Game } from './Game/Game';
-import { Team } from './Game/Team';
-import { Player } from './Game/Player';
+export { Game } from './Game/Game';
+export { Team } from './Game/Team';
+export { Player } from './Game/Player';
 import { Viewer, ActionQueuer } from './Game/Interfaces';
 import EntityScope from './Game/EntityScope';
-import { World } from './World/World';
+export { World } from './World/World';
 // CLIENT/SERVER
-import { Command, AbilityCommand, isCommand, isAbilityCommand } from './ClientServer/Command';
+export { Command, AbilityCommand, isCommand, isAbilityCommand } from './ClientServer/Command';
 import ClientGame from './ClientServer/ClientGame';
 import ClientWorld from './ClientServer/ClientWorld';
 import Message, { MessageTypes, CONNECTION, CONNECTION_RESPONSE } from './ClientServer/Message'
@@ -54,18 +57,18 @@ import Chunk, { IChunk } from './World/Chunk';
 import WorldScope from './World/WorldScope';
 import ByteLayer from './World/Layers/ByteLayer';
 import Vector from './Math/Vector';
+// UTIL
+export { NestedMap, NestedChanges } from './Util/NestedMap';
 
 export {
   Ability, Property, Value, ValueType,
-  Game, Player, Team,
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters,
-  World, Layer, Chunk, WorldScope, IChunk, ILayer, ByteLayer,
+  Layer, Chunk, WorldScope, IChunk, ILayer, ByteLayer,
   ClientGame, ClientWorld,
   Viewer, ActionQueuer as Broadcaster, EntityScope,
   Event, ActionQueue,
   Vector,
-  Command, AbilityCommand, isCommand, isAbilityCommand,
   Message, MessageTypes, CONNECTION, CONNECTION_RESPONSE 
 }

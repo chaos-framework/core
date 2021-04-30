@@ -1,18 +1,18 @@
 import { v4 as uuid } from 'uuid';
+import { SensoryInformation } from '../Events/Interfaces';
 import {
   Game, Vector, World,
   Component, ComponentContainer, Event, Action,
-  Listener, Modifier, Reacter, isModifier, isReacter,
-  Ability, Property, AttachComponentAction,
+  Listener, Ability, Property, AttachComponentAction,
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction
 } from '../internal';
 import { ComponentCatalog } from './ComponentCatalog';
 
 export class Entity implements Listener, ComponentContainer {
-  id: string;
+  readonly id: string;
   name: string;
   tags = new Set<string>();
   published = false;
@@ -29,15 +29,15 @@ export class Entity implements Listener, ComponentContainer {
   owners = new Set<string>(); // players that can control this Entity
   teams = new Set<string>(); // teams that owning players belong to
 
+  sensedEntities = new Map<string, Entity>();
+  entitiesSensedBy = new Map<string, Map<string, Component>>();
+
   // Places for items to be equipped
   slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
   world?: World;
   position: Vector = new Vector(0, 0);
-
-  map: any;
-  container: any; // TODO can this be combined with map?
 
   // TODO art asset
   // TODO single char for display in leiu of art asset
@@ -88,13 +88,13 @@ export class Entity implements Listener, ComponentContainer {
     this.components.react(action);
   }
 
-  senseAction(a: Action): object | undefined {
-    return;
+  sense(action: Action): SensoryInformation | boolean {
+    return this.components.sense(action);
   }
 
-  senseEntity(e: Entity): object | undefined {
-    return;
-  }
+  // senseEntity(entity: Entity, action: Action): SensoryInformation | boolean {
+  //   return this.components.senseEntity(entity, action);
+  // }
 
   getProperty(k: string): Property | undefined {
     return this.properties.get(k);
@@ -145,61 +145,6 @@ export class Entity implements Listener, ComponentContainer {
     }
     return undefined;
   }
-
-  // Connect components which may have higher-order listeners upon publishing
-  // connectToWorld() {
-  //   if(!this.isPublished() || !this.world) {
-  //     return;
-  //   }
-  //   // Add this player tp any owning player(s) or team(s) scope for this world
-  //   const game = Game.getInstance();
-  //   const { perceptionGrouping } = game;
-  //   if (perceptionGrouping === 'team') {
-  //     for(let teamId of this.teams) {
-  //       const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
-  //       if(scope) {
-  //         // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-  //         scope.addViewer(this.id, game.viewDistance, this.position.toChunkSpace());
-  //       }
-  //     }
-  //   } else {
-  //     for(let playerId of this.owners) {
-  //       const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
-  //       if(scope) {
-  //         scope.addViewer(this.id, game.viewDistance, this.position.toChunkSpace());
-  //       }
-  //     }
-  //   }
-  // }
-
-  // Disconnects world-level component listeners and adjusts scope of player or teams
-  // disconnectFromWorld() {
-  //   if(!this.isPublished() || ! this.world) {
-  //     return;
-  //   }
-  //   // Remove this player from owning player(s) or team(s) scope for this world
-  //   const game = Game.getInstance();
-  //   const { perceptionGrouping } = game;
-  //   if (perceptionGrouping === 'team') {
-  //     for(let teamId of this.teams) {
-  //       const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
-  //       if(scope) {
-  //         // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-  //         scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace());
-  //       }
-  //     }
-  //   } else {
-  //     for(let playerId of this.owners) {
-  //       const scope = game.teams.get(playerId)!.scopesByWorld.get(this.world.id);
-  //       if(scope) {
-  //         scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace());
-  //       }
-  //     }
-  //   }
-  // }
-
-  // // Disconnects game-level component listeners
-  // disconnectFromGame() {}
 
   /*****************************************
    *  ACTION GENERATORS / IMPLEMENTATIONS
@@ -375,6 +320,8 @@ export class Entity implements Listener, ComponentContainer {
     return false;
   }
 
+  // Movement
+
   move({caster, to, using, tags}: MoveAction.EntityParams): MoveAction {
     return new MoveAction({caster, target: this, to, using, tags});
   }
@@ -413,6 +360,36 @@ export class Entity implements Listener, ComponentContainer {
     this.position = to;
     return true;
   }
+
+  // Senses
+
+  senseEntity({target, using, tags}: SenseEntityAction.EntityParams): SenseEntityAction {
+    return new SenseEntityAction({caster: this, target, using, tags});
+  }
+
+  _senseEntity(entity: Entity, using: Component): boolean {
+    this.sensedEntities.set(entity.id, entity);
+    if(!this.entitiesSensedBy.has(using.id)) {
+      this.entitiesSensedBy.set(entity.id, new Map<string, Component>());
+    }
+    this.entitiesSensedBy.get(using.id)!.set(using.id, using);
+    return true;
+  }
+
+  loseEntity({target, using, tags}: SenseEntityAction.EntityParams): SenseEntityAction {
+    return new SenseEntityAction({caster: this, target, using, tags});
+  }
+
+  _loseEntity(entity: Entity, using: Component): boolean {
+    this.sensedEntities.set(entity.id, entity);
+    if(!this.entitiesSensedBy.has(using.id)) {
+      this.entitiesSensedBy.set(entity.id, new Map<string, Component>());
+    }
+    this.entitiesSensedBy.get(using.id)!.set(using.id, using);
+    return true;
+  }
+
+  // World
   
   changeWorlds({caster, from, to, position, using, tags}: ChangeWorldAction.EntityParams): ChangeWorldAction {
     return new ChangeWorldAction({caster, target: this, from, to, position, using, tags});
@@ -447,6 +424,7 @@ export class Entity implements Listener, ComponentContainer {
 
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace Entity {
   export interface ConstructorParams {
     id?: string,

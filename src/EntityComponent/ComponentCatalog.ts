@@ -1,5 +1,6 @@
 import { compact } from 'lodash';
 import _ = require('lodash');
+import { SensoryInformation } from '../Events/Interfaces';
 import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity, Listener, Modifier, Reacter } from '../internal';
 import { Subscription } from './ComponentCatalog/Subscription';
 import { SubscriptionSet } from './ComponentCatalog/SubscriptionSet';
@@ -194,12 +195,13 @@ export class ComponentCatalog implements Listener {
   }
 
   // ACTION METHODS
-  senseEntity(action: Entity): any {
-
-  }
-
-  senseAction(action: Action): any {
-
+  sense(action: Action): SensoryInformation | boolean {
+    for(const [id, component] of this.subscribersByType.sensor) {
+      if(component.sense(action) !== false) {
+        return true;
+      }
+    }
+    return false;
   }
 
   modify(action: Action) {

@@ -2,10 +2,10 @@ import { v4 as uuid } from 'uuid';
 import { ComponentCatalog } from '../EntityComponent/ComponentCatalog';
 
 import { 
-  Component, ComponentContainer,
-  Listener, Modifier, Reacter, Action, IChunk,
+  ComponentContainer,
+  Listener, Action, IChunk,
   ByteLayer,
-  Entity, Vector, Game, ClientWorld, WorldScope, Scope
+  Entity, Vector, Game, ClientWorld, WorldScope, Scope,
 } from '../internal';
 
 const CHUNK_WIDTH = 16;
@@ -207,12 +207,12 @@ export abstract class World implements ComponentContainer, Listener {
     
   };
 
-  senseAction(a: Action): object | undefined {
-    return;
+  sense(a: Action): boolean {
+    return true;
   }
 
-  senseEntity(e: Entity): object | undefined {
-    return;
+  senseEntity(e: Entity): boolean {
+    return true;
   }
 
   createScope(): WorldScope {

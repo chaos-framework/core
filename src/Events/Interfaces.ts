@@ -7,3 +7,7 @@ export interface CommonActionSerializedFields {
   breadcrumbs: string[],
   permitted: boolean
 }
+
+export interface SensoryInformation {
+  [key: string]: any;
+}

@@ -1,21 +1,28 @@
+import { ComponentContainer } from '..';
 import { Viewer } from '../Game/Interfaces';
-import { Game, Entity, Component, Listener, Scope, Player, Team, Permission } from '../internal';
+import { Game, Entity, Component, Listener, Scope, Player, Team, Permission, SensoryInformation } from '../internal';
 
 export abstract class Action {
   // TODO implement player: Player;
   caster?: Entity;
   target?: Entity;
   using?: Entity | Component;
+
   tags: Set<string> = new Set<string>();
   breadcrumbs: Set<string> = new Set<string>();
+
   public: boolean = false;  // whether or not nearby entities (who are not omnipotent) can modify/react
   absolute: boolean = false; // absolute actions do not get modified, likely come from admin / override code
+
   private permissions: Map<number, Permission> = new Map();
   permitted: boolean = true;
   decidingPermission?: Permission;
+
   nested: number = 0;
-  verb?: string;
+  
   visibilityChangingAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
+  sensors = new Map<string, SensoryInformation | boolean>();
+  playerSensors = new Map<string, SensoryInformation | boolean>();
 
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
@@ -38,35 +45,43 @@ export abstract class Action {
       // Just let the target modify and react directly
       this.target.modify(this);
       this.decidePermission();
-      let applied = false;
       if (this.permitted || force) {
-        applied = this.apply();
+        this.apply();
       }
       this.target.react(this);
       return true;
     }
 
     // Get listeners (entities, maps, systems, etc) in order they should modify/react
-    let listeners: Listener[] = [];
+    const listeners: ComponentContainer[] = [];
 
     if (this.caster) {
       listeners.push(this.caster);
-      if (this.caster.map) {
-        listeners.push(this.caster.map);
+      if (this.caster.world) {
+        listeners.push(this.caster.world);
+        // TODO get nearby who are NOT caster or target
       }
     }
-    // TODO caster world
     listeners.push(game);
-    // TODO target world, if different from caster's
-    if (this.target && this.target != this.caster) {
-      if (this.caster && this.caster.map != this.target.map) {
-        listeners.push(this.target.map);
+    if (this.target && this.target !== this.caster) {
+      if (this.caster?.world && this.target.world && this.caster?.world !== this.target.world) {
+        listeners.push(this.target.world);
+        // TODO get nearby who are NOT caster or target from the target's world
       }
       listeners.push(this.target);
     }
 
+    // Let all listeners sense
+    for (const listener of listeners) {
+      this.sensors.set(listener.id, listener.sense(this));
+    }
+    // Assume that caster has full awareness
+    if(this.caster) {
+      this.sensors.set(this.caster.id, true);
+    }
+
     // Let all listeners modify, watching to see if any cancel the action
-    for (let listener of listeners) {
+    for (const listener of listeners) {
       listener.modify(this);
     }
 
@@ -74,8 +89,10 @@ export abstract class Action {
     this.decidePermission();
 
     // Apply this action to the target, checking for success
-    // TODO woah we're doing it regardless of permission
-    let applied = this.apply();
+    let applied = false;
+    if(this.permitted || force) {
+      applied = this.apply();
+    }
 
     // Queue in the game
     game.broadcast(this);
@@ -83,7 +100,7 @@ export abstract class Action {
     this.teardown();
 
     // Let all listeners react
-    for (let listener of listeners) {
+    for (const listener of listeners) {
       listener.react(this);
     }
 
@@ -115,7 +132,7 @@ export abstract class Action {
   decidePermission() {
     // Find the highest ranked allow/forbid
     let highest = 0;
-    for (let [key, value] of this.permissions) {
+    for (const [key, value] of this.permissions) {
       if (key >= highest) {
         highest = key;
         this.decidingPermission = value;
@@ -209,6 +226,7 @@ export abstract class Action {
   teardown(): void { };
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace Action {
   export interface Serialized {
     caster?: string,

@@ -1,9 +1,16 @@
-import { Component, Action, Modifier, Reacter, Listener, Entity, ComponentScope } from '../../../src/internal';
+import { Component, Action, Listener, Entity, 
+  ComponentScope, SensoryInformation, Sensor } from '../../../src/internal';
 
 // tslint:disable: max-classes-per-file
 export class EmptyComponent extends Component {
   name = "Empty Component";
   unique = false;
+}
+
+export class SensesAll extends Component implements Sensor {
+  sense(action: Action): boolean {
+    return true;
+  }
 }
 
 /*
@@ -13,12 +20,8 @@ export class EmptyComponent extends Component {
 export class NoScopeSpecified extends Component implements Listener {
   name = "Component that has all types of listeners at default scopes";
 
-  senseEntity(e: Entity): object | undefined {
-    return {};
-  }
-
-  senseAction(a: Action): object | undefined {
-    return {};
+  sense(action: Action): boolean {
+    return true;
   }
 
   modify(a: Action) {

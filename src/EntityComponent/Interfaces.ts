@@ -1,6 +1,7 @@
-import { Entity, Action } from "../internal";
+import { identity } from "lodash";
+import { Entity, Action, SensoryInformation, Component, SenseEntityAction } from "../internal";
 
-// CORE INTERFACES
+// CORE INTERFACES & TYPE GUARDS
 export type ComponentType = 'sensor' | 'roller' | 'modifier' | 'reacter';
 
 export interface Modifier {
@@ -12,13 +13,10 @@ export interface Reacter {
 }
 
 export interface Sensor {
-  senseEntity(e: Entity, a?: Action): object | undefined;
-  senseAction(a: Action): object | undefined;
+  sense(a: Action): SensoryInformation | boolean;
 }
 
 export interface Listener extends Sensor, Modifier, Reacter { }
-
-// TYPE GUARDS
 
 export function isModifier(o: any): o is Modifier {
   return o.modify !== undefined;
@@ -32,9 +30,17 @@ export function isSensor(o: any): o is Sensor {
   return o.senseEntity !== undefined && o.senseAction !== undefined;
 }
 
+// COMPONENT CONTAINERS
+
+export interface SensoryStorage { // lol
+  sensedEntities: Map<string, Entity>;
+  senseEntity({target, using, tags}: SenseEntityAction.EntityParams): SenseEntityAction;
+  _senseEntity(entity: Entity, using: Component): boolean;
+}
+
 // SCOPE
 
-export type Scope = 'entity' | 'world' | 'game'; //player' | 'team' | 'game';
+export type Scope = 'entity' | 'world' | 'game'; // 'player' | 'team' | 'game';
 
 export interface ComponentScope {
   sensor?: Scope,
