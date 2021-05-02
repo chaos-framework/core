@@ -3,11 +3,13 @@ import 'mocha';
 
 import { NestedMap, NestedChanges } from '../../../src/internal';
 
-describe.only('NestedMap', () => {
+describe('NestedMap', () => {
   describe('Without nesting', () => {
     let unnested: NestedMap<number>;
+    const id = 'solo';
+    const level = 'level is irrelevent';
     beforeEach(() => {
-      unnested = new NestedMap<number>('solo', 'level is irrelevent');
+      unnested = new NestedMap<number>(id, level);
     })
 
     it('Can add individual entries.', () => {
@@ -32,15 +34,138 @@ describe.only('NestedMap', () => {
     });
 
     it('Tracks changes for individual additions.', () => {
-      unnested.add('1', 1);
+      let changes = unnested.add('1', 1);
+      expect(changes.changes[level]).to.exist;
+      expect(changes.changes[level]![id]).to.exist;
+      expect(changes.changes[level]![id]).to.contain('1');
     });
 
     it('Tracks changes for individual subtractions.', () => {
       unnested.add('1', 1);
+      let changes = unnested.remove('1');
+      expect(changes.changes[level]).to.exist;
+      expect(changes.changes[level]![id]).to.exist;
+      expect(changes.changes[level]![id]).to.contain('1');
     });
   });
 
   describe('With nesting', () => {
+    /*
+    *          initial setup
+    *   top             0           1
+    *   middle        0   1       1   2
+    *   leaf         0 1  1       -  2 3
+    *   [entries]   ab bc -       -  d efgh
+    */
+
+    let top: NestedMap<string>[];
+    let middle: NestedMap<string>[];
+    let leaf: NestedMap<string>[];
+    beforeEach(() => {
+      top = [];
+      middle = [];
+      leaf = [];
+      // Push nodes
+      for(let i = 0; i <= 1; i++) {
+        top.push(new NestedMap<string>(i.toString(), 'top'));
+      }
+      for(let i = 0; i <= 2; i++) {
+        middle.push(new NestedMap<string>(i.toString(), 'middle'));
+      }
+      for(let i = 0; i <= 3; i++) {
+        leaf.push(new NestedMap<string>(i.toString(), 'leaf'));
+      }
+      // Add entries to children
+      leaf[0].add('a', 'a');
+      leaf[0].add('b', 'b');
+      leaf[1].add('b', 'b');
+      leaf[1].add('c', 'c');
+      leaf[2].add('d', 'd');
+      leaf[3].add('e', 'e');
+      leaf[3].add('f', 'f');
+      leaf[3].add('g', 'g');
+      leaf[3].add('h', 'h');
+      // Start linking the nodes, bottom-to-top
+      middle[0].addChild(leaf[0]);
+      middle[0].addChild(leaf[1]);
+      middle[1].addChild(leaf[1]);
+      middle[2].addChild(leaf[2]);
+      middle[2].addChild(leaf[3]);
+      top[0].addChild(middle[0]);
+      top[0].addChild(middle[1]);
+      top[1].addChild(middle[1]);
+      top[1].addChild(middle[2]);
+    });
+
+    it("Should ensure all top and middle nodes contain their child nodes' entries", () => {
+      // Check top nodes
+      expect(top[0].has('a')).to.be.true;
+      expect(top[0].has('b')).to.be.true;
+      expect(top[0].has('c')).to.be.true;
+      expect(top[0].has('d')).to.be.false;
+      expect(top[1].has('a')).to.be.false;
+      expect(top[1].has('b')).to.be.true;
+      expect(top[1].has('c')).to.be.true;
+      expect(top[1].has('d')).to.be.true;
+      expect(top[1].has('e')).to.be.true;
+      expect(top[1].has('f')).to.be.true;
+      expect(top[1].has('g')).to.be.true;
+      // Check middle nodes
+      expect(middle[0].has('a')).to.be.true;
+      expect(middle[0].has('b')).to.be.true;
+      expect(middle[0].has('c')).to.be.true;
+      expect(middle[0].has('d')).to.be.false;
+      expect(middle[1].has('a')).to.be.false;
+      expect(middle[1].has('b')).to.be.true;
+      expect(middle[1].has('c')).to.be.true;
+      expect(middle[2].has('a')).to.be.false;
+      expect(middle[2].has('c')).to.be.false;
+      expect(middle[2].has('d')).to.be.true;
+      expect(middle[2].has('e')).to.be.true;
+    });
+
+    it('Can add a new leaf and track changes for new entries', () => {
+      const newLeaf = new NestedMap<string>('new', 'leaf');
+      newLeaf.add('a', 'a');  // should NOT be new to middle or top
+      newLeaf.add('z', 'z');  // SHOULD be new to middle and top
+      const change = middle[0].addChild(newLeaf);
+      expect(change.changes['middle']['0'].has('a')).to.be.false;
+      expect(change.changes['middle']['0'].has('z')).to.be.true;
+      expect(change.changes['top']['0'].has('a')).to.be.false;
+      expect(change.changes['top']['0'].has('z')).to.be.true;
+    });
+
+    it('Can remove a leaf and track changes', () => {
+      const change = middle[0].removeChild('0');
+      // Should remove 'a' but not 'b' from middle since it is shared by leaf '1'
+      expect(change.changes['middle']['0'].has('a')).to.be.true;
+      expect(change.changes['middle']['0'].has('b')).to.be.false;
+      // Same with top
+      expect(change.changes['top']['0'].has('a')).to.be.true;
+      expect(change.changes['top']['0'].has('b')).to.be.false;
+    });
+
+    it('Can add a leaf entry and track changes', () => {
+      // Add leaf entry and cache the changes
+      let cached = leaf[1].add('z', 'z');
+      expect(cached.changes['leaf']['1'].has('z')).to.be.true;
+      expect(cached.changes['middle']['0'].has('z')).to.be.true;
+      expect(cached.changes['middle']['1'].has('z')).to.be.true;
+      expect(cached.changes['middle']['2']).to.not.exist;
+      expect(cached.changes['top']['0'].has('z')).to.be.true;
+      expect(cached.changes['top']['1'].has('z')).to.be.true;
+    });
+
+    it('Can remove a leaf entry and track changes at appropriate levels', () => {
+      // Remove a leaf entry and cache the changes
+      let cached = leaf[0].remove('a');
+      expect(cached.changes['leaf']['0']?.has('a')).to.be.true;
+      expect(cached.changes['middle']['0']?.has('a')).to.be.true;
+      expect(cached.changes['top']['0']?.has('a')).to.be.true;
+      expect(cached.changes['leaf']['1']).to.not.exist;
+      expect(cached.changes['middle']['1']).to.not.exist;
+      expect(cached.changes['top']['1']).to.not.exist;
+    });
 
   });
 });

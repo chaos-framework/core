@@ -11,6 +11,7 @@ export class NestedMap<T> {
   // Takes the ID of the parent and which type/level it is, ie entity/player/team for visibility nesting
   constructor(public readonly id: string, public readonly level: string) { };
 
+  // NOTE that this will not produce any changes, as the parent will extract values in
   addParent(id: string, node: NestedMap<T>, changes: NestedChanges = new NestedChanges()): NestedChanges {
     // Make sure we don't have this parent already -- no need to do anything if so
     if(this.parents.has(node.id)) {
@@ -18,10 +19,6 @@ export class NestedMap<T> {
     }
     // Add the parent
     this.parents.set(id, node);
-    // Make sure the parent is getting receiving upstream all entries from this node
-    for(const [id, entry] of this.entries) {
-      node.add(id, entry, this.id, changes);
-    }
     return changes;
   };
 
@@ -29,33 +26,44 @@ export class NestedMap<T> {
     this.parents.delete(id); // nothing else to do here, right? 
   };
 
-  addChild(id: string, node: NestedMap<T>, changes: NestedChanges = new NestedChanges()): NestedChanges {
-    this.children.set(id, node);
-    // nothing else to do here, as the children are responsible for aggregating upward?
-      // I need to figure out if the parent should call addParent on child or vice-versa.. could hinge on .has(whichever.id) check on both sides
-        // would make it easier on other code..
+  addChild(node: NestedMap<T>, changes: NestedChanges = new NestedChanges()): NestedChanges {
+    if(this.children.has(node.id)) {
+      return changes;
+    }
+    this.children.set(node.id, node);
+    // Extract the child node's values
+    for(const [entryId, entry] of node.entries) {
+      this.add(entryId, entry, node.id, changes);
+    }
+    node.addParent(this.id, this, changes);
     return changes;
   };
 
   removeChild(id: string, changes: NestedChanges = new NestedChanges()): NestedChanges {
-    // const child = this.children.get(id);
-    // if(child === undefined) {
-    //   return changes;
-    // }
-    // // Get all of the child's entries and remove
-    // for(const [entryId, entry] of child.entries) {
-    //   const allChildrenProvidingThisEntry = this.entriesByChildren.get(entryId);
-    //   if(allChildrenProvidingThisEntry !== undefined) {
-    //     allChildrenProvidingThisEntry?.delete(id);
-    //     if(allChildrenProvidingThisEntry.size === 0) {
-    //       this.entries.delete(entryId);
-    //       // TODO remove from parents
-    //       this.entriesByChildren.delete(entryId);
-    //     }
-    //   }
-    // }
-    // this.children.delete(id);
-    // // TODO
+    const child = this.children.get(id);
+    if(child === undefined) {
+      return changes;
+    }
+    // Get all of the child's entries and remove
+    for(const [entryId, entry] of child.entries) {
+      const allChildrenProvidingThisEntry = this.entriesByChildren.get(entryId);
+      if(allChildrenProvidingThisEntry !== undefined) {
+        allChildrenProvidingThisEntry.delete(id);
+        // Check if no other children are providing this entry
+        if(allChildrenProvidingThisEntry.size === 0) {
+          // Remove from this node
+          this.entries.delete(entryId);
+          this.entriesByChildren.delete(entryId);
+          // Track this change
+          changes.add(this.level, this.id, entryId);
+          // Let parents know that we've lost this value
+          for(const [parentId, parentNode] of this.parents) {
+            parentNode.remove(entryId, this.id, changes);
+          }
+        }
+      }
+    }
+    this.children.delete(id);
     return changes;
   };
 
@@ -64,18 +72,18 @@ export class NestedMap<T> {
     if(!this.entries.has(id)){
       changes.add(this.level, this.id, id);
     }
-    // Add the entry
+    // Add the entry -- doesn't matter if it's already set
     this.entries.set(id, value);
     // If a source was provided (so this node is probably not the leaf) make sure we're tracking where this came from
     if(node !== undefined) {
-      if(!(this.entriesByChildren.has(node))) {
-        this.entriesByChildren.set(node, new Set<string>());
+      if(!(this.entriesByChildren.has(id))) {
+        this.entriesByChildren.set(id, new Set<string>());
       }
-      this.entriesByChildren.get(node)!.add(id);
+      this.entriesByChildren.get(id)!.add(node);
     }
     // Add it to all parents
-    for(const [id, parent] of this.parents) {
-      parent.add(id, value, this.id, changes);
+    for(const [parentId, parentNode] of this.parents) {
+      parentNode.add(id, value, this.id, changes);
     }
     return changes;
   }
@@ -107,6 +115,10 @@ export class NestedMap<T> {
         changes.add(this.level, this.id, id);
       }
     }
+    // Let all parents know that we've removed this entry
+    for(const [parentId, parentNode] of this.parents) {
+      parentNode.remove(id, this.id, changes);
+    }
     return changes;
   }
 
@@ -124,13 +136,13 @@ export class NestedMap<T> {
 export class NestedChanges {
   changes: { [key: string]: { [key:string]: Set<string> }} = {};
 
-  add(variant: string, id: string, entry: string) {
-    if(this.changes[variant] === undefined) {
-      this.changes[variant] = {};
+  add(level: string, id: string, entry: string) {
+    if(this.changes[level] === undefined) {
+      this.changes[level] = {};
     }
-    if(this.changes[variant]![id] === undefined) {
-      this.changes[variant][id] = new Set<string>();
+    if(this.changes[level]![id] === undefined) {
+      this.changes[level][id] = new Set<string>();
     }
-    this.changes[variant]![id]!.add(entry);
+    this.changes[level]![id]!.add(entry);
   }
 }
