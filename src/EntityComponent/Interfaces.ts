@@ -27,7 +27,7 @@ export function isReacter(o: any): o is Reacter {
 }
 
 export function isSensor(o: any): o is Sensor {
-  return o.senseEntity !== undefined && o.senseAction !== undefined;
+  return o.sense!== undefined;
 }
 
 // COMPONENT CONTAINERS
