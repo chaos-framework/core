@@ -1,7 +1,7 @@
   // tslint:disable: max-classes-per-file
 
 export class NestedMap<T> {
-  entries = new Map<string, T>();
+  map = new Map<string, T>();
   entriesByChildren = new Map<string, Set<string>>(); // entry A is granted by child node B, C, and D
 
   // TODO we could just iterate over these as a simple array and do a reference comparison for finding -- could speed this up?
@@ -32,7 +32,7 @@ export class NestedMap<T> {
     }
     this.children.set(node.id, node);
     // Extract the child node's values
-    for(const [entryId, entry] of node.entries) {
+    for(const [entryId, entry] of node.map) {
       this.add(entryId, entry, node.id, changes);
     }
     node.addParent(this.id, this, changes);
@@ -45,14 +45,14 @@ export class NestedMap<T> {
       return changes;
     }
     // Get all of the child's entries and remove
-    for(const [entryId, entry] of child.entries) {
+    for(const [entryId, entry] of child.map) {
       const allChildrenProvidingThisEntry = this.entriesByChildren.get(entryId);
       if(allChildrenProvidingThisEntry !== undefined) {
         allChildrenProvidingThisEntry.delete(id);
         // Check if no other children are providing this entry
         if(allChildrenProvidingThisEntry.size === 0) {
           // Remove from this node
-          this.entries.delete(entryId);
+          this.map.delete(entryId);
           this.entriesByChildren.delete(entryId);
           // Track this change
           changes.add(this.level, this.id, entryId);
@@ -69,11 +69,11 @@ export class NestedMap<T> {
 
   add(id: string, value: T, node?: string, changes: NestedChanges = new NestedChanges()): NestedChanges  {
     // Record in the result if this is a new entry
-    if(!this.entries.has(id)){
+    if(!this.map.has(id)){
       changes.add(this.level, this.id, id);
     }
     // Add the entry -- doesn't matter if it's already set
-    this.entries.set(id, value);
+    this.map.set(id, value);
     // If a source was provided (so this node is probably not the leaf) make sure we're tracking where this came from
     if(node !== undefined) {
       if(!(this.entriesByChildren.has(id))) {
@@ -89,19 +89,19 @@ export class NestedMap<T> {
   }
 
   remove(id: string, node?: string, changes: NestedChanges = new NestedChanges()): NestedChanges  {
-    if(!this.entries.has(id)) {
+    if(!this.map.has(id)) {
       return changes;
     }
     const byChildren = this.entriesByChildren.get(id);
     // See if a node was passed to indicate where this change is coming from downstream
     if(node !== undefined) {
       if(byChildren === undefined) {
-        this.entries.delete(id);
+        this.map.delete(id);
       } else {
         byChildren.delete(node);
         // See if no other downstream source is providing this entry
         if(byChildren.size === 0) {
-          this.entries.delete(id);
+          this.map.delete(id);
           changes.add(this.level, this.id, id);
         }
       }
@@ -111,7 +111,7 @@ export class NestedMap<T> {
         return changes;
       } else {
         // If no node specified and no child is providing this, just delete and return the change that was made
-        this.entries.delete(id);
+        this.map.delete(id);
         changes.add(this.level, this.id, id);
       }
     }
@@ -123,11 +123,11 @@ export class NestedMap<T> {
   }
 
   get(id: string): T | undefined {
-    return this.entries.get(id);
+    return this.map.get(id);
   }
 
   has(id: string): boolean {
-    return this.entries.has(id);
+    return this.map.has(id);
   }
 
 }

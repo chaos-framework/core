@@ -56,7 +56,7 @@ describe('Player', () => {
 
     it('Can optionally join teams during construction', () => {
       const player = new Player({ username: 'Test', teams: [team.id, otherTeam.id] });
-      expect(player.teams.size).to.equal(2);
+      expect(player.teams.map.size).to.equal(2);
     });
 
     it('Has own scope and entities tracked if visibility grouping is at player level', () => {

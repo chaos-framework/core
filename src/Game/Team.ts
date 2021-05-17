@@ -1,14 +1,16 @@
+// tslint:disable: forin
 import { v4 as uuid } from 'uuid';
 
-import { Game, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType, WorldScope } from '../internal';
+import { Game, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType, WorldScope, NestedMap, Entity } from '../internal';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Team implements Viewer, ActionQueuer {
-  name: string;
   id: string = uuid();
+  name: string;
+
   players = new Set<string>();
-  entities = new Set<string>();
-  entitiesThrough = new Map<string, Set<string>>();
+  entities = new NestedMap<Entity>(this.id, 'team');
+
   scopesByEntity = new EntityScope();
   scopesByWorld: Map<string, WorldScope> = new Map<string, WorldScope>();
 
@@ -39,65 +41,29 @@ export class Team implements Viewer, ActionQueuer {
     return this.scopesByEntity;
   }
 
-
   // TODO action generator
 
   _addPlayer(player: Player) {
-    const game = Game.getInstance();
-    this.players.add(player.id);
-    player._joinTeam(this);
-    // Gather up all the entities we have through this player
-    for(let entityId of player.entities) {
-      const entity = game.getEntity(entityId);
-      if(entity) {
-        this.addEntity(player.id, entityId);
-        entity.teams.add(this.id);
-      }
+    // Don't add the same player twice
+    if(this.players.has(player.id)) {
+      return false;
     }
+    this.players.add(player.id);
+    // Add player's entity nested map as a child
+    this.entities.addChild(player.entities);
+    player._joinTeam(this);
   }
 
   // TODO action generator
 
   _removePlayer(player: Player) {
-    const game = Game.getInstance();
+    if(!this.players.has(player.id)) {
+      return false;
+    }
     this.players.delete(player.id);
+    // Remove player's entity nested map as child
+    this.entities.removeChild(player.id);
     player._leaveTeam(this);
-    for(let entityId of player.entities) {
-      // Remove entity, checking that it's not also on this team through some other player
-      const fullyRemoved = this.removeEntity(player.id, entityId);
-    }
-  }
-
-  // Add entity through a player.
-  // Should only be called by Player, otherwise happens naturally with player joining team via proper action
-  addEntity(playerId: string, entityId: string): void {
-    if(this.entitiesThrough.has(entityId)) {
-      this.entitiesThrough.get(entityId)!.add(playerId);
-    } else {
-      this.entities.add(entityId);
-      const s = new Set<string>();
-      s.add(playerId);
-      this.entitiesThrough.set(entityId, s);
-      Game.getInstance().getEntity(entityId)!.teams.add(this.id);
-      // TODO handling sight when entities added to existing team
-      // this.entitiesInSight.add(entityId);
-    }
-  }
-
-  // Remove entity THROUGH a player, assuming no other player provides a team-entity relationship.
-  // Should only be called by Player, otherwise happens naturally with player leaving team via proper action
-  removeEntity(playerId: string, entityId: string): boolean {
-    const playersThisTeamHasThisEntityThrough = this.entitiesThrough.get(entityId)!;
-    playersThisTeamHasThisEntityThrough.delete(playerId);
-    if(playersThisTeamHasThisEntityThrough.size === 0) {
-      this.entities.delete(entityId);
-      // this.scopesByEntity.loseSightOfEntity(entityId); TODO ahhhh
-      this.entitiesThrough.delete(entityId);
-      Game.getInstance().getEntity(entityId)!.teams.delete(this.id);
-      return true;
-      // TODO handling sight when entities added to existing team
-    }
-    return false;
   }
 
   serializeForClient(): Team.SerializedForClient {
@@ -106,6 +72,7 @@ export class Team implements Viewer, ActionQueuer {
 
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace Team {
   export interface ConstructorParams {
     id?: string,

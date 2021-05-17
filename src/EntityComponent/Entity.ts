@@ -7,7 +7,7 @@ import {
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team
 } from '../internal';
 import { ComponentCatalog } from './ComponentCatalog';
 
@@ -27,7 +27,7 @@ export class Entity implements Listener, ComponentContainer {
   abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
   owners = new Set<string>(); // players that can control this Entity
-  teams = new Set<string>(); // teams that owning players belong to
+  teams: NestedMap<Team>; // teams that owning players belong to
 
   sensedEntities = new Map<string, Entity>();
   entitiesSensedBy = new Map<string, Map<string, Component>>();
@@ -48,6 +48,7 @@ export class Entity implements Listener, ComponentContainer {
     this.active = active;
     this.omnipotent = omnipotent;
     this.tags = new Set<string>(tags);
+    this.teams = new NestedMap<Team>(this.id, 'entity');
     // TODO create from serialized to load from disk/db, and don't increment Entity count
   }
 
@@ -338,7 +339,8 @@ export class Entity implements Listener, ComponentContainer {
       const game = Game.getInstance();
       const { perceptionGrouping } = game;
       if (perceptionGrouping === 'team') {
-        for(let teamId of this.teams) {
+        // tslint:disable-next-line: forin
+        for(let teamId in this.teams.map.entries) {
           const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
           if(scope) {
             // TODO SERIOUS optimization here -- no need to repeat so many calculations between 

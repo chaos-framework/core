@@ -1,3 +1,5 @@
+// tslint:disable: no-unused-expression
+
 import { expect } from 'chai';
 import 'mocha';
 

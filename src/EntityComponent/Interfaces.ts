@@ -1,6 +1,10 @@
 import { identity } from "lodash";
 import { Entity, Action, SensoryInformation, Component, SenseEntityAction } from "../internal";
 
+export interface Identifiable {
+  id: string;
+}
+
 // CORE INTERFACES & TYPE GUARDS
 export type ComponentType = 'sensor' | 'roller' | 'modifier' | 'reacter';
 

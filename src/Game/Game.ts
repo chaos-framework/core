@@ -181,6 +181,10 @@ export namespace Game {
       const deserialized = Team.DeserializeAsClient(team);
       game.teams.set(deserialized.id, deserialized);  // TODO addTeam
     }
+    for(let entity of serialized.entities) {
+      const deserialized = Entity.DeserializeAsClient(entity);
+      game.addEntity(deserialized);
+    }
     for(let player of serialized.players) {
       const deserialized = Player.DeserializeAsClient(player);
       game.players.set(deserialized.id, deserialized);  // TODO addPlayer..
@@ -188,10 +192,6 @@ export namespace Game {
     for(let world of serialized.worlds) {
       const deserialized = World.deserializeAsClient(world);
       game.addWorld(deserialized);
-    }
-    for(let entity of serialized.entities) {
-      const deserialized = Entity.DeserializeAsClient(entity);
-      game.addEntity(deserialized);
     }
     return game;
   }

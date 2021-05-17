@@ -10,7 +10,7 @@ import Property, { ValueType } from './EntityComponent/Properties/Property';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification';
 import Value, { ModificationMethod } from './EntityComponent/Properties/Value';
 export { 
-  ComponentType,
+  Identifiable, ComponentType,
   Listener, Modifier, Reacter, Sensor, 
   isModifier, isReacter, isSensor,
   Scope, ComponentScope
