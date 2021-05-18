@@ -14,7 +14,8 @@ export class LoseEntityAction extends Action {
   }
 
   apply(): boolean {
-    return this.caster._loseEntity(this.target, this.using);
+    this.caster._loseEntity(this.target, this.using);
+    return true;
   }
 }
 

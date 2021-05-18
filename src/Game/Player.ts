@@ -15,7 +15,9 @@ export class Player implements Viewer, ActionQueuer {
 
   admin = false;
   scopesByWorld: Map<string, WorldScope>;
-  scopesByEntity: EntityScope;
+  
+  sensedEntities: NestedMap<Entity>;
+
   broadcastQueue = new Queue<any>();
 
   constructor({ id = uuid(), username, teams = [], admin = false, client }: Player.ConstructorParams) {
@@ -26,6 +28,7 @@ export class Player implements Viewer, ActionQueuer {
     const game = Game.getInstance();
     this.teams = new NestedMap<Team>(this.id, 'player')
     this.entities = new NestedMap<Entity>(this.id, 'player')
+    this.sensedEntities = new NestedMap<Entity>(id, 'player');
     // Make sure that we weren't passed an array of teams if the game's perceptionGrouping is 'team'
     // This is because you can't (yet) meaningfully share a scope with multiple teams
     if (teams.length > 1 && game.perceptionGrouping === 'team') {
@@ -44,10 +47,8 @@ export class Player implements Viewer, ActionQueuer {
     if (game.perceptionGrouping === 'team' && this.teams.map.size === 1) {
       const team = this.teams.map.values().next().value;
       this.scopesByWorld = team.scopesByWorld;
-      this.scopesByEntity = team.scopesByEntity;
     } else {
       this.scopesByWorld = new Map<string, WorldScope>();
-      this.scopesByEntity = new EntityScope();
     }
     game.players.set(this.id, this);
     // If this player is not part of any teams indicate so in the game
@@ -56,12 +57,12 @@ export class Player implements Viewer, ActionQueuer {
     }
   }
 
-  getWorldScopes(): Map<string, WorldScope> {
-    return this.scopesByWorld;
+  getSensedAndOwnedEntities(): Map<string, Entity> {
+    return new Map([...this.entities.map.entries(), ...this.sensedEntities.map.entries()]);
   }
 
-  getEntityScope(): EntityScope {
-    return this.scopesByEntity;
+  getWorldScopes(): Map<string, WorldScope> {
+    return this.scopesByWorld;
   }
 
   enqueueAction(a: Action, visibility: VisibilityType, serialized: string) {
@@ -76,6 +77,7 @@ export class Player implements Viewer, ActionQueuer {
       return false;
     }
     this.entities.add(entity.id, entity);
+    this.sensedEntities.addChild(entity.sensedEntities);
     entity.teams.addChild(this.teams);
     entity.owners.add(this.id);
     // Modify scope, if appropriate
@@ -89,12 +91,12 @@ export class Player implements Viewer, ActionQueuer {
         this.scopesByWorld.set(entity.world.id, scope);
       }
     }
-    this.scopesByEntity.gainSightOfEntity(entity.id);  // TODO this needs to happen in perception...?
     return true;
   }
 
   _disownEntity(entity: Entity): boolean {
     entity.owners.delete(this.id);
+    this.sensedEntities.removeChild(entity.id);
     this.entities.remove(entity.id);
     entity.teams.removeChild(this.id);
     return true;
@@ -109,7 +111,8 @@ export class Player implements Viewer, ActionQueuer {
       return false;
     }
     this.teams.add(team.id, team);
-    this.entities.addParent(team.id, team.entities);  // add nested map relationship
+    this.entities.addParent(team.entities);  // add nested map relationship
+    this.sensedEntities.addParent(team.sensedEntities);
     if (this.teams.map.size === 1) {
       Game.getInstance().playersWithoutTeams.delete(this.id);
     }
@@ -126,6 +129,7 @@ export class Player implements Viewer, ActionQueuer {
     }
     this.teams.remove(team.id);
     this.entities.removeParent(team.id); // detach nestedmap entity relationship
+    this.sensedEntities.removeParent(team.id)
     if (this.teams.map.size === 0) {
       Game.getInstance().playersWithoutTeams.set(this.id, this);
     }

@@ -11,13 +11,15 @@ export class Team implements Viewer, ActionQueuer {
   players = new Set<string>();
   entities = new NestedMap<Entity>(this.id, 'team');
 
-  scopesByEntity = new EntityScope();
+  sensedEntities: NestedMap<Entity>;
+
   scopesByWorld: Map<string, WorldScope> = new Map<string, WorldScope>();
 
   constructor({ id = uuid(), name, players = [] }: Team.ConstructorParams) {
     this.id = id;
-    this.name = name ? name : this.id.substring(this.id.length - 8)
+    this.name = name ? name : this.id.substring(this.id.length - 8);
     this.players = new Set<string>(players);
+    this.sensedEntities = new NestedMap<Entity>(id, 'team');
     Game.getInstance().teams.set(this.id, this);
     Game.getInstance().teamsByName.set(this.name, this);
   }
@@ -37,8 +39,8 @@ export class Team implements Viewer, ActionQueuer {
     return this.scopesByWorld;
   }
 
-  getEntityScope(): EntityScope {
-    return this.scopesByEntity;
+  getSensedAndOwnedEntities(): Map<string, Entity> {
+    return new Map([...this.entities.map.entries(), ...this.sensedEntities.map.entries()]);
   }
 
   // TODO action generator
@@ -51,6 +53,7 @@ export class Team implements Viewer, ActionQueuer {
     this.players.add(player.id);
     // Add player's entity nested map as a child
     this.entities.addChild(player.entities);
+    this.sensedEntities.addChild(player.sensedEntities);
     player._joinTeam(this);
   }
 
@@ -63,6 +66,7 @@ export class Team implements Viewer, ActionQueuer {
     this.players.delete(player.id);
     // Remove player's entity nested map as child
     this.entities.removeChild(player.id);
+    this.sensedEntities.removeChild(player.id);
     player._leaveTeam(this);
   }
 

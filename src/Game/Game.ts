@@ -124,6 +124,7 @@ export abstract class Game implements ComponentContainer {
   };
 
   broadcast(action: Action) {
+    // see which teams/players sensed it
     return;
   }
 
@@ -154,11 +155,9 @@ export abstract class Game implements ComponentContainer {
       }
     }
     // Gather all entities in sight
-    for(let entityId of viewer.getEntityScope().visibleEntities) {
-      const entity = this.entities.get(entityId);
-      if(entity !== undefined) {
-        o.entities.push(entity.serializeForClient());
-      }
+    const visibleEntities = viewer.getSensedAndOwnedEntities();
+    for(const [id, entity] of visibleEntities) {
+      o.entities.push(entity.serializeForClient());
     }
     return o;
   }

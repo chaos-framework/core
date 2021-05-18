@@ -14,7 +14,8 @@ export class SenseEntityAction extends Action {
   }
 
   apply(): boolean {
-    return this.caster._senseEntity(this.target, this.using);
+    this.caster._senseEntity(this.target, this.using);
+    return true;
   }
 }
 

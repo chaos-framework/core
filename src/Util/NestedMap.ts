@@ -12,13 +12,13 @@ export class NestedMap<T> {
   constructor(public readonly id: string, public readonly level: string) { };
 
   // NOTE that this will not produce any changes, as the parent will extract values in
-  addParent(id: string, node: NestedMap<T>, changes: NestedChanges = new NestedChanges()): NestedChanges {
+  addParent(node: NestedMap<T>, changes: NestedChanges = new NestedChanges()): NestedChanges {
     // Make sure we don't have this parent already -- no need to do anything if so
     if(this.parents.has(node.id)) {
       return changes;
     }
     // Add the parent
-    this.parents.set(id, node);
+    this.parents.set(node.id, node);
     return changes;
   };
 
@@ -35,7 +35,7 @@ export class NestedMap<T> {
     for(const [entryId, entry] of node.map) {
       this.add(entryId, entry, node.id, changes);
     }
-    node.addParent(this.id, this, changes);
+    node.addParent(this, changes);
     return changes;
   };
 

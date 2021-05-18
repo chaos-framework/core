@@ -9,6 +9,7 @@ import {
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team
 } from '../internal';
+import { NestedChanges } from '../Util/NestedMap';
 import { ComponentCatalog } from './ComponentCatalog';
 
 export class Entity implements Listener, ComponentContainer {
@@ -29,8 +30,7 @@ export class Entity implements Listener, ComponentContainer {
   owners = new Set<string>(); // players that can control this Entity
   teams: NestedMap<Team>; // teams that owning players belong to
 
-  sensedEntities = new Map<string, Entity>();
-  entitiesSensedBy = new Map<string, Map<string, Component>>();
+  sensedEntities: NestedMap<Entity>;
 
   // Places for items to be equipped
   slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
@@ -49,6 +49,7 @@ export class Entity implements Listener, ComponentContainer {
     this.omnipotent = omnipotent;
     this.tags = new Set<string>(tags);
     this.teams = new NestedMap<Team>(this.id, 'entity');
+    this.sensedEntities = new NestedMap<Entity>(id, 'entity');
     // TODO create from serialized to load from disk/db, and don't increment Entity count
   }
 
@@ -369,26 +370,16 @@ export class Entity implements Listener, ComponentContainer {
     return new SenseEntityAction({caster: this, target, using, tags});
   }
 
-  _senseEntity(entity: Entity, using: Component): boolean {
-    this.sensedEntities.set(entity.id, entity);
-    if(!this.entitiesSensedBy.has(using.id)) {
-      this.entitiesSensedBy.set(entity.id, new Map<string, Component>());
-    }
-    this.entitiesSensedBy.get(using.id)!.set(using.id, using);
-    return true;
+  _senseEntity(entity: Entity, using: Component): NestedChanges {
+    return this.sensedEntities.add(entity.id, entity);
   }
 
   loseEntity({target, using, tags}: SenseEntityAction.EntityParams): SenseEntityAction {
     return new SenseEntityAction({caster: this, target, using, tags});
   }
 
-  _loseEntity(entity: Entity, using: Component): boolean {
-    this.sensedEntities.set(entity.id, entity);
-    if(!this.entitiesSensedBy.has(using.id)) {
-      this.entitiesSensedBy.set(entity.id, new Map<string, Component>());
-    }
-    this.entitiesSensedBy.get(using.id)!.set(using.id, using);
-    return true;
+  _loseEntity(entity: Entity, using: Component): NestedChanges {
+    return this.sensedEntities.remove(entity.id);
   }
 
   // World
