@@ -7,10 +7,11 @@ import {
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor
 } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 import { ComponentCatalog } from './ComponentCatalog';
+import { isSensor } from './Interfaces';
 
 export class Entity implements Listener, ComponentContainer {
   readonly id: string;
@@ -93,10 +94,6 @@ export class Entity implements Listener, ComponentContainer {
   sense(action: Action): SensoryInformation | boolean {
     return this.components.sense(action);
   }
-
-  // senseEntity(entity: Entity, action: Action): SensoryInformation | boolean {
-  //   return this.components.senseEntity(entity, action);
-  // }
 
   getProperty(k: string): Property | undefined {
     return this.properties.get(k);
@@ -189,6 +186,9 @@ export class Entity implements Listener, ComponentContainer {
 
   _attach(component: Component): boolean {
     this.components.addComponent(component); // TODO check for unique flag, return false if already attached
+    if(isSensor(component)) {
+      this.sensedEntities.addChild(component.sensedEntities);
+    }
     return true;
   }
 
@@ -370,16 +370,16 @@ export class Entity implements Listener, ComponentContainer {
     return new SenseEntityAction({caster: this, target, using, tags});
   }
 
-  _senseEntity(entity: Entity, using: Component): NestedChanges {
-    return this.sensedEntities.add(entity.id, entity);
+  _senseEntity(entity: Entity, using: Sensor): NestedChanges {
+    return using.sensedEntities.add(entity.id, entity);
   }
 
   loseEntity({target, using, tags}: SenseEntityAction.EntityParams): SenseEntityAction {
     return new SenseEntityAction({caster: this, target, using, tags});
   }
 
-  _loseEntity(entity: Entity, using: Component): NestedChanges {
-    return this.sensedEntities.remove(entity.id);
+  _loseEntity(entity: Entity, from: Sensor): NestedChanges {
+    return from.sensedEntities.remove(entity.id);
   }
 
   // World

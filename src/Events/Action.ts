@@ -22,7 +22,6 @@ export abstract class Action {
   
   visibilityChangingAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
   sensors = new Map<string, SensoryInformation | boolean>();
-  playerSensors = new Map<string, SensoryInformation | boolean>();
 
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
@@ -147,6 +146,10 @@ export abstract class Action {
 
   is(key: string): boolean {
     return this.tags.has(key);
+  }
+
+  sense(entity: Entity, information: SensoryInformation | boolean) {
+    
   }
 
   counter(a: Action) {

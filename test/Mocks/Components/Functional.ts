@@ -1,5 +1,5 @@
 import { Component, Action, Listener, Entity, 
-  ComponentScope, SensoryInformation, Sensor } from '../../../src/internal';
+  ComponentScope, SensoryInformation, Sensor, NestedChanges, NestedMap } from '../../../src/internal';
 
 // tslint:disable: max-classes-per-file
 export class EmptyComponent extends Component {
@@ -8,6 +8,12 @@ export class EmptyComponent extends Component {
 }
 
 export class SensesAll extends Component implements Sensor {
+  sensedEntities: NestedMap<Entity>;
+  constructor(){
+    super();
+    this.sensedEntities = new NestedMap<Entity>(this.id, 'component');
+  }
+
   sense(action: Action): boolean {
     return true;
   }

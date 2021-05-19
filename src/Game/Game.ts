@@ -124,7 +124,13 @@ export abstract class Game implements ComponentContainer {
   };
 
   broadcast(action: Action) {
-    // see which teams/players sensed it
+    // check if this is a direct console message
+      // handle and return
+    // check if sense / lose entity
+      // look at the change, publish and unpublish accordingly
+    // loop through teams/players
+      // see if it sensed this, or owns the caster, or target where it's a movement action
+      // broadcast accordingly
     return;
   }
 

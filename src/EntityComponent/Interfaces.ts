@@ -1,5 +1,5 @@
 import { identity } from "lodash";
-import { Entity, Action, SensoryInformation, Component, SenseEntityAction } from "../internal";
+import { Entity, Action, SensoryInformation, Component, SenseEntityAction, NestedMap } from "../internal";
 
 export interface Identifiable {
   id: string;
@@ -17,10 +17,13 @@ export interface Reacter {
 }
 
 export interface Sensor {
+  sensedEntities: NestedMap<Entity>;
   sense(a: Action): SensoryInformation | boolean;
 }
 
-export interface Listener extends Sensor, Modifier, Reacter { }
+export interface Listener extends Modifier, Reacter { 
+  sense(a: Action): SensoryInformation | boolean;
+}
 
 export function isModifier(o: any): o is Modifier {
   return o.modify !== undefined;
@@ -32,14 +35,6 @@ export function isReacter(o: any): o is Reacter {
 
 export function isSensor(o: any): o is Sensor {
   return o.sense!== undefined;
-}
-
-// COMPONENT CONTAINERS
-
-export interface SensoryStorage { // lol
-  sensedEntities: Map<string, Entity>;
-  senseEntity({target, using, tags}: SenseEntityAction.EntityParams): SenseEntityAction;
-  _senseEntity(entity: Entity, using: Component): boolean;
 }
 
 // SCOPE

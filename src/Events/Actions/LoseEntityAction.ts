@@ -1,10 +1,10 @@
 import { Component } from '../..';
-import { Action, ActionParameters, Entity } from '../../internal';
+import { Action, ActionParameters, Entity, Sensor } from '../../internal';
 
 export class LoseEntityAction extends Action {
   caster: Entity;
   target: Entity;
-  using: Component;
+  using: Component & Sensor;
 
   constructor({caster, target, using, tags = []}: LoseEntityAction.Params) {
     super({caster, using, tags});
@@ -23,7 +23,7 @@ export class LoseEntityAction extends Action {
 export namespace LoseEntityAction {
   export interface EntityParams extends ActionParameters { 
     target: Entity;
-    using: Component;
+    using: Component & Sensor;
   }
 
   export interface Params extends EntityParams {

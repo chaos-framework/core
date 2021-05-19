@@ -1,13 +1,14 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, Ability, Component } from '../../../src/internal';
+import { Entity, Ability, Component, Sensor } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
 import EmptyAbility from '../../Mocks/Abilities/Empty';
 import { Heal }  from '../../Mocks/Abilities/Spells';
 import { Paladin } from '../../Mocks/Components/Classes';
 import { NonBroadcastingComponent } from '../../Mocks/Components/NonBroadcastingComponent';
+import { Eyes } from '../../Mocks/Components/Sensors';
 
 describe('Entity', () => {
 
@@ -45,6 +46,20 @@ describe('Entity', () => {
       }
     });
   })
+
+  describe('Tracking sensors', () => {
+    let e: Entity;
+    let sensor: Component & Sensor;
+    beforeEach(() => {
+      e = new Entity({ name: "CS Test", active: true, omnipotent: false, tags: ['one', 'two', 'three'] });
+      sensor = new Eyes();
+    });
+
+    it('Tracks which sensors are added to an entity, and adds as children of sensedEntities NestedMap', () => {
+      e._attach(sensor);
+      expect(e.sensedEntities.children.has(sensor.id));
+    });
+  });
 
 });
 
