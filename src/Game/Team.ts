@@ -24,13 +24,13 @@ export class Team implements Viewer, ActionQueuer {
     Game.getInstance().teamsByName.set(this.name, this);
   }
 
-  enqueueAction(a: Action, visibility: VisibilityType, serialized: string) {
+  enqueueAction(a: Action) {
     const game = Game.getInstance();
     // Queue broadcast for all players
     for(const id of this.players) {
       const p = game.players.get(id);
       if(p !== undefined) {
-        p.enqueueAction(a, visibility, serialized);
+        p.enqueueAction(a);
       }
     }
   }

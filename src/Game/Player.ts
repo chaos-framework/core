@@ -65,8 +65,8 @@ export class Player implements Viewer, ActionQueuer {
     return this.scopesByWorld;
   }
 
-  enqueueAction(a: Action, visibility: VisibilityType, serialized: string) {
-    this.broadcastQueue.enqueue(a);
+  enqueueAction(action: Action) {
+    this.broadcastQueue.enqueue(action);
   }
 
   disconnect() { }

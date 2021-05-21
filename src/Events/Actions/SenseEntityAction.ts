@@ -1,5 +1,6 @@
 import { Component } from '../..';
 import { Action, ActionParameters, Entity, Sensor } from '../../internal';
+import { NestedChanges } from '../../Util/NestedMap';
 
 export class SenseEntityAction extends Action {
   caster: Entity;
@@ -14,7 +15,10 @@ export class SenseEntityAction extends Action {
   }
 
   apply(): boolean {
-    this.caster._senseEntity(this.target, this.using);
+    const changes = this.caster._senseEntity(this.target, this.using);
+    if(changes.hasChanges) {
+      this.visibilityChanges = { type: 'addition', changes };
+    }
     return true;
   }
 }

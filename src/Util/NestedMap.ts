@@ -134,6 +134,7 @@ export class NestedMap<T> {
 
 // Returns type, parent id, and entry ids
 export class NestedChanges {
+  hasChanges = false;
   changes: { [key: string]: { [key:string]: Set<string> }} = {};
 
   add(level: string, id: string, entry: string) {
@@ -144,5 +145,7 @@ export class NestedChanges {
       this.changes[level][id] = new Set<string>();
     }
     this.changes[level]![id]!.add(entry);
+    
+    this.hasChanges = true;
   }
 }

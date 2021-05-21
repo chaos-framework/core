@@ -5,7 +5,7 @@ export class MoveAction extends Action {
   target: Entity;
   from: Vector;
   to: Vector;
-  visibilityChangingAction = true;
+  movementAction = true;
 
   constructor({ caster, target, to, using, tags = [] }: MoveAction.Params) {
     super({ caster, using, tags });

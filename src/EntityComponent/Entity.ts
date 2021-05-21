@@ -5,7 +5,7 @@ import {
   Component, ComponentContainer, Event, Action,
   Listener, Ability, Property, AttachComponentAction,
   ChangeWorldAction, MoveAction, RelativeMoveAction,
-  PublishEntityAction,
+  PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor
 } from '../internal';
@@ -149,6 +149,13 @@ export class Entity implements Listener, ComponentContainer {
    *  ACTION GENERATORS / IMPLEMENTATIONS
    *****************************************/
 
+  getPublishedInPlaceAction(): PublishEntityAction {
+    if(this.published && this.world !== undefined) {
+      return new PublishEntityAction({entity: this, position: this.position, world: this.world});
+    }
+    throw new Error('Tried to publish an entity to a client is not published or does not have a world.');
+  }
+
   // Publishing
   
   publish({caster, target, world, position, using, tags}: PublishEntityAction.Params): PublishEntityAction {
@@ -169,6 +176,10 @@ export class Entity implements Listener, ComponentContainer {
   }
 
   // Unpublishing
+
+  unpublish({caster, target, using, tags}: UnpublishEntityAction.EntityParams = {}): UnpublishEntityAction {
+    return new UnpublishEntityAction({caster, target, entity: this, using, tags});
+  }
 
   _unpublish(): boolean {
     Game.getInstance().removeEntity(this);

@@ -1,9 +1,9 @@
-import { Action, ActionParameters, World, Vector, Entity, Game } from '../../internal';
+import { Action, ActionParameters, Entity, Game } from '../../internal';
 
 export class UnpublishEntityAction extends Action {
   entity: Entity;
   target?: Entity; // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
-  visibilityChangingAction = true;
+  movementAction = true;
 
   constructor({ caster, target, entity, using, tags }: UnpublishEntityAction.Params) {
     super({caster, using, tags});
@@ -48,11 +48,11 @@ export class UnpublishEntityAction extends Action {
 
 export namespace UnpublishEntityAction {
   export interface EntityParams extends ActionParameters {
+    target?: Entity
   }
 
   export interface Params extends EntityParams {
-    entity: Entity,
-    target?: Entity
+    entity: Entity
   }
 
   export interface Serialized extends Action.Serialized {

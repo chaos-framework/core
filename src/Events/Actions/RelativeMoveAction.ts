@@ -6,7 +6,7 @@ export class RelativeMoveAction extends Action {
   from: Vector;
   amount: Vector;
   finalPosition?: Vector;
-  visibilityChangingAction = true;
+  movementAction = true;
 
   constructor({caster, target, amount, using, tags = []}: RelativeMoveAction.Params) {
     super({caster, using, tags});

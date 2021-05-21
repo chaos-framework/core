@@ -1,11 +1,9 @@
 import {
   Entity,
-  Action, World, Component,
-  Modifier, Reacter, isModifier, isReacter,
-  Player, Team, ActionQueue, PublishEntityAction, UnpublishEntityAction, ComponentCatalog, ComponentContainer, ClientGame, Scope
+  Action, World, Component, Viewer, NestedChanges,
+  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer, ClientGame, Scope
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
-import { ActionQueuer, Viewer } from "./Interfaces";
 import { CONNECTION, CONNECTION_RESPONSE } from "../ClientServer/Message";
 
 export abstract class Game implements ComponentContainer {
@@ -26,7 +24,7 @@ export abstract class Game implements ComponentContainer {
 
   viewDistance = 6; // how far (in chunks) to load around active entities
   inactiveViewDistance = 1; // how far (in chunks) to load around inactive entities when they enter an inactive world to check for permissions / modifiers
-  perceptionGrouping: "player" | "team" = "player";
+  perceptionGrouping: 'player' | 'team' = 'player';
 
   constructor(options?: any) {
     if (Game.instance && !process.env.DEBUG) {
@@ -123,15 +121,61 @@ export abstract class Game implements ComponentContainer {
     return;
   };
 
-  broadcast(action: Action) {
+  broadcast(action: Action, to?: Player | Team) {
     // check if this is a direct console message
-      // handle and return
-    // check if sense / lose entity
-      // look at the change, publish and unpublish accordingly
-    // loop through teams/players
-      // see if it sensed this, or owns the caster, or target where it's a movement action
-      // broadcast accordingly
+     if(to !== undefined) {
+       // bleh
+       return;
+     }
+    // Check if this action contains any visiblity changes and publish/unpublish entities as needed
+    if(action.visibilityChanges !== undefined) {
+      this.publishVisibilityChanges(action.visibilityChanges.changes, action.visibilityChanges.type === 'addition');
+    }
+    // Broadcast out to either visibility type
+    if(this.perceptionGrouping === 'team') {
+      for(const [id, team] of this.teams) {
+        if(
+          (action.target && (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
+          (action.caster && (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
+          ) {
+            team.enqueueAction(action);
+          }
+      }
+    } else {
+      for(const [id, player] of this.players) {
+        if(
+          (action.target && (player.entities.has(action.target.id) || player.sensedEntities.has(action.target.id))) ||
+          (action.caster && (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))
+          ) {
+            player.enqueueAction(action);
+          }
+      }
+    }
     return;
+  }
+
+  publishVisibilityChanges(changesInVisibility: NestedChanges, addition = true) {
+    if(this.perceptionGrouping === 'team') {
+      // TODO
+    } else {
+      // Broadcast newly visible 
+      if(changesInVisibility.changes['player'] !== undefined) {
+        const players = changesInVisibility.changes['player'].values;
+        players.forEach(playerId => {
+          const player = this.players.get(playerId);
+          if(player !== undefined && player.client !== undefined) {
+            const newEntityIds = changesInVisibility.changes['player'][playerId].keys;
+            // tslint:disable-next-line: forin
+            for(const entityId in newEntityIds) {
+              const entity = this.getEntity(entityId);
+              if(entity !== undefined) {
+                player.client.broadcast(addition ? entity.getPublishedInPlaceAction() : entity.unpublish()); // TODO unpublish
+              }
+            }
+          }
+        });
+      }
+    }
   }
 
   // Optionally modify underlying serialized method to customize it for a team or player.

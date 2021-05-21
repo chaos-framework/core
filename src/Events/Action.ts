@@ -1,6 +1,7 @@
 import { ComponentContainer } from '..';
 import { Viewer } from '../Game/Interfaces';
 import { Game, Entity, Component, Listener, Scope, Player, Team, Permission, SensoryInformation } from '../internal';
+import { NestedChanges } from '../Util/NestedMap';
 
 export abstract class Action {
   // TODO implement player: Player;
@@ -20,8 +21,10 @@ export abstract class Action {
 
   nested: number = 0;
   
-  visibilityChangingAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
+  movementAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
   sensors = new Map<string, SensoryInformation | boolean>();
+
+  visibilityChanges?: { type: 'addition' | 'removal', changes: NestedChanges }
 
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 

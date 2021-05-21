@@ -7,7 +7,7 @@ export class ChangeWorldAction extends Action {
   to: World;
   originPosition: Vector;
   position: Vector;
-  visibilityChangingAction = true;
+  movementAction = true;
 
   constructor({caster, target, from, to, position, using, tags = []}: ChangeWorldAction.Params) {
     super({caster, using, tags});

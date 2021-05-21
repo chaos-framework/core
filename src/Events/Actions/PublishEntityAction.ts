@@ -5,7 +5,7 @@ export class PublishEntityAction extends Action {
   world: World;
   position: Vector;
   target?: Entity; // likely unused; if the publishing is a hostile, could be cancelled by target in a meaningful way
-  visibilityChangingAction = true;
+  movementAction = true;
 
   constructor({ caster, target, entity, world, position, using, tags }: PublishEntityAction.Params) {
     super({caster, using, tags});
