@@ -5,6 +5,7 @@ import {
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 import { CONNECTION, CONNECTION_RESPONSE } from "../ClientServer/Message";
+import { MessageType } from "../ClientServer/Messages/Types";
 
 export abstract class Game implements ComponentContainer {
   static instance: Game;
@@ -55,9 +56,18 @@ export abstract class Game implements ComponentContainer {
   //       return false;
   //     }
   //   }
-  //   this.queueForBroadcast(a);
+  //   this.actionQueue.enqueue(a);
   //   return true;
   // }
+
+  process() {
+    let action = this.actionQueue.getNextAction();
+    while(action !== undefined) {
+      action.execute();
+      action = this.actionQueue.getNextAction();
+    }
+    this.broadcastAll();
+  }
 
   addWorld = (world: World): boolean => {
     this.worlds.set(world.id, world);
@@ -121,7 +131,7 @@ export abstract class Game implements ComponentContainer {
     return;
   };
 
-  broadcast(action: Action, to?: Player | Team) {
+  queueForBroadcast(action: Action, to?: Player | Team) {
     // check if this is a direct console message
      if(to !== undefined) {
        // bleh
@@ -154,6 +164,12 @@ export abstract class Game implements ComponentContainer {
     return;
   }
 
+  broadcastAll() {
+    for(const [id, player] of this.players) {
+      player.broadcast();
+    }
+  }
+
   publishVisibilityChanges(changesInVisibility: NestedChanges, addition = true) {
     if(this.perceptionGrouping === 'team') {
       // TODO
@@ -169,7 +185,8 @@ export abstract class Game implements ComponentContainer {
             for(const entityId in newEntityIds) {
               const entity = this.getEntity(entityId);
               if(entity !== undefined) {
-                player.client.broadcast(addition ? entity.getPublishedInPlaceAction() : entity.unpublish()); // TODO unpublish
+                const action = addition ? entity.getPublishedInPlaceAction() : entity.unpublish();
+                player.client.broadcast(MessageType.ACTION, action);
               }
             }
           }

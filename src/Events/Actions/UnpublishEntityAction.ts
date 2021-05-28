@@ -1,6 +1,8 @@
-import { Action, ActionParameters, Entity, Game } from '../../internal';
+import { Action, ActionParameters, Entity, Game, MessageType } from '../../internal';
 
 export class UnpublishEntityAction extends Action {
+  messageType: MessageType = MessageType.UNPUBLISH_ENTITY_ACTION;
+
   entity: Entity;
   target?: Entity; // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
   movementAction = true;

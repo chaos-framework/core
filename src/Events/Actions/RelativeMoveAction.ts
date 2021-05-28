@@ -1,7 +1,9 @@
 import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, Entity, Game, Scope, Vector, World } from '../../internal';
+import { Action, ActionParameters, Entity, Game, MessageType, Scope, Vector, World } from '../../internal';
 
 export class RelativeMoveAction extends Action {
+  messageType: MessageType = MessageType.RELATIVE_MOVE_ACTION;
+
   target: Entity;
   from: Vector;
   amount: Vector;

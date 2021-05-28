@@ -1,8 +1,10 @@
-import { 
-  Action, ActionParameters, Entity
+import {
+  Action, ActionParameters, Entity, MessageType
 } from '../../internal'; 
 
 export class AddPropertyAction extends Action {
+  messageType = MessageType.ADD_PROPERTY_ACTION;
+
   target: Entity;
   name: string;
   current: number;

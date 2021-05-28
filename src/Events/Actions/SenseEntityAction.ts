@@ -1,8 +1,10 @@
 import { Component } from '../..';
-import { Action, ActionParameters, Entity, Sensor } from '../../internal';
+import { Action, ActionParameters, Entity, MessageType, Sensor } from '../../internal';
 import { NestedChanges } from '../../Util/NestedMap';
 
 export class SenseEntityAction extends Action {
+  messageType: MessageType = MessageType.SENSE_ENTITY_ACTION;
+
   caster: Entity;
   target: Entity;
   using: Component & Sensor;

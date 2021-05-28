@@ -1,7 +1,9 @@
 import { Component } from '../..';
-import { Action, ActionParameters, Entity, Sensor } from '../../internal';
+import { Action, ActionParameters, Entity, MessageType, Sensor } from '../../internal';
 
 export class LoseEntityAction extends Action {
+  messageType: MessageType = MessageType.LOSE_ENTITY_ACTION;
+
   caster: Entity;
   target: Entity;
   using: Component & Sensor;

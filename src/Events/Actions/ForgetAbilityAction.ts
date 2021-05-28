@@ -1,6 +1,8 @@
-import { Action, Ability, ActionParameters, Entity, Component } from '../../internal'; 
+import { Action, Ability, ActionParameters, Entity, Component, MessageType } from '../../internal'; 
 
 export class ForgetAbilityAction extends Action {
+  messageType: MessageType = MessageType.FORGET_ABILITY_ACTION;
+
   ability: Ability;
   target: Entity;
   grantedBy?: Entity | Component;

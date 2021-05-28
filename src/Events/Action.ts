@@ -1,9 +1,11 @@
 import { ComponentContainer } from '..';
 import { Viewer } from '../Game/Interfaces';
-import { Game, Entity, Component, Listener, Scope, Player, Team, Permission, SensoryInformation } from '../internal';
+import { Game, MessageType, Entity, Component, Event, Permission, SensoryInformation } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 
 export abstract class Action {
+  messageType: MessageType = MessageType.ACTION;
+
   // TODO implement player: Player;
   caster?: Entity;
   target?: Entity;
@@ -97,7 +99,7 @@ export abstract class Action {
     }
 
     // Queue in the game
-    game.broadcast(this);
+    game.queueForBroadcast(this);
 
     this.teardown();
 
@@ -169,6 +171,10 @@ export abstract class Action {
     } else {
       // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle
     }
+  }
+
+  followup(o: Action | Event): void {
+    Game.getInstance().actionQueue.enqueue(o);
   }
 
   static serializedHasRequiredFields(json: any, additional: string[]): boolean {

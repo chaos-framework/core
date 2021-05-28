@@ -1,6 +1,8 @@
-import { Action, ActionParameters, World, Vector, Entity, Game } from '../../internal';
+import { Action, ActionParameters, World, Vector, Entity, Game, MessageType } from '../../internal';
 
 export class PublishEntityAction extends Action {
+  messageType: MessageType = MessageType.PUBLISH_ENTITY_ACTION;
+
   entity: Entity;
   world: World;
   position: Vector;
@@ -70,12 +72,12 @@ export class PublishEntityAction extends Action {
 
 export namespace PublishEntityAction {
   export interface EntityParams extends ActionParameters {
-    entity: Entity,
     world: World,
     position: Vector
   }
 
   export interface Params extends EntityParams {
+    entity: Entity,
     target?: Entity
   }
 

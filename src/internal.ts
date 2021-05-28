@@ -50,7 +50,9 @@ export { World } from './World/World';
 export { Command, AbilityCommand, isCommand, isAbilityCommand } from './ClientServer/Command';
 import ClientGame from './ClientServer/ClientGame';
 import ClientWorld from './ClientServer/ClientWorld';
-import Message, { MessageTypes, CONNECTION, CONNECTION_RESPONSE } from './ClientServer/Message'
+export { Message, CONNECTION, CONNECTION_RESPONSE } from './ClientServer/Message'
+export { MessageType } from './ClientServer/Messages/Types'
+export { Client } from './ClientServer/Client'
 // WORLDS
 import Layer, { ILayer } from './World/Layer';
 import Chunk, { IChunk } from './World/Chunk';
@@ -70,5 +72,4 @@ export {
   Viewer, ActionQueuer as Broadcaster, EntityScope,
   Event, ActionQueue,
   Vector,
-  Message, MessageTypes, CONNECTION, CONNECTION_RESPONSE 
 }

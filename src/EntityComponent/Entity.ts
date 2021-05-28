@@ -158,8 +158,8 @@ export class Entity implements Listener, ComponentContainer {
 
   // Publishing
   
-  publish({caster, target, world, position, using, tags}: PublishEntityAction.Params): PublishEntityAction {
-    return new PublishEntityAction({caster, target, entity: this, world, position, using, tags});
+  publish({caster, world, position, using, tags}: PublishEntityAction.EntityParams): PublishEntityAction {
+    return new PublishEntityAction({caster, target: this, entity: this, world, position, using, tags});
   }
 
   _publish(world: World, position: Vector, preloaded = false): boolean {

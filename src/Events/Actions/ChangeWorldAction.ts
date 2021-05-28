@@ -1,7 +1,9 @@
-import { Action, ActionParameters, Entity, Vector, World } from '../../internal';
+import { Action, ActionParameters, Entity, MessageType, Vector, World } from '../../internal';
 import { Viewer } from '../../Game/Interfaces';
 
 export class ChangeWorldAction extends Action {
+  messageType: MessageType = MessageType.CHANGE_WORLD_ACTION;
+
   target: Entity;
   from: World;
   to: World;

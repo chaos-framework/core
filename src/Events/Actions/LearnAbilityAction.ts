@@ -1,6 +1,8 @@
-import { Action, Ability, ActionParameters, Entity, Component } from '../../internal'; 
+import { Action, Ability, ActionParameters, Entity, Component, MessageType } from '../../internal'; 
 
 export class LearnAbilityAction extends Action {
+  messageType: MessageType = MessageType.LEARN_ABILITY_ACTION;
+
   ability: Ability;
   target: Entity;
   grantedBy?: Entity | Component;

@@ -1,7 +1,9 @@
 import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, Entity, Game, Vector } from '../../internal';
+import { Action, ActionParameters, Entity, Game, MessageType, Vector } from '../../internal';
 
 export class MoveAction extends Action {
+  messageType: MessageType = MessageType.MOVE_ACTION;
+
   target: Entity;
   from: Vector;
   to: Vector;

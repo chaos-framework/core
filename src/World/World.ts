@@ -231,6 +231,7 @@ export abstract class World implements ComponentContainer, Listener {
   }
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace World {
   export interface ConstructorParams {
     id?: string,

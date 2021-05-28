@@ -1,7 +1,7 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
-import Client from '../ClientServer/Client';
-import { Game, Team, Action, Entity, WorldScope, EntityScope, NestedMap } from '../internal';
+import { MessageType } from '../ClientServer/Messages/Types';
+import { Game, Team, Action, Entity, WorldScope, Client, NestedMap } from '../internal';
 import { VisibilityType } from '../internal';
 import { Viewer, ActionQueuer } from './Interfaces';
 
@@ -18,7 +18,7 @@ export class Player implements Viewer, ActionQueuer {
   
   sensedEntities: NestedMap<Entity>;
 
-  broadcastQueue = new Queue<any>();
+  broadcastQueue = new Queue<Action>();
 
   constructor({ id = uuid(), username, teams = [], admin = false, client }: Player.ConstructorParams) {
     this.id = id;
@@ -66,7 +66,16 @@ export class Player implements Viewer, ActionQueuer {
   }
 
   enqueueAction(action: Action) {
-    this.broadcastQueue.enqueue(action);
+    if(this.client !== undefined) {
+      this.broadcastQueue.enqueue(action);
+    } 
+  }
+
+  broadcast() {
+    if(this.client !== undefined) {
+      const action = this.broadcastQueue.dequeue();
+      this.client.broadcast(MessageType.ACTION, action);
+    }
   }
 
   disconnect() { }
