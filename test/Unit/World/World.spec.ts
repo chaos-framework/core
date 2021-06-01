@@ -88,6 +88,27 @@ describe('Worlds', () => {
     // TODO also to worlds, different problem..
   });
 
+  describe('Querying for entities', () => {
+    let room: Room;
+    const game = new EmptyGame();
+    beforeEach(() => {
+      room = new Room(100, 100);
+      for(let x = 5; x <= 95; x += 5) {
+        for(let y = 5; y <= 95; y += 5) {
+          const e = new Entity();
+          e._publish(room, new Vector(x, y));
+        }
+      }
+    });
+
+    it('Returns entities in a radius correctly', () => {
+      expect(room.getEntitiesWithinRadius(new Vector(5,5), 1).length).to.equal(1);
+      expect(room.getEntitiesWithinRadius(new Vector(5,5), 5).length).to.equal(3);
+      expect(room.getEntitiesWithinRadius(new Vector(10,10), 5).length).to.equal(5);
+      expect(room.getEntitiesWithinRadius(new Vector(50,50), 10).length).to.equal(13);
+    });
+  });
+
   describe('Width and height limits', () => {
 
   });
@@ -135,8 +156,8 @@ describe('Worlds', () => {
     it('Should only persist chunks being viewed by active entities', () => {
       const e = new Entity({ name: "Test Entity", active: true });
       const other = new Entity({ name: "Other Test Entity" });
-      e.publish({ entity: e, world, position: new Vector(0,0) }).execute();
-      other.publish({ entity: other, world, position: new Vector(0,0) }).execute();
+      e.publish({ world, position: new Vector(0,0) }).execute();
+      other.publish({ world, position: new Vector(0,0) }).execute();
       e.move({ to: new Vector(400, 400) }).execute();
       expect(world.scope.active.has(other.position.toChunkSpace().getIndexString())).to.be.false;
       expect(world.getTile(0, 0)).to.be.undefined;

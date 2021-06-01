@@ -25,6 +25,7 @@ export abstract class Game implements ComponentContainer {
 
   viewDistance = 6; // how far (in chunks) to load around active entities
   inactiveViewDistance = 1; // how far (in chunks) to load around inactive entities when they enter an inactive world to check for permissions / modifiers
+  listenDistance = 25; // how far in tiles to let local entities listen to actions around casters and targets
   perceptionGrouping: 'player' | 'team' = 'player';
 
   constructor(options?: any) {
@@ -130,6 +131,10 @@ export abstract class Game implements ComponentContainer {
   react(a: Action) {
     return;
   };
+
+  queueActionForProcessing(action: Action) {
+    this.actionQueue.enqueue(action);
+  }
 
   queueForBroadcast(action: Action, to?: Player | Team) {
     // check if this is a direct console message
@@ -241,7 +246,7 @@ export namespace Game {
     entities: Entity.SerializedForClient[]
   }
 
-  export function DeserializeAsClient(serialized: Game.SerializedForClient): ClientGame {
+  export function DeserializeAsClient(serialized: Game.SerializedForClient, clientPlayerId: string): ClientGame {
     const game = new ClientGame();
     for(let team of serialized.teams) {
       const deserialized = Team.DeserializeAsClient(team);
@@ -252,7 +257,8 @@ export namespace Game {
       game.addEntity(deserialized);
     }
     for(let player of serialized.players) {
-      const deserialized = Player.DeserializeAsClient(player);
+      const isOwner = player.id === clientPlayerId;
+      const deserialized = Player.DeserializeAsClient(player, isOwner);
       game.players.set(deserialized.id, deserialized);  // TODO addPlayer..
     }
     for(let world of serialized.worlds) {

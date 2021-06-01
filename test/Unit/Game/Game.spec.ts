@@ -50,7 +50,7 @@ describe('Game', () => {
     });
 
     it('Deserializes into a ClientGame correctly', () => {
-      const clientGame = Game.DeserializeAsClient(serialized);
+      const clientGame = Game.DeserializeAsClient(serialized, '');
       expect(clientGame.entities.has(e.id)).to.be.true;
     });
   })

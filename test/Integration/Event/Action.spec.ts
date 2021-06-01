@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Action, Entity, Game, MoveAction, Vector } from '../../../src/internal';
+import { Action, Entity, Game, MoveAction, RelativeMoveAction, Vector } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
 import EmptyGame from '../../Mocks/Games/EmptyGame';
@@ -41,5 +41,92 @@ describe('Action Integration', () => {
     //   expect(action.sensors.get(witness.id)).to.be.true;
     // });
 
+  });
+
+  describe.only('Lets various entities, worlds, and game listen to an action', () => {
+    describe('Entities, targets, witnesses, and world when caster and target are in same world', () => {
+      let action: RelativeMoveAction;
+      let caster: Entity;
+      let target: Entity;
+      let casterWitness: Entity;
+      let targetWitness: Entity;
+      let room: Room;
+      let game: Game;
+      beforeEach(() => {
+        game = new EmptyGame();
+        room = new Room(100, 100);
+        caster = new Entity();
+        caster._publish(room, room.stageLeft);
+        casterWitness = new Entity();
+        casterWitness._publish(room, room.stageLeft.add(new Vector(0, -1)));
+        target = new Entity();
+        target._publish(room, room.stageRight);
+        targetWitness = new Entity();
+        targetWitness._publish(room, room.stageRight.add(new Vector(0, -1)));
+        action = new RelativeMoveAction({ 
+          caster, target, amount: new Vector(1, 0)
+        });
+        game.listenDistance = 25; // the default, but enforcing just in case
+      });
+
+      it('Includes caster, target, their worlds, witnesses in respective worlds, and the game', () => {
+        const listeners = action.getListeners();
+        expect(listeners.find(el => el === caster)).to.exist;
+        expect(listeners.find(el => el === target)).to.exist;
+        expect(listeners.find(el => el === casterWitness)).to.exist;
+        expect(listeners.find(el => el === targetWitness)).to.exist;
+        expect(listeners.find(el => el === room)).to.exist;
+        expect(listeners.find(el => el === game)).to.exist;
+      });
+
+      it('Does not include witnesses that are outside of listening radius', () => {
+        const nearbyWitness = new Entity();
+        nearbyWitness._publish(room, room.stageLeft.add(new Vector(10, 10)));
+        const tooFarWitness = new Entity();
+        tooFarWitness._publish(room, room.stageLeft.add(new Vector(20, 40)));
+        const listeners = action.getListeners();
+        expect(listeners.find(el => el === nearbyWitness)).to.exist;
+        expect(listeners.find(el => el === tooFarWitness)).to.not.exist;
+      });
+
+    });
+
+    describe('Entities, targets, witnesses, and worlds when caster and target are in different worlds', () => {
+      let action: RelativeMoveAction;
+      let caster: Entity;
+      let target: Entity;
+      let casterWitness: Entity;
+      let targetWitness: Entity;
+      let casterRoom: Room;
+      let targetRoom: Room;
+      let game: Game;
+      beforeEach(() => {
+        game = new EmptyGame();
+        casterRoom = new Room();
+        targetRoom = new Room();
+        caster = new Entity();
+        caster._publish(casterRoom, casterRoom.stageLeft);
+        casterWitness = new Entity();
+        casterWitness._publish(casterRoom, casterRoom.stageLeft.add(new Vector(0, -1)));
+        target = new Entity();
+        target._publish(targetRoom, targetRoom.stageRight);
+        targetWitness = new Entity();
+        targetWitness._publish(targetRoom, targetRoom.stageLeft.add(new Vector(0, -1)));
+        action = new RelativeMoveAction({ 
+          caster, target, amount: new Vector(1, 0)
+        });
+      });
+
+      it('Includes caster, target, their worlds, witnesses in respective worlds, and the game', () => {
+        const listeners = action.getListeners();
+        expect(listeners.find(el => el === caster)).to.exist;
+        expect(listeners.find(el => el === target)).to.exist;
+        expect(listeners.find(el => el === casterWitness)).to.exist;
+        expect(listeners.find(el => el === targetWitness)).to.exist;
+        expect(listeners.find(el => el === casterRoom)).to.exist;
+        expect(listeners.find(el => el === targetRoom)).to.exist;
+        expect(listeners.find(el => el === game)).to.exist;
+      });
+    });
   });
 });

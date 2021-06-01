@@ -42,7 +42,7 @@ export class PublishEntityAction extends Action {
       world: this.world.id,
       entity: this.entity.serializeForClient()
     };
-  };
+  }
   
   getEntity(): Entity {
     return this.entity;

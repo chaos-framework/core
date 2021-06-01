@@ -1,8 +1,10 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
 import { MessageType } from '../ClientServer/Messages/Types';
-import { Game, Team, Action, Entity, WorldScope, Client, NestedMap } from '../internal';
+import { OwnEntityAction } from '../Events/Actions/OwnEntityAction';
+import { Game, Team, Action, Entity, WorldScope, Client, NestedMap, PublishPlayerAction } from '../internal';
 import { VisibilityType } from '../internal';
+import { NestedChanges } from '../Util/NestedMap';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Player implements Viewer, ActionQueuer {
@@ -68,25 +70,33 @@ export class Player implements Viewer, ActionQueuer {
   enqueueAction(action: Action) {
     if(this.client !== undefined) {
       this.broadcastQueue.enqueue(action);
-    } 
+    }
   }
 
   broadcast() {
     if(this.client !== undefined) {
-      const action = this.broadcastQueue.dequeue();
-      this.client.broadcast(MessageType.ACTION, action);
+      let action = this.broadcastQueue.dequeue();
+      while(action !== undefined) {
+        // TODO batch these
+        this.client.broadcast(MessageType.ACTION, action.serialize());
+        action = this.broadcastQueue.dequeue();
+      }
     }
   }
 
   disconnect() { }
 
-  _ownEntity(entity: Entity): boolean {
+  ownEntity({caster, using, entity, tags}: OwnEntityAction.PlayerParams, force = false): OwnEntityAction {
+    return new OwnEntityAction({ caster, using, entity, player: this, tags});
+  }
+
+  _ownEntity(entity: Entity): NestedChanges {
     // Make sure we don't already own this entity
     if(this.entities.has(entity.id)) {
-      return false;
+      return new NestedChanges();
     }
     this.entities.add(entity.id, entity);
-    this.sensedEntities.addChild(entity.sensedEntities);
+    const changes = this.sensedEntities.addChild(entity.sensedEntities);
     entity.teams.addChild(this.teams);
     entity.owners.add(this.id);
     // Modify scope, if appropriate
@@ -100,7 +110,7 @@ export class Player implements Viewer, ActionQueuer {
         this.scopesByWorld.set(entity.world.id, scope);
       }
     }
-    return true;
+    return changes;
   }
 
   _disownEntity(entity: Entity): boolean {
@@ -143,6 +153,11 @@ export class Player implements Viewer, ActionQueuer {
       Game.getInstance().playersWithoutTeams.set(this.id, this);
     }
     return true;
+
+  }
+  
+  publish(): PublishPlayerAction {
+    return new PublishPlayerAction({ player: this });
   }
 
   serializeForClient(): Player.SerializedForClient {
@@ -181,16 +196,19 @@ export namespace Player {
     return new Player(json);
   }
 
-  export function DeserializeAsClient(json: Player.SerializedForClient): Player {
+  export function DeserializeAsClient(json: Player.SerializedForClient, owner = false): Player {
     const p = new Player(json);
     const game = Game.getInstance();
     p.entities = new NestedMap<Entity>(p.id, 'player');
     for(const id of json.entities) {
       const entity = game.getEntity(id);
       if(entity === undefined) {
-        throw new Error(); // TODO proper error
+        if(owner) {
+          throw new Error('An entity owned by this client was not published with the Player from the server.'); // TODO proper error
+        }
+      } else {
+        p.entities.add(id, entity);
       }
-      p.entities.add(id, entity);
     }
     return p;
   }

@@ -1,3 +1,4 @@
+import { listeners } from 'process';
 import { ComponentContainer } from '..';
 import { Viewer } from '../Game/Interfaces';
 import { Game, MessageType, Entity, Component, Event, Permission, SensoryInformation } from '../internal';
@@ -44,7 +45,7 @@ export abstract class Action {
 
     this.initialize();
 
-    // First check if the target is unpublished
+    // If target is unpublished, just run through locally attached components (these may need to do work before publishing)
     if (this.target && !this.target.isPublished()) {
       // Just let the target modify and react directly
       this.target.modify(this);
@@ -57,23 +58,7 @@ export abstract class Action {
     }
 
     // Get listeners (entities, maps, systems, etc) in order they should modify/react
-    const listeners: ComponentContainer[] = [];
-
-    if (this.caster) {
-      listeners.push(this.caster);
-      if (this.caster.world) {
-        listeners.push(this.caster.world);
-        // TODO get nearby who are NOT caster or target
-      }
-    }
-    listeners.push(game);
-    if (this.target && this.target !== this.caster) {
-      if (this.caster?.world && this.target.world && this.caster?.world !== this.target.world) {
-        listeners.push(this.target.world);
-        // TODO get nearby who are NOT caster or target from the target's world
-      }
-      listeners.push(this.target);
-    }
+    const listeners = this.getListeners();
 
     // Let all listeners sense
     for (const listener of listeners) {
@@ -109,6 +94,51 @@ export abstract class Action {
     }
 
     return applied;
+  }
+
+  getListeners(): ComponentContainer[] {
+    const listenRadius = Game.getInstance().listenDistance;
+    const listeners: ComponentContainer[] = [];
+
+    // Cache entities near the caster, to differentiate/exclude from those near the target
+    const casterNearby = new Set<string>();
+
+    // Add the caster, caster's world, and nearby entities (if caster specified)
+    if (this.caster !== undefined) {
+      listeners.push(this.caster);
+      casterNearby.add(this.caster.id);
+      if (this.caster.world !== undefined) {
+        listeners.push(this.caster.world);
+        // Add all nearby entities
+        this.caster.world.getEntitiesWithinRadius(this.caster.position, listenRadius).forEach(entity => {
+          if(entity.id !== this.caster!.id && entity.id !== this.target?.id) {
+            listeners.push(entity)
+            casterNearby.add(entity.id);
+          }
+        });
+      }
+    }
+
+    // Add the game itself :D
+    listeners.push(Game.getInstance());
+
+    // Add the target (if different from casting entity), target's world (if different from caster), and nearby entities not already added by caster
+    if (this.target !== undefined && this.target !== this.caster) {
+      if (this.target.world !== undefined && this.caster?.world !== this.target.world) {
+        listeners.push(this.target.world);
+      }
+      if(this.target.world !== undefined) {
+        this.target.world.getEntitiesWithinRadius(this.target.position, listenRadius).forEach(entity => {
+          // note that caster, if exists, is already added to casterNearby
+          if(entity.id !== this.target!.id && !casterNearby.has(entity.id)) {
+            listeners.push(entity)
+          }
+        });
+      }
+      listeners.push(this.target);
+    }
+
+    return listeners;
   }
 
   permit({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {

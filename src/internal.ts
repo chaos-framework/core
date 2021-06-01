@@ -37,6 +37,8 @@ export { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction';
 export { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction';
 export { SenseEntityAction } from './Events/Actions/SenseEntityAction';
 export { LoseEntityAction } from './Events/Actions/LoseEntityAction';
+export { PublishPlayerAction } from './Events/Actions/PublishPlayerAction';
+export { OwnEntityAction } from './Events/Actions/OwnEntityAction';
 export { VisibilityType } from './Events/Enums';
 import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD
