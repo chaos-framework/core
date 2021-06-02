@@ -50,6 +50,7 @@ export class ComponentCatalog implements Listener {
   addComponent(component: Component) {
     this.all.set(component.id, component);
     this.createComponentSubscriptions(component);
+    component.parent = this.parent;
   }
 
   createComponentSubscriptions(component: Component) {

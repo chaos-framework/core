@@ -181,8 +181,8 @@ export abstract class Game implements ComponentContainer {
     } else {
       // Broadcast newly visible 
       if(changesInVisibility.changes['player'] !== undefined) {
-        const players = changesInVisibility.changes['player'].values;
-        players.forEach(playerId => {
+        const players = changesInVisibility.changes['player'];
+        for(const playerId in players) {
           const player = this.players.get(playerId);
           if(player !== undefined && player.client !== undefined) {
             const newEntityIds = changesInVisibility.changes['player'][playerId].keys;
@@ -195,7 +195,7 @@ export abstract class Game implements ComponentContainer {
               }
             }
           }
-        });
+        }
       }
     }
   }

@@ -5,9 +5,9 @@ import { NestedChanges } from '../../Util/NestedMap';
 export class SenseEntityAction extends Action {
   messageType: MessageType = MessageType.SENSE_ENTITY_ACTION;
 
-  caster: Entity;
-  target: Entity;
-  using: Component & Sensor;
+  caster: Entity;             // entity sensing the other (senses cannot come from another entity)
+  target: Entity;             // entity being sensed
+  using: Component & Sensor;  // component doing the sensing
 
   constructor({caster, target, using, tags = []}: SenseEntityAction.Params) {
     super({caster, using, tags});

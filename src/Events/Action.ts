@@ -1,8 +1,7 @@
 import { listeners } from 'process';
 import { ComponentContainer } from '..';
-import { Viewer } from '../Game/Interfaces';
-import { Game, MessageType, Entity, Component, Event, Permission, SensoryInformation } from '../internal';
-import { NestedChanges } from '../Util/NestedMap';
+import { Game, MessageType, Entity, Component, Event, 
+  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer } from '../internal';
 
 export abstract class Action {
   messageType: MessageType = MessageType.ACTION;
@@ -46,7 +45,7 @@ export abstract class Action {
     this.initialize();
 
     // If target is unpublished, just run through locally attached components (these may need to do work before publishing)
-    if (this.target && !this.target.isPublished()) {
+    if (this.target && !this.target.isPublished() && !(this instanceof PublishEntityAction)) {
       // Just let the target modify and react directly
       this.target.modify(this);
       this.decidePermission();

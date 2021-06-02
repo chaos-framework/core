@@ -1,6 +1,6 @@
 import { CONNECTION, CONNECTION_RESPONSE, Game } from '../internal';
 
-// Simple concrete implementation of abstract Game class -- for 
+// Simple concrete implementation of abstract Game class
 export default class ClientGame extends Game {
   constructor() {
     super();
