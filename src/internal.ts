@@ -17,6 +17,7 @@ export {
 } from './EntityComponent/Interfaces';
 // EVENT AND ACTION IMPORTS
 import { Action, ActionParameters } from './Events/Action';
+export { ActionType, BroadcastType } from './Events/Actions/_types';
 export { Permission } from './Events/Permission';
 import Event from './Events/Event';
 export { SensoryInformation } from './Events/Interfaces';
@@ -55,6 +56,8 @@ import ClientWorld from './ClientServer/ClientWorld';
 export { Message, CONNECTION, CONNECTION_RESPONSE } from './ClientServer/Message'
 export { MessageType } from './ClientServer/Messages/Types'
 export { Client } from './ClientServer/Client'
+import ActionDeserializer from './ClientServer/ActionDeserializer';
+export { ActionDeserializer };
 // WORLDS
 import Layer, { ILayer } from './World/Layer';
 import Chunk, { IChunk } from './World/Chunk';

@@ -1,9 +1,10 @@
 import { 
-  Action, Entity, Component, Value, ActionParameters, MessageType
+  Action, Entity, Component, Value, ActionParameters, ActionType, BroadcastType
 } from '../../internal';
 
 export class PropertyChangeAction extends Action {
-  messageType: MessageType = MessageType.PROPERTY_CHANGE_ACTION;
+  actionType: ActionType = ActionType.PROPERTY_CHANGE_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   property: string;
   type: 'adjust' | 'set';

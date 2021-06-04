@@ -43,7 +43,7 @@ describe('Action Integration', () => {
 
   });
 
-  describe.only('Lets various entities, worlds, and game listen to an action', () => {
+  describe('Lets various entities, worlds, and game listen to an action', () => {
     describe('Entities, targets, witnesses, and world when caster and target are in same world', () => {
       let action: RelativeMoveAction;
       let caster: Entity;
@@ -70,13 +70,13 @@ describe('Action Integration', () => {
       });
 
       it('Includes caster, target, their worlds, witnesses in respective worlds, and the game', () => {
-        const listeners = action.getListeners();
-        expect(listeners.find(el => el === caster)).to.exist;
-        expect(listeners.find(el => el === target)).to.exist;
-        expect(listeners.find(el => el === casterWitness)).to.exist;
-        expect(listeners.find(el => el === targetWitness)).to.exist;
-        expect(listeners.find(el => el === room)).to.exist;
-        expect(listeners.find(el => el === game)).to.exist;
+        action.collectListeners()
+        expect(action.listeners.find(el => el === caster)).to.exist;
+        expect(action.listeners.find(el => el === target)).to.exist;
+        expect(action.listeners.find(el => el === casterWitness)).to.exist;
+        expect(action.listeners.find(el => el === targetWitness)).to.exist;
+        expect(action.listeners.find(el => el === room)).to.exist;
+        expect(action.listeners.find(el => el === game)).to.exist;
       });
 
       it('Does not include witnesses that are outside of listening radius', () => {
@@ -84,9 +84,9 @@ describe('Action Integration', () => {
         nearbyWitness._publish(room, room.stageLeft.add(new Vector(10, 10)));
         const tooFarWitness = new Entity();
         tooFarWitness._publish(room, room.stageLeft.add(new Vector(20, 40)));
-        const listeners = action.getListeners();
-        expect(listeners.find(el => el === nearbyWitness)).to.exist;
-        expect(listeners.find(el => el === tooFarWitness)).to.not.exist;
+        action.collectListeners();
+        expect(action.listeners.find(el => el === nearbyWitness)).to.exist;
+        expect(action.listeners.find(el => el === tooFarWitness)).to.not.exist;
       });
 
     });
@@ -118,14 +118,14 @@ describe('Action Integration', () => {
       });
 
       it('Includes caster, target, their worlds, witnesses in respective worlds, and the game', () => {
-        const listeners = action.getListeners();
-        expect(listeners.find(el => el === caster)).to.exist;
-        expect(listeners.find(el => el === target)).to.exist;
-        expect(listeners.find(el => el === casterWitness)).to.exist;
-        expect(listeners.find(el => el === targetWitness)).to.exist;
-        expect(listeners.find(el => el === casterRoom)).to.exist;
-        expect(listeners.find(el => el === targetRoom)).to.exist;
-        expect(listeners.find(el => el === game)).to.exist;
+        action.collectListeners();
+        expect(action.listeners.find(el => el === caster)).to.exist;
+        expect(action.listeners.find(el => el === target)).to.exist;
+        expect(action.listeners.find(el => el === casterWitness)).to.exist;
+        expect(action.listeners.find(el => el === targetWitness)).to.exist;
+        expect(action.listeners.find(el => el === casterRoom)).to.exist;
+        expect(action.listeners.find(el => el === targetRoom)).to.exist;
+        expect(action.listeners.find(el => el === game)).to.exist;
       });
     });
   });

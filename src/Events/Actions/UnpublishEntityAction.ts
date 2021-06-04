@@ -1,7 +1,8 @@
-import { Action, ActionParameters, Entity, Game, MessageType } from '../../internal';
+import { Action, ActionParameters, Entity, Game, ActionType, BroadcastType } from '../../internal';
 
 export class UnpublishEntityAction extends Action {
-  messageType: MessageType = MessageType.UNPUBLISH_ENTITY_ACTION;
+  actionType: ActionType = ActionType.UNPUBLISH_ENTITY_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   entity: Entity;
   target?: Entity; // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
@@ -11,6 +12,11 @@ export class UnpublishEntityAction extends Action {
     super({caster, using, tags});
     this.entity = entity;
     this.target = target;
+    // Let the abstract impl of execute know to let listeners react around the entity itself
+    if(entity.world !== undefined) {
+      this.additionalListenPoints = [{ world: entity.world, position: entity.position }];
+    }
+    this.additionalListeners = [entity];
   }
 
   apply(): boolean {

@@ -1,9 +1,10 @@
-import { Component } from '../..';
-import { Action, ActionParameters, Entity, MessageType, Sensor } from '../../internal';
-import { NestedChanges } from '../../Util/NestedMap';
+import { Action, Component, ActionParameters, Entity, ActionType, Sensor, BroadcastType } from '../../internal';
 
 export class SenseEntityAction extends Action {
-  messageType: MessageType = MessageType.SENSE_ENTITY_ACTION;
+  actionType: ActionType = ActionType.SENSE_ENTITY_ACTION;
+  broadcastType = BroadcastType.NONE;
+
+  broadcast = false;
 
   caster: Entity;             // entity sensing the other (senses cannot come from another entity)
   target: Entity;             // entity being sensed

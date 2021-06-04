@@ -1,9 +1,9 @@
 import { Game } from '../../Game/Game';
 import { Player } from '../../Game/Player';
-import { Action, ActionParameters, Entity, MessageType } from '../../internal';
+import { Action, ActionParameters, Entity, ActionType } from '../../internal';
 
 export class PublishPlayerAction extends Action {
-  messageType = MessageType.PUBLISH_PLAYER_ACTION;
+  actionType = ActionType.PUBLISH_PLAYER_ACTION;
 
   player: Player;
 

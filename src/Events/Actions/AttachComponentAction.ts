@@ -1,7 +1,8 @@
-import { Action, ActionParameters, Entity, Component, MessageType } from '../../internal';
+import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal';
 
 export class AttachComponentAction extends Action {
-  messageType: MessageType = MessageType.ATTACH_COMPONENT_ACTION;
+  actionType: ActionType = ActionType.ATTACH_COMPONENT_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   target: Entity;
   component: Component;

@@ -1,7 +1,8 @@
-import { Action, ActionParameters, Entity, MessageType } from '../../internal'; 
+import { Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal'; 
 
 export class EquipItemAction extends Action {
-  messageType: MessageType = MessageType.EQUIP_ITEM_ACTION;
+  actionType: ActionType = ActionType.EQUIP_ITEM_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   slot: string;
   target: Entity;

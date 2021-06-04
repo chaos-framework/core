@@ -1,8 +1,10 @@
-import { Component } from '../..';
-import { Action, ActionParameters, Entity, MessageType, Sensor } from '../../internal';
+import { Action, Component, ActionParameters, Entity, ActionType, Sensor, BroadcastType } from '../../internal';
 
 export class LoseEntityAction extends Action {
-  messageType: MessageType = MessageType.LOSE_ENTITY_ACTION;
+  actionType: ActionType = ActionType.LOSE_ENTITY_ACTION;
+  broadcastType = BroadcastType.NONE;
+
+  broadcast = false;
 
   caster: Entity;
   target: Entity;

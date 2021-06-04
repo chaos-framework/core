@@ -1,8 +1,7 @@
-import { Game, Player, Action, ActionParameters, Entity, MessageType } from '../../internal';
+import { Game, Player, Action, ActionParameters, Entity, ActionType } from '../../internal';
 
 export class OwnEntityAction extends Action {
-  messageType = MessageType.PUBLISH_PLAYER_ACTION;
-
+  actionType = ActionType.OWN_ENTITY_ACTION;
   player: Player;
   entity: Entity;
 

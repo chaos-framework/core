@@ -1,7 +1,8 @@
-import { Action, Ability, ActionParameters, Entity, Component, MessageType } from '../../internal'; 
+import { Action, Ability, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal'; 
 
 export class ForgetAbilityAction extends Action {
-  messageType: MessageType = MessageType.FORGET_ABILITY_ACTION;
+  actionType: ActionType = ActionType.FORGET_ABILITY_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;  // TODO should only be owning players?
 
   ability: Ability;
   target: Entity;

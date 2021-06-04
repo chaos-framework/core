@@ -1,9 +1,10 @@
 import { 
-  Action, ActionParameters, Entity, MessageType
+  Action, ActionParameters, Entity, ActionType, BroadcastType
 } from '../../internal'; 
 
 export class RemovePropertyAction extends Action {
-  messageType: MessageType = MessageType.REMOVE_PROPERTY_ACTION;
+  actionType: ActionType = ActionType.REMOVE_PROPERTY_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   target: Entity;
   name: string;

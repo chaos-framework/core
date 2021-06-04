@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { MoveAction, Entity, Game, Vector } from '../../../../src/internal';
+import { MoveAction, Entity, Game, Vector, ActionType } from '../../../../src/internal';
 
 import EmptyGame from '../../../Mocks/Games/EmptyGame';
 import Room from '../../../Mocks/Worlds/Room';
@@ -33,7 +33,7 @@ describe('MoveAction', () => {
   });
 
   it('Can deserialize from proper json', () => {
-    const json: MoveAction.Serialized = { target: target.id, to: room.stageLeft.add(new Vector(1, 0)).serialize(), permitted: true }
+    const json: MoveAction.Serialized = { target: target.id, to: room.stageLeft.add(new Vector(1, 0)).serialize(), permitted: true, actionType: ActionType.MOVE_ACTION }
     const a = MoveAction.deserialize(json);
     expect(a instanceof MoveAction).to.be.true;
     expect(a.target).to.equal(target);

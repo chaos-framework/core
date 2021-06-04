@@ -1,8 +1,9 @@
-import { Action, Ability, ActionParameters, Entity, Component, MessageType } from '../../internal'; 
+import { Action, Ability, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal'; 
 
 export class LearnAbilityAction extends Action {
-  messageType: MessageType = MessageType.LEARN_ABILITY_ACTION;
-
+  actionType: ActionType = ActionType.LEARN_ABILITY_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;  // TODO only broadcast to owners?
+  
   ability: Ability;
   target: Entity;
   grantedBy?: Entity | Component;

@@ -1,7 +1,8 @@
-import { Action, ActionParameters, Entity, MessageType } from '../../internal';
+import { Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal';
 
 export class RemoveSlotAction extends Action {
-  messageType: MessageType = MessageType.REMOVE_SLOT_ACTION;
+  actionType: ActionType = ActionType.REMOVE_SLOT_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   name: string;
   target: Entity;

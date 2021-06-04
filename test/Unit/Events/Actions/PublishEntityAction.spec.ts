@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { PublishEntityAction, Entity, Game, Vector } from '../../../../src/internal';
+import { PublishEntityAction, Entity, Game, Vector, ActionType } from '../../../../src/internal';
 
 import EmptyGame from '../../../Mocks/Games/EmptyGame';
 import Room from '../../../Mocks/Worlds/Room';
@@ -37,7 +37,7 @@ describe('PublishEntityAction', () => {
   });
 
   it('Can deserialize from proper json', () => {
-    const json: PublishEntityAction.Serialized = { entity: entity.serializeForClient(), world: world.id, position: position.serialize(), permitted: true };
+    const json: PublishEntityAction.Serialized = { entity: entity.serializeForClient(), world: world.id, position: position.serialize(), permitted: true, actionType: ActionType.PUBLISH_ENTITY_ACTION };
     const a = PublishEntityAction.deserialize(json);
     expect(a instanceof PublishEntityAction).to.be.true;
     expect(a.entity.id).to.equal(entity.id);

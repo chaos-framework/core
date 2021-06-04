@@ -1,8 +1,9 @@
 import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, Entity, Game, MessageType, Vector } from '../../internal';
+import { Action, ActionParameters, Entity, Game, ActionType, Vector, BroadcastType } from '../../internal';
 
 export class MoveAction extends Action {
-  messageType: MessageType = MessageType.MOVE_ACTION;
+  actionType: ActionType = ActionType.MOVE_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   target: Entity;
   from: Vector;
@@ -14,6 +15,10 @@ export class MoveAction extends Action {
     this.target = target;
     this.from = target.position;
     this.to = to;
+    // Let the abstract impl of execute know to let listeners react in the space that this entity has not YET moved to
+    if(this.target.world !== undefined) {
+      this.additionalListenPoints = [{ world: this.target.world, position: to }];
+    }
   }
 
   apply(): boolean {
@@ -52,6 +57,16 @@ export class MoveAction extends Action {
       }
     }
     return false;
+  }
+
+  // See if this is moving into a circle from outside
+  movesInto(origin: Vector, radius: number): boolean {
+    return !this.from.withinRadius(origin, radius) && this.to.withinRadius(origin, radius);
+  }
+
+  // See if this is moving out of a circle from inside
+  movesOutOf(origin: Vector, radius: number): boolean {
+    return this.from.withinRadius(origin, radius) && !this.to.withinRadius(origin, radius);
   }
 
   serialize(): MoveAction.Serialized {

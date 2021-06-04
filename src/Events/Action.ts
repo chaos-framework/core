@@ -1,10 +1,9 @@
-import { listeners } from 'process';
-import { ComponentContainer } from '..';
-import { Game, MessageType, Entity, Component, Event, 
-  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer } from '../internal';
+import { Game, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
+  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector } from '../internal';
 
 export abstract class Action {
-  messageType: MessageType = MessageType.ACTION;
+  actionType: ActionType = ActionType.INVALID;
+  broadcastType: BroadcastType = BroadcastType.FULL;
 
   // TODO implement player: Player;
   caster?: Entity;
@@ -14,10 +13,10 @@ export abstract class Action {
   tags: Set<string> = new Set<string>();
   breadcrumbs: Set<string> = new Set<string>();
 
-  public: boolean = false;  // whether or not nearby entities (who are not omnipotent) can modify/react
-  absolute: boolean = false; // absolute actions do not get modified, likely come from admin / override code
-
-  private permissions: Map<number, Permission> = new Map();
+  public: boolean = false;    // whether or not nearby entities (who are not omnipotent) can modify/react
+  absolute: boolean = false;  // absolute actions do not get modified, likely come from admin / override code
+  
+  private permissions: Map<number, Permission> = new Map<number, Permission>();
   permitted: boolean = true;
   decidingPermission?: Permission;
 
@@ -27,6 +26,14 @@ export abstract class Action {
   sensors = new Map<string, SensoryInformation | boolean>();
 
   visibilityChanges?: { type: 'addition' | 'removal', changes: NestedChanges }
+
+  listeners: ComponentContainer[] = [];
+  listenerIds = new Set<string>();
+
+  // Additional worlds and points that entities in a radius around can be included. 
+  additionalListenPoints: { world: World, position: Vector }[] = [];
+  // Additional listeners on top of the default caster -> target flow
+  additionalListeners: ComponentContainer[] = [];
 
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
@@ -57,10 +64,10 @@ export abstract class Action {
     }
 
     // Get listeners (entities, maps, systems, etc) in order they should modify/react
-    const listeners = this.getListeners();
+    this.collectListeners();
 
     // Let all listeners sense
-    for (const listener of listeners) {
+    for (const listener of this.listeners) {
       this.sensors.set(listener.id, listener.sense(this));
     }
     // Assume that caster has full awareness
@@ -69,7 +76,7 @@ export abstract class Action {
     }
 
     // Let all listeners modify, watching to see if any cancel the action
-    for (const listener of listeners) {
+    for (const listener of this.listeners) {
       listener.modify(this);
     }
 
@@ -88,56 +95,68 @@ export abstract class Action {
     this.teardown();
 
     // Let all listeners react
-    for (const listener of listeners) {
+    for (const listener of this.listeners) {
       listener.react(this);
     }
 
     return applied;
   }
 
-  getListeners(): ComponentContainer[] {
-    const listenRadius = Game.getInstance().listenDistance;
-    const listeners: ComponentContainer[] = [];
+  addListener(listener: ComponentContainer) {
+    if(!this.listenerIds.has(listener.id)) {
+      this.listeners.push(listener);
+      this.listenerIds.add(listener.id);
+    }
+  }
 
-    // Cache entities near the caster, to differentiate/exclude from those near the target
-    const casterNearby = new Set<string>();
+  collectListeners() {
+    const game = Game.getInstance();
+    const listenRadius = game.listenDistance;
+
+    const { caster, target } = this;
 
     // Add the caster, caster's world, and nearby entities (if caster specified)
-    if (this.caster !== undefined) {
-      listeners.push(this.caster);
-      casterNearby.add(this.caster.id);
-      if (this.caster.world !== undefined) {
-        listeners.push(this.caster.world);
-        // Add all nearby entities
-        this.caster.world.getEntitiesWithinRadius(this.caster.position, listenRadius).forEach(entity => {
-          if(entity.id !== this.caster!.id && entity.id !== this.target?.id) {
-            listeners.push(entity)
-            casterNearby.add(entity.id);
+    if (caster !== undefined) {
+      this.addListener(caster);
+      // Add all nearby entities and the world itself, if caster is published to a world
+      if (caster.world !== undefined) {
+        caster.world.getEntitiesWithinRadius(caster.position, listenRadius).map(entity => {
+          if(entity.id !== caster.id && entity.id !== target?.id) {
+            this.addListener(entity);
           }
         });
+        this.addListener(caster.world);
       }
     }
+
+    // TODO add players + teams of caster
 
     // Add the game itself :D
-    listeners.push(Game.getInstance());
+    this.addListener(game);
 
-    // Add the target (if different from casting entity), target's world (if different from caster), and nearby entities not already added by caster
-    if (this.target !== undefined && this.target !== this.caster) {
-      if (this.target.world !== undefined && this.caster?.world !== this.target.world) {
-        listeners.push(this.target.world);
-      }
-      if(this.target.world !== undefined) {
-        this.target.world.getEntitiesWithinRadius(this.target.position, listenRadius).forEach(entity => {
-          // note that caster, if exists, is already added to casterNearby
-          if(entity.id !== this.target!.id && !casterNearby.has(entity.id)) {
-            listeners.push(entity)
-          }
+    // TODO add players + teams of target(s)
+
+    // Add the target world, nearby entities, and target itself.. if the target !== the caster
+    if(target !== undefined && target !== caster) {
+      if(target.world !== undefined) {
+        this.addListener(target.world);
+        target.world.getEntitiesWithinRadius(target.position, listenRadius).forEach(entity => {
+          this.addListener(entity);
         });
       }
-      listeners.push(this.target);
+      this.addListener(target);
     }
 
-    return listeners;
+    // Let worlds and entities listen in any additional radiuses specified by the action
+    this.additionalListenPoints.map(point => {
+      this.addListener(point.world);
+      point.world.getEntitiesWithinRadius(point.position, listenRadius).forEach(entity => {
+        this.addListener(entity);
+      });
+    })
+
+    // Add any additional listeners specified by the action
+    this.additionalListeners.map(listener => this.addListener(listener));
   }
 
   permit({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
@@ -186,20 +205,21 @@ export abstract class Action {
     
   }
 
-  counter(a: Action) {
-    a.nested = this.nested + 1;
-    if (a.nested < 5) {
-      a.execute();
+  counter(action: Action): boolean {
+    action.nested = this.nested + 1;
+    if (action.nested < 10) {
+      return action.execute();
     }
+    return false;
   }
 
-  react(a: Action) {
-    a.nested = this.nested + 1;
-    if (a.nested < 10) {
-      a.execute();
-    } else {
-      // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle
+  react(action: Action): boolean {
+    action.nested = this.nested + 1;
+    if (action.nested < 10) {
+      return action.execute();
     }
+    // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle
+    return false;
   }
 
   followup(o: Action | Event): void {
@@ -250,14 +270,14 @@ export abstract class Action {
     return this.target;
   }
 
-  // TODO make abstract -- only concrete so I can run tests before fully implementing in all children
   serialize(): Action.Serialized {
     return {
       caster: this.caster?.id,
       target: this.target?.id,
       using: this.using?.id,
       tags: Array.from(this.tags),
-      permitted: this.permitted
+      permitted: this.permitted,
+      actionType: this.actionType
     };
   }
 
@@ -274,7 +294,8 @@ export namespace Action {
     target?: string,
     using?: string,
     tags?: string[],
-    permitted: boolean
+    permitted: boolean,
+    actionType: ActionType
   }
 
   export interface Deserialized {

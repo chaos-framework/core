@@ -1,8 +1,9 @@
-import { Action, ActionParameters, Entity, MessageType, Vector, World } from '../../internal';
+import { Action, ActionParameters, Entity, ActionType, Vector, World, BroadcastType } from '../../internal';
 import { Viewer } from '../../Game/Interfaces';
 
 export class ChangeWorldAction extends Action {
-  messageType: MessageType = MessageType.CHANGE_WORLD_ACTION;
+  actionType: ActionType = ActionType.CHANGE_WORLD_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   target: Entity;
   from: World;
@@ -18,6 +19,10 @@ export class ChangeWorldAction extends Action {
     this.to = to;
     this.position = position;
     this.originPosition = target.position;
+    // Let the abstract impl of execute know to let listeners react in the space that this entity has not YET moved to
+    if(this.target.world !== undefined) {
+      this.additionalListenPoints = [{ world: to, position }];
+    }
   }
 
   apply(): boolean {

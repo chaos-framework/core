@@ -1,7 +1,7 @@
 import {
   Entity,
   Action, World, Component, Viewer, NestedChanges,
-  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer, ClientGame, Scope
+  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer, ClientGame, Scope, BroadcastType
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 import { CONNECTION, CONNECTION_RESPONSE } from "../ClientServer/Message";
@@ -137,16 +137,23 @@ export abstract class Game implements ComponentContainer {
   }
 
   queueForBroadcast(action: Action, to?: Player | Team) {
-    // check if this is a direct console message
-     if(to !== undefined) {
-       // bleh
-       return;
-     }
-    // Check if this action contains any visiblity changes and publish/unpublish entities as needed
+    // Check if this action contains any visiblity changes and publish/unpublish entities as needed first
     if(action.visibilityChanges !== undefined) {
       this.publishVisibilityChanges(action.visibilityChanges.changes, action.visibilityChanges.type === 'addition');
     }
-    // Broadcast out to either visibility type
+    // Check if this message needs to be broadcasted to clients at all
+    if(action.broadcastType === BroadcastType.NONE) {
+      return;
+    } else if (action.broadcastType === BroadcastType.DIRECT) {
+      return;
+    }
+    // Broadcast to everyone, if specified, or more specific clients
+    if(action.broadcastType === BroadcastType.FULL) {
+      for(const [id, player] of this.players) {
+        player.enqueueAction(action);
+      }
+    } else {
+    // Broadcast out to either visibility type based on sense of relevent entities
     if(this.perceptionGrouping === 'team') {
       for(const [id, team] of this.teams) {
         if(
@@ -166,6 +173,8 @@ export abstract class Game implements ComponentContainer {
           }
       }
     }
+    }
+
     return;
   }
 

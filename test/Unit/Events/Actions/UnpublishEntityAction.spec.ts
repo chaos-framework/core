@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { UnpublishEntityAction, Entity, Game, Vector } from '../../../../src/internal';
+import { UnpublishEntityAction, Entity, Game, Vector, ActionType } from '../../../../src/internal';
 
 import EmptyGame from '../../../Mocks/Games/EmptyGame';
 import Room from '../../../Mocks/Worlds/Room';
@@ -33,7 +33,7 @@ describe('UnpublishEntityAction', () => {
   });
 
   it('Can deserialize from proper json', () => {
-    const json: UnpublishEntityAction.Serialized = { entity: entity.id, permitted: true };
+    const json: UnpublishEntityAction.Serialized = { entity: entity.id, permitted: true, actionType: ActionType.UNPUBLISH_ENTITY_ACTION };
     const a = UnpublishEntityAction.deserialize(json);
     expect(a instanceof UnpublishEntityAction).to.be.true;
     expect(a.entity.id).to.equal(entity.id);

@@ -1,10 +1,11 @@
 import { 
   Action, ActionParameters, Entity, ValueType, Value, 
-  ModificationMethod, Modification, AbsoluteModification, AdjustmentModification, MultiplierModification, MessageType,
+  ModificationMethod, Modification, AbsoluteModification, AdjustmentModification, MultiplierModification, ActionType, BroadcastType,
 } from '../../internal'; 
 
 export class ModifyPropertyAction extends Action {
-  messageType: MessageType = MessageType.MODIFY_PROPERTY_ACTION;
+  actionType: ActionType = ActionType.MODIFY_PROPERTY_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   property: string;             // What property to modify
   value: ValueType;             // Current / Min / Max value

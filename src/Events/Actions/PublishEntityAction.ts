@@ -1,7 +1,8 @@
-import { Action, ActionParameters, World, Vector, Entity, Game, MessageType } from '../../internal';
+import { Action, ActionParameters, World, Vector, Entity, Game, ActionType, BroadcastType } from '../../internal';
 
 export class PublishEntityAction extends Action {
-  messageType: MessageType = MessageType.PUBLISH_ENTITY_ACTION;
+  actionType: ActionType = ActionType.PUBLISH_ENTITY_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;  // TODO redundant? should never be true
 
   entity: Entity;
   world: World;
@@ -15,6 +16,8 @@ export class PublishEntityAction extends Action {
     this.world = world;
     this.position = position;
     this.target = target;
+    // Let the abstract impl of execute know to let listeners react in the space that this entity has not YET been published
+    this.additionalListenPoints = [{ world, position: position }];
   }
 
   initialize() {

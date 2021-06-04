@@ -130,6 +130,14 @@ export class NestedMap<T> {
     return this.map.has(id);
   }
 
+  getAllParentIds(set: Set<string> = new Set<string>()): Set<string> {
+    for(const [id, parent] of this.parents) {
+      set.add(id);
+      parent.getAllParentIds(set);
+    }
+    return set;
+  }
+
 }
 
 // Returns type, parent id, and entry ids

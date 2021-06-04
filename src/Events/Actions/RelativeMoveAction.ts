@@ -1,13 +1,14 @@
-import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, Entity, Game, MessageType, Scope, Vector, World } from '../../internal';
+import { Action, ActionParameters, Entity, Game, ActionType, Scope, Vector, World, 
+  Viewer, BroadcastType } from '../../internal';
 
 export class RelativeMoveAction extends Action {
-  messageType: MessageType = MessageType.RELATIVE_MOVE_ACTION;
+  actionType: ActionType = ActionType.RELATIVE_MOVE_ACTION;
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   target: Entity;
   from: Vector;
   amount: Vector;
-  finalPosition?: Vector;
+  finalPosition: Vector;
   movementAction = true;
 
   constructor({caster, target, amount, using, tags = []}: RelativeMoveAction.Params) {
@@ -15,12 +16,26 @@ export class RelativeMoveAction extends Action {
     this.target = target;
     this.from = target.position;
     this.amount = amount;
+    this.finalPosition = this.target.position.add(this.amount);
+    // Let the abstract impl of execute know to let listeners react in the space that this entity has not YET moved to
+    if(this.target.world !== undefined) {
+      this.additionalListenPoints = [{ world: this.target.world, position: this.finalPosition }];
+    }
   }
 
   apply(): boolean {
     // Cache the final position for later reference as needed
-    this.finalPosition = this.target.position.add(this.amount);
     return this.target._move(this.finalPosition);
+  }
+
+  // See if this is moving into a circle from outside
+  movesInto(origin: Vector, radius: number): boolean {
+    return !this.from.withinRadius(origin, radius) && this.finalPosition.withinRadius(origin, radius);
+  }
+
+  // See if this is moving out of a circle from inside
+  movesOutOf(origin: Vector, radius: number): boolean {
+    return this.from.withinRadius(origin, radius) && !this.finalPosition.withinRadius(origin, radius);
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
