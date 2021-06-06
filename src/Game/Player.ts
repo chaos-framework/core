@@ -113,12 +113,12 @@ export class Player implements Viewer, ActionQueuer {
     return changes;
   }
 
-  _disownEntity(entity: Entity): boolean {
+  _disownEntity(entity: Entity): NestedChanges {
     entity.owners.delete(this.id);
-    this.sensedEntities.removeChild(entity.id);
+    const changes = this.sensedEntities.removeChild(entity.id);
     this.entities.remove(entity.id);
     entity.teams.removeChild(this.id);
-    return true;
+    return changes;
   }
 
   _joinTeam(team: Team): boolean {
@@ -153,7 +153,6 @@ export class Player implements Viewer, ActionQueuer {
       Game.getInstance().playersWithoutTeams.set(this.id, this);
     }
     return true;
-
   }
   
   publish(): PublishPlayerAction {
@@ -161,7 +160,7 @@ export class Player implements Viewer, ActionQueuer {
   }
 
   serializeForClient(): Player.SerializedForClient {
-    return { id: this.id, username: this.username, admin: this.admin, teams: Array.from(this.teams.map.keys()), entities: Array.from(this.entities.map.keys()) }; // 0Array.from(this.entities) };
+    return { id: this.id, username: this.username, admin: this.admin, teams: Array.from(this.teams.map.keys()), entities: Array.from(this.entities.map.keys()) };
   }
 
 }
@@ -200,6 +199,7 @@ export namespace Player {
     const p = new Player(json);
     const game = Game.getInstance();
     p.entities = new NestedMap<Entity>(p.id, 'player');
+    // tslint:disable-next-line: forin
     for(const id of json.entities) {
       const entity = game.getEntity(id);
       if(entity === undefined) {

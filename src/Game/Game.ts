@@ -194,13 +194,13 @@ export abstract class Game implements ComponentContainer {
         for(const playerId in players) {
           const player = this.players.get(playerId);
           if(player !== undefined && player.client !== undefined) {
-            const newEntityIds = changesInVisibility.changes['player'][playerId].keys;
+            const newEntityIds = changesInVisibility.changes['player'][playerId].values();
             // tslint:disable-next-line: forin
-            for(const entityId in newEntityIds) {
+            for(const entityId of newEntityIds) {
               const entity = this.getEntity(entityId);
               if(entity !== undefined) {
                 const action = addition ? entity.getPublishedInPlaceAction() : entity.unpublish();
-                player.client.broadcast(MessageType.ACTION, action);
+                player.enqueueAction(action);
               }
             }
           }
@@ -221,15 +221,15 @@ export abstract class Game implements ComponentContainer {
   serializeForScope(viewer: Viewer): Game.SerializedForClient {
     const o: Game.SerializedForClient = { id: this.id, players: [], teams: [], worlds: [], entities: [] }
     // Serialize all players
-    for(let player of this.players.values()) {
+    for(const player of this.players.values()) {
       o.players.push(player.serializeForClient());
     }
     // Serialize all teams
-    for(let team of this.teams.values()) {
+    for(const team of this.teams.values()) {
       o.teams.push(team.serializeForClient());
     }
     // Gather all visible worlds and serialize with visible baselayer chunks
-    for(let kv of viewer.getWorldScopes()) {
+    for(const kv of viewer.getWorldScopes()) {
       const world = this.worlds.get(kv[0]);
       if(world !== undefined) {
         o.worlds.push(world.serializeForClient());

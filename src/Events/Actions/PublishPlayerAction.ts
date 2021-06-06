@@ -24,8 +24,8 @@ export class PublishPlayerAction extends Action {
       };
   }
 
-  static deserialize(json: Player.SerializedForClient): PublishPlayerAction {
-    return new PublishPlayerAction({player: Player.DeserializeAsClient(json)})
+  static deserialize(json: PublishPlayerAction.Serialized): PublishPlayerAction {
+    return new PublishPlayerAction({player: Player.DeserializeAsClient(json.player)})
   }
 }
 
