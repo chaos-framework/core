@@ -1,9 +1,9 @@
-import { Action, Event, Entity} from '../../../src/internal';
+import { Action, Event} from '../../../src/internal';
 
 export class SimpleEvent implements Event {
   index = 0;
 
-  constructor(private actions: Action[], caster?: Entity) { };
+  constructor(private actions: Action[]) { };
 
   getNextAction(previousAction?: Action): Action | undefined {
     if (this.actions.length > this.index) {

@@ -1,8 +1,8 @@
-import { fromPairs } from 'lodash';
-import { v4 as uuid } from 'uuid';
-import { ComponentScope, ComponentContainer } from '../internal'
 
-export abstract class Component {
+import { v4 as uuid } from 'uuid';
+import { ComponentScope, ComponentContainer, Printable } from '../internal'
+
+export abstract class Component implements Printable {
   id: string;
   data: { [key: string]: any };
   parent?: ComponentContainer;
@@ -22,6 +22,10 @@ export abstract class Component {
       this.tags = new Set<string>(tags);
     }
     this.data = {};
+  }
+
+  print(): string {
+    return this.name;
   }
 
   serialize(): object {

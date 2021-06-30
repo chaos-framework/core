@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+import { Printable } from '../ClientServer/Terminal/Printable';
 import { SensoryInformation } from '../Events/Interfaces';
 import {
   Game, Vector, World,
@@ -13,7 +14,7 @@ import { NestedChanges } from '../Util/NestedMap';
 import { ComponentCatalog } from './ComponentCatalog';
 import { isSensor } from './Interfaces';
 
-export class Entity implements Listener, ComponentContainer {
+export class Entity implements Listener, ComponentContainer, Printable {
   readonly id: string;
   name: string;
   tags = new Set<string>();
@@ -56,6 +57,10 @@ export class Entity implements Listener, ComponentContainer {
 
   isPublished(): boolean {
     return this.published;
+  }
+
+  print(): string {
+    return this.name !== '' ? this.name : '???';
   }
 
   activate() {

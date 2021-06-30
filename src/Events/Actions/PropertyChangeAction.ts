@@ -1,3 +1,7 @@
+import { fail } from 'assert';
+import Terminal from '../../ClientServer/Terminal';
+import { TerminalMessage } from '../../ClientServer/Terminal/TerminalMessage';
+import { TerminalMessageFragment } from '../../ClientServer/Terminal/TerminalMessageFragment';
 import { 
   Action, Entity, Component, Value, ActionParameters, ActionType, BroadcastType
 } from '../../internal';
@@ -5,6 +9,9 @@ import {
 export class PropertyChangeAction extends Action {
   actionType: ActionType = ActionType.PROPERTY_CHANGE_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
+
+  successVerb?: string;
+  failureVerb?: string;
 
   property: string;
   type: 'adjust' | 'set';
@@ -99,8 +106,27 @@ export class PropertyChangeAction extends Action {
     return this.effects(key) && this.amount < 0;
   }
 
+  printedWithVerbs(success: string, failure?: string): PropertyChangeAction {
+    this.successVerb = success;
+    this.failureVerb = failure;
+    return this;
+  }
+
+  generateMessage() {
+    if(this.successVerb !== undefined) {
+      this.terminalMessage = new TerminalMessage(
+        this.caster,
+        this.successVerb,
+        this.target,
+        '--',
+        this.finalAmount.toString(),
+        this.property
+      )
+    }
+  }
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace PropertyChangeAction {	
   export interface ValueParams extends ActionParameters {	
     amount: number,	

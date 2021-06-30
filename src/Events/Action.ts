@@ -1,9 +1,13 @@
+import { TerminalMessage } from '../ClientServer/Terminal/TerminalMessage';
 import { Game, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
   Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector } from '../internal';
 
 export abstract class Action {
   actionType: ActionType = ActionType.INVALID;
   broadcastType: BroadcastType = BroadcastType.FULL;
+
+  terminalMessage?: TerminalMessage | ((action: Action) => TerminalMessage);
+  verb?: string;
 
   // TODO implement player: Player;
   caster?: Entity;
@@ -23,6 +27,8 @@ export abstract class Action {
   nested: number = 0;
   
   movementAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
+
+  anticipators = new Set<string>();
   sensors = new Map<string, SensoryInformation | boolean>();
 
   visibilityChanges?: { type: 'addition' | 'removal', changes: NestedChanges }
@@ -35,6 +41,9 @@ export abstract class Action {
   // Additional listeners on top of the default caster -> target flow
   additionalListeners: ComponentContainer[] = [];
 
+  // Function to run to check if the action is still feasible after any modifiers / counters etc
+  feasabilityCallback?: (a?: Action) => boolean;
+
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
   constructor({ caster, using, tags }: ActionParameters = {}) {
@@ -44,6 +53,12 @@ export abstract class Action {
     if (tags) {
       tags.map(tag => this.tags.add(tag));
     }
+  }
+
+  // Set the optional callback to see if the action is still possible
+  if(callback: (a?: Action) => boolean): Action {
+    this.feasabilityCallback = callback;
+    return this;
   }
 
   execute(force: boolean = true): boolean {
@@ -83,11 +98,14 @@ export abstract class Action {
     // See if this action was not permitted by any modifiers
     this.decidePermission();
 
-    // Apply this action to the target, checking for success
+    // Apply this action to the target, checking for permission and if still feasible
     let applied = false;
-    if(this.permitted || force) {
+    if ((this.permitted && this.feasabilityCallback !== undefined ? this.feasabilityCallback(this) : true) || force) {
       applied = this.apply();
     }
+
+    // Generate terminal message
+    this.generateMessage();
 
     // Queue in the game
     game.queueForBroadcast(this);
@@ -281,7 +299,12 @@ export abstract class Action {
     };
   }
 
-  // TODO abstract unserialize(json: any, game: Game): Action;
+  generateMessage(): void {
+    // Run the callback to generate a message
+    if(this.terminalMessage !== undefined && !(this.terminalMessage instanceof TerminalMessage)) {
+      this.terminalMessage = this.terminalMessage(this);
+    }
+  };
 
   initialize(): void { };
   teardown(): void { };

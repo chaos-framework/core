@@ -12,6 +12,13 @@ import { Eyes } from '../../Mocks/Components/Sensors';
 
 describe('Entity', () => {
 
+  describe('Printing', () => {
+    it('Prints its name', () => {
+      const e = new Entity({name: "Test"});
+      expect(e.print()).to.equal("Test");
+    });
+  });
+
   describe('Serializing / Deserializing', () => {
     let e: Entity;
     let serializedForClient: Entity.SerializedForClient;

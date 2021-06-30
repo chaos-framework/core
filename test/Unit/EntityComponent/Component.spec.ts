@@ -4,6 +4,7 @@ import 'mocha';
 import { Component, DisplayComponent } from '../../../src/internal';
 
 import { Paladin } from '../../Mocks/Components/Classes';
+import { EmptyComponent } from '../../Mocks/Components/Functional';
 
 describe('Component', () => {
 
@@ -12,6 +13,13 @@ describe('Component', () => {
       const c = new Paladin();
       expect(c.name).to.equal('Paladin');
       expect(c.tags).to.contain('class');
+    });
+  });
+
+  describe('Printing', () => {
+    it('Prints its name', () => {
+      const e = new EmptyComponent();
+      expect(e.print()).to.equal("Empty Component");
     });
   });
 

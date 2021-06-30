@@ -2,7 +2,7 @@ import { Event, Entity, Component } from '../internal';
 
 export default abstract class Ability {
   abstract name: string;
-  granter?: any;
+  granter?: Entity | Component;
 
   abstract cast(caster: Entity, { using, target, options }: OptionalCastParameters ): Event | undefined;
 

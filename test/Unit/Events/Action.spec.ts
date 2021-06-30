@@ -12,6 +12,10 @@ class TestAction extends Action {
 
 describe('Action Abstract Functionality', () => {
 
+  describe('Feasiblity callbacks', () => {
+    
+  });
+
   describe('Permits or forbids actions intelligently', () => {
     let a: TestAction;
     beforeEach(() => { a = new TestAction() });
@@ -20,7 +24,7 @@ describe('Action Abstract Functionality', () => {
       expect(a.permitted).to.be.true;
     });
 
-    it('Permits items if calculated when nothing else permits or denies', () => {
+    it('Decides actions are permitted if no components have attempted to permit or deny', () => {
       a.decidePermission();
       expect(a.permitted).to.be.true;
     });
@@ -43,7 +47,7 @@ describe('Action Abstract Functionality', () => {
       expect(a.permitted).to.be.false;
     });
 
-    it('Defers to denials on the same level as previously set and new permits', () => {
+    it('When permitted and denied with same priority, yields to denial', () => {
       a.permit();
       a.deny();
       a.permit();

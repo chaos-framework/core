@@ -9,12 +9,7 @@ import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Abilit
 import Property, { ValueType } from './EntityComponent/Properties/Property';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification';
 import Value, { ModificationMethod } from './EntityComponent/Properties/Value';
-export { 
-  Identifiable, ComponentType,
-  Listener, Modifier, Reacter, Sensor, 
-  isModifier, isReacter, isSensor,
-  Scope, ComponentScope
-} from './EntityComponent/Interfaces';
+export * from './EntityComponent/Interfaces';
 // EVENT AND ACTION IMPORTS
 import { Action, ActionParameters } from './Events/Action';
 export { ActionType, BroadcastType } from './Events/Actions/_types';
@@ -58,6 +53,9 @@ export { MessageType } from './ClientServer/Messages/Types'
 export { Client } from './ClientServer/Client'
 import ActionDeserializer from './ClientServer/ActionDeserializer';
 export { ActionDeserializer };
+export { Printable, isPrintable } from './ClientServer/Terminal/Printable';
+export { TerminalMessage } from './ClientServer/Terminal/TerminalMessage';
+export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessageFragment';
 // WORLDS
 import Layer, { ILayer } from './World/Layer';
 import Chunk, { IChunk } from './World/Chunk';

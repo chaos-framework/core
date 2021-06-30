@@ -16,6 +16,10 @@ export interface Reacter {
   react(a: Action): void; // TODO determine return type..
 }
 
+export interface Anticipator {
+  anticipate(a: Action): boolean;
+}
+
 export interface Sensor {
   sensedEntities: NestedMap<Entity>;
   sense(a: Action): SensoryInformation | boolean;
@@ -33,8 +37,12 @@ export function isReacter(o: any): o is Reacter {
   return o.react !== undefined;
 }
 
+export function isAnticipator(o: any): o is Anticipator {
+  return o.anticipate !== undefined;
+}
+
 export function isSensor(o: any): o is Sensor {
-  return o.sense!== undefined;
+  return o.sense !== undefined;
 }
 
 // SCOPE
