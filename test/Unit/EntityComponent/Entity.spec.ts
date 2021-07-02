@@ -82,7 +82,7 @@ describe('Entity action/event generators', () => {
 
   describe('Casting', () => {
     it('Generates an event for an ability it does have', () => {
-      expect(e.cast(heal.name, { target: e, using: e })).to.exist;
+      expect(e.cast(heal.name, { target: e, using: e.id })).to.exist;
     });
     
     it('Does not generate and event for an ability it does not have', () => {

@@ -5,7 +5,7 @@ import { SimpleEvent } from '../Events/SimpleEvent';
 export class Heal extends Ability {
   name = "Heal";
 
-  cast(caster: Entity, { using, target, options }: OptionalCastParameters = {}): Event | undefined {
+  cast(caster: Entity, { using, target, params }: OptionalCastParameters = {}): Event | undefined {
     if(!target) {
       return undefined;
     }

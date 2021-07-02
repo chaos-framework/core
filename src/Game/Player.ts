@@ -59,6 +59,10 @@ export class Player implements Viewer, ActionQueuer {
     }
   }
 
+  owns(entity: Entity | string): boolean {
+    return this.entities.has(entity instanceof Entity ? entity.id : entity);
+  }
+
   getSensedAndOwnedEntities(): Map<string, Entity> {
     return new Map([...this.entities.map.entries(), ...this.sensedEntities.map.entries()]);
   }

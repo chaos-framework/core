@@ -1,11 +1,10 @@
 import {
   Entity,
   Action, World, Component, Viewer, NestedChanges,
-  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer, ClientGame, Scope, BroadcastType
+  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer, ClientGame, Scope, BroadcastType,
+  CAST, CONNECTION, CONNECTION_RESPONSE
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
-import { CONNECTION, CONNECTION_RESPONSE } from "../ClientServer/Message";
-import { MessageType } from "../ClientServer/Messages/Types";
 
 export abstract class Game implements ComponentContainer {
   static instance: Game;
@@ -35,31 +34,38 @@ export abstract class Game implements ComponentContainer {
     Game.instance = this;
   }
 
-  static getInstance = (): Game => {
+  static getInstance (): Game {
     if (Game.instance) {
       return Game.instance;
     }
     throw new Error();
   }
 
-  // process = (command: Command): boolean => {
-  //   const { player: playerId, entity: entityId, params } = command;
-  //   // See if the player exists
-  //   const player = this.players.get(command.player);
-  //   if(player === undefined) {
-  //     return false;
-  //   }
-  //   // See if the entity is specified, and if the player has rights on it
-  //   let entity;
-  //   if(command.entity) {
-  //     entity = this.getEntity(command.entity);
-  //     if(entity === undefined) {
-  //       return false;
-  //     }
-  //   }
-  //   this.actionQueue.enqueue(a);
-  //   return true;
-  // }
+  castAsClient(msg: CAST): string | undefined {
+    const { casterType, clientId, casterId, using, grantedBy, params } = msg;
+    // TODO allow casting as player or team -- for now assuming entity
+    if(casterType !== 'entity') {
+      return "Invalid caster type. Only Entity currently supported.";
+    }
+    // Make sure the client exists
+    const player = this.players.get(clientId);
+    if(player === undefined) {
+      return "Client/Player not found.";
+    }
+    // Make sure the casting entity exists
+    const entity = this.getEntity(casterId);
+    if(entity === undefined) {
+      return "Entity not found.";
+    }
+    // Make sure the player owns the casting entity
+    if(!player.owns(entity)) {
+      return "You do not have ownership of that entity";
+    }
+    const event = entity.cast(msg.abilityName, { using, grantedBy, params });
+    if(event === undefined) {
+      return "Could not cast."
+    }
+  }
 
   process() {
     let action = this.actionQueue.getNextAction();

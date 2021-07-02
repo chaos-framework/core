@@ -3,28 +3,22 @@ import { Event, Entity, Component } from '../internal';
 export default abstract class Ability {
   abstract name: string;
   granter?: Entity | Component;
+  using?: Entity | Component;
 
-  abstract cast(caster: Entity, { using, target, options }: OptionalCastParameters ): Event | undefined;
+  abstract cast(caster: Entity, { using, target, params }: OptionalCastParameters ): Event | undefined;
 
   // TODO serialize, unserialize
 }
 
 export interface OptionalCastParameters {
-  using?: Entity | Component, 
   target?: Entity,
-  options?: any
+  grantedBy?: string,
+  using?: string,
+  params?: any
 }
 
-export class Grant {
-  ability: Ability;
-  grantedBy?: Entity | Component;
-  using?: Entity | Component;
-
-  constructor(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component) {
-    this.ability = ability;
-    if(grantedBy)
-      this.grantedBy = grantedBy;
-    if(using)
-      this.using = using;
-  }
+export interface Grant {
+  ability: Ability,
+  grantedBy?: string,
+  using?: string
 }

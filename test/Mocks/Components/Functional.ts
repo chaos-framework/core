@@ -1,11 +1,15 @@
 import { Component, Action, Listener, Entity, 
-  ComponentScope, SensoryInformation, Sensor, NestedChanges, NestedMap } from '../../../src/internal';
+  ComponentScope, SensoryInformation, Sensor, NestedChanges, NestedMap, Modifier, CustomAction } from '../../../src/internal';
 
 // tslint:disable: max-classes-per-file
 export class EmptyComponent extends Component {
   name = "Empty Component";
   unique = false;
 }
+
+/*
+*  SENSORS
+*/
 
 export class SensesAll extends Component implements Sensor {
   sensedEntities: NestedMap<Entity>;
@@ -60,5 +64,21 @@ export class GameScopeSpecified extends NoScopeSpecified {
     'sensor': 'game',
     'modifier': 'game',
     'reacter': 'game'
+  }
+}
+
+/*
+*   EVENT TESTS
+*/
+
+export class CancelsSpecificCustomAction extends Component implements Modifier {
+  constructor(public nameToCancel: string) {
+    super();
+  }
+
+  modify(action: Action) {
+    if(action instanceof CustomAction && action.name === this.nameToCancel) {
+      action.deny({ priority: Number.MAX_VALUE, by: this });
+    }
   }
 }

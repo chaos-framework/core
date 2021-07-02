@@ -35,6 +35,7 @@ export { SenseEntityAction } from './Events/Actions/SenseEntityAction';
 export { LoseEntityAction } from './Events/Actions/LoseEntityAction';
 export { PublishPlayerAction } from './Events/Actions/PublishPlayerAction';
 export { OwnEntityAction } from './Events/Actions/OwnEntityAction';
+export { CustomAction } from './Events/Actions/CustomAction';
 export { VisibilityType } from './Events/Enums';
 import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD
@@ -45,11 +46,11 @@ import { Viewer, ActionQueuer } from './Game/Interfaces';
 import EntityScope from './Game/EntityScope';
 export { World } from './World/World';
 // CLIENT/SERVER
-export { Command, AbilityCommand, isCommand, isAbilityCommand } from './ClientServer/Command';
 import ClientGame from './ClientServer/ClientGame';
 import ClientWorld from './ClientServer/ClientWorld';
-export { Message, CONNECTION, CONNECTION_RESPONSE } from './ClientServer/Message'
+export * from './ClientServer/Message'
 export { MessageType } from './ClientServer/Messages/Types'
+export { Server } from './ClientServer/Server'
 export { Client } from './ClientServer/Client'
 import ActionDeserializer from './ClientServer/ActionDeserializer';
 export { ActionDeserializer };

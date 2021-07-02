@@ -8,7 +8,8 @@ import {
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction,
+  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor
 } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 import { ComponentCatalog } from './ComponentCatalog';
@@ -135,16 +136,15 @@ export class Entity implements Listener, ComponentContainer, Printable {
   }
 
   // Cast ability by name and optional lookup for specific version based on how we're casting it
-  cast(abilityName: string, {using, target, options}: OptionalCastParameters = {}): Event | undefined {
+  cast(abilityName: string, {using, grantedBy, target, params}: OptionalCastParameters = {}): Event | undefined {
     // See if we have this ability at all
     const grants = this.abilities.get(abilityName);
     if(grants && grants.length > 0) {
       // Use the verion of this ability granted by 
-      let grant: Grant | undefined = using ? grants.find(g => g.using === using) : undefined;
+      let grant: Grant | undefined = using ? grants.find(g => g.using === using && g.grantedBy === grantedBy) : undefined;
       if(!grant)
         grant = grants[0];
-      const e = grant.ability.cast(this, { using, target, options });
-      // e.execute();
+      const e = grant.ability.cast(this, { using, target, params });
       return e;
     }
     return undefined;
@@ -241,25 +241,25 @@ export class Entity implements Listener, ComponentContainer, Printable {
     }
   }
 
-  // Granting abilities
+  // Learning abilities
 
   learn({caster, using, ability, tags}: LearnAbilityAction.EntityParams, force = false): LearnAbilityAction {
     return new LearnAbilityAction({caster, target: this, using, ability, tags});
   }
 
   _learn(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
-    const name = ability.name;
+    const { name } = ability;
     const grants = this.abilities.get(name);
     if(grants) {
       // check if ability already granted by this combo
       const duplicate = grants.find(grant => grant.grantedBy === grantedBy && grant.using === using);
       if(!duplicate) {
-        grants.push(new Grant(ability, grantedBy, using));
+        grants.push({ability, grantedBy: grantedBy?.id, using: using?.id });
       } else {
         return false;
       }
     } else {
-      this.abilities.set(name, [new Grant(ability, grantedBy, using)]);
+      this.abilities.set(name, [{ability, grantedBy: grantedBy?.id, using: using?.id }]);
     }
     return true;
   }
