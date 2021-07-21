@@ -5,7 +5,7 @@ export default abstract class Ability {
   granter?: Entity | Component;
   using?: Entity | Component;
 
-  abstract cast(caster: Entity, { using, target, params }: OptionalCastParameters ): Event | undefined;
+  abstract cast(caster: Entity, { using, target, params }: OptionalCastParameters ): Event | string | undefined;
 
   // TODO serialize, unserialize
 }

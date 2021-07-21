@@ -10,6 +10,7 @@ export default abstract class Layer<T> implements ILayer {
     this.fill = fill;
   }
 
+  // TODO events for setting tiles
   setTile(x: number, y: number, tile: any) {
     const chunk = this.getChunk(x, y);
     if(chunk) {
@@ -50,10 +51,25 @@ export default abstract class Layer<T> implements ILayer {
       this.chunks.set(k, chunk);
       return chunk;
     }
-  } 
+  }
 
   forgetChunk(key: string) {
     this.chunks.delete(key);
+  }
+
+  drawSquare(value: T, topLeft: Vector, width: number, height?: number) {
+    for(let x = topLeft.x; x < topLeft.x + width; x++) {
+      for(let y = topLeft.y; y < topLeft.y + (height || width); y++) {
+        this.setTile(x, y, value);
+      }
+    }
+  }
+
+  drawLine(value: T, start: Vector, end: Vector) {
+    const line = start.getLineToIterable(end);
+    for(const vector of line) {
+      this.setTile(vector.x, vector.y, value);
+    }
   }
 
 }

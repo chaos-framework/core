@@ -1,8 +1,11 @@
-import { SSL_OP_NO_QUERY_MTU } from 'constants';
-import { clamp, isInteger } from 'lodash';
-import { toInteger } from 'lodash';
+import { clamp, toInteger } from 'lodash';
+import bresenham = require("bresenham")
+import bresenhamGenerator = require("bresenham/generator")
+import { deflateRawSync } from 'zlib';
 
 const CHUNK_WIDTH = 16;
+
+interface Point { x: number, y: number }
 
 export default class Vector {
   x: number;
@@ -27,6 +30,10 @@ export default class Vector {
 
   add(other: Vector): Vector {
     return new Vector(this.x + other.x, this.y + other.y);
+  }
+
+  subtract(other: Vector): Vector {
+    return new Vector(this.x - other.x, this.y - other.y);
   }
 
   // Check if another vector is within (less than OR EQUAL to) a circular range
@@ -64,8 +71,30 @@ export default class Vector {
     return !this.toChunkSpace().equals(other.toChunkSpace());
   }
 
+  isOrthogonalTo(other: Vector): boolean {
+    return this.x === other.x || this.y === other.y;
+  }
+
+  isDiagonalTo(other: Vector): boolean {
+    return Math.abs(this.x - other.x) === Math.abs(this.y - other.y);
+  }
+
   getIndexString(): string {
     return this.x.toString() + "_" + this.y.toString();
+  }
+
+  getLineTo(other: Vector): Vector[] {
+    // TODO using external lib for some reason.. expensive to cast, should rewrite bresenham
+    const points = bresenham(this.x, this.y, other.x, other.y);
+    const vectors: Vector[] = [];
+    for(const point of points) {
+      vectors.push(new Vector(point.x, point.y));
+    }
+    return vectors;
+  }
+
+  getLineToIterable(other: Vector): Generator<Vector> {
+    return iterableVectorLine(this, other);
   }
 
   serialize(): string {
@@ -82,3 +111,38 @@ export default class Vector {
 
   // TODO distance, cast ray between two points, etc
 }
+
+const iterableVectorLine = function*(start: Vector, end: Vector) {
+  const x0 = start.x;
+  const y0 = start.y;
+  const x1 = end.x;
+  const y1 = end.y;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const adx = Math.abs(dx);
+  const ady = Math.abs(dy);
+  let eps = 0;
+  const sx = dx > 0 ? 1 : -1;
+  const sy = dy > 0 ? 1 : -1;
+  if(adx > ady) {
+    for(let x = x0, y = y0; sx < 0 ? x >= x1 : x <= x1; x += sx) {
+      yield new Vector(x, y);
+      eps += ady;
+      // tslint:disable-next-line: no-bitwise
+      if((eps<<1) >= adx) {
+        y += sy;
+        eps -= adx;
+      }
+    }
+  } else {
+    for(let x = x0, y = y0; sy < 0 ? y >= y1 : y <= y1; y += sy) {
+      yield new Vector(x, y);
+      eps += adx;
+      // tslint:disable-next-line: no-bitwise
+      if((eps<<1) >= ady) {
+        x += sx;
+        eps -= ady;
+      }
+    }
+  }
+};

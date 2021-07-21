@@ -155,14 +155,14 @@ export abstract class World implements ComponentContainer, Listener {
   }
 
   getEntitiesAtCoordinates(x: number, y: number): Entity[] {
+    const vector = new Vector(x, y);
     const entities: Entity[] = [];
-    const chunk = new Vector(x, y).toChunkSpace().getIndexString();
+    const chunk = vector.toChunkSpace().getIndexString();
     const entitiesInChunk = this.entitiesByChunk.get(chunk);
     if(entitiesInChunk) {
-      const v = new Vector(x, y);
       for(const id of entitiesInChunk) {
-        const entity = undefined;// Game.getEntity(id);
-        if(entity) {
+        const entity = Game.getInstance().getEntity(id); // TODO super suboptimal -- quick hack
+        if(entity && entity.position.equals(vector)) {
           entities.push(entity);
         }
       }

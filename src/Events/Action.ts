@@ -19,13 +19,13 @@ export abstract class Action {
 
   public: boolean = false;    // whether or not nearby entities (who are not omnipotent) can modify/react
   absolute: boolean = false;  // absolute actions do not get modified, likely come from admin / override code
-  
+
   private permissions: Map<number, Permission> = new Map<number, Permission>();
   permitted: boolean = true;
   decidingPermission?: Permission;
 
   nested: number = 0;
-  
+
   movementAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
 
   anticipators = new Set<string>();

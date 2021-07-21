@@ -136,7 +136,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
   }
 
   // Cast ability by name and optional lookup for specific version based on how we're casting it
-  cast(abilityName: string, {using, grantedBy, target, params}: OptionalCastParameters = {}): Event | undefined {
+  cast(abilityName: string, {using, grantedBy, target, params}: OptionalCastParameters = {}): Event | string | undefined {
     // See if we have this ability at all
     const grants = this.abilities.get(abilityName);
     if(grants && grants.length > 0) {
