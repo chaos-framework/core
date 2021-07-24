@@ -20,15 +20,14 @@ export class Team implements Viewer, ActionQueuer {
     this.name = name ? name : this.id.substring(this.id.length - 8);
     this.players = new Set<string>(players);
     this.sensedEntities = new NestedMap<Entity>(id, 'team');
-    Chaos..teams.set(this.id, this);
-    Chaos..teamsByName.set(this.name, this);
+    Chaos.teams.set(this.id, this);
+    Chaos.teamsByName.set(this.name, this);
   }
 
   enqueueAction(a: Action) {
-    const game = Chaos.;
     // Queue broadcast for all players
     for(const id of this.players) {
-      const p = game.players.get(id);
+      const p = Chaos.players.get(id);
       if(p !== undefined) {
         p.enqueueAction(a);
       }

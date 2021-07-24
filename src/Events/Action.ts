@@ -62,8 +62,6 @@ export abstract class Action {
   }
 
   execute(force: boolean = true): boolean {
-    const game = Chaos.;
-
     this.initialize();
 
     // If target is unpublished, just run through locally attached components (these may need to do work before publishing)
@@ -108,7 +106,7 @@ export abstract class Action {
     this.generateMessage();
 
     // Queue in the game
-    game.queueForBroadcast(this);
+    Chaos.queueForBroadcast(this);
 
     this.teardown();
 
@@ -128,8 +126,7 @@ export abstract class Action {
   }
 
   collectListeners() {
-    const game = Chaos.;
-    const listenRadius = game.listenDistance;
+    const listenRadius = Chaos.listenDistance;
 
     const { caster, target } = this;
 
@@ -150,7 +147,7 @@ export abstract class Action {
     // TODO add players + teams of caster
 
     // Add the game itself :D
-    this.addListener(game);
+    this.addListener(Chaos.reference);
 
     // TODO add players + teams of target(s)
 
@@ -241,7 +238,7 @@ export abstract class Action {
   }
 
   followup(o: Action | Event): void {
-    Chaos..actionQueue.enqueue(o);
+    Chaos.actionQueue.enqueue(o);
   }
 
   static serializedHasRequiredFields(json: any, additional: string[]): boolean {
@@ -259,10 +256,9 @@ export abstract class Action {
   }
 
   static deserializeCommonFields(json: Action.Serialized): Action.Deserialized {
-    const game = Chaos.;
-    const caster: Entity | undefined = json.caster ? game.getEntity(json.caster) : undefined;
-    const target: Entity | undefined = json.target ? game.getEntity(json.target) : undefined;
-    const using: Entity | undefined = json.using ? game.getEntity(json.using) : undefined;
+    const caster: Entity | undefined = json.caster ? Chaos.getEntity(json.caster) : undefined;
+    const target: Entity | undefined = json.target ? Chaos.getEntity(json.target) : undefined;
+    const using: Entity | undefined = json.using ? Chaos.getEntity(json.using) : undefined;
     const tags = json.tags;
     const permitted = json.permitted;
     return { caster, target, using, tags, permitted };

@@ -3,20 +3,18 @@ import 'mocha';
 
 import { UnpublishEntityAction, Entity, Chaos, Vector, ActionType } from '../../../../src/internal';
 
-import EmptyGame from '../../../Mocks/Games/EmptyGame';
 import Room from '../../../Mocks/Worlds/Room';
 
 describe('UnpublishEntityAction', () => {
-  let game: Game;
   let entity: Entity;
   let world: Room;
   let position: Vector;
 
   beforeEach(() => {
-    game = new EmptyGame({});
+    Chaos.reset();
     entity = new Entity({ name: "Test Entity" });
     world = new Room(10, 10);
-    game.worlds.set(world.id, world);
+    Chaos.worlds.set(world.id, world);
     entity._publish(world, world.stageLeft);
   });
 

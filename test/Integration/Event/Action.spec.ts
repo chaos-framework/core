@@ -4,7 +4,6 @@ import 'mocha';
 import { Action, Entity, Chaos, MoveAction, RelativeMoveAction, Vector } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
-import EmptyGame from '../../Mocks/Games/EmptyGame';
 import { SensesAll } from '../../Mocks/Components/Functional';
 
 describe('Action Integration', () => {
@@ -13,9 +12,9 @@ describe('Action Integration', () => {
     let witness: Entity;
     let mover: Entity;
     let room: Room;
-    let game: Game;
+      
     beforeEach(() => {
-      game = new EmptyGame();
+      Chaos.reset();
       room = new Room();
       witness = new Entity();
       witness._attach(new SensesAll());
@@ -51,9 +50,8 @@ describe('Action Integration', () => {
       let casterWitness: Entity;
       let targetWitness: Entity;
       let room: Room;
-      let game: Game;
-      beforeEach(() => {
-        game = new EmptyGame();
+            beforeEach(() => {
+        Chaos.reset();
         room = new Room(100, 100);
         caster = new Entity();
         caster._publish(room, room.stageLeft);
@@ -66,7 +64,7 @@ describe('Action Integration', () => {
         action = new RelativeMoveAction({ 
           caster, target, amount: new Vector(1, 0)
         });
-        game.listenDistance = 25; // the default, but enforcing just in case
+        Chaos.listenDistance = 25; // the default, but enforcing just in case
       });
 
       it('Includes caster, target, their worlds, witnesses in respective worlds, and the game', () => {
@@ -99,9 +97,8 @@ describe('Action Integration', () => {
       let targetWitness: Entity;
       let casterRoom: Room;
       let targetRoom: Room;
-      let game: Game;
-      beforeEach(() => {
-        game = new EmptyGame();
+            beforeEach(() => {
+        Chaos.reset();
         casterRoom = new Room();
         targetRoom = new Room();
         caster = new Entity();

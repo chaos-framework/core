@@ -52,13 +52,12 @@ export class PublishEntityAction extends Action {
   }
 
   static deserialize(json: PublishEntityAction.Serialized): PublishEntityAction {
-    const game = Chaos.;
     try {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);
       // Deserialize unique fields
       const entity: Entity | undefined = Entity.DeserializeAsClient(json.entity);  // lol OOPS
-      const world: World | undefined = game.worlds.get(json.world);
+      const world: World | undefined = Chaos.worlds.get(json.world);
       const position: Vector = Vector.deserialize(json.position);
       // Build the action if fields are proper, otherwise throw an error
       if (entity && world && position) {

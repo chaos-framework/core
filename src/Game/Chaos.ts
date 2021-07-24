@@ -1,11 +1,11 @@
 import {
   Entity, Action, World, Component, Viewer, NestedChanges,
-  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer, ClientChaos, Scope, BroadcastType,
+  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer, Scope, BroadcastType,
   CAST
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 
-export let id: string = "New Game";
+export let id: string = "Chaos";  // Name of loaded
 
 export const worlds: Map<string, World> = new Map<string, World>();
 export const entities: Map<string, Entity> = new Map<string, Entity>();
@@ -249,8 +249,7 @@ export interface SerializedForClient {
   entities: Entity.SerializedForClient[]
 }
 
-export function DeserializeAsClient(serialized: SerializedForClient, clientPlayerId: string): ClientGame {
-  const game = new ClientGame();
+export function DeserializeAsClient(serialized: SerializedForClient, clientPlayerId: string) {
   for(const team of serialized.teams) {
     const deserialized = Team.DeserializeAsClient(team);
     teams.set(deserialized.id, deserialized);  // TODO addTeam
@@ -268,5 +267,4 @@ export function DeserializeAsClient(serialized: SerializedForClient, clientPlaye
     const deserialized = World.deserializeAsClient(world);
     addWorld(deserialized);
   }
-  return game;
 }

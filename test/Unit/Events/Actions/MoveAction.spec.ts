@@ -3,16 +3,14 @@ import 'mocha';
 
 import { MoveAction, Entity, Chaos, Vector, ActionType } from '../../../../src/internal';
 
-import EmptyGame from '../../../Mocks/Games/EmptyGame';
 import Room from '../../../Mocks/Worlds/Room';
 
 describe('MoveAction', () => {
   let target: Entity;
-  let game: Game;
   let room: Room;
 
   beforeEach(() => {
-    game = new EmptyGame({});
+    Chaos.reset();
     target = new Entity({ name: "Test Entity" });
     room = new Room(10, 10);
     target._publish(room, room.stageLeft);

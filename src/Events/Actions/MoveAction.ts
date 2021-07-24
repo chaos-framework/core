@@ -78,7 +78,6 @@ export class MoveAction extends Action {
   };
 
   static deserialize(json: MoveAction.Serialized): MoveAction {
-    const game = Chaos.;
     try {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);

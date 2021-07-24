@@ -1,18 +1,16 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { LearnAbilityAction, Entity, Game } from '../../../../src/internal';
+import { LearnAbilityAction, Entity, Chaos } from '../../../../src/internal';
 
 import EmptyAbility from '../../../Mocks/Abilities/Empty';
-import EmptyGame from '../../../Mocks/Games/EmptyGame';
 
 describe('LearnAbilityAction Action', () => {
   let e: Entity;
   let ability: EmptyAbility;
-  let game: Game;
 
   beforeEach(() => {
-    game = new EmptyGame({});
+    Chaos.reset();
     e = new Entity({ name: "Test Entity" });
     ability = new EmptyAbility();
   });

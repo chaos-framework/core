@@ -21,14 +21,14 @@
 //     let room: Room;
 
 //     beforeEach(() => {
-//       game = new EmptyGame();
-//       game.perceptionGrouping = 'team';
-//       game.viewDistance = 1;
+//       Chaos.reset();
+//       Chaos.perceptionGrouping = 'team';
+//       Chaos.viewDistance = 1;
 //       teams = [new Team({ name: teamNames[Red] }), new Team( { name: teamNames[Blue] })];
 //       players = [new Player({ username: 'Red',  teams: [teams[Red].id] }), 
 //                 new Player({ username: 'Blue', teams: [teams[Blue].id] })];
 //       room = new Room(500, 500);
-//       game.worlds.set(room.id, room);
+//       Chaos.worlds.set(room.id, room);
 //       entities = [new Entity({ name: "Test Entity" }), new Entity({ name: "Test Entity" })];
 //       entities[Red]._publish(room, new Vector(2, 2));
 //       entities[Blue]._publish(room, new Vector(450, 450));
@@ -64,13 +64,13 @@
 //     let room: Room;
 
 //     beforeEach(() => {
-//       game = new EmptyGame();
-//       game.perceptionGrouping = 'player';
-//       game.viewDistance = 1;
+//       Chaos.reset();
+//       Chaos.perceptionGrouping = 'player';
+//       Chaos.viewDistance = 1;
 //       players = [new Player({ username: 'Red' }), 
 //                 new Player({ username: 'Blue' })];
 //       room = new Room(500, 500);
-//       game.worlds.set(room.id, room);
+//       Chaos.worlds.set(room.id, room);
 //       entities = [new Entity({ name: "Test Entity" }), new Entity({ name: "Test Entity" })];
 //       entities[Red]._publish(room, new Vector(2, 2));
 //       entities[Blue]._publish(room, new Vector(450, 450));
@@ -107,14 +107,14 @@
 //     let room: Room;
 
 //     beforeEach(() => {
-//       game = new EmptyGame();
-//       game.perceptionGrouping = 'team';
-//       game.viewDistance = 1;
+//       Chaos.reset();
+//       Chaos.perceptionGrouping = 'team';
+//       Chaos.viewDistance = 1;
 //       teams = [new Team({ name: teamNames[Red] })];
 //       players = [new Player({ username: 'Red',  teams: [teams[Red].id] }), 
 //                 new Player({ username: 'Blue' })];  // note that the blue player has no team
 //       room = new Room(500, 500);
-//       game.worlds.set(room.id, room);
+//       Chaos.worlds.set(room.id, room);
 //       entities = [new Entity({ name: "Test Entity" }), new Entity({ name: "Test Entity" })];
 //       entities[Red]._publish(room, new Vector(2, 2));
 //       entities[Blue]._publish(room, new Vector(450, 450));
@@ -152,13 +152,13 @@
 
 //     beforeEach(() => {
 //       game = new EntityVisibilityGame(); // note game class
-//       game.perceptionGrouping = 'team';
-//       game.viewDistance = 1;
+//       Chaos.perceptionGrouping = 'team';
+//       Chaos.viewDistance = 1;
 //       teams = [new Team({ name: teamNames[Red] } ), new Team({ name: teamNames[Blue] })];
 //       players = [new Player({ username: 'Red',  teams: [teams[Red].id] }), 
 //                 new Player({ username: 'Blue', teams: [teams[Blue].id] })];
 //       room = new Room(500, 500);
-//       game.worlds.set(room.id, room);
+//       Chaos.worlds.set(room.id, room);
 //       entities = [new Entity({ name: "Test Entity" }), new Entity({ name: "Test Entity" })];
 //       entities[Red]._publish(room, new Vector(2, 2));
 //       entities[Blue]._publish(room, new Vector(3, 3));  // entities are already nearby

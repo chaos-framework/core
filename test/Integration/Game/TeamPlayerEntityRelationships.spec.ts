@@ -5,19 +5,17 @@ import 'mocha';
 
 import { Chaos, Team, Player, Entity } from '../../../src/internal';
 
-import EmptyGame from '../../Mocks/Games/EmptyGame';
 
 describe('Team, Player, and Entity relationships', () => {
-  let game: Game;
   let team: Team;
   let player: Player;
   let entity: Entity;
   beforeEach(() => {
-    game = new EmptyGame();
+    Chaos.reset();
     team = new Team({ name: 'Red' });
     player = new Player({ username: 'Red Player' });
     entity = new Entity({ name: "Test Entity" });
-    game.addEntity(entity);
+    Chaos.addEntity(entity);
   });
 
   it('Team-Player', () => {

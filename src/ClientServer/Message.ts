@@ -1,4 +1,4 @@
-import { Game } from '../internal';
+import { Chaos } from '../internal';
 
 // Connection
 
@@ -9,7 +9,7 @@ export interface CONNECTION {
 
 export interface CONNECTION_RESPONSE {
   connectedPlayerId: string,
-  gameState: Game.SerializedForClient
+  gameState: Chaos.SerializedForClient
 }
 
 // In-game

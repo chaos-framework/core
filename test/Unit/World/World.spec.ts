@@ -3,7 +3,6 @@ import 'mocha';
 
 import { Entity, Vector, World } from '../../../src/internal';
 
-import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
 import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld';
 
@@ -90,7 +89,7 @@ describe('Worlds', () => {
 
   describe('Querying for entities', () => {
     let room: Room;
-    const game = new EmptyGame();
+    const Chaos.reset();
     beforeEach(() => {
       room = new Room(100, 100);
       for(let x = 5; x <= 95; x += 5) {

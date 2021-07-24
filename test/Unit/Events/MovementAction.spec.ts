@@ -3,7 +3,6 @@ import 'mocha';
 
 import { Entity, ChangeWorldAction } from '../../../src/internal';
 
-import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
 
 describe('World Changing Actions', () => {

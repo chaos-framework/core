@@ -27,18 +27,17 @@ export class Player implements Viewer, ActionQueuer {
     this.username = username ? username: this.id.substring(this.id.length - 6);
     this.admin = admin;
     this.client = client;
-    const game = Chaos.;
     this.teams = new NestedMap<Team>(this.id, 'player')
     this.entities = new NestedMap<Entity>(this.id, 'player')
     this.sensedEntities = new NestedMap<Entity>(id, 'player');
     // Make sure that we weren't passed an array of teams if the game's perceptionGrouping is 'team'
     // This is because you can't (yet) meaningfully share a scope with multiple teams
-    if (teams.length > 1 && game.perceptionGrouping === 'team') {
+    if (teams.length > 1 && Chaos.perceptionGrouping === 'team') {
       throw new Error('Cannot join multiple teams with team-level visibility'); // TODO ERROR
     }
     // Make sure the team(s) exists
     for (const teamId of teams) {
-      const team = game.teams.get(teamId);
+      const team = Chaos.teams.get(teamId);
       if (team === undefined) {
         throw new Error('Team not found for player to join'); // TODO ERROR
       }
@@ -46,16 +45,16 @@ export class Player implements Viewer, ActionQueuer {
       team._addPlayer(this);
     }
     // If game is has team visibility and assigned to a (single) team, reference that team's scope directly
-    if (game.perceptionGrouping === 'team' && this.teams.map.size === 1) {
+    if (Chaos.perceptionGrouping === 'team' && this.teams.map.size === 1) {
       const team = this.teams.map.values().next().value;
       this.scopesByWorld = team.scopesByWorld;
     } else {
       this.scopesByWorld = new Map<string, WorldScope>();
     }
-    game.players.set(this.id, this);
+    Chaos.players.set(this.id, this);
     // If this player is not part of any teams indicate so in the game
     if (this.teams.map.size === 0) {
-      game.playersWithoutTeams.set(this.id, this);
+      Chaos.playersWithoutTeams.set(this.id, this);
     }
   }
 
@@ -107,10 +106,10 @@ export class Player implements Viewer, ActionQueuer {
     if (entity.world) {
       let scope = this.scopesByWorld.get(entity.world.id);
       if (scope) {
-        scope.addViewer(entity.id, Chaos..viewDistance, entity.position.toChunkSpace());
+        scope.addViewer(entity.id, Chaos.viewDistance, entity.position.toChunkSpace());
       } else {
         scope = entity.world.createScope();
-        scope.addViewer(entity.id, Chaos..viewDistance, entity.position.toChunkSpace());
+        scope.addViewer(entity.id, Chaos.viewDistance, entity.position.toChunkSpace());
         this.scopesByWorld.set(entity.world.id, scope);
       }
     }
@@ -130,14 +129,14 @@ export class Player implements Viewer, ActionQueuer {
     if(this.teams.has(team.id)) {
       return false;
     }
-    if (Chaos..perceptionGrouping === 'team' || this.teams.has(team.id)) {
+    if (Chaos.perceptionGrouping === 'team' || this.teams.has(team.id)) {
       return false;
     }
     this.teams.add(team.id, team);
     this.entities.addParent(team.entities);  // add nested map relationship
     this.sensedEntities.addParent(team.sensedEntities);
     if (this.teams.map.size === 1) {
-      Chaos..playersWithoutTeams.delete(this.id);
+      Chaos.playersWithoutTeams.delete(this.id);
     }
     return true;
   }
@@ -147,14 +146,14 @@ export class Player implements Viewer, ActionQueuer {
     if(!this.teams.has(team.id)) {
       return false;
     }
-    if (Chaos..perceptionGrouping === 'team' || !this.teams.has(team.id)) {
+    if (Chaos.perceptionGrouping === 'team' || !this.teams.has(team.id)) {
       return false;
     }
     this.teams.remove(team.id);
     this.entities.removeParent(team.id); // detach nestedmap entity relationship
     this.sensedEntities.removeParent(team.id)
     if (this.teams.map.size === 0) {
-      Chaos..playersWithoutTeams.set(this.id, this);
+      Chaos.playersWithoutTeams.set(this.id, this);
     }
     return true;
   }
@@ -201,11 +200,10 @@ export namespace Player {
 
   export function DeserializeAsClient(json: Player.SerializedForClient, owner = false): Player {
     const p = new Player(json);
-    const game = Chaos.;
     p.entities = new NestedMap<Entity>(p.id, 'player');
     // tslint:disable-next-line: forin
     for(const id of json.entities) {
-      const entity = game.getEntity(id);
+      const entity = Chaos.getEntity(id);
       if(entity === undefined) {
         if(owner) {
           throw new Error('An entity owned by this client was not published with the Player from the server.'); // TODO proper error

@@ -2,12 +2,10 @@ import { expect } from 'chai';
 import 'mocha';
 import { Chaos, Entity, Team, Vector, RelativeMoveAction, Player, VisibilityType } from '../../../src/internal';
 
-import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
 
 describe('Game', () => {
-  let game: Game;
-  beforeEach(() => { game = new EmptyGame({}) });
+  beforeEach(() => { Chaos.reset(); });
 
   describe('Serializing with scope for client', () =>{
     let p: Player;
@@ -16,25 +14,25 @@ describe('Game', () => {
     let blue: Team;
     let room: Room;
     let otherRoom: Room;
-    let serialized: Game.SerializedForClient;
+    let serialized: Chaos.SerializedForClient;
     beforeEach(() => {
       p = new Player({ username: 'Viewer'});
-      game.players.set(p.id, p);
+      Chaos.players.set(p.id, p);
       red = new Team({name: 'Red'});
       blue = new Team({name: 'Blue'});
       red._addPlayer(p);
       room = new Room();
       otherRoom = new Room();
-      game.addWorld(room);
+      Chaos.addWorld(room);
       e = new Entity();
       e._publish(room, room.stageLeft);
       p._ownEntity(e);
-      serialized = game.serializeForScope(p);
+      serialized = Chaos.serializeForScope(p);
     });
 
     it('Serializes everything a client would need', () => {
       // Name
-      expect(serialized.id).to.equal(game.id);
+      expect(serialized.id).to.equal(Chaos.id);
       // Teams
       expect(serialized.teams.find(team => team.id === red.id)).to.exist;
       expect(serialized.teams.find(team => team.id === red.id)!.players).to.contain(p.id);
@@ -50,16 +48,17 @@ describe('Game', () => {
     });
 
     it('Deserializes into a ClientGame correctly', () => {
-      const clientGame = Game.DeserializeAsClient(serialized, '');
-      expect(clientGame.entities.has(e.id)).to.be.true;
+      Chaos.DeserializeAsClient(serialized, '');
+      expect(Chaos.entities.has(e.id)).to.be.true;
     });
   })
 
-  it('Should be a singleton', () => {
-    expect(game).to.be.not.null;
-    expect(Chaos.).to.be.not.null;
-    expect(Chaos.).to.equal(game);
-  });
+  // LOL NOT ANYMORE
+  // it('Should be a singleton', () => {
+  //   expect(game).to.be.not.null;
+  //   expect(Chaos.).to.be.not.null;
+  //   expect(Chaos.).to.equal(game);
+  // });
 
   // describe('Default visibility functions', () => {
   //   let game: Game;
@@ -69,7 +68,7 @@ describe('Game', () => {
   //   let team: Team;
   //   let player: Player;
   //   beforeEach(() => {
-  //     game = new EmptyGame();
+  //     Chaos.reset();
   //     game.perceptionGrouping = 'team';
   //     game.viewDistance = 1;
   //     world = new Room(5,5);

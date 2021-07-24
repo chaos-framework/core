@@ -1,17 +1,15 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { ComponentCatalog, Entity, Component, ComponentContainer, Game } from '../../../src/internal';
+import { ComponentCatalog, Entity, Component, ComponentContainer, Chaos } from '../../../src/internal';
 
-import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
 
 describe('ComponentCatalog', () => {
-  let game: Game;
   let entity: Entity;
   let world: Room;
   beforeEach(() => {
-    game = new EmptyGame();
+    Chaos.reset();
     entity = new Entity();
     world = new Room();
   });

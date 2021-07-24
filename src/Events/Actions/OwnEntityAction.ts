@@ -29,12 +29,11 @@ export class OwnEntityAction extends Action {
   }
 
   static deserialize(json: OwnEntityAction.Serialized): OwnEntityAction {
-    const game = Chaos.;
-    const player = game.players.get(json.player);
+    const player = Chaos.players.get(json.player);
     if(player === undefined) {
       throw new Error(`Player ${json.player} not found for this OwnEntityAction`);
     }
-    const entity = game.getEntity(json.entity);
+    const entity = Chaos.getEntity(json.entity);
     if(entity === undefined) {
       throw new Error(`Entity ${json.entity} not found for this OwnEntityAction`);
     }

@@ -2,15 +2,13 @@ import { expect } from 'chai';
 import 'mocha';
 import { v4 as uuid } from 'uuid';
 
-import { Team, Game } from '../../../src/internal';
+import { Team, Chaos } from '../../../src/internal';
 
-import EmptyGame from '../../Mocks/Games/EmptyGame';
 
 describe('Team', () => {
-  let game: Game;
   let team: Team;
   beforeEach(() => {
-    game = new EmptyGame();
+    Chaos.reset();
     team = new Team({ name: 'Red', players: [uuid(), uuid(), uuid()] });
   });
 

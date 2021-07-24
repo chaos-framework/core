@@ -35,15 +35,14 @@ export class UnpublishEntityAction extends Action {
   }
 
   static deserialize(json: UnpublishEntityAction.Serialized): UnpublishEntityAction {
-    const game = Chaos.;
     try {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);
       // Deserialize unique fields
       const entityId = json.entity;
       // Build the action if fields are proper, otherwise throw an error
-      if (entityId && game.entities.has(entityId)) {
-        const a = new UnpublishEntityAction({ ...common, entity: game.entities.get(entityId)! });
+      if (entityId && Chaos.entities.has(entityId)) {
+        const a = new UnpublishEntityAction({ ...common, entity: Chaos.entities.get(entityId)! });
         return a;
       } else {
         throw new Error('UnpublishEntityAction fields not correct.');

@@ -46,7 +46,6 @@ import { Viewer, ActionQueuer } from './Game/Interfaces';
 import EntityScope from './Game/EntityScope';
 export { World } from './World/World';
 // CLIENT/SERVER
-import ClientGame from './ClientServer/ClientGame';
 import ClientWorld from './ClientServer/ClientWorld';
 export * from './ClientServer/Message'
 export { MessageType } from './ClientServer/Messages/Types'

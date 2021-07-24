@@ -6,15 +6,12 @@ import { Entity } from '../../../src/internal';
 import { EmptyComponent } from '../../Mocks/Components/Functional';
 import { Humanoid } from '../../Mocks/Components/Traits';
 import { Paladin } from '../../Mocks/Components/Classes';
-import { Game } from '../../../src';
-import EmptyGame from '../../Mocks/Games/EmptyGame';
+import { Chaos } from '../../../src';
 
 describe('Components attaching to entities', () => {
   let e: Entity;
-  let game: Game;
-
   beforeEach(() => {
-    game = new EmptyGame();
+    Chaos.reset();
     e = new Entity({ name: "Test Entity" });
   });
 
