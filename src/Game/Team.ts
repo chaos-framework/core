@@ -1,7 +1,7 @@
 // tslint:disable: forin
 import { v4 as uuid } from 'uuid';
 
-import { Game, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType, WorldScope, NestedMap, Entity } from '../internal';
+import { Chaos, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType, WorldScope, NestedMap, Entity } from '../internal';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Team implements Viewer, ActionQueuer {
@@ -20,12 +20,12 @@ export class Team implements Viewer, ActionQueuer {
     this.name = name ? name : this.id.substring(this.id.length - 8);
     this.players = new Set<string>(players);
     this.sensedEntities = new NestedMap<Entity>(id, 'team');
-    Game.getInstance().teams.set(this.id, this);
-    Game.getInstance().teamsByName.set(this.name, this);
+    Chaos..teams.set(this.id, this);
+    Chaos..teamsByName.set(this.name, this);
   }
 
   enqueueAction(a: Action) {
-    const game = Game.getInstance();
+    const game = Chaos.;
     // Queue broadcast for all players
     for(const id of this.players) {
       const p = game.players.get(id);

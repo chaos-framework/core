@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { Printable } from '../ClientServer/Terminal/Printable';
 import { SensoryInformation } from '../Events/Interfaces';
 import {
-  Game, Vector, World,
+  Chaos, Vector, World,
   Component, ComponentContainer, Event, Action,
   Listener, Ability, Property, AttachComponentAction,
   ChangeWorldAction, MoveAction, RelativeMoveAction,
@@ -83,7 +83,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
       case 'world':
         return this.world;
       case 'game':
-        return Game.getInstance();
+        return Chaos.reference;
       default:
         return undefined;
     }
@@ -175,7 +175,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
     this.position = position;
     world.addEntity(this, preloaded);
     this.world = world;
-    Game.getInstance().addEntity(this);
+    Chaos.addEntity(this);
     this.components.publish();
     return true;
   }
@@ -187,7 +187,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
   }
 
   _unpublish(): boolean {
-    Game.getInstance().removeEntity(this);
+    Chaos.removeEntity(this);
     this.components.unpublish();
     // TODO and persistence stuff
     this.published = false;
@@ -353,24 +353,23 @@ export class Entity implements Listener, ComponentContainer, Printable {
     if (this.world && this.position.differentChunkFrom(to)) {
       this.world.moveEntity(this, this.position, to);
       // Let owning players or teams, if any, know for scope change.
-      const game = Game.getInstance();
-      const { perceptionGrouping } = game;
+      const { perceptionGrouping } = Chaos;
       if (perceptionGrouping === 'team') {
         // tslint:disable-next-line: forin
         for(let teamId in this.teams.map.entries) {
-          const scope = game.teams.get(teamId)!.scopesByWorld.get(this.world.id);
+          const scope = Chaos.teams.get(teamId)!.scopesByWorld.get(this.world.id);
           if(scope) {
             // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-            scope.addViewer(this.id, game.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
-            scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
+            scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
+            scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
           }
         }
       } else {
         for(let playerId of this.owners) {
-          const scope = game.players.get(playerId)!.scopesByWorld.get(this.world.id);
+          const scope = Chaos.players.get(playerId)!.scopesByWorld.get(this.world.id);
           if(scope) {
-            scope.addViewer(this.id, game.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
-            scope.removeViewer(this.id, game.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
+            scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
+            scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
           }
         }
       }
@@ -466,7 +465,7 @@ export namespace Entity {
       const { id, name, tags, active, omnipotent, components, world: worldId } = json;
       const deserialized = new Entity({ id, name, tags, active, omnipotent });
       if(worldId !== undefined) {
-        const world = Game.getInstance().getWorld(worldId);
+        const world = Chaos.getWorld(worldId);
         if(world !== undefined) {
           deserialized.world = world;
         }

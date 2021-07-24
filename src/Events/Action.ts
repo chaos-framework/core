@@ -1,5 +1,5 @@
 import { TerminalMessage } from '../ClientServer/Terminal/TerminalMessage';
-import { Game, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
+import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
   Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector } from '../internal';
 
 export abstract class Action {
@@ -62,7 +62,7 @@ export abstract class Action {
   }
 
   execute(force: boolean = true): boolean {
-    const game = Game.getInstance();
+    const game = Chaos.;
 
     this.initialize();
 
@@ -128,7 +128,7 @@ export abstract class Action {
   }
 
   collectListeners() {
-    const game = Game.getInstance();
+    const game = Chaos.;
     const listenRadius = game.listenDistance;
 
     const { caster, target } = this;
@@ -241,7 +241,7 @@ export abstract class Action {
   }
 
   followup(o: Action | Event): void {
-    Game.getInstance().actionQueue.enqueue(o);
+    Chaos..actionQueue.enqueue(o);
   }
 
   static serializedHasRequiredFields(json: any, additional: string[]): boolean {
@@ -259,7 +259,7 @@ export abstract class Action {
   }
 
   static deserializeCommonFields(json: Action.Serialized): Action.Deserialized {
-    const game = Game.getInstance();
+    const game = Chaos.;
     const caster: Entity | undefined = json.caster ? game.getEntity(json.caster) : undefined;
     const target: Entity | undefined = json.target ? game.getEntity(json.target) : undefined;
     const using: Entity | undefined = json.using ? game.getEntity(json.using) : undefined;

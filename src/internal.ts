@@ -39,7 +39,7 @@ export { CustomAction } from './Events/Actions/CustomAction';
 export { VisibilityType } from './Events/Enums';
 import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD
-export { Game } from './Game/Game';
+export * as Chaos from './Game/Chaos';
 export { Team } from './Game/Team';
 export { Player } from './Game/Player';
 import { Viewer, ActionQueuer } from './Game/Interfaces';
@@ -72,7 +72,7 @@ export {
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters,
   Layer, Chunk, WorldScope, IChunk, ILayer, ByteLayer,
-  ClientGame, ClientWorld,
+  ClientWorld,
   Viewer, ActionQueuer as Broadcaster, EntityScope,
   Event, ActionQueue,
   Vector,

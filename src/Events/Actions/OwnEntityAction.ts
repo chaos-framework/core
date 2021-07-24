@@ -1,4 +1,4 @@
-import { Game, Player, Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal';
+import { Chaos, Player, Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal';
 
 export class OwnEntityAction extends Action {
   actionType = ActionType.OWN_ENTITY_ACTION;
@@ -29,7 +29,7 @@ export class OwnEntityAction extends Action {
   }
 
   static deserialize(json: OwnEntityAction.Serialized): OwnEntityAction {
-    const game = Game.getInstance();
+    const game = Chaos.;
     const player = game.players.get(json.player);
     if(player === undefined) {
       throw new Error(`Player ${json.player} not found for this OwnEntityAction`);

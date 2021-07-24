@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Game, ActionType, Scope, Vector, World, 
+import { Action, ActionParameters, Entity, Chaos, ActionType, Scope, Vector, World, 
   Viewer, BroadcastType } from '../../internal';
 
 export class RelativeMoveAction extends Action {
@@ -61,7 +61,7 @@ export class RelativeMoveAction extends Action {
   };
 
   static deserialize(json: RelativeMoveAction.Serialized): RelativeMoveAction {
-    const game = Game.getInstance();
+    const game = Chaos.;
     try {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);

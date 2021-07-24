@@ -1,5 +1,5 @@
 import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, Entity, Game, ActionType, Vector, BroadcastType } from '../../internal';
+import { Action, ActionParameters, Entity, Chaos, ActionType, Vector, BroadcastType } from '../../internal';
 
 export class MoveAction extends Action {
   actionType: ActionType = ActionType.MOVE_ACTION;
@@ -78,7 +78,7 @@ export class MoveAction extends Action {
   };
 
   static deserialize(json: MoveAction.Serialized): MoveAction {
-    const game = Game.getInstance();
+    const game = Chaos.;
     try {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);

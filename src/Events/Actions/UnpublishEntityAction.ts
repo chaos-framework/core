@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Game, ActionType, BroadcastType } from '../../internal';
+import { Action, ActionParameters, Entity, Chaos, ActionType, BroadcastType } from '../../internal';
 
 export class UnpublishEntityAction extends Action {
   actionType: ActionType = ActionType.UNPUBLISH_ENTITY_ACTION;
@@ -35,7 +35,7 @@ export class UnpublishEntityAction extends Action {
   }
 
   static deserialize(json: UnpublishEntityAction.Serialized): UnpublishEntityAction {
-    const game = Game.getInstance();
+    const game = Chaos.;
     try {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);

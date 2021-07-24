@@ -1,6 +1,6 @@
-import { Game } from '../../Game/Game';
+
 import { Player } from '../../Game/Player';
-import { Action, ActionParameters, Entity, ActionType } from '../../internal';
+import { Action, Chaos, ActionType } from '../../internal';
 
 export class PublishPlayerAction extends Action {
   actionType = ActionType.PUBLISH_PLAYER_ACTION;
@@ -13,7 +13,7 @@ export class PublishPlayerAction extends Action {
   }
 
   apply(): boolean {
-    Game.getInstance().players.set(this.player.id, this.player);
+    Chaos.players.set(this.player.id, this.player);
     return true;
   }
 

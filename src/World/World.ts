@@ -5,7 +5,7 @@ import {
   ComponentContainer,
   Listener, Action, IChunk,
   ByteLayer,
-  Entity, Vector, Game, ClientWorld, WorldScope, Scope,
+  Entity, Vector, Chaos, ClientWorld, WorldScope, Scope,
 } from '../internal';
 
 const CHUNK_WIDTH = 16;
@@ -54,7 +54,7 @@ export abstract class World implements ComponentContainer, Listener {
   }
 
   publish() {
-    Game.getInstance().addWorld(this);
+    Chaos..addWorld(this);
     this.published = true;
   }
 
@@ -64,7 +64,7 @@ export abstract class World implements ComponentContainer, Listener {
 
   getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
     if(scope === 'game') {
-      return Game.getInstance();
+      return Chaos.;
     }
     return undefined;
   };
@@ -123,7 +123,7 @@ export abstract class World implements ComponentContainer, Listener {
   addView(e: Entity, to: Vector, from?: Vector) {
     if(this.streaming) {
       const { id, active } = e;
-      const change = this.scope.addViewer(id, active ? Game.getInstance().viewDistance : Game.getInstance().inactiveViewDistance, to, from);
+      const change = this.scope.addViewer(id, active ? Chaos..viewDistance : Chaos..inactiveViewDistance, to, from);
       for(const s of change.added) {
         const v = Vector.fromIndexString(s);
         this.initializeChunk(v.x, v.y);
@@ -134,7 +134,7 @@ export abstract class World implements ComponentContainer, Listener {
   removeView(e: Entity, from: Vector, to?: Vector) {
     if(this.streaming) {
       const { id, active } = e;
-      const change = this.scope.removeViewer(id, active ? Game.getInstance().viewDistance : Game.getInstance().inactiveViewDistance, from, to);
+      const change = this.scope.removeViewer(id, active ? Chaos..viewDistance : Chaos..inactiveViewDistance, from, to);
       for(const s of change.removed) {
         this.baseLayer.forgetChunk(s);
       }
@@ -143,7 +143,7 @@ export abstract class World implements ComponentContainer, Listener {
 
   getEntitiesWithinRadius(origin: Vector, radius: number): Entity[] {
     const entities: Entity[] = []
-    const game = Game.getInstance();
+    const game = Chaos.;
     // TODO optimize to check for relevant chunks
     for(const id of this.entities) {
       const e = game.getEntity(id);
@@ -161,7 +161,7 @@ export abstract class World implements ComponentContainer, Listener {
     const entitiesInChunk = this.entitiesByChunk.get(chunk);
     if(entitiesInChunk) {
       for(const id of entitiesInChunk) {
-        const entity = Game.getInstance().getEntity(id); // TODO super suboptimal -- quick hack
+        const entity = Chaos..getEntity(id); // TODO super suboptimal -- quick hack
         if(entity && entity.position.equals(vector)) {
           entities.push(entity);
         }

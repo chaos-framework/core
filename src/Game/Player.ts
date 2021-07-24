@@ -2,7 +2,7 @@ import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
 import { MessageType } from '../ClientServer/Messages/Types';
 import { OwnEntityAction } from '../Events/Actions/OwnEntityAction';
-import { Game, Team, Action, Entity, WorldScope, Client, NestedMap, PublishPlayerAction } from '../internal';
+import { Chaos, Team, Action, Entity, WorldScope, Client, NestedMap, PublishPlayerAction } from '../internal';
 import { VisibilityType } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 import { Viewer, ActionQueuer } from './Interfaces';
@@ -27,7 +27,7 @@ export class Player implements Viewer, ActionQueuer {
     this.username = username ? username: this.id.substring(this.id.length - 6);
     this.admin = admin;
     this.client = client;
-    const game = Game.getInstance();
+    const game = Chaos.;
     this.teams = new NestedMap<Team>(this.id, 'player')
     this.entities = new NestedMap<Entity>(this.id, 'player')
     this.sensedEntities = new NestedMap<Entity>(id, 'player');
@@ -107,10 +107,10 @@ export class Player implements Viewer, ActionQueuer {
     if (entity.world) {
       let scope = this.scopesByWorld.get(entity.world.id);
       if (scope) {
-        scope.addViewer(entity.id, Game.getInstance().viewDistance, entity.position.toChunkSpace());
+        scope.addViewer(entity.id, Chaos..viewDistance, entity.position.toChunkSpace());
       } else {
         scope = entity.world.createScope();
-        scope.addViewer(entity.id, Game.getInstance().viewDistance, entity.position.toChunkSpace());
+        scope.addViewer(entity.id, Chaos..viewDistance, entity.position.toChunkSpace());
         this.scopesByWorld.set(entity.world.id, scope);
       }
     }
@@ -130,14 +130,14 @@ export class Player implements Viewer, ActionQueuer {
     if(this.teams.has(team.id)) {
       return false;
     }
-    if (Game.getInstance().perceptionGrouping === 'team' || this.teams.has(team.id)) {
+    if (Chaos..perceptionGrouping === 'team' || this.teams.has(team.id)) {
       return false;
     }
     this.teams.add(team.id, team);
     this.entities.addParent(team.entities);  // add nested map relationship
     this.sensedEntities.addParent(team.sensedEntities);
     if (this.teams.map.size === 1) {
-      Game.getInstance().playersWithoutTeams.delete(this.id);
+      Chaos..playersWithoutTeams.delete(this.id);
     }
     return true;
   }
@@ -147,14 +147,14 @@ export class Player implements Viewer, ActionQueuer {
     if(!this.teams.has(team.id)) {
       return false;
     }
-    if (Game.getInstance().perceptionGrouping === 'team' || !this.teams.has(team.id)) {
+    if (Chaos..perceptionGrouping === 'team' || !this.teams.has(team.id)) {
       return false;
     }
     this.teams.remove(team.id);
     this.entities.removeParent(team.id); // detach nestedmap entity relationship
     this.sensedEntities.removeParent(team.id)
     if (this.teams.map.size === 0) {
-      Game.getInstance().playersWithoutTeams.set(this.id, this);
+      Chaos..playersWithoutTeams.set(this.id, this);
     }
     return true;
   }
@@ -201,7 +201,7 @@ export namespace Player {
 
   export function DeserializeAsClient(json: Player.SerializedForClient, owner = false): Player {
     const p = new Player(json);
-    const game = Game.getInstance();
+    const game = Chaos.;
     p.entities = new NestedMap<Entity>(p.id, 'player');
     // tslint:disable-next-line: forin
     for(const id of json.entities) {

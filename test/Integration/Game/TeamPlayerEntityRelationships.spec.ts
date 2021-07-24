@@ -3,7 +3,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Game, Team, Player, Entity } from '../../../src/internal';
+import { Chaos, Team, Player, Entity } from '../../../src/internal';
 
 import EmptyGame from '../../Mocks/Games/EmptyGame';
 

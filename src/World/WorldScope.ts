@@ -1,4 +1,4 @@
-import { Game, Vector, World } from "..";
+import { Chaos, Vector, World } from "..";
 
 export default class WorldScope {
   active = new Set<string>();

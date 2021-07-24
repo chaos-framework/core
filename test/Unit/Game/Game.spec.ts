@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-import { Game, Entity, Team, Vector, RelativeMoveAction, Player, VisibilityType } from '../../../src/internal';
+import { Chaos, Entity, Team, Vector, RelativeMoveAction, Player, VisibilityType } from '../../../src/internal';
 
 import EmptyGame from '../../Mocks/Games/EmptyGame';
 import Room from '../../Mocks/Worlds/Room';
@@ -57,8 +57,8 @@ describe('Game', () => {
 
   it('Should be a singleton', () => {
     expect(game).to.be.not.null;
-    expect(Game.getInstance()).to.be.not.null;
-    expect(Game.getInstance()).to.equal(game);
+    expect(Chaos.).to.be.not.null;
+    expect(Chaos.).to.equal(game);
   });
 
   // describe('Default visibility functions', () => {

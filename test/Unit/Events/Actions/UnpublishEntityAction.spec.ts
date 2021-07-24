@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { UnpublishEntityAction, Entity, Game, Vector, ActionType } from '../../../../src/internal';
+import { UnpublishEntityAction, Entity, Chaos, Vector, ActionType } from '../../../../src/internal';
 
 import EmptyGame from '../../../Mocks/Games/EmptyGame';
 import Room from '../../../Mocks/Worlds/Room';

@@ -1,7 +1,7 @@
 import { compact } from 'lodash';
 import _ = require('lodash');
 import { SensoryInformation } from '../Events/Interfaces';
-import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Game, Team, Player, World, Action, Entity, Listener, Modifier, Reacter } from '../internal';
+import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Chaos, Team, Player, World, Action, Entity, Listener, Modifier, Reacter } from '../internal';
 import { Subscription } from './ComponentCatalog/Subscription';
 import { SubscriptionSet } from './ComponentCatalog/SubscriptionSet';
 import { Sensor } from './Interfaces';
@@ -36,14 +36,14 @@ export class ComponentCatalog implements Listener {
   subscriptionsByTarget = new Map<string, Map<string, Subscription>>();
   subscriptionsByScope = new Map<Scope, Map<string, Subscription>>();
 
-  constructor(private parent: ComponentContainer) {
+  constructor(private parent: ComponentContainer | undefined) {
     // Get the parent's scope based on the parent's type
    if (parent instanceof World) {
       this.parentScope = 'world';
-    } else if (parent instanceof Game) {
-      this.parentScope = 'game';
-    } else {
+    } else if (parent instanceof Entity) {
       this.parentScope = 'entity';
+    } else {
+      this.parentScope = 'game';
     }
   }
 
@@ -57,7 +57,7 @@ export class ComponentCatalog implements Listener {
     // See if this component modifies, react, etc and which scopes if so
     if(isSensor(component)){
       const scope = component.scope.sensor;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent?.isPublished()) {
         this.subscribeToOther(component, 'sensor', scope);
       } else {
         this.attach(new Subscription(component, this, this, 'sensor', this.parentScope));
@@ -65,7 +65,7 @@ export class ComponentCatalog implements Listener {
     }
     if(isModifier(component)){
       const scope = component.scope.modifier;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent?.isPublished()) {
         this.subscribeToOther(component, 'modifier', scope);
       } else {
         this.attach(new Subscription(component, this, this, 'modifier', this.parentScope));
@@ -73,7 +73,7 @@ export class ComponentCatalog implements Listener {
     }
     if(isReacter(component)){
       const scope = component.scope.reacter;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent?.isPublished()) {
         this.subscribeToOther(component, 'reacter', scope);
       } else {
         this.attach(new Subscription(component, this, this, 'reacter', this.parentScope));
@@ -127,9 +127,9 @@ export class ComponentCatalog implements Listener {
     if(this.subscriptionsByComponent.get(component.id)?.size === 0) {
       this.subscriptionsByComponent.delete(component.id);
     }
-    this.subscriptionsByTarget.get(target.parent.id)?.delete(subscription.id);
-    if(this.subscriptionsByComponent.get(target.parent.id)?.size === 0) {
-      this.subscriptionsByComponent.delete(target.parent.id);
+    this.subscriptionsByTarget.get(target.parent?.id)?.delete(subscription.id);
+    if(this.subscriptionsByComponent.get(target.parent?.id)?.size === 0) {
+      this.subscriptionsByComponent.delete(target.parent?.id);
     }
   }
 
@@ -170,7 +170,7 @@ export class ComponentCatalog implements Listener {
   // Subscribe one of these components to another catalog
   private subscribeToOther(component: Component, type: ComponentType, scope: Scope) {
     // Defer to parent to decide which ComponentContainer fits the relative scope
-    const target = this.parent.getComponentContainerByScope(scope);
+    const target = this.parent?.getComponentContainerByScope(scope); 
     if(target !== undefined) {
       const subscription = new Subscription(component, this, target.components, type, scope);
       // Subscribe to these containers
