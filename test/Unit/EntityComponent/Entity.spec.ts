@@ -101,12 +101,12 @@ describe('Entity action direct methods', () => {
       room = new Room(12, 12);
     });
 
-    it('Can publish itself to a world.', () => {
+    it('Can publish itself to a world', () => {
       expect(e._publish(room, room.stageLeft)).to.be.true;
       expect(e.world).to.equal(room);
     });
     
-    it('Can cannot be published twice.', () => {
+    it('Can cannot be published twice', () => {
       e._publish(room, room.stageLeft);
       expect(e._publish(room, room.stageLeft)).to.be.false;
     });
@@ -137,7 +137,7 @@ describe('Entity action direct methods', () => {
 
   describe('Granting abilities', () => {
     const ability = new EmptyAbility();
-    it('Can be granted a single ability.', () => {
+    it('Can be granted a single ability', () => {
       // Granting single ability
       expect(e.abilities.size).to.equal(0);
       expect(e._learn(ability, undefined, undefined)).to.be.true;
@@ -149,7 +149,7 @@ describe('Entity action direct methods', () => {
       }
     });
     
-    it('Cannot be granted duplicate abilities.', () => {
+    it('Cannot be granted duplicate abilities', () => {
       expect(e.abilities.size).to.equal(0);
       // Attempt to grant the same ability the same way multiple times
       expect(e._learn(ability, undefined, undefined)).to.be.true;
@@ -164,7 +164,7 @@ describe('Entity action direct methods', () => {
       }
     });
     
-    it('Can be granted the same ability using different entities or components.', () => {
+    it('Can be granted the same ability using different entities or components', () => {
       expect(e.abilities.size).to.equal(0);
       const someOtherEntity = new Entity({ name: "Unit Test Entity" });
       expect(e._learn(ability, undefined, undefined)).to.be.true;
@@ -190,7 +190,7 @@ describe('Entity action direct methods', () => {
       e._learn(ability, someOtherEntity, someOtherEntity);
     });
 
-    it('Can deny an ability using or granted by one source.', () => {
+    it('Can deny an ability using or granted by one source', () => {
       // Remove one 
       expect(e._forget(ability, undefined, undefined)).to.be.true;
       expect(e.abilities.size).to.equal(1);
@@ -201,7 +201,7 @@ describe('Entity action direct methods', () => {
       }
     });
 
-    it('Can deny an entire ability by denying both sources.', () => {
+    it('Can deny an entire ability by denying both sources', () => {
       // Remove one 
       expect(e._forget(ability, undefined, undefined)).to.be.true;
       expect(e._forget(ability, someOtherEntity, someOtherEntity)).to.be.true;

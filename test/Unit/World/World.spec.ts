@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, Vector, World } from '../../../src/internal';
+import { Chaos, Entity, Vector, World } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
 import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld';
@@ -89,7 +89,7 @@ describe('Worlds', () => {
 
   describe('Querying for entities', () => {
     let room: Room;
-    const Chaos.reset();
+    Chaos.reset();
     beforeEach(() => {
       room = new Room(100, 100);
       for(let x = 5; x <= 95; x += 5) {
@@ -115,7 +115,7 @@ describe('Worlds', () => {
   describe('Streaming world', () => {
     let world: World;
     beforeEach(() => {
-      new EmptyGame({});
+      Chaos.reset();
       world = new StreamingCheckerboardWorld();
     });
 

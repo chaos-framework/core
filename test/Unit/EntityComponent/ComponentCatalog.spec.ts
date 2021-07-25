@@ -20,7 +20,7 @@ describe('ComponentCatalog', () => {
       expect(attachedToEntity.parentScope).to.equal('entity');
       const attachedToWorld = new ComponentCatalog(world);
       expect(attachedToWorld.parentScope).to.equal('world');
-      const attachedToGame = new ComponentCatalog(game);
+      const attachedToGame = new ComponentCatalog(Chaos.reference);
       expect(attachedToGame.parentScope).to.equal('game');
     });
   });

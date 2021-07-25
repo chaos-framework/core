@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, ChangeWorldAction } from '../../../src/internal';
+import { Entity, ChangeWorldAction, Chaos } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
 
@@ -11,7 +11,7 @@ describe('World Changing Actions', () => {
   let e: Entity;
 
   beforeEach(() => {
-    new EmptyGame({});
+    Chaos.reset();
     room1 = new Room();
     room2 = new Room();
     e = new Entity({ name: "Test Entity" });

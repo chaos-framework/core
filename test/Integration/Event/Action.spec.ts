@@ -74,7 +74,7 @@ describe('Action Integration', () => {
         expect(action.listeners.find(el => el === casterWitness)).to.exist;
         expect(action.listeners.find(el => el === targetWitness)).to.exist;
         expect(action.listeners.find(el => el === room)).to.exist;
-        expect(action.listeners.find(el => el === game)).to.exist;
+        expect(action.listeners.find(el => el === Chaos.reference)).to.exist;
       });
 
       it('Does not include witnesses that are outside of listening radius', () => {
@@ -122,7 +122,7 @@ describe('Action Integration', () => {
         expect(action.listeners.find(el => el === targetWitness)).to.exist;
         expect(action.listeners.find(el => el === casterRoom)).to.exist;
         expect(action.listeners.find(el => el === targetRoom)).to.exist;
-        expect(action.listeners.find(el => el === game)).to.exist;
+        expect(action.listeners.find(el => el === Chaos.reference)).to.exist;
       });
     });
   });

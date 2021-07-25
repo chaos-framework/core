@@ -5,7 +5,7 @@ import {
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 
-export let id: string = "Chaos";  // Name of loaded
+export const id: string = "_GAME_";  // Name of loaded
 
 export const worlds: Map<string, World> = new Map<string, World>();
 export const entities: Map<string, Entity> = new Map<string, Entity>();
@@ -15,7 +15,6 @@ export const teamsByName: Map<string, Team> = new Map<string, Team>();
 export const players: Map<string, Player> = new Map<string, Player>();
 export const playersWithoutTeams = new Map<string, Player>();
 
-export const components: ComponentCatalog = new ComponentCatalog(this); // all components
 
 export const actionQueue = new ActionQueue();
 
@@ -24,18 +23,30 @@ export let inactiveViewDistance = 1; // how far (in chunks) to load around inact
 export let listenDistance = 25; // how far in tiles to let local entities listen to actions around casters and targets
 export let perceptionGrouping: 'player' | 'team' = 'player';
 
-export const reference: ComponentContainer = {
-  id: "GAME",
-  components,
+
+// Kind of an ugly way to let the top-level game own components and link into event system
+let initialReference: any = {
+  id: '___GAMEREF',
   isPublished: () => true,
   sense,
   modify,
   react,
   getComponentContainerByScope: (scope: Scope) => reference
 }
+export let components: any  = new ComponentCatalog(initialReference); // all components
+export const reference: ComponentContainer = {
+  ...initialReference,
+  components
+}
 
 export function reset() {
-  // TODO reset all fields
+  entities.clear();
+  components.unpublish();
+  players.clear();
+  playersWithoutTeams.clear();
+  teams.clear();
+  teamsByName.clear();
+  worlds.clear();
 }
 
 export function castAsClient(msg: CAST): string | undefined {
