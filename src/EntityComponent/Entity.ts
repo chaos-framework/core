@@ -1,3 +1,4 @@
+import { triggerAsyncId } from 'async_hooks';
 import { v4 as uuid } from 'uuid';
 import { Printable } from '../ClientServer/Terminal/Printable';
 import { SensoryInformation } from '../Events/Interfaces';
@@ -18,7 +19,7 @@ import { isSensor } from './Interfaces';
 export class Entity implements Listener, ComponentContainer, Printable {
   readonly id: string;
   name: string;
-  tags = new Set<string>();
+  metadata = new Map<string, string | number | boolean | undefined>();
   published = false;
   active = false;
   perceives = false;  // when assigned to a player/team it contributes to visibility
@@ -45,12 +46,12 @@ export class Entity implements Listener, ComponentContainer, Printable {
   // TODO art asset
   // TODO single char for display in leiu of art asset
 
-  constructor({ id = uuid(), name = 'Unnamed Entity', tags = [], active = false, omnipotent = false }: Entity.ConstructorParams = {}) { // TODO 
+  constructor({ id = uuid(), name = 'Unnamed Entity', active = false, omnipotent = false }: Entity.ConstructorParams = {}) { // TODO 
     this.id = id;
     this.name = name;
     this.active = active;
     this.omnipotent = omnipotent;
-    this.tags = new Set<string>(tags);
+    // TODO handle metadata
     this.teams = new NestedMap<Team>(this.id, 'entity');
     this.sensedEntities = new NestedMap<Entity>(id, 'entity');
     // TODO create from serialized to load from disk/db, and don't increment Entity count
@@ -106,15 +107,17 @@ export class Entity implements Listener, ComponentContainer, Printable {
   }
 
   tag(tag: string) {
-    this.tags.add(tag);    
+    if(!this.metadata.has(tag)) {
+      this.metadata.set(tag, undefined);
+    }
   }
 
   untag(tag: string) {
-    this.tags.delete(tag);
+    this.metadata.delete(tag);
   }
 
   tagged(tag: string): boolean {
-    return this.tags.has(tag);
+    return this.metadata.has(tag);
   }
 
   is(componentName: string): Component | undefined  {
@@ -423,7 +426,6 @@ export class Entity implements Listener, ComponentContainer, Printable {
     return { 
       id: this.id,
       name: this.name,
-      tags: Array.from(this.tags.values()),
       active: this.active,
       omnipotent: this.omnipotent,
       components

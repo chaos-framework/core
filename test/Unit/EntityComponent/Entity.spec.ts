@@ -24,7 +24,7 @@ describe('Entity', () => {
     let serializedForClient: Entity.SerializedForClient;
     let paladin: Component;
     beforeEach(() => {
-      e = new Entity({ name: "CS Test", active: true, omnipotent: false, tags: ['one', 'two', 'three'] });
+      e = new Entity({ name: "CS Test", active: true, omnipotent: false });
       paladin = new Paladin()
       e._attach(paladin);
       e._attach(new NonBroadcastingComponent());  // this should not get serialized for any client
@@ -33,14 +33,12 @@ describe('Entity', () => {
 
     it('Serializing for clients', () => {
       expect(serializedForClient.id).to.equal(e.id);
-      expect(serializedForClient.tags).to.contain('two');
       expect(serializedForClient.active).to.be.true;
     });
 
     it('Deserializing as a client', () => {
       const deserializedAsClient = Entity.DeserializeAsClient(serializedForClient);
       expect(deserializedAsClient.id).to.equal(e.id);
-      expect(deserializedAsClient.tags).to.contain('two');
       expect(deserializedAsClient.active).to.be.true;
     });
 
@@ -58,7 +56,7 @@ describe('Entity', () => {
     let e: Entity;
     let sensor: Component & Sensor;
     beforeEach(() => {
-      e = new Entity({ name: "CS Test", active: true, omnipotent: false, tags: ['one', 'two', 'three'] });
+      e = new Entity({ name: "CS Test", active: true, omnipotent: false });
       sensor = new Eyes();
     });
 
