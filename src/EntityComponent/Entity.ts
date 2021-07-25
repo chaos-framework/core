@@ -46,12 +46,15 @@ export class Entity implements Listener, ComponentContainer, Printable {
   // TODO art asset
   // TODO single char for display in leiu of art asset
 
-  constructor({ id = uuid(), name = 'Unnamed Entity', active = false, omnipotent = false }: Entity.ConstructorParams = {}) { // TODO 
+  constructor({ id = uuid(), name = 'Unnamed Entity', metadata, active = false, omnipotent = false }: Entity.ConstructorParams = {}) { // TODO 
     this.id = id;
     this.name = name;
     this.active = active;
     this.omnipotent = omnipotent;
-    // TODO handle metadata
+    // tslint:disable-next-line: forin
+    for(const key in metadata) {
+      this.metadata.set(key, metadata[key]);
+    }
     this.teams = new NestedMap<Team>(this.id, 'entity');
     this.sensedEntities = new NestedMap<Entity>(id, 'entity');
     // TODO create from serialized to load from disk/db, and don't increment Entity count
@@ -439,7 +442,7 @@ export namespace Entity {
   export interface ConstructorParams {
     id?: string,
     name?: string,
-    tags?: string[],
+    metadata?: {[key: string]: string | number | boolean | undefined},
     active?: boolean,
     omnipotent?: boolean
   }
@@ -452,7 +455,7 @@ export namespace Entity {
     id: string,
     name: string,
     world?: string,
-    tags?: string[],
+    metadata?: {[key: string]: string | number | boolean | undefined},
     active?: boolean,
     omnipotent?: boolean,
     components?: Component.SerializedForClient[]
@@ -464,8 +467,8 @@ export namespace Entity {
 
   export function DeserializeAsClient(json: Entity.SerializedForClient): Entity {
     try {
-      const { id, name, tags, active, omnipotent, components, world: worldId } = json;
-      const deserialized = new Entity({ id, name, tags, active, omnipotent });
+      const { id, name, metadata, active, omnipotent, components, world: worldId } = json;
+      const deserialized = new Entity({ id, name, metadata, active, omnipotent });
       if(worldId !== undefined) {
         const world = Chaos.getWorld(worldId);
         if(world !== undefined) {
