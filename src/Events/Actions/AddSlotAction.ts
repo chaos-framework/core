@@ -7,8 +7,8 @@ export class AddSlotAction extends Action {
   name: string;
   target: Entity;
 
-  constructor({caster, target, using, name, tags = []}: AddSlotAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, using, name, metadata }: AddSlotAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.name = name;
   }
@@ -18,6 +18,7 @@ export class AddSlotAction extends Action {
   }
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace AddSlotAction {
   export interface EntityParams extends ActionParameters {
     name: string,

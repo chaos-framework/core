@@ -8,8 +8,8 @@ export class UnpublishEntityAction extends Action {
   target?: Entity; // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
   movementAction = true;
 
-  constructor({ caster, target, entity, using, tags }: UnpublishEntityAction.Params) {
-    super({caster, using, tags});
+  constructor({ caster, target, entity, using, metadata }: UnpublishEntityAction.Params) {
+    super({caster, using, metadata });
     this.entity = entity;
     this.target = target;
     // Let the abstract impl of execute know to let listeners react around the entity itself

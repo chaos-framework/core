@@ -12,8 +12,8 @@ export class ChangeWorldAction extends Action {
   position: Vector;
   movementAction = true;
 
-  constructor({caster, target, from, to, position, using, tags = []}: ChangeWorldAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, from, to, position, using, metadata }: ChangeWorldAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.from = from;
     this.to = to;

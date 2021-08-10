@@ -10,8 +10,8 @@ export class SenseEntityAction extends Action {
   target: Entity;             // entity being sensed
   using: Component & Sensor;  // component doing the sensing
 
-  constructor({caster, target, using, tags = []}: SenseEntityAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, using, metadata }: SenseEntityAction.Params) {
+    super({caster, using, metadata });
     this.caster = caster;
     this.using = using;
     this.target = target;

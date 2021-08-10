@@ -12,8 +12,8 @@ export class ModifyPropertyAction extends Action {
   method: ModificationMethod;   // Absolute, Set, or Adjustment
   amount: number;               // The value to modify by
 
-  constructor({ caster, target, property, value = ValueType.Current, method = ModificationMethod.Adjustment, amount, using, tags }: ModifyPropertyAction.Params) {
-    super({caster, using, tags});
+  constructor({ caster, target, property, value = ValueType.Current, method = ModificationMethod.Adjustment, amount, using, metadata }: ModifyPropertyAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.property = property;
     this.value = value;

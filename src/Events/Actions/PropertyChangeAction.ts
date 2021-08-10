@@ -21,8 +21,8 @@ export class PropertyChangeAction extends Action {
   adjustments: { amount: number, by?: Entity | Component }[] = [];
   multipliers: { amount: number, by?: Entity | Component }[] = [];
 
-  constructor({ caster, target, property, type = 'adjust', value = 'current', amount, using, tags }: PropertyChangeAction.Params) {
-    super({caster, using, tags});
+  constructor({ caster, target, property, type = 'adjust', value = 'current', amount, using, metadata }: PropertyChangeAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.property = property;
     this.type = type;

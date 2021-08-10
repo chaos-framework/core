@@ -11,7 +11,7 @@ export class Slash extends Ability {
     }
     const amount = -3; // TODO roll based on INT or something
     const event = new SimpleEvent([
-      new PropertyChangeAction({ caster, target, property: "HP", amount, tags: ['attack', 'slash'] })
+      new PropertyChangeAction({ caster, target, property: "HP", amount, metadata: { attack: true, damageType: 'slash' } })
     ]);
     return event;
   }
@@ -26,7 +26,7 @@ export class Stab extends Ability {
     }
     const amount = -5; // TODO roll based on INT or something
     const event = new SimpleEvent([
-      new PropertyChangeAction({ caster, target, property: "HP", amount, tags: ['attack', 'pierce'] })
+      new PropertyChangeAction({ caster, target, property: "HP", amount, metadata: { attack: true, damageType: 'pierce' } })
     ]);
     return event;
   }

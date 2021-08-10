@@ -18,7 +18,7 @@ export class Heal extends Ability {
     // default to casting on self
     target = target && target instanceof Entity ? target : caster;
     const event = new SimpleEvent([
-      hpValue.current.adjust({amount, caster, tags: ['heal'] })
+      hpValue.current.adjust({amount, caster, metadata: { heals: true } })
     ]);
     return event;
   }

@@ -8,8 +8,8 @@ export class ForgetAbilityAction extends Action {
   target: Entity;
   grantedBy?: Entity | Component;
 
-  constructor({caster, target, using, grantedBy, ability, tags = []}: ForgetAbilityAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, using, grantedBy, ability, metadata }: ForgetAbilityAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.ability = ability;
     this.grantedBy = grantedBy;

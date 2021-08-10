@@ -6,8 +6,8 @@ export class OwnEntityAction extends Action {
   player: Player;
   entity: Entity;
 
-  constructor({ caster, target, entity, player, using, tags }: OwnEntityAction.Params) {
-    super({caster, using, tags});
+  constructor({ caster, target, entity, player, using, metadata }: OwnEntityAction.Params) {
+    super({caster, using, metadata });
     this.player = player;
     this.entity = entity;
   }

@@ -7,8 +7,8 @@ export class AttachComponentAction extends Action {
   target: Entity;
   component: Component;
 
-  constructor({caster, target, component, using, tags = []}: AttachComponentAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, component, using, metadata }: AttachComponentAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.component = component;
   }

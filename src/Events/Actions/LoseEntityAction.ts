@@ -10,8 +10,8 @@ export class LoseEntityAction extends Action {
   target: Entity;
   using: Component & Sensor;
 
-  constructor({caster, target, using, tags = []}: LoseEntityAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, using, metadata }: LoseEntityAction.Params) {
+    super({caster, using, metadata });
     this.caster = caster;
     this.using = using;
     this.target = target;

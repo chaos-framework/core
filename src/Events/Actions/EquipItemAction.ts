@@ -9,8 +9,8 @@ export class EquipItemAction extends Action {
   item: Entity;
   permitted = false; // assume canceled until something allows it
 
-  constructor({caster, target, slot, item, using, tags = []}: EquipItemAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, slot, item, using, metadata }: EquipItemAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.slot = slot;
     this.item = item;

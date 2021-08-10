@@ -57,7 +57,6 @@ export class Entity implements Listener, ComponentContainer, Printable {
     }
     this.teams = new NestedMap<Team>(this.id, 'entity');
     this.sensedEntities = new NestedMap<Entity>(id, 'entity');
-    // TODO create from serialized to load from disk/db, and don't increment Entity count
   }
 
   isPublished(): boolean {
@@ -111,7 +110,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   tag(tag: string) {
     if(!this.metadata.has(tag)) {
-      this.metadata.set(tag, undefined);
+      this.metadata.set(tag, true);
     }
   }
 
@@ -169,8 +168,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Publishing
   
-  publish({caster, world, position, using, tags}: PublishEntityAction.EntityParams): PublishEntityAction {
-    return new PublishEntityAction({caster, target: this, entity: this, world, position, using, tags});
+  publish({caster, world, position, using, metadata}: PublishEntityAction.EntityParams): PublishEntityAction {
+    return new PublishEntityAction({caster, target: this, entity: this, world, position, using, metadata});
   }
 
   _publish(world: World, position: Vector, preloaded = false): boolean {
@@ -188,8 +187,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Unpublishing
 
-  unpublish({caster, target, using, tags}: UnpublishEntityAction.EntityParams = {}): UnpublishEntityAction {
-    return new UnpublishEntityAction({caster, target, entity: this, using, tags});
+  unpublish({caster, target, using, metadata}: UnpublishEntityAction.EntityParams = {}): UnpublishEntityAction {
+    return new UnpublishEntityAction({caster, target, entity: this, using, metadata});
   }
 
   _unpublish(): boolean {
@@ -202,8 +201,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Attaching components
 
-  attach({component, caster, using, tags}: AttachComponentAction.EntityParams, force = false): AttachComponentAction {
-    return new AttachComponentAction({ caster, target: this, component, using, tags});
+  attach({component, caster, using, metadata}: AttachComponentAction.EntityParams, force = false): AttachComponentAction {
+    return new AttachComponentAction({ caster, target: this, component, using, metadata});
   }
 
   _attach(component: Component): boolean {
@@ -216,8 +215,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Adding properties
 
-  addProperty({caster, using, name, current, min, max, tags}: AddPropertyAction.EntityParams, force = false): AddPropertyAction {
-    return new AddPropertyAction({ caster, target: this, using, name, current, min, max, tags});
+  addProperty({caster, using, name, current, min, max, metadata}: AddPropertyAction.EntityParams, force = false): AddPropertyAction {
+    return new AddPropertyAction({ caster, target: this, using, name, current, min, max, metadata});
   }
 
   _addProperty(name: string, current?: number, min?: number, max?: number): boolean {
@@ -231,8 +230,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
     }
   }
 
-  removeProperty({caster, using, name, tags}: RemovePropertyAction.EntityParams, force = false) {
-    return new RemovePropertyAction({ caster, target: this, using, name, tags});
+  removeProperty({caster, using, name, metadata}: RemovePropertyAction.EntityParams, force = false) {
+    return new RemovePropertyAction({ caster, target: this, using, name, metadata});
   }
 
   _removeProperty(name: string, p?: Property): boolean {
@@ -249,8 +248,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Learning abilities
 
-  learn({caster, using, ability, tags}: LearnAbilityAction.EntityParams, force = false): LearnAbilityAction {
-    return new LearnAbilityAction({caster, target: this, using, ability, tags});
+  learn({caster, using, ability, metadata}: LearnAbilityAction.EntityParams, force = false): LearnAbilityAction {
+    return new LearnAbilityAction({caster, target: this, using, ability, metadata});
   }
 
   _learn(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
@@ -272,8 +271,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Denying abilities
 
-  forget({caster, using, ability, tags}: ForgetAbilityAction.Params, force = false): ForgetAbilityAction {
-    return new ForgetAbilityAction({caster, target: this, using, ability, tags});
+  forget({caster, using, ability, metadata}: ForgetAbilityAction.Params, force = false): ForgetAbilityAction {
+    return new ForgetAbilityAction({caster, target: this, using, ability, metadata});
   }
 
   _forget(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
@@ -301,8 +300,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Equipping items
 
-  equip({caster, slot, item, tags = []}: EquipItemAction.EntityParams, force = false): EquipItemAction {
-    return new EquipItemAction({caster, target: this, slot, item, tags});
+  equip({caster, slot, item, metadata }: EquipItemAction.EntityParams, force = false): EquipItemAction {
+    return new EquipItemAction({caster, target: this, slot, item, metadata});
   }
 
   _equip(item: Entity, slotName: string): boolean {
@@ -319,8 +318,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Slot changes
 
-  addSlot({caster, name, tags = []}: AddSlotAction.EntityParams, force = false): AddSlotAction {
-    return new AddSlotAction({caster, target: this, name, tags});
+  addSlot({caster, name, metadata }: AddSlotAction.EntityParams, force = false): AddSlotAction {
+    return new AddSlotAction({caster, target: this, name, metadata});
   }
 
   _addSlot(name: string): boolean {
@@ -331,8 +330,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
     return false;
   }
 
-  removeSlot({caster, name, tags = []}: RemoveSlotAction.Params, force = false): RemoveSlotAction {
-    return new RemoveSlotAction({caster, target: this, name, tags});
+  removeSlot({caster, name, metadata }: RemoveSlotAction.Params, force = false): RemoveSlotAction {
+    return new RemoveSlotAction({caster, target: this, name, metadata});
   }
 
   _removeSlot(name: string): boolean {
@@ -346,12 +345,12 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Movement
 
-  move({caster, to, using, tags}: MoveAction.EntityParams): MoveAction {
-    return new MoveAction({caster, target: this, to, using, tags});
+  move({caster, to, using, metadata}: MoveAction.EntityParams): MoveAction {
+    return new MoveAction({caster, target: this, to, using, metadata});
   }
 
-  moveRelative({caster, amount, using, tags}: RelativeMoveAction.EntityParams): RelativeMoveAction {
-    return new RelativeMoveAction({caster, target: this, amount, using, tags});
+  moveRelative({caster, amount, using, metadata}: RelativeMoveAction.EntityParams): RelativeMoveAction {
+    return new RelativeMoveAction({caster, target: this, amount, using, metadata});
   }
 
   _move(to: Vector): boolean {
@@ -387,16 +386,16 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Senses
 
-  senseEntity({target, using, tags}: SenseEntityAction.EntityParams): SenseEntityAction {
-    return new SenseEntityAction({caster: this, target, using, tags});
+  senseEntity({target, using, metadata}: SenseEntityAction.EntityParams): SenseEntityAction {
+    return new SenseEntityAction({caster: this, target, using, metadata});
   }
 
   _senseEntity(entity: Entity, using: Sensor): NestedChanges {
     return using.sensedEntities.add(entity.id, entity);
   }
 
-  loseEntity({target, using, tags}: SenseEntityAction.EntityParams): SenseEntityAction {
-    return new SenseEntityAction({caster: this, target, using, tags});
+  loseEntity({target, using, metadata}: SenseEntityAction.EntityParams): SenseEntityAction {
+    return new SenseEntityAction({caster: this, target, using, metadata});
   }
 
   _loseEntity(entity: Entity, from: Sensor): NestedChanges {
@@ -405,8 +404,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // World
   
-  changeWorlds({caster, from, to, position, using, tags}: ChangeWorldAction.EntityParams): ChangeWorldAction {
-    return new ChangeWorldAction({caster, target: this, from, to, position, using, tags});
+  changeWorlds({caster, from, to, position, using, metadata}: ChangeWorldAction.EntityParams): ChangeWorldAction {
+    return new ChangeWorldAction({caster, target: this, from, to, position, using, metadata});
   }
 
   _changeWorlds(to: World, position: Vector): boolean {
@@ -450,7 +449,7 @@ export namespace Entity {
   export interface Serialized {
 
   }
-  
+
   export interface SerializedForClient {
     id: string,
     name: string,

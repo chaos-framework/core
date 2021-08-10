@@ -10,8 +10,8 @@ export class MoveAction extends Action {
   to: Vector;
   movementAction = true;
 
-  constructor({ caster, target, to, using, tags = [] }: MoveAction.Params) {
-    super({ caster, using, tags });
+  constructor({ caster, target, to, using, metadata }: MoveAction.Params) {
+    super({ caster, using, metadata });
     this.target = target;
     this.from = target.position;
     this.to = to;

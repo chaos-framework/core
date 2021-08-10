@@ -33,7 +33,7 @@ export class Iron extends Component implements Modifier {
 
   // Iron does a bit more damage than, say, wood
   modify(a: Action) {
-    if(a.using === this.parent && a instanceof PropertyChangeAction && a.is('Attack') && a.is('HP') && a.amount < 0) {
+    if(a.using === this.parent && a instanceof PropertyChangeAction && a.tagged('attack') && a.effects('HP') && a.amount < 0) {
       a.multiply(1.1);
     }
   }
@@ -47,7 +47,7 @@ export class Silver extends Component implements Modifier {
 
   // Silver does a lot of damage, and even more to beasts
   modify(a: Action) {
-    if(a.using === this.parent && a instanceof PropertyChangeAction && a.is('Attack') && a.is('HP') && a.amount < 0) {
+    if(a.using === this.parent && a instanceof PropertyChangeAction && a.tagged('attack') && a.effects('HP') && a.amount < 0) {
       a.multiply(1.3);
       if(a.target && a.target.is("Beast")) {
         a.multiply(1.1);

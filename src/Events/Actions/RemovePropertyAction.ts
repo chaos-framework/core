@@ -9,8 +9,8 @@ export class RemovePropertyAction extends Action {
   target: Entity;
   name: string;
 
-  constructor({ caster, target, name, using, tags }: RemovePropertyAction.Params) {
-    super({caster, using, tags});
+  constructor({ caster, target, name, using, metadata }: RemovePropertyAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.name = name;
   }

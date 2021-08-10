@@ -41,7 +41,7 @@ export default class Value {
   }
 
   // Create an adjust action
-  public set({ amount, caster, using, tags }: PropertyChangeAction.ValueParams): PropertyChangeAction {
+  public set({ amount, caster, using, metadata }: PropertyChangeAction.ValueParams): PropertyChangeAction {
     return new PropertyChangeAction({
       caster,
       target: this.property.entity,
@@ -50,7 +50,7 @@ export default class Value {
       value: this.type,
       amount,
       using,
-      tags
+      metadata
     });
   }
 
@@ -61,7 +61,7 @@ export default class Value {
   }
 
   // Create an adjust action
-  public adjust({amount, caster, using, tags}: PropertyChangeAction.ValueParams): PropertyChangeAction {
+  public adjust({ amount, caster, using, metadata }: PropertyChangeAction.ValueParams): PropertyChangeAction {
     return new PropertyChangeAction({
       caster,
       target: this.property.entity,
@@ -70,7 +70,7 @@ export default class Value {
       value: this.type,
       amount,
       using,
-      tags
+      metadata
     });
   }
 
@@ -81,9 +81,9 @@ export default class Value {
   }
 
   // Create a modifier application action
-  public modify({ caster, method, amount, using, tags }: ModifyPropertyAction.ValueParams): ModifyPropertyAction {
+  public modify({ caster, method, amount, using, metadata }: ModifyPropertyAction.ValueParams): ModifyPropertyAction {
     return new ModifyPropertyAction({
-      property: this.property.name, target: this.property.entity,caster, method, amount, using, tags
+      property: this.property.name, target: this.property.entity,caster, method, amount, using, metadata
     });
   }
 

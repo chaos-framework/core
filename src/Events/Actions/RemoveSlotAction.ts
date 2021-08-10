@@ -7,8 +7,8 @@ export class RemoveSlotAction extends Action {
   name: string;
   target: Entity;
 
-  constructor({caster, target, using, name, tags = []}: RemoveSlotAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, using, name, metadata }: RemoveSlotAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.name = name;
   }

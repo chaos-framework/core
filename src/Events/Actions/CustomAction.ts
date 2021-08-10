@@ -6,8 +6,8 @@ export class CustomAction extends Action {
 
   target?: Entity;
 
-  constructor(public name = '', public payload: any = {}, {caster, target, using, tags = []}: CustomAction.Params = {}) {
-    super({ caster, using, tags });
+  constructor(public name = '', public payload: any = {}, { caster, target, using, metadata }: CustomAction.Params = {}) {
+    super({ caster, using, metadata });
     this.target = target;
   }
 

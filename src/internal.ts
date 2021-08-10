@@ -36,6 +36,7 @@ export { LoseEntityAction } from './Events/Actions/LoseEntityAction';
 export { PublishPlayerAction } from './Events/Actions/PublishPlayerAction';
 export { OwnEntityAction } from './Events/Actions/OwnEntityAction';
 export { CustomAction } from './Events/Actions/CustomAction';
+export { MessageAction } from './Events/Actions/MessageAction';
 export { VisibilityType } from './Events/Enums';
 import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD
@@ -64,6 +65,7 @@ import ByteLayer from './World/Layers/ByteLayer';
 import Vector from './Math/Vector';
 // UTIL
 export { NestedMap, NestedChanges } from './Util/NestedMap';
+export { withMetadata } from './Util/WithMetadata';
 
 export {
   Ability, Property, Value, ValueType,

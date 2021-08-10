@@ -11,8 +11,8 @@ export class RelativeMoveAction extends Action {
   finalPosition: Vector;
   movementAction = true;
 
-  constructor({caster, target, amount, using, tags = []}: RelativeMoveAction.Params) {
-    super({caster, using, tags});
+  constructor({caster, target, amount, using, metadata }: RelativeMoveAction.Params) {
+    super({caster, using, metadata });
     this.target = target;
     this.from = target.position;
     this.amount = amount;

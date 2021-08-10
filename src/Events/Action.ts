@@ -14,7 +14,7 @@ export abstract class Action {
   target?: Entity;
   using?: Entity | Component;
 
-  tags: Set<string> = new Set<string>();
+  metadata = new Map<string, string | number | boolean | undefined>();
   breadcrumbs: Set<string> = new Set<string>();
 
   public: boolean = false;    // whether or not nearby entities (who are not omnipotent) can modify/react
@@ -46,12 +46,13 @@ export abstract class Action {
 
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
-  constructor({ caster, using, tags }: ActionParameters = {}) {
+  constructor({ caster, using, metadata }: ActionParameters = {}) {
     this.caster = caster;
     this.using = using;
     this.permissions.set(0, new Permission(true));
-    if (tags) {
-      tags.map(tag => this.tags.add(tag));
+        // tslint:disable-next-line: forin
+    for(const key in metadata) {
+      this.metadata.set(key, metadata[key]);
     }
   }
 
@@ -182,6 +183,11 @@ export abstract class Action {
     this.addPermission(false, { priority, by, using, message });
   }
 
+  deniedByDefault() {
+    this.deny();
+    return this;
+  }
+
   addPermission(permitted: boolean, { priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
     const previous = this.permissions.get(priority);
     if (previous === undefined) {
@@ -208,12 +214,18 @@ export abstract class Action {
     }
   }
 
-  tagged(key: string): boolean {
-    return this.tags.has(key);
+  tag(tag: string) {
+    if(!this.metadata.has(tag)) {
+      this.metadata.set(tag, true);
+    }
   }
 
-  is(key: string): boolean {
-    return this.tags.has(key);
+  untag(tag: string) {
+    this.metadata.delete(tag);
+  }
+
+  tagged(tag: string): boolean {
+    return this.metadata.has(tag);
   }
 
   sense(entity: Entity, information: SensoryInformation | boolean) {
@@ -259,9 +271,9 @@ export abstract class Action {
     const caster: Entity | undefined = json.caster ? Chaos.getEntity(json.caster) : undefined;
     const target: Entity | undefined = json.target ? Chaos.getEntity(json.target) : undefined;
     const using: Entity | undefined = json.using ? Chaos.getEntity(json.using) : undefined;
-    const tags = json.tags;
+    const metadata = json.metadata;
     const permitted = json.permitted;
-    return { caster, target, using, tags, permitted };
+    return { caster, target, using, metadata, permitted };
   }
 
   abstract apply(): boolean;
@@ -289,7 +301,7 @@ export abstract class Action {
       caster: this.caster?.id,
       target: this.target?.id,
       using: this.using?.id,
-      tags: Array.from(this.tags),
+      // tags: Array.from(this.tags),
       permitted: this.permitted,
       actionType: this.actionType
     };
@@ -312,7 +324,7 @@ export namespace Action {
     caster?: string,
     target?: string,
     using?: string,
-    tags?: string[],
+    metadata?: {[key: string]: string | number | boolean | undefined}
     permitted: boolean,
     actionType: ActionType
   }
@@ -321,7 +333,7 @@ export namespace Action {
     caster?: Entity,
     target?: Entity,
     using?: Entity,
-    tags?: string[],
+    metadata?: {[key: string]: string | number | boolean | undefined}
     permitted: boolean
   }
 }
@@ -329,5 +341,5 @@ export namespace Action {
 export interface ActionParameters {
   caster?: Entity,
   using?: Entity | Component,
-  tags?: string[]
+  metadata?: {[key: string]: string | number | boolean | undefined}
 }

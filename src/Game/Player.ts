@@ -89,8 +89,8 @@ export class Player implements Viewer, ActionQueuer {
 
   disconnect() { }
 
-  ownEntity({caster, using, entity, tags}: OwnEntityAction.PlayerParams, force = false): OwnEntityAction {
-    return new OwnEntityAction({ caster, using, entity, player: this, tags});
+  ownEntity({ caster, using, entity, metadata }: OwnEntityAction.PlayerParams, force = false): OwnEntityAction {
+    return new OwnEntityAction({ caster, using, entity, player: this, metadata });
   }
 
   _ownEntity(entity: Entity): NestedChanges {

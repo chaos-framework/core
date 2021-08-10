@@ -5,7 +5,7 @@ import {
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
 
-export const id: string = "_GAME_";  // Name of loaded
+export let id: string = "Unnamed Game";  // Name of loaded game
 
 export const worlds: Map<string, World> = new Map<string, World>();
 export const entities: Map<string, Entity> = new Map<string, Entity>();
@@ -163,28 +163,27 @@ export function queueForBroadcast(action: Action, to?: Player | Team) {
       player.enqueueAction(action);
     }
   } else {
-  // Broadcast out to either visibility type based on sense of relevent entities
-  if(perceptionGrouping === 'team') {
-    for(const [id, team] of teams) {
-      if(
-        (action.target && (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
-        (action.caster && (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
-        ) {
-          team.enqueueAction(action);
-        }
-    }
-  } else {
-    for(const [id, player] of players) {
-      if(
-        (action.target && (player.entities.has(action.target.id) || player.sensedEntities.has(action.target.id))) ||
-        (action.caster && (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))
-        ) {
-          player.enqueueAction(action);
-        }
+    // Broadcast out to either visibility type based on sense of relevent entities
+    if(perceptionGrouping === 'team') {
+      for(const [id, team] of teams) {
+        if(
+          (action.target && (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
+          (action.caster && (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
+          ) {
+            team.enqueueAction(action);
+          }
+      }
+    } else {
+      for(const [id, player] of players) {
+        if(
+          (action.target && (player.entities.has(action.target.id) || player.sensedEntities.has(action.target.id))) ||
+          (action.caster && (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))
+          ) {
+            player.enqueueAction(action);
+          }
+      }
     }
   }
-  }
-
   return;
 }
 
