@@ -345,11 +345,11 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   // Movement
 
-  move({caster, to, using, metadata}: MoveAction.EntityParams): MoveAction {
+  move({ caster, to, using, metadata }: MoveAction.EntityParams): MoveAction {
     return new MoveAction({caster, target: this, to, using, metadata});
   }
 
-  moveRelative({caster, amount, using, metadata}: RelativeMoveAction.EntityParams): RelativeMoveAction {
+  moveRelative({ caster, amount, using, metadata }: RelativeMoveAction.EntityParams): RelativeMoveAction {
     return new RelativeMoveAction({caster, target: this, amount, using, metadata});
   }
 

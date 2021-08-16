@@ -82,6 +82,7 @@ export class RelativeMoveAction extends Action {
 
 }
 
+// tslint:disable-next-line: no-namespace
 export namespace RelativeMoveAction {
   export interface Params extends EntityParams {
     target: Entity;
