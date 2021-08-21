@@ -41,6 +41,9 @@ export abstract class Action {
   // Additional listeners on top of the default caster -> target flow
   additionalListeners: ComponentContainer[] = [];
 
+  followups: (Action | Event)[] = [];
+  reactions: Action[] = [];
+
   // Function to run to check if the action is still feasible after any modifiers / counters etc
   feasabilityCallback?: (a?: Action) => boolean;
 
@@ -243,6 +246,7 @@ export abstract class Action {
   react(action: Action): boolean {
     action.nested = this.nested + 1;
     if (action.nested < 10) {
+      this.reactions.push(action);
       return action.execute();
     }
     // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle
@@ -250,6 +254,7 @@ export abstract class Action {
   }
 
   followup(o: Action | Event): void {
+    this.followups.push(o);
     Chaos.actionQueue.enqueue(o);
   }
 
