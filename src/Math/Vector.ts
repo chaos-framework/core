@@ -36,6 +36,10 @@ export default class Vector {
     return new Vector(this.x - other.x, this.y - other.y);
   }
 
+  absolute(): Vector {
+    return new Vector(Math.abs(this.x), Math.abs(this.y));
+  }
+
   // Check if another vector is within (less than OR EQUAL to) a circular range
   withinRadius(other: Vector, radius: number): boolean {
     const magnitude = 0.0 + Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y,2));
