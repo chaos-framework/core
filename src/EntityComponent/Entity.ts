@@ -122,11 +122,11 @@ export class Entity implements Listener, ComponentContainer, Printable {
     return this.metadata.has(tag);
   }
 
-  is(componentName: string): Component | undefined  {
+  is(componentName: string): boolean  {
     return this.components.is(componentName);
   }
 
-  has(componentName: string): Component | undefined {
+  has(componentName: string): boolean {
     return this.components.has(componentName);
   }
 
@@ -206,11 +206,17 @@ export class Entity implements Listener, ComponentContainer, Printable {
   }
 
   _attach(component: Component): boolean {
-    this.components.addComponent(component); // TODO check for unique flag, return false if already attached
+    this.components.addComponent(component); // TODO check for unique flag, or duplicate ID -- return false if already attached
     if(isSensor(component)) {
       this.sensedEntities.addChild(component.sensedEntities);
     }
     return true;
+  }
+
+  _attachAll(components: Component[]) {
+    for (const component of components) {
+      this._attach(component);
+    }
   }
 
   // Adding properties

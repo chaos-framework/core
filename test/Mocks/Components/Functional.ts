@@ -1,10 +1,13 @@
 import { Component, Action, Listener, Entity, 
-  ComponentScope, SensoryInformation, Sensor, NestedChanges, NestedMap, Modifier, CustomAction } from '../../../src/internal';
+  ComponentScope, Sensor, NestedMap, Modifier, CustomAction } from '../../../src/internal';
 
 // tslint:disable: max-classes-per-file
 export class EmptyComponent extends Component {
-  name = "Empty Component";
   unique = false;
+
+  constructor({ name }: { name?: string } = { }) {
+    super({ name });
+  }
 }
 
 /*
