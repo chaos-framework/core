@@ -199,16 +199,16 @@ describe('Entity action direct methods', () => {
       }
     });
 
-    it('Can deny an entire ability by denying both sources', () => {
-      // Remove one 
-      expect(e._forget(ability, undefined, undefined)).to.be.true;
-      expect(e._forget(ability, someOtherEntity, someOtherEntity)).to.be.true;
-      expect(e.abilities.size).to.equal(0);
-      // Check both methods for seeing if an entity has an ability
-      const grant = e.abilities.get(ability.name);
-      expect(grant).to.not.exist;
-      expect(e.can(ability.name)).to.be.false;
-    });
+    // it('Can deny an entire ability by denying both sources', () => {
+    //   // Remove one 
+    //   expect(e._forget(ability, undefined, undefined)).to.be.true;
+    //   expect(e._forget(ability, someOtherEntity, someOtherEntity)).to.be.true;
+    //   expect(e.abilities.size).to.equal(0);
+    //   // Check both methods for seeing if an entity has an ability
+    //   const grant = e.abilities.get(ability.name);
+    //   expect(grant).to.not.exist;
+    //   expect(e.can(ability.name)).to.be.false;
+    // });
   });
 
   describe('Adding slots', () => {

@@ -10,7 +10,7 @@ import {
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction,
-  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor
+  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor, DetachComponentAction
 } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 import { ComponentCatalog } from './ComponentCatalog';
@@ -136,10 +136,6 @@ export class Entity implements Listener, ComponentContainer, Printable {
     return this.abilities.has(ability);
   }
 
-  detach(component: Component) {
-    return this.components.removeComponent(component);
-  }
-
   // Cast ability by name and optional lookup for specific version based on how we're casting it
   cast(abilityName: string, {using, grantedBy, target, params}: OptionalCastParameters = {}): Event | string | undefined {
     // See if we have this ability at all
@@ -216,6 +212,26 @@ export class Entity implements Listener, ComponentContainer, Printable {
   _attachAll(components: Component[]) {
     for (const component of components) {
       this._attach(component);
+    }
+  }
+
+  // Detaching components
+
+  detach({component, caster, using, metadata}: DetachComponentAction.EntityParams, force = false): DetachComponentAction {
+    return new DetachComponentAction({ caster, target: this, component, using, metadata});
+  }
+
+  _detach(component: Component): boolean {
+    this.components.removeComponent(component);
+    if(isSensor(component)) {
+      this.sensedEntities.removeChild(component.id);
+    }
+    return true;
+  }
+
+  _detachAll(components: Component[]) {
+    for (const component of components) {
+      this._detach(component);
     }
   }
 

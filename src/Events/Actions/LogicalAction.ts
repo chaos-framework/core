@@ -1,12 +1,12 @@
 import { Entity, Component, Action, ActionParameters, ActionType, BroadcastType } from '../../internal';
 
-export class CustomAction extends Action {
+export class LogicalAction extends Action {
   actionType: ActionType = ActionType.INVALID;
   broadcastType = BroadcastType.NONE;
 
   target?: Entity;
 
-  constructor(public name = '', public payload: any = {}, { caster, target, using, metadata }: CustomAction.Params = {}) {
+  constructor(public name: string, public payload: any = {}, { caster, target, using, metadata }: LogicalAction.Params = {}) {
     super({ caster, using, metadata });
     this.target = target;
   }
@@ -17,7 +17,7 @@ export class CustomAction extends Action {
 }
 
 // tslint:disable-next-line: no-namespace
-export namespace CustomAction {
+export namespace LogicalAction {
   export interface Params extends ActionParameters {
     target?: Entity;
   }

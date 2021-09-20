@@ -1,5 +1,5 @@
 import { Component, Action, Listener, Entity, 
-  ComponentScope, Sensor, NestedMap, Modifier, CustomAction } from '../../../src/internal';
+  ComponentScope, Sensor, NestedMap, Modifier, LogicalAction } from '../../../src/internal';
 
 // tslint:disable: max-classes-per-file
 export class EmptyComponent extends Component {
@@ -80,7 +80,7 @@ export class CancelsSpecificCustomAction extends Component implements Modifier {
   }
 
   modify(action: Action) {
-    if(action instanceof CustomAction && action.name === this.nameToCancel) {
+    if(action instanceof LogicalAction && action.name === this.nameToCancel) {
       action.deny({ priority: Number.MAX_VALUE, by: this });
     }
   }

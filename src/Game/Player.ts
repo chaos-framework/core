@@ -2,15 +2,17 @@ import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
 import { MessageType } from '../ClientServer/Messages/Types';
 import { OwnEntityAction } from '../Events/Actions/OwnEntityAction';
-import { Chaos, Team, Action, Entity, WorldScope, Client, NestedMap, PublishPlayerAction } from '../internal';
+import { Chaos, Team, Action, Entity, WorldScope, Client, NestedMap, PublishPlayerAction, ComponentContainer, ComponentCatalog, Scope } from '../internal';
 import { VisibilityType } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 import { Viewer, ActionQueuer } from './Interfaces';
 
-export class Player implements Viewer, ActionQueuer {
+export class Player implements Viewer, ActionQueuer, ComponentContainer {
   id: string = uuid();
   client?: Client;
   username: string;
+
+  components: ComponentCatalog = new ComponentCatalog(this);
 
   teams: NestedMap<Team>;    // teams this player belongs to
   entities: NestedMap<Entity>; // entities this player "owns"
@@ -21,8 +23,9 @@ export class Player implements Viewer, ActionQueuer {
   sensedEntities: NestedMap<Entity>;
 
   broadcastQueue = new Queue<Action>();
+  published = true; // TODO change this?
 
-  constructor({ id = uuid(), username, teams = [], admin = false, client }: Player.ConstructorParams) {
+  constructor({ id = uuid(), username, teams = [], admin = false, client }: Player.ConstructorParams = {}) {
     this.id = id;
     this.username = username ? username: this.id.substring(this.id.length - 6);
     this.admin = admin;
@@ -58,6 +61,17 @@ export class Player implements Viewer, ActionQueuer {
     }
   }
 
+  isPublished(): boolean {
+    return this.published;
+  }
+
+  getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
+    if(scope === 'game') {
+      return Chaos.reference;
+    }
+    return undefined;
+  };
+
   owns(entity: Entity | string): boolean {
     return this.entities.has(entity instanceof Entity ? entity.id : entity);
   }
@@ -85,6 +99,22 @@ export class Player implements Viewer, ActionQueuer {
         action = this.broadcastQueue.dequeue();
       }
     }
+  }
+
+  modify(action: Action) {
+    this.components.modify(action);
+  }
+  
+  react(action: Action) {
+    this.components.react(action);
+  }
+
+  sense(a: Action): boolean {
+    return true;
+  }
+
+  senseEntity(e: Entity): boolean {
+    return true;
   }
 
   disconnect() { }
@@ -160,6 +190,16 @@ export class Player implements Viewer, ActionQueuer {
   
   publish(): PublishPlayerAction {
     return new PublishPlayerAction({ player: this });
+  }
+
+  _publish(): boolean {
+    if(!Chaos.players.has(this.id)) {
+      return false;
+    } else {
+      Chaos.players.set(this.id, this);
+      this.published = true;
+      return true;
+    }
   }
 
   serializeForClient(): Player.SerializedForClient {

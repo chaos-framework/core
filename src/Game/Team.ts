@@ -1,10 +1,10 @@
 // tslint:disable: forin
 import { v4 as uuid } from 'uuid';
 
-import { Chaos, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType, WorldScope, NestedMap, Entity } from '../internal';
+import { Chaos, Action, ComponentContainer, Player, WorldScope, NestedMap, Entity, ComponentCatalog, Scope } from '../internal';
 import { Viewer, ActionQueuer } from './Interfaces';
 
-export class Team implements Viewer, ActionQueuer {
+export class Team implements Viewer, ActionQueuer, ComponentContainer {
   id: string = uuid();
   name: string;
 
@@ -13,9 +13,13 @@ export class Team implements Viewer, ActionQueuer {
 
   sensedEntities: NestedMap<Entity>;
 
+  components: ComponentCatalog = new ComponentCatalog(this);
+
   scopesByWorld: Map<string, WorldScope> = new Map<string, WorldScope>();
 
-  constructor({ id = uuid(), name, players = [] }: Team.ConstructorParams) {
+  published = true; // TODO change this?
+
+  constructor({ id = uuid(), name, players = [] }: Team.ConstructorParams = {}) {
     this.id = id;
     this.name = name ? name : this.id.substring(this.id.length - 8);
     this.players = new Set<string>(players);
@@ -23,6 +27,17 @@ export class Team implements Viewer, ActionQueuer {
     Chaos.teams.set(this.id, this);
     Chaos.teamsByName.set(this.name, this);
   }
+
+  isPublished(): boolean {
+    return this.published;
+  }
+
+  getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
+    if(scope === 'game') {
+      return Chaos.reference;
+    }
+    return undefined;
+  };
 
   enqueueAction(a: Action) {
     // Queue broadcast for all players
@@ -32,6 +47,22 @@ export class Team implements Viewer, ActionQueuer {
         p.enqueueAction(a);
       }
     }
+  }
+
+  modify(action: Action) {
+    this.components.modify(action);
+  }
+  
+  react(action: Action) {
+    this.components.react(action);
+  }
+
+  sense(a: Action): boolean {
+    return true;
+  }
+
+  senseEntity(e: Entity): boolean {
+    return true;
   }
 
   getWorldScopes(): Map<string, WorldScope> {
@@ -67,6 +98,16 @@ export class Team implements Viewer, ActionQueuer {
     this.entities.removeChild(player.id);
     this.sensedEntities.removeChild(player.id);
     player._leaveTeam(this);
+  }
+
+  _publish(): boolean {
+    if(!Chaos.teams.has(this.id)) {
+      return false;
+    } else {
+      Chaos.teams.set(this.id, this);
+      this.published = true;
+      return true;
+    }
   }
 
   serializeForClient(): Team.SerializedForClient {

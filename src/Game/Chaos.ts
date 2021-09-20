@@ -15,14 +15,13 @@ export const teamsByName: Map<string, Team> = new Map<string, Team>();
 export const players: Map<string, Player> = new Map<string, Player>();
 export const playersWithoutTeams = new Map<string, Player>();
 
-
 export const actionQueue = new ActionQueue();
 
+export let hasTurn: Entity | Player | Team | undefined = undefined;
 export let viewDistance = 6; // how far (in chunks) to load around active entities
 export let inactiveViewDistance = 1; // how far (in chunks) to load around inactive entities when they enter an inactive world to check for permissions / modifiers
 export let listenDistance = 25; // how far in tiles to let local entities listen to actions around casters and targets
 export let perceptionGrouping: 'player' | 'team' = 'player';
-
 
 // Kind of an ugly way to let the top-level game own components and link into event system
 let initialReference: any = {
