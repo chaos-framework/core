@@ -151,6 +151,12 @@ export class Entity implements Listener, ComponentContainer, Printable {
     return undefined;
   }
 
+  // Gets the first team in the teams map, no guarantee of insertion order
+  // TODO there really should only be one team, IMO, but let's keep it flexible for now
+  getTeam(): Team | undefined {
+    return this.teams.pluck();
+  }
+
   /*****************************************
    *  ACTION GENERATORS / IMPLEMENTATIONS
    *****************************************/

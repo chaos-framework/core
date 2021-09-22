@@ -67,7 +67,7 @@ export class NestedMap<T> {
     return changes;
   };
 
-  add(id: string, value: T, node?: string, changes: NestedChanges = new NestedChanges()): NestedChanges  {
+  add(id: string, value: T, node?: string, changes: NestedChanges = new NestedChanges()): NestedChanges {
     // Record in the result if this is a new entry
     if(!this.map.has(id)){
       changes.add(this.level, this.id, id);
@@ -136,6 +136,14 @@ export class NestedMap<T> {
       parent.getAllParentIds(set);
     }
     return set;
+  }
+
+  // Get the "first" entry, no guarantee of insertion order etc
+  pluck(): T | undefined {
+    for (const [id, entry] of this.map.entries()) {
+      return entry;
+    }
+    return undefined;
   }
 
 }

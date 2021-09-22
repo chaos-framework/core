@@ -10,27 +10,27 @@ describe('Change Turn Action', () => {
       const to = new Entity();
       let action = new ChangeTurnAction({ to });
       action.apply();
-      expect(Chaos.hasTurn === to);
+      expect(Chaos.currentTurn === to);
     });
     
     it('Can grant the turn to a player', () => {
       const to = new Player();
       let action = new ChangeTurnAction({ to });
       action.apply();
-      expect(Chaos.hasTurn === to);
+      expect(Chaos.currentTurn === to);
     });
     
     it('Can grant the turn to a team', () => {
       const to = new Team();
       let action = new ChangeTurnAction({ to });
       action.apply();
-      expect(Chaos.hasTurn === to);
+      expect(Chaos.currentTurn === to);
     });
 
     it('Can grant the turn to undefined', () => {
       let action = new ChangeTurnAction({ to: undefined });
       action.apply();
-      expect(Chaos.hasTurn === undefined);
+      expect(Chaos.currentTurn === undefined);
     });
 
   });

@@ -14,10 +14,10 @@ export class ChangeTurnAction extends Action {
   }
 
   apply(): boolean {
-    if(Chaos.hasTurn === this.to) {
+    if(Chaos.currentTurn === this.to) {
       return false;
     } else {
-      Chaos.hasTurn = this.to;
+      Chaos.currentTurn = this.to;
       return true;
     }
   }
