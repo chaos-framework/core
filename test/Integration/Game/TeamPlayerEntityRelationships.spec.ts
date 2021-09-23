@@ -77,4 +77,12 @@ describe('Team, Player, and Entity relationships', () => {
     expect(entity.teams.has(team.id)).to.be.true;
   });
 
+  it('Team-Entity -- entities can join a team directly', () => {
+    
+  });
+
+  it('Team-Entity -- entities can join directly and through players', () => {
+
+  });
+
 });

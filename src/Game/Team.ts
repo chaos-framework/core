@@ -8,8 +8,8 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
   id: string = uuid();
   name: string;
 
-  players = new Set<string>();
-  entities = new NestedMap<Entity>(this.id, 'team');
+  players = new Map<string, Player>();
+  entities = new Map<string, Entity>();
 
   sensedEntities: NestedMap<Entity>;
 
@@ -19,10 +19,9 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
 
   published = true; // TODO change this?
 
-  constructor({ id = uuid(), name, players = [] }: Team.ConstructorParams = {}) {
+  constructor({ id = uuid(), name }: Team.ConstructorParams = {}) {
     this.id = id;
     this.name = name ? name : this.id.substring(this.id.length - 8);
-    this.players = new Set<string>(players);
     this.sensedEntities = new NestedMap<Entity>(id, 'team');
     Chaos.teams.set(this.id, this);
     Chaos.teamsByName.set(this.name, this);
@@ -41,11 +40,8 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
 
   enqueueAction(a: Action) {
     // Queue broadcast for all players
-    for(const id of this.players) {
-      const p = Chaos.players.get(id);
-      if(p !== undefined) {
-        p.enqueueAction(a);
-      }
+    for(const [id, player] of this.players) {
+      player.enqueueAction(a);
     }
   }
 
@@ -69,35 +65,40 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     return this.scopesByWorld;
   }
 
+  // TODO refactor as iterator for performance
   getSensedAndOwnedEntities(): Map<string, Entity> {
-    return new Map([...this.entities.map.entries(), ...this.sensedEntities.map.entries()]);
+    return new Map([...this.entities.entries(), ...this.sensedEntities.map.entries()]);
   }
 
   // TODO action generator
-
-  _addPlayer(player: Player) {
+  _addPlayer(player: Player): boolean {
     // Don't add the same player twice
     if(this.players.has(player.id)) {
       return false;
     }
-    this.players.add(player.id);
-    // Add player's entity nested map as a child
-    this.entities.addChild(player.entities);
+    this.players.set(player.id, player);
     this.sensedEntities.addChild(player.sensedEntities);
     player._joinTeam(this);
+    return true;
   }
 
   // TODO action generator
-
   _removePlayer(player: Player) {
     if(!this.players.has(player.id)) {
       return false;
     }
     this.players.delete(player.id);
-    // Remove player's entity nested map as child
-    this.entities.removeChild(player.id);
-    this.sensedEntities.removeChild(player.id);
     player._leaveTeam(this);
+  }
+
+  // TODO action generator
+  _addEntity(entity: Entity) {
+    this.entities.set(entity.id, entity);
+  }
+
+  // TODO action generator
+  _removeEntity(entity: Entity) {
+    this.entities.delete(entity.id);
   }
 
   _publish(): boolean {
@@ -111,7 +112,7 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
   }
 
   serializeForClient(): Team.SerializedForClient {
-    return { id: this.id, name: this.name, players: Array.from(this.players) };
+    return { id: this.id, name: this.name };
   }
 
 }

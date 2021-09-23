@@ -14,8 +14,8 @@ export class Player implements Viewer, ActionQueuer, ComponentContainer {
 
   components: ComponentCatalog = new ComponentCatalog(this);
 
-  teams: NestedMap<Team>;    // teams this player belongs to
-  entities: NestedMap<Entity>; // entities this player "owns"
+  team?: Team;    // teams this player belongs to
+  entities: Map<string, Entity>; // entities this player "owns"
 
   admin = false;
   scopesByWorld: Map<string, WorldScope>;
@@ -25,13 +25,12 @@ export class Player implements Viewer, ActionQueuer, ComponentContainer {
   broadcastQueue = new Queue<Action>();
   published = true; // TODO change this?
 
-  constructor({ id = uuid(), username, teams = [], admin = false, client }: Player.ConstructorParams = {}) {
+  constructor({ id = uuid(), username, team, admin = false, client }: Player.ConstructorParams = {}) {
     this.id = id;
     this.username = username ? username: this.id.substring(this.id.length - 6);
     this.admin = admin;
     this.client = client;
-    this.teams = new NestedMap<Team>(this.id, 'player')
-    this.entities = new NestedMap<Entity>(this.id, 'player')
+    this.entities = new Map<string, Entity>();
     this.sensedEntities = new NestedMap<Entity>(id, 'player');
     // Make sure that we weren't passed an array of teams if the game's perceptionGrouping is 'team'
     // This is because you can't (yet) meaningfully share a scope with multiple teams
