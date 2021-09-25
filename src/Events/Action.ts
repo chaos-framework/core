@@ -31,7 +31,7 @@ export abstract class Action {
   anticipators = new Set<string>();
   sensors = new Map<string, SensoryInformation | boolean>();
 
-  visibilityChanges?: { type: 'addition' | 'removal', changes: NestedChanges }
+  visibilityChanges?: { type: 'addition' | 'removal', changes?: NestedChanges }
 
   listeners: ComponentContainer[] = [];
   listenerIds = new Set<string>();

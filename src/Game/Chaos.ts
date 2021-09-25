@@ -15,7 +15,6 @@ export const teamsByName: Map<string, Team> = new Map<string, Team>();
 export const players: Map<string, Player> = new Map<string, Player>();
 export const playersWithoutTeams = new Map<string, Player>();
 
-
 export const actionQueue = new ActionQueue();
 
 export let viewDistance = 6; // how far (in chunks) to load around active entities
@@ -113,6 +112,10 @@ export function removeEntity(e: Entity): boolean {
   return true;
 }
 
+export function addPlayer(player: Player) {
+  players.set(player.id, player);
+}
+
 export function getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
   return undefined;
 }
@@ -148,7 +151,7 @@ export function queueActionForProcessing(action: Action) {
 
 export function queueForBroadcast(action: Action, to?: Player | Team) {
   // Check if this action contains any visiblity changes and publish/unpublish entities as needed first
-  if(action.visibilityChanges !== undefined) {
+  if(action.visibilityChanges?.changes !== undefined) {
     publishVisibilityChanges(action.visibilityChanges.changes, action.visibilityChanges.type === 'addition');
   }
   // Check if this message needs to be broadcasted to clients at all
@@ -173,6 +176,7 @@ export function queueForBroadcast(action: Action, to?: Player | Team) {
             team.enqueueAction(action);
           }
       }
+      // TODO players without teams
     } else {
       for(const [id, player] of players) {
         if(

@@ -2,6 +2,7 @@
 import { v4 as uuid } from 'uuid';
 
 import { Chaos, Action, Scope, PublishEntityAction, Player, EntityScope, VisibilityType, WorldScope, NestedMap, Entity } from '../internal';
+import { NestedChanges } from '../Util/NestedMap';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Team implements Viewer, ActionQueuer {
@@ -9,7 +10,7 @@ export class Team implements Viewer, ActionQueuer {
   name: string;
 
   players = new Set<string>();
-  entities = new NestedMap<Entity>(this.id, 'team');
+  entities = new Map<string, Entity>();
 
   sensedEntities: NestedMap<Entity>;
 
@@ -39,7 +40,7 @@ export class Team implements Viewer, ActionQueuer {
   }
 
   getSensedAndOwnedEntities(): Map<string, Entity> {
-    return new Map([...this.entities.map.entries(), ...this.sensedEntities.map.entries()]);
+    return new Map([...this.entities.entries(), ...this.sensedEntities.map.entries()]);
   }
 
   // TODO action generator
@@ -50,9 +51,6 @@ export class Team implements Viewer, ActionQueuer {
       return false;
     }
     this.players.add(player.id);
-    // Add player's entity nested map as a child
-    this.entities.addChild(player.entities);
-    this.sensedEntities.addChild(player.sensedEntities);
     player._joinTeam(this);
   }
 
@@ -63,14 +61,29 @@ export class Team implements Viewer, ActionQueuer {
       return false;
     }
     this.players.delete(player.id);
-    // Remove player's entity nested map as child
-    this.entities.removeChild(player.id);
-    this.sensedEntities.removeChild(player.id);
-    player._leaveTeam(this);
+    player._leaveTeam();
   }
 
   serializeForClient(): Team.SerializedForClient {
     return { id: this.id, name: this.name, players: Array.from(this.players) };
+  }
+
+  // TODO action generator
+  _addEntity(entity: Entity): NestedChanges | undefined {
+    if(this.entities.has(entity.id)) {
+      return undefined;
+    }
+    this.entities.set(entity.id, entity);
+    return this.sensedEntities.addChild(entity.sensedEntities);
+  }
+
+  _removeEntity(entity: Entity): NestedChanges | undefined {
+    if(!this.entities.has(entity.id)) {
+      return undefined;
+    } else {
+      this.entities.delete(entity.id);
+      return this.sensedEntities.removeChild(entity.id);
+    }
   }
 
 }

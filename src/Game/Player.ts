@@ -12,8 +12,8 @@ export class Player implements Viewer, ActionQueuer {
   client?: Client;
   username: string;
 
-  teams: NestedMap<Team>;    // teams this player belongs to
-  entities: NestedMap<Entity>; // entities this player "owns"
+  team?: Team;                            // teams this player belongs to
+  entities = new Map<string, Entity>();   // entities this player "owns"
 
   admin = false;
   scopesByWorld: Map<string, WorldScope>;
@@ -22,40 +22,27 @@ export class Player implements Viewer, ActionQueuer {
 
   broadcastQueue = new Queue<Action>();
 
-  constructor({ id = uuid(), username, teams = [], admin = false, client }: Player.ConstructorParams) {
+  constructor({ id = uuid(), username, team, admin = false, client }: Player.ConstructorParams) {
     this.id = id;
     this.username = username ? username: this.id.substring(this.id.length - 6);
     this.admin = admin;
     this.client = client;
-    this.teams = new NestedMap<Team>(this.id, 'player')
-    this.entities = new NestedMap<Entity>(this.id, 'player')
     this.sensedEntities = new NestedMap<Entity>(id, 'player');
-    // Make sure that we weren't passed an array of teams if the game's perceptionGrouping is 'team'
-    // This is because you can't (yet) meaningfully share a scope with multiple teams
-    if (teams.length > 1 && Chaos.perceptionGrouping === 'team') {
-      throw new Error('Cannot join multiple teams with team-level visibility'); // TODO ERROR
-    }
-    // Make sure the team(s) exists
-    for (const teamId of teams) {
-      const team = Chaos.teams.get(teamId);
-      if (team === undefined) {
-        throw new Error('Team not found for player to join'); // TODO ERROR
+    // Make sure the team exists, if passed
+    if(team) {
+      if(!Chaos.teams.has(team)) {
+        throw new Error(`Team given for player ${this.username} does not exist!`);
       }
-      this.teams.add(teamId, team);
-      team._addPlayer(this);
+      this.team = Chaos.teams.get(team)!;
+    } else {
+      Chaos.playersWithoutTeams.set(this.id, this);
     }
-    // If game is has team visibility and assigned to a (single) team, reference that team's scope directly
-    if (Chaos.perceptionGrouping === 'team' && this.teams.map.size === 1) {
-      const team = this.teams.map.values().next().value;
-      this.scopesByWorld = team.scopesByWorld;
+    if(Chaos.perceptionGrouping === 'team' && this.team) {
+      this.scopesByWorld = this.team.scopesByWorld;
     } else {
       this.scopesByWorld = new Map<string, WorldScope>();
     }
     Chaos.players.set(this.id, this);
-    // If this player is not part of any teams indicate so in the game
-    if (this.teams.map.size === 0) {
-      Chaos.playersWithoutTeams.set(this.id, this);
-    }
   }
 
   owns(entity: Entity | string): boolean {
@@ -63,7 +50,7 @@ export class Player implements Viewer, ActionQueuer {
   }
 
   getSensedAndOwnedEntities(): Map<string, Entity> {
-    return new Map([...this.entities.map.entries(), ...this.sensedEntities.map.entries()]);
+    return new Map([...this.entities.entries(), ...this.sensedEntities.map.entries()]);
   }
 
   getWorldScopes(): Map<string, WorldScope> {
@@ -93,14 +80,13 @@ export class Player implements Viewer, ActionQueuer {
     return new OwnEntityAction({ caster, using, entity, player: this, metadata });
   }
 
-  _ownEntity(entity: Entity): NestedChanges {
+  _ownEntity(entity: Entity): NestedChanges | undefined {
     // Make sure we don't already own this entity
-    if(this.entities.has(entity.id)) {
-      return new NestedChanges();
+    if (this.entities.has(entity.id)) {
+      return undefined;
     }
-    this.entities.add(entity.id, entity);
+    this.entities.set(entity.id, entity);
     const changes = this.sensedEntities.addChild(entity.sensedEntities);
-    entity.teams.addChild(this.teams);
     entity.owners.add(this.id);
     // Modify scope, if appropriate
     if (entity.world) {
@@ -116,45 +102,33 @@ export class Player implements Viewer, ActionQueuer {
     return changes;
   }
 
-  _disownEntity(entity: Entity): NestedChanges {
+  _disownEntity(entity: Entity): NestedChanges | undefined {
+    if (!this.entities.has(entity.id)) {
+      return undefined;
+    }
     entity.owners.delete(this.id);
+    this.entities.delete(entity.id);
     const changes = this.sensedEntities.removeChild(entity.id);
-    this.entities.remove(entity.id);
-    entity.teams.removeChild(this.id);
     return changes;
   }
-
+  
   _joinTeam(team: Team): boolean {
-    // Make sure we're not already in this team
-    if(this.teams.has(team.id)) {
+    // Make sure we're not already on a team
+    if(this.team !== undefined) {
       return false;
     }
-    if (Chaos.perceptionGrouping === 'team' || this.teams.has(team.id)) {
-      return false;
-    }
-    this.teams.add(team.id, team);
-    this.entities.addParent(team.entities);  // add nested map relationship
-    this.sensedEntities.addParent(team.sensedEntities);
-    if (this.teams.map.size === 1) {
-      Chaos.playersWithoutTeams.delete(this.id);
-    }
+    Chaos.playersWithoutTeams.delete(this.id);
+    this.team = team;
     return true;
   }
 
-  _leaveTeam(team: Team): boolean {
-    // Make sure we're in this team
-    if(!this.teams.has(team.id)) {
+  _leaveTeam(): boolean {
+    // Make sure we're on a team in the first place
+    if(this.team === undefined) {
       return false;
     }
-    if (Chaos.perceptionGrouping === 'team' || !this.teams.has(team.id)) {
-      return false;
-    }
-    this.teams.remove(team.id);
-    this.entities.removeParent(team.id); // detach nestedmap entity relationship
-    this.sensedEntities.removeParent(team.id)
-    if (this.teams.map.size === 0) {
-      Chaos.playersWithoutTeams.set(this.id, this);
-    }
+    this.team === undefined;
+    Chaos.playersWithoutTeams.set(this.id, this);
     return true;
   }
   
@@ -163,7 +137,7 @@ export class Player implements Viewer, ActionQueuer {
   }
 
   serializeForClient(): Player.SerializedForClient {
-    return { id: this.id, username: this.username, admin: this.admin, teams: Array.from(this.teams.map.keys()), entities: Array.from(this.entities.map.keys()) };
+    return { id: this.id, username: this.username, admin: this.admin, team: this.team?.id, entities: Array.from(this.entities.keys()) };
   }
 
 }
@@ -173,7 +147,7 @@ export namespace Player {
   export interface ConstructorParams {
     id?: string,
     username?: string,
-    teams?: string[],
+    team?: string,
     admin?: boolean,
     client?: Client
   }
@@ -182,7 +156,7 @@ export namespace Player {
     id: string,
     entities: string[],
     username: string,
-    teams: string[],
+    team: string,
     admin: boolean
   }
 
@@ -190,7 +164,7 @@ export namespace Player {
     id: string,
     entities: string[],
     username?: string,
-    teams?: string[],
+    team?: string,
     admin?: boolean
   }
 
@@ -200,7 +174,6 @@ export namespace Player {
 
   export function DeserializeAsClient(json: Player.SerializedForClient, owner = false): Player {
     const p = new Player(json);
-    p.entities = new NestedMap<Entity>(p.id, 'player');
     // tslint:disable-next-line: forin
     for(const id of json.entities) {
       const entity = Chaos.getEntity(id);
@@ -209,7 +182,7 @@ export namespace Player {
           throw new Error('An entity owned by this client was not published with the Player from the server.'); // TODO proper error
         }
       } else {
-        p.entities.add(id, entity);
+        p.entities.set(id, entity);
       }
     }
     return p;

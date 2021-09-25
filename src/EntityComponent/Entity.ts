@@ -32,7 +32,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
   abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
   owners = new Set<string>(); // players that can control this Entity
-  teams: NestedMap<Team>; // teams that owning players belong to
+  team?: Team; // teams that owning players belong to
 
   sensedEntities: NestedMap<Entity>;
 
@@ -55,7 +55,6 @@ export class Entity implements Listener, ComponentContainer, Printable {
     for(const key in metadata) {
       this.metadata.set(key, metadata[key]);
     }
-    this.teams = new NestedMap<Team>(this.id, 'entity');
     this.sensedEntities = new NestedMap<Entity>(id, 'entity');
   }
 
@@ -359,15 +358,12 @@ export class Entity implements Listener, ComponentContainer, Printable {
       this.world.moveEntity(this, this.position, to);
       // Let owning players or teams, if any, know for scope change.
       const { perceptionGrouping } = Chaos;
-      if (perceptionGrouping === 'team') {
-        // tslint:disable-next-line: forin
-        for(let teamId in this.teams.map.entries) {
-          const scope = Chaos.teams.get(teamId)!.scopesByWorld.get(this.world.id);
-          if(scope) {
-            // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-            scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
-            scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
-          }
+      if (perceptionGrouping === 'team' && this.team !== undefined) {
+        const scope = this.team.scopesByWorld.get(this.world.id);
+        if(scope) {
+          // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
+          scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
+          scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
         }
       } else {
         for(let playerId of this.owners) {

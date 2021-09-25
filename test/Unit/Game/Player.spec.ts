@@ -53,67 +53,20 @@ describe('Player', () => {
     });
 
     it('Can optionally join teams during construction', () => {
-      const player = new Player({ username: 'Test', teams: [team.id, otherTeam.id] });
-      expect(player.teams.map.size).to.equal(2);
+      const player = new Player({ username: 'Test', team: team.id });
+      expect(player.team).to.equal(team);
     });
 
     it('Has own scope and entities tracked if visibility grouping is at player level', () => {
       Chaos.perceptionGrouping = 'player'; // default
-      const player = new Player({ username: 'Test', teams: [team.id] });
+      const player = new Player({ username: 'Test', team: team.id });
       expect(player.scopesByWorld != team.scopesByWorld).to.be.true;
     });
 
     it('Shares scope and entities in sight with a team if visibility grouping is at team level', () => {
       Chaos.perceptionGrouping = 'team';
-      const player = new Player({ username: 'Test', teams: [team.id] });
+      const player = new Player({ username: 'Test', team: team.id });
       expect(player.scopesByWorld === team.scopesByWorld).to.be.true;
-    });
-
-    it('Cannot join more than one team if visibility grouping is at team level', () => {
-      Chaos.perceptionGrouping = 'team';
-      expect(() => new Player({ username: 'Test', teams: [team.id, otherTeam.id] })).to.throw();
-    });
-  });
-
-  describe('Joining and leaving teams', () => {
-    it('Can join a team when perception is at player level', () => {
-      Chaos.perceptionGrouping = 'player'; // default
-      const player = new Player({ username: 'Red Player' });
-      expect(player._joinTeam(team)).to.be.true;
-      expect(player.teams.has(team.id)).to.be.true;
-    });
-
-    it('Can leave a team when perception is at player level', () => {
-      Chaos.perceptionGrouping = 'player'; // default
-      const player = new Player({ username: 'Red Player' });
-      player._joinTeam(team);
-      expect(player._leaveTeam(team)).to.be.true;
-      expect(player.teams.has(team.id)).to.be.false;
-    });
-
-    it('Cannot join a team after construction when perception is at team level', () => {
-      Chaos.perceptionGrouping = 'team';
-      const player = new Player({ username: 'Red Player', teams: [team.id] });
-      expect(player._joinTeam(otherTeam)).to.be.false;
-      expect(player.teams.has(otherTeam.id)).to.be.false;
-    });
-
-    it('Cannot leave a team after construction when perception is at player level', () => {
-      Chaos.perceptionGrouping = 'team';
-      const player = new Player({ username: 'Red Player', teams: [team.id] });
-      expect(player._leaveTeam(team)).to.be.false;
-      expect(player.teams.has(team.id)).to.be.true;
-    });
-
-    it('Cannot join a team already joined', () => {
-      const player = new Player({ username: 'Red Player' });
-      player._joinTeam(team);
-      expect(player._joinTeam(team)).to.be.false;
-    });
-
-    it('Cannot leave a team never joined', () => {
-      const player = new Player({ username: 'Red Player' });
-      expect(player._leaveTeam(team)).to.be.false;
     });
   });
 
