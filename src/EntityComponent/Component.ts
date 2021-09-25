@@ -3,10 +3,10 @@ import { v4 as uuid } from 'uuid';
 import { ComponentScope, ComponentContainer, Printable } from '../internal'
 
 export abstract class Component implements Printable {
-  id: string;
+  readonly id: string;
   data: { [key: string]: any };
   parent?: ComponentContainer;
-  name: string = '';
+  readonly name: string = '';
   tags = new Set<string>(); // usually frontend stuff, like filtering for traits vs statuses, etc
   public: boolean = false;    // can other entities see this component? TODO: needed?
   broadcast: boolean = false; // do we tell client about this component at all?

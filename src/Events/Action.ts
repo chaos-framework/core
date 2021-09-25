@@ -41,6 +41,9 @@ export abstract class Action {
   // Additional listeners on top of the default caster -> target flow
   additionalListeners: ComponentContainer[] = [];
 
+  followups: (Action | Event)[] = [];
+  reactions: Action[] = [];
+
   // Function to run to check if the action is still feasible after any modifiers / counters etc
   feasabilityCallback?: (a?: Action) => boolean;
 
@@ -134,7 +137,7 @@ export abstract class Action {
 
     const { caster, target } = this;
 
-    // Add the caster, caster's world, and nearby entities (if caster specified)
+    // Add the caster, caster's world, player, teams, and nearby entities (if caster specified)
     if (caster !== undefined) {
       this.addListener(caster);
       // Add all nearby entities and the world itself, if caster is published to a world
@@ -145,6 +148,22 @@ export abstract class Action {
           }
         });
         this.addListener(caster.world);
+      }
+
+      // Add all players that own this entity
+      for (const id of caster.owners) {
+        // TODO fix string vs reference
+        const player = Chaos.players.get(id);
+        if (player !== undefined) {
+          this.addListener(player);
+        }
+      }
+
+      // Add all teams that this entity belongs to 
+      for (const [id, team] of caster.teams.map) {
+        if (team !== undefined) {
+          this.addListener(team);
+        }
       }
     }
 
@@ -164,6 +183,22 @@ export abstract class Action {
         });
       }
       this.addListener(target);
+
+      // Add all players that own this entity
+      for (const id of target.owners) {
+        // TODO fix string vs reference
+        const player = Chaos.players.get(id);
+        if (player !== undefined) {
+          this.addListener(player);
+        }
+      }
+
+      // Add all teams that this entity belongs to 
+      for (const [id, team] of target.teams.map) {
+        if (team !== undefined) {
+          this.addListener(team);
+        }
+      }
     }
 
     // Let worlds and entities listen in any additional radiuses specified by the action
@@ -247,6 +282,7 @@ export abstract class Action {
     this.reactions.push(action);
     action.nested = this.nested + 1;
     if (action.nested < 10) {
+      this.reactions.push(action);
       return action.execute();
     }
     // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle

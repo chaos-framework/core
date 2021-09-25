@@ -19,7 +19,7 @@ describe('Component', () => {
   describe('Printing', () => {
     it('Prints its name', () => {
       const e = new EmptyComponent();
-      expect(e.print()).to.equal("Empty Component");
+      expect(e.print()).to.equal("Unnamed Component");
     });
   });
 

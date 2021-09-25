@@ -4,6 +4,7 @@ import {
   CAST
 } from "../internal";
 import { VisibilityType } from '../Events/Enums';
+import { createSecureContext } from "tls";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
 
@@ -17,11 +18,11 @@ export const playersWithoutTeams = new Map<string, Player>();
 
 export const actionQueue = new ActionQueue();
 
+export let currentTurn: Entity | Player | Team | undefined = undefined;
 export let viewDistance = 6; // how far (in chunks) to load around active entities
 export let inactiveViewDistance = 1; // how far (in chunks) to load around inactive entities when they enter an inactive world to check for permissions / modifiers
 export let listenDistance = 25; // how far in tiles to let local entities listen to actions around casters and targets
 export let perceptionGrouping: 'player' | 'team' = 'player';
-
 
 // Kind of an ugly way to let the top-level game own components and link into event system
 let initialReference: any = {
@@ -46,6 +47,7 @@ export function reset() {
   teams.clear();
   teamsByName.clear();
   worlds.clear();
+  currentTurn = undefined;
 }
 
 export function castAsClient(msg: CAST): string | undefined {

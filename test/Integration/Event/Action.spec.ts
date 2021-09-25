@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Action, Entity, Chaos, MoveAction, RelativeMoveAction, Vector } from '../../../src/internal';
+import { Action, Entity, Chaos, MoveAction, RelativeMoveAction, Vector, Player, Team } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
 import { SensesAll } from '../../Mocks/Components/Functional';
@@ -42,7 +42,35 @@ describe('Action Integration', () => {
 
   });
 
-  describe('Lets various entities, worlds, and game listen to an action', () => {
+  describe('Lets various entities, players, teams, and worlds, and game listen to an action', () => {
+    it('Lets players and teams of affected entities listen to an action', () => {
+      const room = new Room(100, 100);;
+      const caster = new Entity();
+      caster._publish(room, room.stageLeft);
+      const target = new Entity();
+      target._publish(room, room.stageRight);
+      const castingPlayer = new Player({ username: 'Caster' });
+      castingPlayer._publish();
+      const targetPlayer = new Player({ username: 'Target' });
+      targetPlayer._publish();
+      const castingTeam = new Team({ name: 'Casting Team' });
+      castingTeam._publish();
+      castingTeam._addPlayer(castingPlayer);
+      const targetTeam = new Team ({ name: 'Target Team' });
+      targetTeam._publish();
+      targetTeam._addPlayer(targetPlayer);
+      castingPlayer._ownEntity(caster);
+      targetPlayer._ownEntity(target);
+      const action = new RelativeMoveAction({ 
+        caster, target, amount: new Vector(1, 0)
+      });
+      action.collectListeners();
+      expect(action.listeners.find(el => el === castingPlayer)).to.exist;
+      expect(action.listeners.find(el => el === castingTeam)).to.exist;
+      expect(action.listeners.find(el => el === targetPlayer)).to.exist;
+      expect(action.listeners.find(el => el === targetTeam)).to.exist;
+    });
+
     describe('Entities, targets, witnesses, and world when caster and target are in same world', () => {
       let action: RelativeMoveAction;
       let caster: Entity;
@@ -50,7 +78,7 @@ describe('Action Integration', () => {
       let casterWitness: Entity;
       let targetWitness: Entity;
       let room: Room;
-            beforeEach(() => {
+      beforeEach(() => {
         Chaos.reset();
         room = new Room(100, 100);
         caster = new Entity();
@@ -61,6 +89,8 @@ describe('Action Integration', () => {
         target._publish(room, room.stageRight);
         targetWitness = new Entity();
         targetWitness._publish(room, room.stageRight.add(new Vector(0, -1)));
+        // TODO need to get witness players and teams as well... right? ahhh may need a method on each entity to gather listeners as well
+        // that'll actually be really nice but not the priority at the moment
         action = new RelativeMoveAction({ 
           caster, target, amount: new Vector(1, 0)
         });
@@ -86,7 +116,6 @@ describe('Action Integration', () => {
         expect(action.listeners.find(el => el === nearbyWitness)).to.exist;
         expect(action.listeners.find(el => el === tooFarWitness)).to.not.exist;
       });
-
     });
 
     describe('Entities, targets, witnesses, and worlds when caster and target are in different worlds', () => {
@@ -97,7 +126,7 @@ describe('Action Integration', () => {
       let targetWitness: Entity;
       let casterRoom: Room;
       let targetRoom: Room;
-            beforeEach(() => {
+      beforeEach(() => {
         Chaos.reset();
         casterRoom = new Room();
         targetRoom = new Room();
@@ -114,7 +143,7 @@ describe('Action Integration', () => {
         });
       });
 
-      it('Includes caster, target, their worlds, witnesses in respective worlds, and the game', () => {
+      it('Includes caster, target, their worlds, witnesses in respective worlds, players, teams, and the game', () => {
         action.collectListeners();
         expect(action.listeners.find(el => el === caster)).to.exist;
         expect(action.listeners.find(el => el === target)).to.exist;

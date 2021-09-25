@@ -1,7 +1,6 @@
+import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, World, Action, Entity, Listener, Modifier, Reacter } from '../internal';
 import { SensoryInformation } from '../Events/Interfaces';
-import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, Chaos, World, Action, Entity, Listener, Modifier, Reacter } from '../internal';
 import { Subscription } from './ComponentCatalog/Subscription';
-import { SubscriptionSet } from './ComponentCatalog/SubscriptionSet';
 import { Sensor } from './Interfaces';
 
 const validSubscriptions = {
@@ -18,6 +17,9 @@ export class ComponentCatalog implements Listener {
 
   // All components owned by this ComponentContainer
   all: Map<string, Component> = new Map<string, Component>();
+
+  // Components by name
+  byName: Map<string, Component[]> = new Map<string, Component[]>();
 
   // Components from other containers subscribed (listening/interacting) to this ComponentContainer
   subscribers = new Map<string, Subscription>();
@@ -51,6 +53,11 @@ export class ComponentCatalog implements Listener {
 
   addComponent(component: Component) {
     this.all.set(component.id, component);
+    if(!this.byName.has(component.name)) {
+      this.byName.set(component.name, [component]);
+    } else {
+      this.byName.get(component.name)!.push(component);
+    }
     this.createComponentSubscriptions(component);
     component.parent = this.parent;
   }
@@ -83,9 +90,15 @@ export class ComponentCatalog implements Listener {
     }
   }
 
-  removeComponent(component: string | Component) {
-    const id = typeof component === 'string' ? component : component.id;
+  removeComponent(component: Component) {
+    const id = component.id;
     this.all.delete(id);
+    // Stop tracking by name
+    const arrayByName = this.byName.get(component.name)!;
+    arrayByName.splice(arrayByName.findIndex(c => c === component), 1);
+    if (arrayByName.length === 0) {
+      this.byName.delete(component.name);
+    }
     // Terminate any outbound subscriptions this component is responsible for
     this.subscriptionsByComponent.get(id)?.forEach(subscription => {
       subscription.target.detach(subscription);
@@ -220,13 +233,26 @@ export class ComponentCatalog implements Listener {
   }
 
   // MISC
-  is(componentName: string): Component | undefined {
+  is(componentName: string): boolean {
     return this.has(componentName);
   }
 
-  has(componentName: string): Component | undefined {
+  has(componentName: string): boolean {
     // TODO optimize
-    return Array.from(this.all.values()).find(c => c.name === componentName);
+    return this.byName.has(componentName);
+  }
+
+  get(componentName: string): Component | undefined {
+    const components = this.byName.get(componentName);
+    if(components && components.length > 0) {
+      return components[0];
+    } else {
+      return undefined;
+    }
+  }
+
+  getAll(componentName: string): Component[] | undefined {
+    return this.byName.get(componentName);
   }
 
 }

@@ -19,6 +19,7 @@ export { SensoryInformation } from './Events/Interfaces';
 export { AddPropertyAction } from './Events/Actions/AddPropertyActions';
 export { AddSlotAction } from './Events/Actions/AddSlotAction';
 export { AttachComponentAction } from './Events/Actions/AttachComponentAction';
+export { DetachComponentAction } from './Events/Actions/DetachComponentAction';
 export { ChangeWorldAction } from './Events/Actions/ChangeWorldAction';
 export { EquipItemAction } from './Events/Actions/EquipItemAction';
 export { LearnAbilityAction } from './Events/Actions/LearnAbilityAction';
@@ -35,8 +36,9 @@ export { SenseEntityAction } from './Events/Actions/SenseEntityAction';
 export { LoseEntityAction } from './Events/Actions/LoseEntityAction';
 export { PublishPlayerAction } from './Events/Actions/PublishPlayerAction';
 export { OwnEntityAction } from './Events/Actions/OwnEntityAction';
-export { CustomAction } from './Events/Actions/CustomAction';
+export { LogicalAction } from './Events/Actions/LogicalAction';
 export { MessageAction } from './Events/Actions/MessageAction';
+export { ChangeTurnAction } from './Events/Actions/ChangeTurnAction';
 export { VisibilityType } from './Events/Enums';
 import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD

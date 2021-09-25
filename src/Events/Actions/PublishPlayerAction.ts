@@ -13,8 +13,7 @@ export class PublishPlayerAction extends Action {
   }
 
   apply(): boolean {
-    Chaos.players.set(this.player.id, this.player);
-    return true;
+    return this.player._publish();
   }
 
   serialize() {

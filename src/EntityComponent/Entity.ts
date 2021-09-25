@@ -10,7 +10,7 @@ import {
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction,
-  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor
+  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor, DetachComponentAction
 } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 import { ComponentCatalog } from './ComponentCatalog';
@@ -121,11 +121,11 @@ export class Entity implements Listener, ComponentContainer, Printable {
     return this.metadata.has(tag);
   }
 
-  is(componentName: string): Component | undefined  {
+  is(componentName: string): boolean  {
     return this.components.is(componentName);
   }
 
-  has(componentName: string): Component | undefined {
+  has(componentName: string): boolean {
     return this.components.has(componentName);
   }
 
@@ -133,10 +133,6 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   can(ability: string): boolean {
     return this.abilities.has(ability);
-  }
-
-  detach(component: Component) {
-    return this.components.removeComponent(component);
   }
 
   // Cast ability by name and optional lookup for specific version based on how we're casting it
@@ -152,6 +148,12 @@ export class Entity implements Listener, ComponentContainer, Printable {
       return e;
     }
     return undefined;
+  }
+
+  // Gets the first team in the teams map, no guarantee of insertion order
+  // TODO there really should only be one team, IMO, but let's keep it flexible for now
+  getTeam(): Team | undefined {
+    return this.teams.pluck();
   }
 
   /*****************************************
@@ -205,11 +207,37 @@ export class Entity implements Listener, ComponentContainer, Printable {
   }
 
   _attach(component: Component): boolean {
-    this.components.addComponent(component); // TODO check for unique flag, return false if already attached
+    this.components.addComponent(component); // TODO check for unique flag, or duplicate ID -- return false if already attached
     if(isSensor(component)) {
       this.sensedEntities.addChild(component.sensedEntities);
     }
     return true;
+  }
+
+  _attachAll(components: Component[]) {
+    for (const component of components) {
+      this._attach(component);
+    }
+  }
+
+  // Detaching components
+
+  detach({component, caster, using, metadata}: DetachComponentAction.EntityParams, force = false): DetachComponentAction {
+    return new DetachComponentAction({ caster, target: this, component, using, metadata});
+  }
+
+  _detach(component: Component): boolean {
+    this.components.removeComponent(component);
+    if(isSensor(component)) {
+      this.sensedEntities.removeChild(component.id);
+    }
+    return true;
+  }
+
+  _detachAll(components: Component[]) {
+    for (const component of components) {
+      this._detach(component);
+    }
   }
 
   // Adding properties
