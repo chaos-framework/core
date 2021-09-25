@@ -47,9 +47,6 @@ export abstract class Action {
   // Function to run to check if the action is still feasible after any modifiers / counters etc
   feasabilityCallback?: (a?: Action) => boolean;
 
-  reactions: Action[] = [];
-  followups: (Action | Event)[] = [];
-
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
   constructor({ caster, using, metadata }: ActionParameters = {}) {
@@ -160,10 +157,8 @@ export abstract class Action {
       }
 
       // Add all teams that this entity belongs to 
-      for (const [id, team] of caster.teams.map) {
-        if (team !== undefined) {
-          this.addListener(team);
-        }
+      if (caster.team !== undefined) {
+        this.addListener(caster.team);
       }
     }
 
@@ -194,10 +189,8 @@ export abstract class Action {
       }
 
       // Add all teams that this entity belongs to 
-      for (const [id, team] of target.teams.map) {
-        if (team !== undefined) {
-          this.addListener(team);
-        }
+      if (target.team !== undefined) {
+        this.addListener(target.team);
       }
     }
 

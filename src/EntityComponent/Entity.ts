@@ -153,7 +153,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
   // Gets the first team in the teams map, no guarantee of insertion order
   // TODO there really should only be one team, IMO, but let's keep it flexible for now
   getTeam(): Team | undefined {
-    return this.teams.pluck();
+    return this.team;
   }
 
   /*****************************************
@@ -465,6 +465,7 @@ export namespace Entity {
   export interface ConstructorParams {
     id?: string,
     name?: string,
+    team?: string,
     metadata?: {[key: string]: string | number | boolean | undefined},
     active?: boolean,
     omnipotent?: boolean
@@ -481,21 +482,28 @@ export namespace Entity {
     metadata?: {[key: string]: string | number | boolean | undefined},
     active?: boolean,
     omnipotent?: boolean,
+    team?: string,
     components?: Component.SerializedForClient[]
   }
 
   export function Deserialize(json: Entity.Serialized): Entity {
-    throw new Error();
+    throw new Error('Not yet implemented.');
   }
 
   export function DeserializeAsClient(json: Entity.SerializedForClient): Entity {
     try {
-      const { id, name, metadata, active, omnipotent, components, world: worldId } = json;
+      const { id, name, metadata, team, active, omnipotent, components, world: worldId } = json;
       const deserialized = new Entity({ id, name, metadata, active, omnipotent });
       if(worldId !== undefined) {
         const world = Chaos.getWorld(worldId);
         if(world !== undefined) {
           deserialized.world = world;
+        }
+      }
+      if(team !== undefined) {
+        const t = Chaos.teams.get(team);
+        if(t === undefined) {
+          throw new Error(`Team for Entity ${id} is not defined locally.`)
         }
       }
       if(components) {
@@ -505,7 +513,7 @@ export namespace Entity {
       }
       return deserialized;
     } catch (error) {
-      throw new Error();
+      throw error;
     }
   }
 }
