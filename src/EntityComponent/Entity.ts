@@ -55,11 +55,11 @@ export class Entity implements Listener, ComponentContainer, Printable {
     for(const key in metadata) {
       this.metadata.set(key, metadata[key]);
     }
+    this.sensedEntities = new NestedMap<Entity>(id, 'entity');
     if(team) {
       this.team = team;
       team._addEntity(this);
     }
-    this.sensedEntities = new NestedMap<Entity>(id, 'entity');
   }
 
   isPublished(): boolean {

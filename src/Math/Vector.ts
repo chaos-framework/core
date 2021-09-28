@@ -106,7 +106,9 @@ export default class Vector {
     return Math.sqrt((this.x ^ 2) + (this.y ^ 2));
   }
 
+  // CRAPPY DO NOT USE
   dot(other: Vector): number {
+    // return Math.round(Math.acos((1.0 * this.x * other.x + 1.0 * this.y * other.y) / (Math.sqrt(this.length() * Math.sqrt(other.length())))) * 100) / 100;
     return this.x * other.x + this.y * other.y;
   }
 

@@ -16,10 +16,11 @@ describe('Vector', () => {
     expect(origin.withinRadius(new Vector(0,5), 4)).to.be.false;
   });
 
-  it('Finds dot products correctly', () => {
+  it.only('Finds dot products correctly', () => {
     const a = new Vector(1, 0);
     expect(a.dot(new Vector(1, 0))).to.equal(1);
     expect(a.dot(new Vector(0, 1))).to.equal(0);
     expect(a.dot(new Vector(-1, 0))).to.equal(-1);
+    // expect(a.dot(new Vector(1, 1))).to.equal(0.707);
   });
 });
