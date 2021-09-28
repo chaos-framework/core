@@ -28,7 +28,7 @@ describe('Team', () => {
       const deserialized = Team.DeserializeAsClient(serialized);
       expect(deserialized.id).to.equal(team.id);
       expect(deserialized.name).to.equal(team.name);
-      for(let id of team.players) {
+      for(let [id, player] of team.players) {
         expect(deserialized.players.has(id)).to.be.true;
       }
     });

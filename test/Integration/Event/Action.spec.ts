@@ -55,10 +55,10 @@ describe('Action Integration', () => {
       targetPlayer._publish();
       const castingTeam = new Team({ name: 'Casting Team' });
       castingTeam._publish();
-      castingTeam._addPlayer(castingPlayer);
+      caster.team = castingTeam;
       const targetTeam = new Team ({ name: 'Target Team' });
       targetTeam._publish();
-      targetTeam._addPlayer(targetPlayer);
+      target.team = targetTeam;
       castingPlayer._ownEntity(caster);
       targetPlayer._ownEntity(target);
       const action = new RelativeMoveAction({ 

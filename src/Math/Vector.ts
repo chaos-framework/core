@@ -1,11 +1,7 @@
 import { clamp, toInteger } from 'lodash';
 import bresenham = require("bresenham")
-import bresenhamGenerator = require("bresenham/generator")
-import { deflateRawSync } from 'zlib';
 
 const CHUNK_WIDTH = 16;
-
-interface Point { x: number, y: number }
 
 export default class Vector {
   x: number;
@@ -34,6 +30,11 @@ export default class Vector {
 
   subtract(other: Vector): Vector {
     return new Vector(this.x - other.x, this.y - other.y);
+  }
+
+  // Multiply magnitude
+  multiply(by: number): Vector {
+    return new Vector(this.x * by, this.y * by);
   }
 
   absolute(): Vector {
@@ -99,6 +100,18 @@ export default class Vector {
 
   getLineToIterable(other: Vector): Generator<Vector> {
     return iterableVectorLine(this, other);
+  }
+
+  length(): number {
+    return Math.sqrt((this.x ^ 2) + (this.y ^ 2));
+  }
+
+  dot(other: Vector): number {
+    return this.x * other.x + this.y * other.y;
+  }
+
+  sameDirectionAs(other: Vector): boolean {
+    return this.dot(other) === 1;
   }
 
   serialize(): string {

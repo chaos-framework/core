@@ -46,7 +46,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
   // TODO art asset
   // TODO single char for display in leiu of art asset
 
-  constructor({ id = uuid(), name = 'Unnamed Entity', metadata, active = false, omnipotent = false }: Entity.ConstructorParams = {}) { // TODO 
+  constructor({ id = uuid(), name = 'Unnamed Entity', metadata, team, active = false, omnipotent = false }: Entity.ConstructorParams = {}) { // TODO 
     this.id = id;
     this.name = name;
     this.active = active;
@@ -54,6 +54,10 @@ export class Entity implements Listener, ComponentContainer, Printable {
     // tslint:disable-next-line: forin
     for(const key in metadata) {
       this.metadata.set(key, metadata[key]);
+    }
+    if(team) {
+      this.team = team;
+      team._addEntity(this);
     }
     this.sensedEntities = new NestedMap<Entity>(id, 'entity');
   }
@@ -465,7 +469,7 @@ export namespace Entity {
   export interface ConstructorParams {
     id?: string,
     name?: string,
-    team?: string,
+    team?: Team,
     metadata?: {[key: string]: string | number | boolean | undefined},
     active?: boolean,
     omnipotent?: boolean
