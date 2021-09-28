@@ -10,7 +10,7 @@ import {
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction,
-  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor, DetachComponentAction
+  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor, DetachComponentAction, Player
 } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 import { ComponentCatalog } from './ComponentCatalog';
@@ -31,8 +31,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
-  owners = new Set<string>(); // players that can control this Entity
-  team?: Team; // teams that owning players belong to
+  players = new Map<string, Player>();  // players that can control this Entity
+  team?: Team;                          // team that this entity belongs to
 
   sensedEntities: NestedMap<Entity>;
 
@@ -398,8 +398,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
           scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
         }
       } else {
-        for(let playerId of this.owners) {
-          const scope = Chaos.players.get(playerId)!.scopesByWorld.get(this.world.id);
+        for(let [id, player] of this.players) {
+          const scope = player.scopesByWorld.get(this.world.id);
           if(scope) {
             scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
             scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
@@ -440,6 +440,40 @@ export class Entity implements Listener, ComponentContainer, Printable {
     this.world = to;
     // TODO component catalog callback
     return true;
+  }
+
+  // Players
+  // TODO action
+  _grantOwnershipTo(player: Player) {
+    if(!this.players.has(player.id)) {
+      this.players.set(player.id, player);
+      player._ownEntity(this);
+    }
+  }
+  
+  // TODO action
+  _revokeOwnershipFrom(player: Player) {
+    if(this.players.has(player.id)) {
+      this.players.delete(player.id);
+      player._disownEntity(this);
+    }
+  }
+
+  // Teams
+  // TODO action
+  _joinTeam(team: Team) {
+    if(team !== undefined) {
+      this.team = team;
+      team._addEntity(this);
+    }
+  }
+  
+  // TODO action
+  _leaveTeam() {
+    if(this.team !== undefined) {
+      this.team._removeEntity(this);
+      this.team = undefined;
+    }
   }
 
   serialize(): Entity.Serialized {

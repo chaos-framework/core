@@ -277,7 +277,7 @@ export function DeserializeAsClient(serialized: SerializedForClient, clientPlaye
   for(const player of serialized.players) {
     const isOwner = player.id === clientPlayerId;
     const deserialized = Player.DeserializeAsClient(player, isOwner);
-    players.set(deserialized.id, deserialized);  // TODO addPlayer..
+    addPlayer(deserialized);
   }
   for(const world of serialized.worlds) {
     const deserialized = World.deserializeAsClient(world);

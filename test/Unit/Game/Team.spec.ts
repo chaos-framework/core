@@ -9,7 +9,7 @@ describe('Team', () => {
   let team: Team;
   beforeEach(() => {
     Chaos.reset();
-    team = new Team({ name: 'Red', players: [uuid(), uuid(), uuid()] });
+    team = new Team({ name: 'Red' });
   });
 
   describe('Serializing and Deserializing', () => {
@@ -18,9 +18,6 @@ describe('Team', () => {
       const serialized = team.serializeForClient();
       expect(serialized.id).to.equal(team.id);
       expect(serialized.name).to.equal(team.name);
-      for(let id of team.players) {
-        expect(serialized.players).to.contain(id);
-      }
     });
     
     it('Deserializes for the client properly', () => {
@@ -28,9 +25,6 @@ describe('Team', () => {
       const deserialized = Team.DeserializeAsClient(serialized);
       expect(deserialized.id).to.equal(team.id);
       expect(deserialized.name).to.equal(team.name);
-      for(let [id, player] of team.players) {
-        expect(deserialized.players.has(id)).to.be.true;
-      }
     });
   });
 

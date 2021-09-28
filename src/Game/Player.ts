@@ -118,7 +118,7 @@ export class Player implements Viewer, ActionQueuer, ComponentContainer {
     }
     this.entities.set(entity.id, entity);
     const changes = this.sensedEntities.addChild(entity.sensedEntities);
-    entity.owners.add(this.id);
+    entity._grantOwnershipTo(this);
     // Modify scope, if appropriate
     if (entity.world) {
       let scope = this.scopesByWorld.get(entity.world.id);
@@ -137,8 +137,9 @@ export class Player implements Viewer, ActionQueuer, ComponentContainer {
     if (!this.entities.has(entity.id)) {
       return undefined;
     }
-    entity.owners.delete(this.id);
+    entity.players.delete(this.id);
     this.entities.delete(entity.id);
+    entity._revokeOwnershipFrom(this);
     const changes = this.sensedEntities.removeChild(entity.id);
     return changes;
   }
@@ -150,6 +151,7 @@ export class Player implements Viewer, ActionQueuer, ComponentContainer {
     }
     Chaos.playersWithoutTeams.delete(this.id);
     this.team = team;
+    team._addPlayer(this);
     return true;
   }
 
@@ -158,7 +160,8 @@ export class Player implements Viewer, ActionQueuer, ComponentContainer {
     if(this.team === undefined) {
       return false;
     }
-    this.team === undefined;
+    this.team._removePlayer(this);
+    this.team = undefined;
     Chaos.playersWithoutTeams.set(this.id, this);
     return true;
   }

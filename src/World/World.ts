@@ -18,7 +18,7 @@ export abstract class World implements ComponentContainer, Listener {
   baseLayer: ByteLayer;
   // additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
 
-  entities: Set<string> = new Set<string>();
+  entities = new Map<string, Entity>();
   entitiesByChunk: Map<string, Set<string>> = new Map<string, Set<string>>();
 
   width?: number;
@@ -69,19 +69,19 @@ export abstract class World implements ComponentContainer, Listener {
     return undefined;
   };
 
-  addEntity(e: Entity, preloaded = false): boolean {
-    if(e.id && !this.entities.has(e.id)) {
+  addEntity(entity: Entity, preloaded = false): boolean {
+    if(!this.entities.has(entity.id)) {
       // Load the location if needed
       if(!preloaded) {
-        this.addView(e, e.position);
+        this.addView(entity, entity.position);
       }
       // Add the entity to full list
-      this.entities.add(e.id);
-      const chunkIndex = e.position.toChunkSpace().getIndexString();
+      this.entities.set(entity.id, entity);
+      const chunkIndex = entity.position.toChunkSpace().getIndexString();
       if(!this.entitiesByChunk.has(chunkIndex)) {
         this.entitiesByChunk.set(chunkIndex, new Set<string>());        
       }
-      this.entitiesByChunk.get(chunkIndex)?.add(e.id);
+      this.entitiesByChunk.get(chunkIndex)?.add(entity.id);
       return true;
     }
     return false;
@@ -144,10 +144,9 @@ export abstract class World implements ComponentContainer, Listener {
   getEntitiesWithinRadius(origin: Vector, radius: number): Entity[] {
     const entities: Entity[] = []
     // TODO optimize to check for relevant chunks
-    for(const id of this.entities) {
-      const e = Chaos.getEntity(id);
-      if(e && origin.withinRadius(e.position, radius)) {
-        entities.push(e);
+    for(const [id, entity] of this.entities) {
+      if(entity && origin.withinRadius(entity.position, radius)) {
+        entities.push(entity);
       }
     }
     return entities;

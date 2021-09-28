@@ -148,12 +148,8 @@ export abstract class Action {
       }
 
       // Add all players that own this entity
-      for (const id of caster.owners) {
-        // TODO fix string vs reference
-        const player = Chaos.players.get(id);
-        if (player !== undefined) {
-          this.addListener(player);
-        }
+      for (const [id, player] of caster.players) {
+        this.addListener(player);
       }
 
       // Add all teams that this entity belongs to 
@@ -180,12 +176,8 @@ export abstract class Action {
       this.addListener(target);
 
       // Add all players that own this entity
-      for (const id of target.owners) {
-        // TODO fix string vs reference
-        const player = Chaos.players.get(id);
-        if (player !== undefined) {
-          this.addListener(player);
-        }
+      for (const [id, player] of target.players) {
+        this.addListener(player);
       }
 
       // Add all teams that this entity belongs to 

@@ -35,12 +35,12 @@ describe('Game', () => {
       expect(serialized.id).to.equal(Chaos.id);
       // Teams
       expect(serialized.teams.find(team => team.id === red.id)).to.exist;
-      expect(serialized.teams.find(team => team.id === red.id)!.players).to.contain(p.id);
       expect(serialized.teams.find(team => team.id === blue.id)).to.exist;
       // Player
       const player = serialized.players.find(sp => sp.id === p.id);
       expect(player).to.exist;
       expect(player!.entities).to.contain(e.id);
+      expect(player!.team).to.equal(red.id);
       // Worlds
       const world = serialized.worlds.find(sw => sw.id === room.id);
       expect(world).to.exist;

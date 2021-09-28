@@ -1,4 +1,5 @@
 // tslint:disable: forin
+import { toArray } from 'lodash';
 import { v4 as uuid } from 'uuid';
 
 import { Chaos, Action, ComponentContainer, Player, WorldScope, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges } from '../internal';
@@ -111,16 +112,17 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
       return undefined;
     }
     this.entities.set(entity.id, entity);
+    entity._joinTeam(this);
     return this.sensedEntities.addChild(entity.sensedEntities);
   }
 
   _removeEntity(entity: Entity): NestedChanges | undefined {
     if(!this.entities.has(entity.id)) {
       return undefined;
-    } else {
-      this.entities.delete(entity.id);
-      return this.sensedEntities.removeChild(entity.id);
     }
+    this.entities.delete(entity.id);
+    entity._leaveTeam();
+    return this.sensedEntities.removeChild(entity.id);
   }
 
 }
@@ -130,19 +132,16 @@ export namespace Team {
   export interface ConstructorParams {
     id?: string,
     name?: string,
-    players?: string[]
   }
 
   export interface Serialized {
     id: string,
     name: string,
-    players: string[]
   }
 
   export interface SerializedForClient {
     id: string,
     name?: string,
-    players?: string[]
   }
 
   export function Deserialize(json: Team.Serialized): Team {
