@@ -33,7 +33,7 @@ let initialReference: any = {
   react,
   getComponentContainerByScope: (scope: Scope) => reference
 }
-export let components: any  = new ComponentCatalog(initialReference); // all components
+export let components = new ComponentCatalog(initialReference); // all components
 export const reference: ComponentContainer = {
   ...initialReference,
   components
