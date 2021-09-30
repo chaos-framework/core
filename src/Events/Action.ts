@@ -22,6 +22,7 @@ export abstract class Action {
 
   private permissions: Map<number, Permission> = new Map<number, Permission>();
   permitted: boolean = true;
+  applied: boolean = false;
   decidingPermission?: Permission;
 
   nested: number = 0;
@@ -101,9 +102,8 @@ export abstract class Action {
     this.decidePermission();
 
     // Apply this action to the target, checking for permission and if still feasible
-    let applied = false;
     if ((this.permitted && this.feasabilityCallback !== undefined ? this.feasabilityCallback(this) : true) || force) {
-      applied = this.apply();
+      this.applied = this.apply();
     }
 
     // Generate terminal message
@@ -119,7 +119,7 @@ export abstract class Action {
       listener.react(this);
     }
 
-    return applied;
+    return this.applied;
   }
 
   addListener(listener: ComponentContainer) {
