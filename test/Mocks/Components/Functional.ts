@@ -1,5 +1,5 @@
-import { Component, Action, Listener, Entity, 
-  ComponentScope, Sensor, NestedMap, Modifier, LogicalAction } from '../../../src/internal';
+import { Component, Action, Entity, 
+  Scope, NestedMap, LogicalAction, CachesSensedEntities } from '../../../src/internal';
 
 // tslint:disable: max-classes-per-file
 export class EmptyComponent extends Component {
@@ -14,7 +14,7 @@ export class EmptyComponent extends Component {
 *  SENSORS
 */
 
-export class SensesAll extends Component implements Sensor {
+export class SensesAll extends Component implements CachesSensedEntities {
   sensedEntities: NestedMap<Entity>;
   constructor(){
     super();
@@ -30,7 +30,7 @@ export class SensesAll extends Component implements Sensor {
 *   SCOPE TESTS
 */
 
-export class NoScopeSpecified extends Component implements Listener {
+export class NoScopeSpecified extends Component {
   name = "Component that has all types of listeners at default scopes";
 
   sense(action: Action): boolean {
@@ -47,26 +47,26 @@ export class NoScopeSpecified extends Component implements Listener {
 }
 
 export class EntityScopeSpecified extends NoScopeSpecified {
-  scope: ComponentScope = {
-    'sensor': 'entity',
-    'modifier': 'entity',
-    'reacter': 'entity'
+  scope: { [key: string]: Scope } = {
+    'sense': 'entity',
+    'modify': 'entity',
+    'react': 'entity'
   }
 }
 
 export class WorldScopeSpecified extends NoScopeSpecified {
-  scope: ComponentScope = {
-    'sensor': 'world',
-    'modifier': 'world',
-    'reacter': 'world'
+  scope: { [key: string]: Scope } = {
+    'sense': 'world',
+    'modify': 'world',
+    'react': 'world'
   }
 }
 
 export class GameScopeSpecified extends NoScopeSpecified {
-  scope: ComponentScope = {
-    'sensor': 'game',
-    'modifier': 'game',
-    'reacter': 'game'
+  scope: { [key: string]: Scope } = {
+    'sense': 'game',
+    'modify': 'game',
+    'react': 'game'
   }
 }
 
@@ -74,7 +74,7 @@ export class GameScopeSpecified extends NoScopeSpecified {
 *   EVENT TESTS
 */
 
-export class CancelsSpecificCustomAction extends Component implements Modifier {
+export class CancelsSpecificCustomAction extends Component {
   constructor(public nameToCancel: string) {
     super();
   }

@@ -32,7 +32,8 @@ export let perceptionGrouping: 'player' | 'team' = 'player';
 let initialReference: any = {
   id: '___GAMEREF',
   isPublished: () => true,
-  getComponentContainerByScope: (scope: Scope) => reference
+  getComponentContainerByScope: (scope: Scope) => reference,
+  handle: handle
 }
 export let components = new ComponentCatalog(initialReference); // all components
 export const reference: ComponentContainer = {
@@ -51,17 +52,23 @@ export function reset() {
   currentTurn = undefined;
 }
 
+export function setPhases(pre: string[], post: string[]) {
+  prePhases = pre;
+  postPhases = post;
+  phases = [...pre, ...post];
+}
+
 export function getPhases(): string[] {
   return phases;
 }
 
-export function setPrePhases(phases: string[]): void {
-  prePhases = phases;
+export function setPrePhases(pre: string[]): void {
+  prePhases = pre;
   phases = [...prePhases, ...postPhases];
 }
 
-export function setPostPhases(phases: string[]): void {
-  postPhases = phases;
+export function setPostPhases(post: string[]): void {
+  postPhases = post;
   phases = [...prePhases, ...postPhases];
 }
 
@@ -154,16 +161,16 @@ export function detach(c: Component): void {
   components.removeComponent(c);
 }
 
+export function handle(phase: string, action: Action) {
+  components.handle(phase, action);
+}
+
 export function sense(a: Action): boolean {
   return true;
 }
 
 export function senseEntity(e: Entity): boolean {
   return true;
-}
-
-export function on(phase: string, action: Action): void {
-  components.handle(phase, action);
 }
 
 export function queueActionForProcessing(action: Action) {

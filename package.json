@@ -6,8 +6,7 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "env DEBUG=true mocha",
-    "sandbox": "env DEBUG=true metarogue_SANDBOX=true mocha -g Sandbox"
+    "test": "env DEBUG=true mocha"
   },
   "files": [
     "lib/**/*"

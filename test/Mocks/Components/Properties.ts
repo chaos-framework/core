@@ -1,8 +1,8 @@
-import { Component, Action, PropertyChangeAction, EquipItemAction, Modifier, Reacter } from '../../../src/internal';
+import { Component, Action, PropertyChangeAction, EquipItemAction } from '../../../src/internal';
 
 import { Slash, Stab } from '../Abilities/Attacks';
 
-export class Sword extends Component implements Modifier, Reacter {
+export class Sword extends Component {
   name = "Sword";
   public = true;
   broadcast = true;
@@ -25,7 +25,7 @@ export class Sword extends Component implements Modifier, Reacter {
 
 }
 
-export class Iron extends Component implements Modifier {
+export class Iron extends Component {
   public = true;
   broadcast = true;
   tags = new Set<string>(['Property']);
@@ -39,7 +39,7 @@ export class Iron extends Component implements Modifier {
   }
 }
 
-export class Silver extends Component implements Modifier {
+export class Silver extends Component {
   public = true;
   broadcast = true;
   tags = new Set<string>(['Property']);

@@ -1,6 +1,6 @@
-import { Action, Component, Entity, LoseEntityAction, NestedMap, Reacter, SenseEntityAction, Sensor } from '../../../src/internal';
+import { Action, Component, Entity, LoseEntityAction, NestedMap, SenseEntityAction, CachesSensedEntities } from '../../../src/internal';
 
-export class Eyes extends Component implements Sensor, Reacter {
+export class Eyes extends Component implements CachesSensedEntities {
   sensedEntities: NestedMap<Entity>;
 
   constructor() {

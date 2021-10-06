@@ -13,7 +13,7 @@ class TestAction extends Action {
 describe('Action Abstract Functionality', () => {
 
   describe('Feasiblity callbacks', () => {
-    
+    // TODO
   });
 
   describe('Permits or forbids actions intelligently', () => {

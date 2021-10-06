@@ -61,7 +61,7 @@ export class ComponentCatalog {
       if(typeof phase === 'string') {
         const fn = (component as any)[phase];
         if(isActionFunction(fn)) {
-          const scope = component.scope?.get(phase);
+          const scope = component.scope[phase];
           if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
             this.subscribeToOther(component, phase, fn, scope);
           } else {
@@ -107,7 +107,13 @@ export class ComponentCatalog {
   // Detach subscriber from this
   detach(subscription: Subscription) {
     const { id, phase, component } = subscription;
-    this.subscriberFunctionsByPhase.get(phase)?.delete(component.id);
+    const byPhase = this.subscriberFunctionsByPhase.get(phase);
+    if(byPhase !== undefined) {
+      byPhase.delete(component.id);
+      if(byPhase.size === 0) {
+        this.subscriberFunctionsByPhase.delete(phase);
+      }
+    }
     this.subscribers.delete(id);
   }
 

@@ -1,9 +1,8 @@
-import { Component, Action, AttachComponentAction,
-  Reacter} from '../../../src/internal';
+import { Component, Action, AttachComponentAction } from '../../../src/internal';
 
 import { Heal } from '../Abilities/Spells';
 
-export class Paladin extends Component implements Reacter {
+export class Paladin extends Component {
   name = 'Paladin';
   public = true;
   broadcast = true;

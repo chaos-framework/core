@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, Ability, Component, Sensor } from '../../../src/internal';
+import { Entity, Ability, Component, CachesSensedEntities } from '../../../src/internal';
 
 import Room from '../../Mocks/Worlds/Room';
 import EmptyAbility from '../../Mocks/Abilities/Empty';
@@ -54,7 +54,7 @@ describe('Entity', () => {
 
   describe('Tracking sensors', () => {
     let e: Entity;
-    let sensor: Component & Sensor;
+    let sensor: Component & CachesSensedEntities;
     beforeEach(() => {
       e = new Entity({ name: "CS Test", active: true, omnipotent: false });
       sensor = new Eyes();
@@ -77,7 +77,6 @@ describe('Entity action/event generators', () => {
     heal = new Heal();
     e._learn(heal, e, e);
   });
-
   describe('Casting', () => {
     it('Generates an event for an ability it does have', () => {
       expect(e.cast(heal.name, { target: e, using: e.id })).to.exist;
