@@ -1,8 +1,7 @@
 import { v4 as uuid } from 'uuid';
-import { ComponentCatalog } from '../EntityComponent/ComponentCatalog';
 
 import { 
-  ComponentContainer,
+  ComponentContainer, ComponentCatalog,
   Listener, Action, IChunk,
   ByteLayer,
   Entity, Vector, Chaos, ClientWorld, WorldScope, Scope,
@@ -197,21 +196,8 @@ export abstract class World implements ComponentContainer, Listener {
   populateChunk(x: number, y: number, chunk: IChunk): void { }
 
   // TODO setTile and _setTile
-
-  modify(a: Action) {
-
-  };
-
-  react(a: Action) {
-    
-  };
-
-  sense(a: Action): boolean {
-    return true;
-  }
-
-  senseEntity(e: Entity): boolean {
-    return true;
+  handle(phase: string, action: Action) {
+    this.components.handle(phase, action);
   }
 
   createScope(): WorldScope {

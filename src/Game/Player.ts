@@ -89,20 +89,8 @@ export class Player implements Viewer, ActionQueuer, ComponentContainer {
     }
   }
 
-  modify(action: Action) {
-    this.components.modify(action);
-  }
-  
-  react(action: Action) {
-    this.components.react(action);
-  }
-
-  sense(a: Action): boolean {
-    return true;
-  }
-
-  senseEntity(e: Entity): boolean {
-    return true;
+  handle(phase: string, action: Action) {
+    this.components.handle(phase, action);
   }
 
   disconnect() { }

@@ -1,12 +1,16 @@
 import {
   Entity, Action, World, Component, Viewer, NestedChanges,
-  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer, Scope, BroadcastType,
-  CAST
+  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer,
+  Scope, BroadcastType, VisibilityType, CAST
 } from "../internal";
-import { VisibilityType } from '../Events/Enums';
-import { createSecureContext } from "tls";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
+
+export const APPLY = -1;
+
+let phases = ['modify', 'permit', 'react', 'output']
+let prePhases = ['modify', 'permit'];
+let postPhases = ['react', 'output'];
 
 export const worlds: Map<string, World> = new Map<string, World>();
 export const entities: Map<string, Entity> = new Map<string, Entity>();
@@ -28,9 +32,6 @@ export let perceptionGrouping: 'player' | 'team' = 'player';
 let initialReference: any = {
   id: '___GAMEREF',
   isPublished: () => true,
-  sense,
-  modify,
-  react,
   getComponentContainerByScope: (scope: Scope) => reference
 }
 export let components = new ComponentCatalog(initialReference); // all components
@@ -48,6 +49,28 @@ export function reset() {
   teamsByName.clear();
   worlds.clear();
   currentTurn = undefined;
+}
+
+export function getPhases(): string[] {
+  return phases;
+}
+
+export function setPrePhases(phases: string[]): void {
+  prePhases = phases;
+  phases = [...prePhases, ...postPhases];
+}
+
+export function setPostPhases(phases: string[]): void {
+  postPhases = phases;
+  phases = [...prePhases, ...postPhases];
+}
+
+export function getPrePhases(): string[] {
+  return prePhases;
+}
+
+export function getPostPhases(): string[] {
+  return prePhases;
 }
 
 export function castAsClient(msg: CAST): string | undefined {
@@ -139,13 +162,9 @@ export function senseEntity(e: Entity): boolean {
   return true;
 }
 
-export function modify(a: Action) {
-  return;
-};
-
-export function react(a: Action) {
-  return;
-};
+export function on(phase: string, action: Action): void {
+  components.handle(phase, action);
+}
 
 export function queueActionForProcessing(action: Action) {
   actionQueue.enqueue(action);

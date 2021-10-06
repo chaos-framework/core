@@ -46,12 +46,8 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     }
   }
 
-  modify(action: Action) {
-    this.components.modify(action);
-  }
-  
-  react(action: Action) {
-    this.components.react(action);
+  handle(phase: string, action: Action) {
+    this.components.handle(phase, action);
   }
 
   sense(a: Action): boolean {

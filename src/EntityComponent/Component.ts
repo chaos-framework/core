@@ -1,6 +1,11 @@
 
 import { v4 as uuid } from 'uuid';
-import { ComponentScope, ComponentContainer, Printable } from '../internal'
+import { ComponentScope, ComponentFunctionCollection, ComponentContainer, Printable, Action } from '../internal'
+
+export type actionFunction = (action: Action) => boolean | undefined;
+export function isActionFunction(fn: any): fn is actionFunction {
+  return (typeof fn === 'function') && (fn.length === 1);
+}
 
 export abstract class Component implements Printable {
   readonly id: string;
@@ -13,7 +18,8 @@ export abstract class Component implements Printable {
   unique: boolean = true;     // whether or not more of one of this type of class can be attached to an entity
   //propertyModifications: Modification[] = [];
 
-  scope: ComponentScope = {};
+  scope?: ComponentScope;
+  functions!: ComponentFunctionCollection;
 
   constructor({ id = uuid(), name = 'Unnamed Component', tags }: Component.ConstructorParams = {}) {
     this.id = id;
@@ -22,6 +28,9 @@ export abstract class Component implements Printable {
       this.tags = new Set<string>(tags);
     }
     this.data = {};
+    if(this.functions === undefined) {
+      this.functions = new ComponentFunctionCollection();
+    }
   }
 
   print(): string {

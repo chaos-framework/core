@@ -1,10 +1,10 @@
 // ENTITY AND COMPONENT
 export { Entity } from './EntityComponent/Entity';
-export { Component, DisplayComponent } from './EntityComponent/Component';
-export { ComponentContainer } from './EntityComponent/ComponentContainer';
-export { ComponentCatalog } from './EntityComponent/ComponentCatalog';
-export { Subscription } from './EntityComponent/ComponentCatalog/Subscription';
-export { SubscriptionSet } from './EntityComponent/ComponentCatalog/SubscriptionSet';
+export { Component, DisplayComponent, actionFunction, isActionFunction } from './EntityComponent/Component';
+export { ComponentFunctionCollection } from './EntityComponent/Component/ComponentFunctionCollection';
+export { ComponentContainer } from './EntityComponent/Component/ComponentContainer';
+export { ComponentCatalog } from './EntityComponent/Component/ComponentCatalog';
+export { Subscription } from './EntityComponent/Component/ComponentCatalog/Subscription';
 import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability';
 import Property, { ValueType } from './EntityComponent/Properties/Property';
 import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification';

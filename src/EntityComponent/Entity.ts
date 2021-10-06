@@ -1,22 +1,18 @@
-import { triggerAsyncId } from 'async_hooks';
 import { v4 as uuid } from 'uuid';
+import { CachesSensedEntities } from '..';
 import { Printable } from '../ClientServer/Terminal/Printable';
-import { SensoryInformation } from '../Events/Interfaces';
 import {
   Chaos, Vector, World,
-  Component, ComponentContainer, Event, Action,
-  Listener, Ability, Property, AttachComponentAction,
+  Component, ComponentContainer, ComponentCatalog, Event, Action,
+  Ability, Property, AttachComponentAction,
   ChangeWorldAction, MoveAction, RelativeMoveAction,
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction,
-  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, Sensor, DetachComponentAction, Player
+  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, NestedChanges,
+  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction, Player, cachesSensedEntities
 } from '../internal';
-import { NestedChanges } from '../Util/NestedMap';
-import { ComponentCatalog } from './ComponentCatalog';
-import { isSensor } from './Interfaces';
 
-export class Entity implements Listener, ComponentContainer, Printable {
+export class Entity implements ComponentContainer, Printable {
   readonly id: string;
   name: string;
   metadata = new Map<string, string | number | boolean | undefined>();
@@ -95,16 +91,8 @@ export class Entity implements Listener, ComponentContainer, Printable {
     }
   }
 
-  modify(action: Action) {
-    this.components.modify(action);
-  }
-  
-  react(action: Action) {
-    this.components.react(action);
-  }
-
-  sense(action: Action): SensoryInformation | boolean {
-    return this.components.sense(action);
+  handle(phase: string, action: Action) {
+    this.components.handle(phase, action);
   }
 
   getProperty(k: string): Property | undefined {
@@ -212,7 +200,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   _attach(component: Component): boolean {
     this.components.addComponent(component); // TODO check for unique flag, or duplicate ID -- return false if already attached
-    if(isSensor(component)) {
+    if(cachesSensedEntities(component)) {
       this.sensedEntities.addChild(component.sensedEntities);
     }
     return true;
@@ -232,7 +220,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
 
   _detach(component: Component): boolean {
     this.components.removeComponent(component);
-    if(isSensor(component)) {
+    if(cachesSensedEntities(component)) {
       this.sensedEntities.removeChild(component.id);
     }
     return true;
@@ -418,7 +406,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
     return new SenseEntityAction({caster: this, target, using, metadata});
   }
 
-  _senseEntity(entity: Entity, using: Sensor): NestedChanges {
+  _senseEntity(entity: Entity, using: CachesSensedEntities): NestedChanges {
     return using.sensedEntities.add(entity.id, entity);
   }
 
@@ -426,7 +414,7 @@ export class Entity implements Listener, ComponentContainer, Printable {
     return new SenseEntityAction({caster: this, target, using, metadata});
   }
 
-  _loseEntity(entity: Entity, from: Sensor): NestedChanges {
+  _loseEntity(entity: Entity, from: CachesSensedEntities): NestedChanges {
     return from.sensedEntities.remove(entity.id);
   }
 

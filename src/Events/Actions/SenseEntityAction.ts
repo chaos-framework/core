@@ -1,4 +1,4 @@
-import { Action, Component, ActionParameters, Entity, ActionType, Sensor, BroadcastType } from '../../internal';
+import { Action, Component, ActionParameters, Entity, ActionType, CachesSensedEntities, BroadcastType } from '../../internal';
 
 export class SenseEntityAction extends Action {
   actionType: ActionType = ActionType.SENSE_ENTITY_ACTION;
@@ -8,7 +8,7 @@ export class SenseEntityAction extends Action {
 
   caster: Entity;             // entity sensing the other (senses cannot come from another entity)
   target: Entity;             // entity being sensed
-  using: Component & Sensor;  // component doing the sensing
+  using: Component & CachesSensedEntities;  // component doing the sensing
 
   constructor({caster, target, using, metadata }: SenseEntityAction.Params) {
     super({caster, using, metadata });
@@ -30,7 +30,7 @@ export class SenseEntityAction extends Action {
 export namespace SenseEntityAction {
   export interface EntityParams extends ActionParameters { 
     target: Entity;
-    using: Component & Sensor;
+    using: Component & CachesSensedEntities;
   }
 
   export interface Params extends EntityParams {

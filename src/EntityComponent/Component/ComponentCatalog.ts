@@ -1,7 +1,6 @@
-import { Component, isSensor, isModifier, isReacter, ComponentType, ComponentContainer, Scope, World, Action, Entity, Listener, Modifier, Reacter } from '../internal';
-import { SensoryInformation } from '../Events/Interfaces';
-import { Subscription } from './ComponentCatalog/Subscription';
-import { Sensor } from './Interfaces';
+import { Action, Chaos } from '../..';
+import { Component, Subscription, ComponentContainer, Scope, World, Entity } from '../../internal';
+import { actionFunction, isActionFunction } from '../Component';
 
 const validSubscriptions = {
   entity: ['world', 'player', 'team', 'game'],
@@ -11,7 +10,7 @@ const validSubscriptions = {
   game: [] as string[],
 }
 
-export class ComponentCatalog implements Listener {
+export class ComponentCatalog {
   // Scope of parent object -- ie being owned by a World would be 'world'
   parentScope: Scope;
 
@@ -23,12 +22,7 @@ export class ComponentCatalog implements Listener {
 
   // Components from other containers subscribed (listening/interacting) to this ComponentContainer
   subscribers = new Map<string, Subscription>();
-  subscribersByType = { 
-    sensor: new Map<string, Sensor>(),
-    roller: new Map<string, Component>(),
-    modifier: new Map<string, Modifier>(),
-    reacter: new Map<string, Reacter>() 
-  };
+  subscriberFunctionsByPhase = new Map<string, Map<string, actionFunction>>();
 
   // Things we're subscribed to, mapped out in different dimensions
   subscriptions = new Map<string, Subscription>();
@@ -63,29 +57,17 @@ export class ComponentCatalog implements Listener {
   }
 
   createComponentSubscriptions(component: Component) {
-    // See if this component modifies, react, etc and which scopes if so
-    if(isSensor(component)){
-      const scope = component.scope.sensor;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-        this.subscribeToOther(component, 'sensor', scope);
-      } else {
-        this.attach(new Subscription(component, this, this, 'sensor', this.parentScope));
-      }
-    }
-    if(isModifier(component)){
-      const scope = component.scope.modifier;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-        this.subscribeToOther(component, 'modifier', scope);
-      } else {
-        this.attach(new Subscription(component, this, this, 'modifier', this.parentScope));
-      }
-    }
-    if(isReacter(component)){
-      const scope = component.scope.reacter;
-      if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
-        this.subscribeToOther(component, 'reacter', scope);
-      } else {
-        this.attach(new Subscription(component, this, this, 'reacter', this.parentScope));
+    for(const phase of Chaos.getPhases()) {
+      if(typeof phase === 'string') {
+        const fn = (component as any)[phase];
+        if(isActionFunction(fn)) {
+          const scope = component.scope?.get(phase);
+          if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+            this.subscribeToOther(component, phase, fn, scope);
+          } else {
+            this.attach(new Subscription(component, this, this, phase, fn, this.parentScope));
+          }
+        }
       }
     }
   }
@@ -108,31 +90,25 @@ export class ComponentCatalog implements Listener {
 
   // Attach a subscriber to this component
   attach(subscription: Subscription) {
-    const { component, type } = subscription;
+    const { component, phase } = subscription;
     // Add subscriber to full list
     this.subscribers.set(subscription.id, subscription);
     // Attach by type, ie modifier or reacter
-    switch(type) {
-      case 'sensor':
-        const sensor = component as unknown as Sensor;
-        this.subscribersByType[type].set(component.id, sensor);
-        break;
-      case 'modifier':
-        const modifier = component as unknown as Modifier;
-        this.subscribersByType[type].set(component.id, modifier);
-        break;
-      case 'reacter':
-        const reacter = component as unknown as Reacter;
-        this.subscribersByType[type].set(component.id, reacter);
-        break;
+    const map = this.subscriberFunctionsByPhase.get(phase);
+    if(map === undefined) {
+      const newMap = new Map<string, actionFunction>();
+      newMap.set(subscription.component.id, subscription.fn);
+      this.subscriberFunctionsByPhase.set(phase, newMap);
+    } else {
+      map.set(subscription.component.id, subscription.fn);
     }
   }
 
   // Detach subscriber from this
   detach(subscription: Subscription) {
-    const { type, subscriber, component } = subscription;
-    this.subscribersByType[subscription.type].delete(subscription.component.id);
-    this.subscribers.delete(subscription.id);
+    const { id, phase, component } = subscription;
+    this.subscriberFunctionsByPhase.get(phase)?.delete(component.id);
+    this.subscribers.delete(id);
   }
 
   // Terminate an outgoing subscription
@@ -158,12 +134,7 @@ export class ComponentCatalog implements Listener {
 
   clearSubscriptions() {
     this.subscribers = new Map<string, Subscription>();
-    this.subscribersByType = { 
-      sensor: new Map<string, Sensor>(),
-      roller: new Map<string, Component>(),
-      modifier: new Map<string, Modifier>(),
-      reacter: new Map<string, Reacter>() 
-    };
+    this.subscriberFunctionsByPhase = new Map<string, Map<string, actionFunction>>();
   }
 
   // Delete all components and terminate all incoming / outgoing subscriptions
@@ -183,11 +154,11 @@ export class ComponentCatalog implements Listener {
   }
 
   // Subscribe one of these components to another catalog
-  private subscribeToOther(component: Component, type: ComponentType, scope: Scope) {
+  private subscribeToOther(component: Component, phase: string, fn: actionFunction, scope: Scope) {
     // Defer to parent to decide which ComponentContainer fits the relative scope
     const target = this.parent.getComponentContainerByScope(scope); 
     if(target !== undefined) {
-      const subscription = new Subscription(component, this, target.components, type, scope);
+      const subscription = new Subscription(component, this, target.components, phase, fn, scope);
       // Subscribe to these containers
       target.components.attach(subscription);
       // Store general
@@ -210,25 +181,12 @@ export class ComponentCatalog implements Listener {
     }
   }
 
-  // ACTION METHODS
-  sense(action: Action): SensoryInformation | boolean {
-    for(const [id, component] of this.subscribersByType.sensor) {
-      if(component.sense(action) !== false) {
-        return true;
+  handle(phase: string, action: Action) {
+    const functions = this.subscriberFunctionsByPhase.get(phase);
+    if (functions !== undefined) {
+      for(const [id, fn] of functions) {
+        fn(action);
       }
-    }
-    return false;
-  }
-
-  modify(action: Action) {
-    for(const [id, component] of this.subscribersByType.modifier) {
-      component.modify(action);
-    }
-  }
-
-  react(action: Action) {
-    for(const [id, component] of this.subscribersByType.reacter) {
-      component.react(action);
     }
   }
 

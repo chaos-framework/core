@@ -23,6 +23,10 @@ describe('Component', () => {
     });
   });
 
+  describe('Action Function Initialzation', () => {
+
+  });
+
   describe('Serializing / Deserializing', () => {
     let c: Component;
     let serializedForClient: Component.SerializedForClient;

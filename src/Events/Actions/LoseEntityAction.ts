@@ -1,4 +1,4 @@
-import { Action, Component, ActionParameters, Entity, ActionType, Sensor, BroadcastType } from '../../internal';
+import { Action, Component, CachesSensedEntities, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal';
 
 export class LoseEntityAction extends Action {
   actionType: ActionType = ActionType.LOSE_ENTITY_ACTION;
@@ -8,7 +8,7 @@ export class LoseEntityAction extends Action {
 
   caster: Entity;
   target: Entity;
-  using: Component & Sensor;
+  using: Component & CachesSensedEntities;
 
   constructor({caster, target, using, metadata }: LoseEntityAction.Params) {
     super({caster, using, metadata });
@@ -30,7 +30,7 @@ export class LoseEntityAction extends Action {
 export namespace LoseEntityAction {
   export interface EntityParams extends ActionParameters { 
     target: Entity;
-    using: Component & Sensor;
+    using: Component & CachesSensedEntities;
   }
 
   export interface Params extends EntityParams {

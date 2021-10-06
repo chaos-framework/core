@@ -66,41 +66,42 @@ export abstract class Action {
     return this;
   }
 
-  execute(force: boolean = true): boolean {
+  execute(force: boolean = false): boolean {
     this.initialize();
 
     // If target is unpublished, just run through locally attached components (these may need to do work before publishing)
     if (this.target && !this.target.isPublished() && !(this instanceof PublishEntityAction)) {
-      // Just let the target modify and react directly
-      this.target.modify(this);
+      for(const phase of Chaos.getPrePhases()) {
+        this.target.handle(phase, this);
+      }
       this.decidePermission();
       if (this.permitted || force) {
         this.apply();
       }
-      this.target.react(this);
+      for(const phase of Chaos.getPostPhases()) {
+        this.target.handle(phase, this);
+      }
       return true;
     }
 
     // Get listeners (entities, maps, systems, etc) in order they should modify/react
     this.collectListeners();
 
-    // Let all listeners sense
-    for (const listener of this.listeners) {
-      this.sensors.set(listener.id, listener.sense(this));
-    }
     // Assume that caster has full awareness
     if(this.caster) {
       this.sensors.set(this.caster.id, true);
     }
 
-    // Let all listeners modify, watching to see if any cancel the action
-    for (const listener of this.listeners) {
-      listener.modify(this);
+    // Handle all pre-phases
+    for(const phase of Chaos.getPrePhases()) {
+      for(const listener of this.listeners) {
+        listener.handle(phase, this);
+      }
     }
+
 
     // See if this action was not permitted by any modifiers
     this.decidePermission();
-
     // Apply this action to the target, checking for permission and if still feasible
     if ((this.permitted && this.feasabilityCallback !== undefined ? this.feasabilityCallback(this) : true) || force) {
       this.applied = this.apply();
@@ -112,11 +113,14 @@ export abstract class Action {
     // Queue in the game
     Chaos.queueForBroadcast(this);
 
+    // Do any special teardown for this action (ie unloading areas of the world we've moved away from)
     this.teardown();
 
-    // Let all listeners react
-    for (const listener of this.listeners) {
-      listener.react(this);
+    // Handle all post-phases
+    for(const phase of Chaos.getPostPhases()) {
+      for(const listener of this.listeners) {
+        listener.handle(phase, this);
+      }
     }
 
     return this.applied;

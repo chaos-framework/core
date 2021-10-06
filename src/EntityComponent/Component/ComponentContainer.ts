@@ -1,4 +1,4 @@
-import { ComponentCatalog, Scope, Listener } from '../internal';
+import { Listener, ComponentCatalog, Scope } from '../../internal';
 
 export interface ComponentContainer extends Listener {
     id: string;
