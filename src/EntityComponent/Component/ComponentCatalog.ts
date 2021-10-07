@@ -59,8 +59,9 @@ export class ComponentCatalog {
   createComponentSubscriptions(component: Component) {
     for(const phase of Chaos.getPhases()) {
       if(typeof phase === 'string') {
-        const fn = (component as any)[phase];
+        let fn = (component as any)[phase];
         if(isActionFunction(fn)) {
+          fn = fn.bind(component);
           const scope = component.scope[phase];
           if(scope !== undefined && validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
             this.subscribeToOther(component, phase, fn, scope);

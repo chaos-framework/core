@@ -77,7 +77,7 @@ export function getPrePhases(): string[] {
 }
 
 export function getPostPhases(): string[] {
-  return prePhases;
+  return postPhases;
 }
 
 export function castAsClient(msg: CAST): string | undefined {
