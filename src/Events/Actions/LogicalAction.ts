@@ -1,7 +1,7 @@
 import { Entity, Component, Action, ActionParameters, ActionType, BroadcastType } from '../../internal';
 
 export class LogicalAction extends Action {
-  actionType: ActionType = ActionType.INVALID;
+  actionType: ActionType = ActionType.LOGICAL;
   broadcastType = BroadcastType.NONE;
 
   target?: Entity;

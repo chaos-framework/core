@@ -16,7 +16,6 @@ export class AttachComponentAction extends Action {
   apply(): boolean {
     return this.target._attach(this.component);
   }
-
 }
 
 export namespace AttachComponentAction {
@@ -24,7 +23,9 @@ export namespace AttachComponentAction {
     component: Component
   }
 
-  export interface Params extends EntityParams {
+  export interface ComponentParams extends ActionParameters {
     target: Entity;
   }
+
+  export interface Params extends EntityParams, ComponentParams { }
 }

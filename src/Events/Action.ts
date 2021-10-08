@@ -9,7 +9,6 @@ export abstract class Action {
   terminalMessage?: TerminalMessage | ((action: Action) => TerminalMessage);
   verb?: string;
 
-  // TODO implement player: Player;
   caster?: Entity;
   target?: Entity;
   using?: Entity | Component;
@@ -18,7 +17,9 @@ export abstract class Action {
   breadcrumbs: Set<string> = new Set<string>();
 
   public: boolean = false;    // whether or not nearby entities (who are not omnipotent) can modify/react
-  absolute: boolean = false;  // absolute actions do not get modified, likely come from admin / override code
+
+  skipPrePhases: boolean = false; // whether or not to run pre-phases
+  skipPostPhases: boolean = false; // whether or not to run post-phases
 
   private permissions: Map<number, Permission> = new Map<number, Permission>();
   permitted: boolean = true;
@@ -60,6 +61,13 @@ export abstract class Action {
     }
   }
 
+  // Upon execution this action will apply itself and broadcast -- no phases called
+  direct(): Action {
+    this.skipPrePhases = true;
+    this.skipPostPhases = true;
+    return this;
+  }
+
   // Set the optional callback to see if the action is still possible
   if(callback: (a?: Action) => boolean): Action {
     this.feasabilityCallback = callback;
@@ -67,19 +75,24 @@ export abstract class Action {
   }
 
   execute(force: boolean = false): boolean {
+    // console.log(''.padStart(this.nested, ' ') + this.actionType );
     this.initialize();
 
     // If target is unpublished, just run through locally attached components (these may need to do work before publishing)
     if (this.target && !this.target.isPublished() && !(this instanceof PublishEntityAction)) {
-      for(const phase of Chaos.getPrePhases()) {
-        this.target.handle(phase, this);
+      if (!this.skipPrePhases) {
+        for(const phase of Chaos.getPrePhases()) {
+          this.target.handle(phase, this);
+        }
       }
       this.decidePermission();
       if (this.permitted || force) {
         this.apply();
       }
-      for(const phase of Chaos.getPostPhases()) {
-        this.target.handle(phase, this);
+      if (!this.skipPostPhases) {
+        for(const phase of Chaos.getPostPhases()) {
+          this.target.handle(phase, this);
+        }
       }
       return true;
     }
@@ -93,12 +106,13 @@ export abstract class Action {
     }
 
     // Handle all pre-phases
-    for(const phase of Chaos.getPrePhases()) {
-      for(const listener of this.listeners) {
-        listener.handle(phase, this);
+    if (!this.skipPrePhases) {
+      for(const phase of Chaos.getPrePhases()) {
+        for(const listener of this.listeners) {
+          listener.handle(phase, this);
+        }
       }
     }
-
 
     // See if this action was not permitted by any modifiers
     this.decidePermission();
@@ -117,9 +131,11 @@ export abstract class Action {
     this.teardown();
 
     // Handle all post-phases
-    for(const phase of Chaos.getPostPhases()) {
-      for(const listener of this.listeners) {
-        listener.handle(phase, this);
+    if (!this.skipPostPhases) {
+      for(const phase of Chaos.getPostPhases()) {
+        for(const listener of this.listeners) {
+          listener.handle(phase, this);
+        }
       }
     }
 
@@ -200,6 +216,14 @@ export abstract class Action {
 
     // Add any additional listeners specified by the action
     this.additionalListeners.map(listener => this.addListener(listener));
+  }
+
+  handlePrePhases() {
+
+  }
+
+  handlePostPhases() {
+    
   }
 
   permit({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {

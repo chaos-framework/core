@@ -1,6 +1,7 @@
 
 import { v4 as uuid } from 'uuid';
-import { ComponentFunctionCollection, ComponentContainer, Printable, Action, Scope } from '../internal'
+import { AttachComponentAction, DetachComponentAction } from '..';
+import { ComponentFunctionCollection, ComponentContainer, Printable, Action, Scope, Entity } from '../internal'
 
 export type actionFunction = (action: Action) => boolean | undefined;
 export function isActionFunction(fn: any): fn is actionFunction {
@@ -45,17 +46,38 @@ export abstract class Component implements Printable {
 
   }
 
-  attach(parent: ComponentContainer) {
+  attach({target, caster, using, metadata}: AttachComponentAction.ComponentParams, force = false): AttachComponentAction {
+    return new AttachComponentAction({ target, caster, component: this, using, metadata });
+  }
+
+
+  _attach(parent: ComponentContainer) {
     this.parent = parent;
   }
 
-  detach() {
+  
+  detach({target, caster, using, metadata}: DetachComponentAction.ComponentParams, force = false): DetachComponentAction {
+    return new DetachComponentAction({ target, caster, component: this, using, metadata });
+  }
 
+  _detach() {
+    this.parent = undefined;
   }
 
   destroy(): boolean {
     // this.propertyModifications.map(mod => { mod.detach(); } );
     return true;
+  }
+
+  getParentEntity(): Entity | undefined {
+    if (this.parent !== undefined) {
+      if (this.parent instanceof Entity) {
+        return this.parent;
+      } else if (this.parent instanceof Component) {
+        return this.parent.getParentEntity();
+      }
+    }
+    return undefined;
   }
 
   serializeForClient(): Component.SerializedForClient {

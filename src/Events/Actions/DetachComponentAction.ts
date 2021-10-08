@@ -1,7 +1,7 @@
-import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal';
+import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType, ComponentContainer } from '../../internal';
 
 export class DetachComponentAction extends Action {
-  actionType: ActionType = ActionType.ATTACH_COMPONENT_ACTION;
+  actionType: ActionType = ActionType.DETACH_COMPONENT_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   target: Entity;
@@ -14,7 +14,8 @@ export class DetachComponentAction extends Action {
   }
 
   apply(): boolean {
-    return this.target._detach(this.component);
+    this.component.parent?.components.removeComponent(this.component);
+    return true;
   }
 
 }
@@ -24,7 +25,9 @@ export namespace DetachComponentAction {
     component: Component
   }
 
-  export interface Params extends EntityParams {
-    target: Entity;
+  export interface ComponentParams extends ActionParameters {
+    target: Entity
   }
+
+  export interface Params extends EntityParams, ComponentParams { }
 }
