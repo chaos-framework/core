@@ -140,7 +140,7 @@ export class NestedMap<T> {
 
   // Get the "first" entry, no guarantee of insertion order etc
   pluck(): T | undefined {
-    for (const [id, entry] of this.map.entries()) {
+    for (const [, entry] of this.map.entries()) {
       return entry;
     }
     return undefined;

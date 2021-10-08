@@ -190,13 +190,13 @@ export function queueForBroadcast(action: Action, to?: Player | Team) {
   }
   // Broadcast to everyone, if specified, or more specific clients
   if(action.broadcastType === BroadcastType.FULL) {
-    for(const [id, player] of players) {
+    for(const [, player] of players) {
       player.enqueueAction(action);
     }
   } else {
     // Broadcast out to either visibility type based on sense of relevent entities
     if(perceptionGrouping === 'team') {
-      for(const [id, team] of teams) {
+      for(const [, team] of teams) {
         if(
           (action.target && (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
           (action.caster && (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
@@ -206,7 +206,7 @@ export function queueForBroadcast(action: Action, to?: Player | Team) {
       }
       // TODO players without teams
     } else {
-      for(const [id, player] of players) {
+      for(const [, player] of players) {
         if(
           (action.target && (player.entities.has(action.target.id) || player.sensedEntities.has(action.target.id))) ||
           (action.caster && (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))
@@ -220,7 +220,7 @@ export function queueForBroadcast(action: Action, to?: Player | Team) {
 }
 
 export function broadcastAll() {
-  for(const [id, player] of players) {
+  for(const [, player] of players) {
     player.broadcast();
   }
 }
@@ -275,7 +275,7 @@ export function serializeForScope(viewer: Viewer): SerializedForClient {
   }
   // Gather all entities in sight
   const visibleEntities = viewer.getSensedAndOwnedEntities();
-  for(const [id, entity] of visibleEntities) {
+  for(const [, entity] of visibleEntities) {
     o.entities.push(entity.serializeForClient());
   }
   return o;

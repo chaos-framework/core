@@ -143,7 +143,7 @@ export abstract class World implements ComponentContainer, Listener {
   getEntitiesWithinRadius(origin: Vector, radius: number): Entity[] {
     const entities: Entity[] = []
     // TODO optimize to check for relevant chunks
-    for(const [id, entity] of this.entities) {
+    for(const [, entity] of this.entities) {
       if(entity && origin.withinRadius(entity.position, radius)) {
         entities.push(entity);
       }

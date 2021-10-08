@@ -34,8 +34,7 @@ export class PublishEntityAction extends Action {
   }
 
   apply(): boolean {
-    this.entity._publish(this.world, this.position);
-    return false;
+    return this.entity._publish(this.world, this.position);
   }
 
   serialize(): PublishEntityAction.Serialized {

@@ -147,15 +147,15 @@ export class ComponentCatalog {
   // Delete all components and terminate all incoming / outgoing subscriptions
   unpublish() {
     // Notify all external subscribers
-    for(const [id, subscription] of this.subscribers) {
+    for(const [, subscription] of this.subscribers) {
       subscription.subscriber.unsubscribe(subscription);
     }
     // Terminate all outgoing subscriptions
-    for(const [id, subscription] of this.subscriptions) {
+    for(const [, subscription] of this.subscriptions) {
       subscription.target.detach(subscription);
     }
     // Unpublish all contained components
-    for(const [id, component] of this.all) {
+    for(const [, component] of this.all) {
       component.unpublish();
     }
   }
@@ -191,7 +191,7 @@ export class ComponentCatalog {
   handle(phase: string, action: Action) {
     const functions = this.subscriberFunctionsByPhase.get(phase);
     if (functions !== undefined) {
-      for(const [id, fn] of functions) {
+      for(const [, fn] of functions) {
         fn(action);
       }
     }

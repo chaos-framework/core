@@ -168,7 +168,7 @@ export abstract class Action {
       }
 
       // Add all players that own this entity
-      for (const [id, player] of caster.players) {
+      for (const [, player] of caster.players) {
         this.addListener(player);
       }
 
@@ -196,7 +196,7 @@ export abstract class Action {
       this.addListener(target);
 
       // Add all players that own this entity
-      for (const [id, player] of target.players) {
+      for (const [, player] of target.players) {
         this.addListener(player);
       }
 

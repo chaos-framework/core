@@ -386,7 +386,7 @@ export class Entity implements ComponentContainer, Printable {
           scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
         }
       } else {
-        for(let [id, player] of this.players) {
+        for(let [, player] of this.players) {
           const scope = player.scopesByWorld.get(this.world.id);
           if(scope) {
             scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());

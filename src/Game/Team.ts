@@ -41,7 +41,7 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
 
   enqueueAction(a: Action) {
     // Queue broadcast for all players
-    for(const [id, player] of this.players) {
+    for(const [, player] of this.players) {
       player.enqueueAction(a);
     }
   }

@@ -92,6 +92,7 @@ describe('Worlds', () => {
     Chaos.reset();
     beforeEach(() => {
       room = new Room(100, 100);
+      // Place entities 5 tiles apart
       for(let x = 5; x <= 95; x += 5) {
         for(let y = 5; y <= 95; y += 5) {
           const e = new Entity();
