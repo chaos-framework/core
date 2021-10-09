@@ -75,12 +75,21 @@ export class ComponentCatalog {
 
   removeComponent(component: Component) {
     const id = component.id;
+    if(!this.all.has(id)) {
+      return; // sometimes bad chain of action functions will try to remove this component twice
+    }
     this.all.delete(id);
     // Stop tracking by name
     const arrayByName = this.byName.get(component.name)!;
-    arrayByName.splice(arrayByName.findIndex(c => c === component), 1);
-    if (arrayByName.length === 0) {
-      this.byName.delete(component.name);
+    if(arrayByName !== undefined) {
+      arrayByName.splice(arrayByName.findIndex(c => c === component), 1);
+      if (arrayByName.length === 0) {
+        this.byName.delete(component.name);
+      }
+    }
+    // Unhook all functions
+    for(const phase of Chaos.getPhases()) {
+      this.subscriberFunctionsByPhase.get(phase)?.delete(component.id);
     }
     // Terminate any outbound subscriptions this component is responsible for
     this.subscriptionsByComponent.get(id)?.forEach(subscription => {
