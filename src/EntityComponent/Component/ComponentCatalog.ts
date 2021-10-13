@@ -94,6 +94,7 @@ export class ComponentCatalog {
     // Terminate any outbound subscriptions this component is responsible for
     this.subscriptionsByComponent.get(id)?.forEach(subscription => {
       subscription.target.detach(subscription);
+      this.unsubscribe(subscription);
     });
     this.subscriptionsByComponent.delete(id);
   }
@@ -155,9 +156,11 @@ export class ComponentCatalog {
 
   // Delete all components and terminate all incoming / outgoing subscriptions
   unpublish() {
-    // Notify all external subscribers
+    // Notify all external subscribers and remove functions
     for(const [, subscription] of this.subscribers) {
+      const { phase, subscriber } = subscription;
       subscription.subscriber.unsubscribe(subscription);
+      this.subscriberFunctionsByPhase.get(phase)?.delete(subscriber.parent.id);
     }
     // Terminate all outgoing subscriptions
     for(const [, subscription] of this.subscriptions) {
@@ -167,6 +170,11 @@ export class ComponentCatalog {
     for(const [, component] of this.all) {
       component.unpublish();
     }
+  }
+
+  clear() {
+    this.all.clear();
+    this.clearSubscriptions();
   }
 
   // Subscribe one of these components to another catalog

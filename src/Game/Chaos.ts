@@ -44,6 +44,7 @@ export const reference: ComponentContainer = {
 export function reset() {
   entities.clear();
   components.unpublish();
+  components.clear();
   players.clear();
   playersWithoutTeams.clear();
   teams.clear();

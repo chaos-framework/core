@@ -13,7 +13,7 @@ export abstract class Component implements Printable {
   data: { [key: string]: any };
   parent?: ComponentContainer;
   readonly name: string = '';
-  tags = new Set<string>(); // usually frontend stuff, like filtering for traits vs statuses, etc
+  tags = new Set<string>();   // usually frontend stuff, like filtering for traits vs statuses, etc
   public: boolean = false;    // can other entities see this component? TODO: needed?
   broadcast: boolean = false; // do we tell client about this component at all?
   unique: boolean = true;     // whether or not more of one of this type of class can be attached to an entity
