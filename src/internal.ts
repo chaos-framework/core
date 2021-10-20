@@ -43,6 +43,7 @@ export { VisibilityType } from './Events/Enums';
 import ActionQueue from './Events/ActionQueue';
 // GAME AND WORLD
 export * as Chaos from './Game/Chaos';
+export { Game, isGame } from './Game/Game';
 export { Team } from './Game/Team';
 export { Player } from './Game/Player';
 import { Viewer, ActionQueuer } from './Game/Interfaces';

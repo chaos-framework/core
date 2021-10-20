@@ -1,5 +1,4 @@
 // tslint:disable: forin
-import { toArray } from 'lodash';
 import { v4 as uuid } from 'uuid';
 
 import { Chaos, Action, ComponentContainer, Player, WorldScope, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges } from '../internal';
