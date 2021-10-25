@@ -1,7 +1,7 @@
 import {
   Entity, Action, World, Component, Viewer, NestedChanges,
   Player, Team, ActionQueue, ComponentCatalog, ComponentContainer,
-  Scope, BroadcastType, VisibilityType, CAST
+  Scope, BroadcastType, VisibilityType, CAST, Hook
 } from "../internal";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
@@ -21,6 +21,8 @@ export const players: Map<string, Player> = new Map<string, Player>();
 export const playersWithoutTeams = new Map<string, Player>();
 
 export const actionQueue = new ActionQueue();
+
+export let hooks = new Array<Hook>();
 
 export let currentTurn: Entity | Player | Team | undefined = undefined;
 export let viewDistance = 6; // how far (in chunks) to load around active entities
@@ -50,6 +52,7 @@ export function reset() {
   teams.clear();
   teamsByName.clear();
   worlds.clear();
+  hooks = new Array<Hook>();
   currentTurn = undefined;
 }
 
@@ -79,6 +82,17 @@ export function getPrePhases(): string[] {
 
 export function getPostPhases(): string[] {
   return postPhases;
+}
+
+export function attachHook(hook: Hook) {
+  hooks.push(hook);
+}
+
+export function detachHook(hook: Hook) {
+  const i = hooks.findIndex(existing => existing === hook);
+  if (i > -1) {
+    hooks.splice(i, 1);
+  }
 }
 
 export function castAsClient(msg: CAST): string | undefined {
@@ -111,9 +125,16 @@ export function process() {
   let action = actionQueue.getNextAction();
   while(action !== undefined) {
     action.execute();
+    broadcastToHooks(action);
     action = actionQueue.getNextAction();
   }
   broadcastAll();
+}
+
+function broadcastToHooks(action: Action) {
+  for (const hook of hooks) {
+    hook(action);
+  }
 }
 
 export function addWorld(world: World): boolean {

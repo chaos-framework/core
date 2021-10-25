@@ -57,6 +57,7 @@ export { Server } from './ClientServer/Server'
 export { Client } from './ClientServer/Client'
 import ActionDeserializer from './ClientServer/ActionDeserializer';
 export { ActionDeserializer };
+export { Hook } from './ClientServer/Hook';
 export { Printable, isPrintable } from './ClientServer/Terminal/Printable';
 export { TerminalMessage } from './ClientServer/Terminal/TerminalMessage';
 export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessageFragment';
