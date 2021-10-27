@@ -1,7 +1,7 @@
 import {
   Entity, Action, World, Component, Viewer, NestedChanges,
   Player, Team, ActionQueue, ComponentCatalog, ComponentContainer,
-  Scope, BroadcastType, VisibilityType, CAST, Hook
+  Scope, BroadcastType, VisibilityType, CAST, ExecutionHook, ActionHook
 } from "../internal";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
@@ -20,9 +20,10 @@ export const teamsByName: Map<string, Team> = new Map<string, Team>();
 export const players: Map<string, Player> = new Map<string, Player>();
 export const playersWithoutTeams = new Map<string, Player>();
 
-export const actionQueue = new ActionQueue();
+export let actionQueue = new ActionQueue();
 
-export let hooks = new Array<Hook>();
+export let actionHooks = new Array<ActionHook>();
+export let executionHooks = new Array<ExecutionHook>();
 
 export let currentTurn: Entity | Player | Team | undefined = undefined;
 export let viewDistance = 6; // how far (in chunks) to load around active entities
@@ -52,7 +53,9 @@ export function reset() {
   teams.clear();
   teamsByName.clear();
   worlds.clear();
-  hooks = new Array<Hook>();
+  actionQueue = new ActionQueue();
+  actionHooks = new Array<ActionHook>();
+  executionHooks = new Array<ExecutionHook>();
   currentTurn = undefined;
 }
 
@@ -84,14 +87,25 @@ export function getPostPhases(): string[] {
   return postPhases;
 }
 
-export function attachHook(hook: Hook) {
-  hooks.push(hook);
+export function attachExecutionHook(hook: ExecutionHook) {
+  executionHooks.push(hook);
 }
 
-export function detachHook(hook: Hook) {
-  const i = hooks.findIndex(existing => existing === hook);
+export function detachExecutionHook(hook: ExecutionHook) {
+  const i = executionHooks.findIndex(existing => existing === hook);
   if (i > -1) {
-    hooks.splice(i, 1);
+    executionHooks.splice(i, 1);
+  }
+}
+
+export function attachActionHook(hook: ActionHook) {
+  actionHooks.push(hook);
+}
+
+export function detachActionHook(hook: ActionHook) {
+  const i = actionHooks.findIndex(existing => existing === hook);
+  if (i > -1) {
+    actionHooks.splice(i, 1);
   }
 }
 
@@ -122,18 +136,27 @@ export function castAsClient(msg: CAST): string | undefined {
 }
 
 export function process() {
+  const actionsThisProcess: Action[] = [];
   let action = actionQueue.getNextAction();
   while(action !== undefined) {
+    actionsThisProcess.push(action);
     action.execute();
-    broadcastToHooks(action);
+    broadcastToActionHooks(action);
     action = actionQueue.getNextAction();
   }
-  broadcastAll();
+  broadcastToExecutionHooks(actionsThisProcess);
+  broadcastAll(); // TODO make this conditional on server role?
 }
 
-function broadcastToHooks(action: Action) {
-  for (const hook of hooks) {
+function broadcastToActionHooks(action: Action) {
+  for (const hook of actionHooks) {
     hook(action);
+  }
+}
+
+function broadcastToExecutionHooks(actions: Action[]) {
+  for (const hook of executionHooks) {
+    hook(actions);
   }
 }
 
