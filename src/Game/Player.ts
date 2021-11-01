@@ -3,9 +3,10 @@ import { v4 as uuid } from 'uuid';
 import { MessageType } from '../ClientServer/Messages/Types';
 import { OwnEntityAction } from '../Events/Actions/OwnEntityAction';
 import { Chaos, Team, Action, Entity, WorldScope, Client, NestedMap, PublishPlayerAction, ComponentContainer, ComponentCatalog, Scope } from '../internal';
-import { VisibilityType } from '../internal';
 import { NestedChanges } from '../Util/NestedMap';
 import { Viewer, ActionQueuer } from './Interfaces';
+
+// TODO clean up above imports
 
 export class Player implements Viewer, ActionQueuer, ComponentContainer {
   id: string = uuid();
