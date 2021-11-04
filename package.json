@@ -1,7 +1,21 @@
 {
   "name": "@chaos-framework/core",
   "version": "0.0.1",
-  "description": "",
+  "description": "Tile- and turn-based Typescript game framework.",
+  "keywords": [
+    "chaos",
+    "framework",
+    "game development",
+    "roguelike",
+    "rpg"
+  ],
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Andrew Peterson",
+      "email": "and0@outlook.com"
+    }
+  ],
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
@@ -15,11 +29,7 @@
     "type": "git",
     "url": "git+https://github.com/chaos-framework/core.git"
   },
-  "keywords": [
-    "chaos"
-  ],
   "author": "Andrew Peterson",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/chaos-framework/core/issues"
   },
