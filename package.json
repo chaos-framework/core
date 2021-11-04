@@ -1,5 +1,5 @@
 {
-  "name": "@chaos/core",
+  "name": "@chaos-framework/core",
   "version": "0.0.1",
   "description": "",
   "main": "./lib/index.js",
@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/and0p/chaos-core.git"
+    "url": "git+https://github.com/chaos-framework/core.git"
   },
   "keywords": [
     "chaos"
@@ -21,9 +21,9 @@
   "author": "Andrew Peterson",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/and0p/chaos-core/issues"
+    "url": "https://github.com/chaos-framework/core/issues"
   },
-  "homepage": "https://github.com/and0p/chaos-core#readme",
+  "homepage": "https://github.com/chaos-framework/core#readme",
   "devDependencies": {
     "@types/assert": "^1.5.4",
     "@types/bresenham": "0.0.0",

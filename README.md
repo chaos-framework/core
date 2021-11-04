@@ -1,8 +1,10 @@
-# @chaos/core
+# Chaos Framework -- Core Library
 
-Node/Typescript game engine
+Typescript game framework
 
-* Tile-based.
-* Single or multiplayer.
+* Tile- and turn-based.
+* Single or multiplayer (fully client-server architected)
 * Unopinionated entity-component architecture.
-* Highly opinionated event/message pattern.
+* Highly opinionated message pattern.
+
+Created and maintained by @and0p
