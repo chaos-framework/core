@@ -144,7 +144,9 @@ export function process() {
     broadcastToActionHooks(action);
     action = actionQueue.getNextAction();
   }
-  broadcastToExecutionHooks(actionsThisProcess);
+  if(actionsThisProcess.length > 0) {
+    broadcastToExecutionHooks(actionsThisProcess);
+  }
   broadcastAll(); // TODO make this conditional on server role?
 }
 
