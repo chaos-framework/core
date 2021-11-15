@@ -6,7 +6,7 @@ import {
 
 export let id: string = "Unnamed Game";  // Name of loaded game
 
-export const APPLY = -1;
+let processing = false;
 
 let phases = ['modify', 'permit', 'react', 'output']
 let prePhases = ['modify', 'permit'];
@@ -26,6 +26,7 @@ export let actionHooks = new Array<ActionHook>();
 export let executionHooks = new Array<ExecutionHook>();
 
 export let currentTurn: Entity | Player | Team | undefined = undefined;
+export let currentTurnSetAt: number = Date.now();
 export let viewDistance = 6; // how far (in chunks) to load around active entities
 export let inactiveViewDistance = 1; // how far (in chunks) to load around inactive entities when they enter an inactive world to check for permissions / modifiers
 export let listenDistance = 25; // how far in tiles to let local entities listen to actions around casters and targets
@@ -136,6 +137,10 @@ export function castAsClient(msg: CAST): string | undefined {
 }
 
 export function process() {
+  if(processing === true) {
+    return;
+  }
+  processing = true;
   const actionsThisProcess: Action[] = [];
   let action = actionQueue.getNextAction();
   while(action !== undefined) {
@@ -148,6 +153,7 @@ export function process() {
     broadcastToExecutionHooks(actionsThisProcess);
   }
   broadcastAll(); // TODO make this conditional on server role?
+  processing = false;
 }
 
 function broadcastToActionHooks(action: Action) {

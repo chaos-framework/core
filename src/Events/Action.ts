@@ -7,6 +7,7 @@ export abstract class Action {
   broadcastType: BroadcastType = BroadcastType.FULL;
 
   terminalMessage?: TerminalMessage | ((action: Action) => TerminalMessage);
+  generatedMessage?: TerminalMessage;
   verb?: string;
 
   caster?: Entity;
@@ -138,6 +139,8 @@ export abstract class Action {
         }
       }
     }
+
+    Chaos.process();
 
     return this.applied;
   }
@@ -363,8 +366,11 @@ export abstract class Action {
 
   generateMessage(): void {
     // Run the callback to generate a message
-    if(this.terminalMessage !== undefined && !(this.terminalMessage instanceof TerminalMessage)) {
-      this.terminalMessage = this.terminalMessage(this);
+    if (this.terminalMessage !== undefined) {
+      if (!(this.terminalMessage instanceof TerminalMessage)) {
+        this.terminalMessage = this.terminalMessage(this);
+      }
+      this.generatedMessage = this.terminalMessage;
     }
   };
 

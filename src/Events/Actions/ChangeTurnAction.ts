@@ -7,6 +7,7 @@ export class ChangeTurnAction extends Action {
   broadcastType = BroadcastType.FULL;
 
   to: Entity | Player | Team | undefined;
+  appliedAt?: number;
 
   constructor({ caster,to, using, metadata }: ChangeTurnAction.Params) {
     super({caster, using, metadata });
@@ -14,10 +15,12 @@ export class ChangeTurnAction extends Action {
   }
 
   apply(): boolean {
+    this.appliedAt = Date.now();
     if(Chaos.currentTurn === this.to) {
       return false;
     } else {
       Chaos.currentTurn = this.to;
+      Chaos.currentTurnSetAt = this.appliedAt;
       return true;
     }
   }
