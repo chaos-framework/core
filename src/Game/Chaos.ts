@@ -21,6 +21,7 @@ export const players: Map<string, Player> = new Map<string, Player>();
 export const playersWithoutTeams = new Map<string, Player>();
 
 export let actionQueue = new ActionQueue();
+let actionsThisProcess: Action[] = [];
 
 export let actionHooks = new Array<ActionHook>();
 export let executionHooks = new Array<ExecutionHook>();
@@ -136,23 +137,28 @@ export function castAsClient(msg: CAST): string | undefined {
   }
 }
 
-export function process() {
+export function process(action?: Action) {
   if(processing === true) {
+    // Reactions fire on their own before the original finishes, so we have to make sure to let hooks see it
+    if(action?.inReactionTo !== undefined) {
+      actionsThisProcess.push(action);
+      broadcastToActionHooks(action);
+    }
     return;
   }
   processing = true;
-  const actionsThisProcess: Action[] = [];
-  let action = actionQueue.getNextAction();
-  while(action !== undefined) {
-    actionsThisProcess.push(action);
-    action.execute();
-    broadcastToActionHooks(action);
-    action = actionQueue.getNextAction();
+  let nextAction = actionQueue.getNextAction();
+  while(nextAction !== undefined) {
+    actionsThisProcess.push(nextAction);
+    nextAction.execute();
+    broadcastToActionHooks(nextAction);
+    nextAction = actionQueue.getNextAction();
   }
   if(actionsThisProcess.length > 0) {
     broadcastToExecutionHooks(actionsThisProcess);
   }
   broadcastAll(); // TODO make this conditional on server role?
+  actionsThisProcess = [];
   processing = false;
 }
 

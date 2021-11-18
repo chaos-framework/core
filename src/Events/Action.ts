@@ -47,6 +47,7 @@ export abstract class Action {
 
   followups: (Action | Event)[] = [];
   reactions: Action[] = [];
+  inReactionTo?: Action;
 
   // Function to run to check if the action is still feasible after any modifiers / counters etc
   feasabilityCallback?: (a?: Action) => boolean;
@@ -146,7 +147,7 @@ export abstract class Action {
     // Generate terminal message
     this.generateMessage();
 
-    Chaos.process();
+    Chaos.process(this);
 
     return this.applied;
   }
@@ -303,6 +304,7 @@ export abstract class Action {
   react(action: Action): boolean {
     this.reactions.push(action);
     action.nested = this.nested + 1;
+    action.inReactionTo = this;
     if (action.nested < 10) {
       this.reactions.push(action);
       return action.execute();
