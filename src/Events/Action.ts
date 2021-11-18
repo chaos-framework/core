@@ -1,6 +1,7 @@
+import { TerminalMessageFragment } from '..';
 import { TerminalMessage } from '../ClientServer/Terminal/TerminalMessage';
 import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
-  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector } from '../internal';
+  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable } from '../internal';
 
 export abstract class Action {
   actionType: ActionType = ActionType.INVALID;
@@ -22,7 +23,7 @@ export abstract class Action {
   skipPrePhases: boolean = false; // whether or not to run pre-phases
   skipPostPhases: boolean = false; // whether or not to run post-phases
 
-  private permissions: Map<number, Permission> = new Map<number, Permission>();
+  permissions: Map<number, Permission> = new Map<number, Permission>();
   permitted: boolean = true;
   applied: boolean = false;
   decidingPermission?: Permission;
@@ -75,6 +76,11 @@ export abstract class Action {
     return this;
   }
 
+  withMessage(...items: (string | Printable | TerminalMessageFragment | undefined)[]) {
+    this.terminalMessage = new TerminalMessage(...items);
+    return this;
+  }
+
   execute(force: boolean = false): boolean {
     // console.log(''.padStart(this.nested, ' ') + this.actionType );
     this.initialize();
@@ -122,9 +128,6 @@ export abstract class Action {
       this.applied = this.apply();
     }
 
-    // Generate terminal message
-    this.generateMessage();
-
     // Queue in the game
     Chaos.queueForBroadcast(this);
 
@@ -139,6 +142,9 @@ export abstract class Action {
         }
       }
     }
+
+    // Generate terminal message
+    this.generateMessage();
 
     Chaos.process();
 
