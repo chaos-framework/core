@@ -1,8 +1,7 @@
 import { v4 as uuid } from 'uuid';
-import { CachesSensedEntities } from '..';
 import { Printable } from '../ClientServer/Terminal/Printable';
 import {
-  Chaos, Vector, World,
+  Chaos, Vector, World, CachesSensedEntities,
   Component, ComponentContainer, ComponentCatalog, Event, Action,
   Ability, Property, AttachComponentAction,
   ChangeWorldAction, MoveAction, RelativeMoveAction,

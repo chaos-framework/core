@@ -1,4 +1,4 @@
-import { Vector } from '..';
+import { Vector } from '../internal';
 const CHUNK_WIDTH = 16;
 import Chunk, { IChunk } from './Chunk';
 

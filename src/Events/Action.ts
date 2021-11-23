@@ -1,7 +1,7 @@
-import { TerminalMessageFragment } from '..';
-import { TerminalMessage } from '../ClientServer/Terminal/TerminalMessage';
 import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
-  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable } from '../internal';
+  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable,
+  TerminalMessageFragment, TerminalMessage
+} from '../internal';
 
 export abstract class Action {
   actionType: ActionType = ActionType.INVALID;

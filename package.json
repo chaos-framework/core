@@ -2,6 +2,7 @@
   "name": "@chaos-framework/core",
   "version": "0.0.1",
   "description": "Tile- and turn-based Typescript game framework.",
+  "type": "module",
   "keywords": [
     "chaos",
     "framework",

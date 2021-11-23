@@ -1,5 +1,4 @@
-import { Action, Chaos } from '../..';
-import { Component, Subscription, ComponentContainer, Scope, World, Entity } from '../../internal';
+import { Action, Chaos, Component, Subscription, ComponentContainer, Scope, World, Entity } from '../../internal';
 import { actionFunction, isActionFunction } from '../Component';
 
 const validSubscriptions = {

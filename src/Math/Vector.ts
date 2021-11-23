@@ -1,5 +1,5 @@
 import { clamp, toInteger } from 'lodash';
-import bresenham = require("bresenham")
+import { bresenham } from 'bresenham';
 
 const CHUNK_WIDTH = 16;
 
