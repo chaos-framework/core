@@ -3,7 +3,7 @@ import 'mocha';
 
 import { LearnAbilityAction, Entity, Chaos } from '../../../../src/internal.js';
 
-import EmptyAbility from '../../../Mocks/Abilities/Empty';
+import EmptyAbility from '../../../Mocks/Abilities/Empty.js';
 
 describe('LearnAbilityAction Action', () => {
   let e: Entity;

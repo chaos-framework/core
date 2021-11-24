@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { basicTiles, BasicTiles } from '../../Mocks/Layers/BasicLayer';
-import Room from '../../Mocks/Worlds/Room';
+import { basicTiles, BasicTiles } from '../../Mocks/Layers/BasicLayer.js';
+import Room from '../../Mocks/Worlds/Room.js';
 
 describe('World Integration Testing', () => {
   describe('World creation', () => {

@@ -4,7 +4,6 @@ import { validate as validateUuid } from 'uuid';
 
 import { Chaos, Team, Player, Entity } from '../../../src/internal.js';
 
-
 describe('Player', () => {
   let team: Team;
   let otherTeam: Team;
@@ -58,13 +57,13 @@ describe('Player', () => {
     });
 
     it('Has own scope and entities tracked if visibility grouping is at player level', () => {
-      Chaos.perceptionGrouping = 'player'; // default
+      Chaos.setPerceptionGrouping('player'); // default
       const player = new Player({ username: 'Test', team: team.id });
       expect(player.scopesByWorld != team.scopesByWorld).to.be.true;
     });
 
     it('Shares scope and entities in sight with a team if visibility grouping is at team level', () => {
-      Chaos.perceptionGrouping = 'team';
+      Chaos.setPerceptionGrouping('team');
       const player = new Player({ username: 'Test', team: team.id });
       expect(player.scopesByWorld === team.scopesByWorld).to.be.true;
     });

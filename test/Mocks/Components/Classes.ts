@@ -1,6 +1,6 @@
 import { Component, Action, AttachComponentAction } from '../../../src/internal.js';
 
-import { Heal } from '../Abilities/Spells';
+import { Heal } from '../Abilities/Spells.js';
 
 export class Paladin extends Component {
   name = 'Paladin';

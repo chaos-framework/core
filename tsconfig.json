@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "experimentalDecorators": true,
-    "module": "ES2020",
+    "module": "esnext",
     "declaration": true,
     "outDir": "./lib",
     "strict": true,

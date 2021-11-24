@@ -3,8 +3,8 @@ import 'mocha';
 
 import { Action, Entity, Chaos, MoveAction, RelativeMoveAction, Vector, Player, Team } from '../../../src/internal.js';
 
-import Room from '../../Mocks/Worlds/Room';
-import { SensesAll } from '../../Mocks/Components/Functional';
+import Room from '../../Mocks/Worlds/Room.js';
+import { SensesAll } from '../../Mocks/Components/Functional.js';
 
 describe('Action Integration', () => {
   describe('Caches sensory information from all involved entities', () => {
@@ -94,7 +94,7 @@ describe('Action Integration', () => {
         action = new RelativeMoveAction({ 
           caster, target, amount: new Vector(1, 0)
         });
-        Chaos.listenDistance = 25; // the default, but enforcing just in case
+        Chaos.setListenDistance(25); // the default, but enforcing just in case
       });
 
       it('Includes caster, target, their worlds, witnesses in respective worlds, and the game', () => {

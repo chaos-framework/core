@@ -3,7 +3,7 @@ import 'mocha';
 
 import { UnpublishEntityAction, Entity, Chaos, Vector, ActionType } from '../../../../src/internal.js';
 
-import Room from '../../../Mocks/Worlds/Room';
+import Room from '../../../Mocks/Worlds/Room.js';
 
 describe('UnpublishEntityAction', () => {
   let entity: Entity;

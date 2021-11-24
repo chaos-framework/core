@@ -1,6 +1,6 @@
 import { Component, Action, PropertyChangeAction, EquipItemAction } from '../../../src/internal.js';
 
-import { Slash, Stab } from '../Abilities/Attacks';
+import { Slash, Stab } from '../Abilities/Attacks.js';
 
 export class Sword extends Component {
   name = "Sword";

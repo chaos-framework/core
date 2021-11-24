@@ -1,6 +1,6 @@
 import { World, Vector } from '../../../src/internal.js';
 
-import BasicLayer, { BasicTiles } from '../Layers/BasicLayer';
+import BasicLayer, { BasicTiles } from '../Layers/BasicLayer.js';
 
 export default class Room extends World {
   readonly stageLeft: Vector;

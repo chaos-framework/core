@@ -3,7 +3,7 @@ import 'mocha';
 
 import { ForgetAbilityAction, Entity, Chaos } from '../../../../src/internal.js';
 
-import EmptyAbility from '../../../Mocks/Abilities/Empty';
+import EmptyAbility from '../../../Mocks/Abilities/Empty.js';
 
 describe('ForgetAbilityAction Action', () => {
   let e: Entity;

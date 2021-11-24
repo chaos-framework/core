@@ -3,7 +3,7 @@ import 'mocha';
 
 import { DetachComponentAction, Entity, Chaos, Component } from '../../../../src/internal.js';
 
-import { EmptyComponent } from '../../../Mocks/Components/Functional';
+import { EmptyComponent } from '../../../Mocks/Components/Functional.js';
 
 describe('DetachComponentAction', () => {
   let entity: Entity;

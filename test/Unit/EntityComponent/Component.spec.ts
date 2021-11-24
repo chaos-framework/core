@@ -3,8 +3,8 @@ import 'mocha';
 
 import { Component, DisplayComponent } from '../../../src/internal.js';
 
-import { Paladin } from '../../Mocks/Components/Classes';
-import { EmptyComponent } from '../../Mocks/Components/Functional';
+import { Paladin } from '../../Mocks/Components/Classes.js';
+import { EmptyComponent } from '../../Mocks/Components/Functional.js';
 
 describe('Component', () => {
 

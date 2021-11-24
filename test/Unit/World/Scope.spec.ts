@@ -28,7 +28,7 @@ describe ('WorldScopes', () => {
   });
 
   it('Can add multiple viewers, which adds new references but does not increase scope', () => {
-    Chaos.viewDistance = 0;
+    Chaos.setViewDistance(0);
     const v = new Vector(0, 0);
     const key = v.getIndexString();
     scope.addViewer('1', Chaos.viewDistance, v);
@@ -40,7 +40,7 @@ describe ('WorldScopes', () => {
   });
 
   it('Can remove viewers, which keeps chunks with other viewers active', () => {
-    Chaos.viewDistance = 0;
+    Chaos.setViewDistance(0);
     const v = new Vector(0, 0);
     const key = v.getIndexString();
     scope.addViewer('1', Chaos.viewDistance, v);
@@ -52,7 +52,7 @@ describe ('WorldScopes', () => {
   });
 
   it('Can move and only change newly covered/uncovered chunks', () => {
-    Chaos.viewDistance = 1;
+    Chaos.setViewDistance(1);
     // View will be a 3x3 grid starting at 0, 0
     const from = new Vector(1, 1);
     const to = new Vector(2, 1);
@@ -69,7 +69,7 @@ describe ('WorldScopes', () => {
   });
 
   it('Does not track anything outside the size of a fixed-size world', () => {
-    Chaos.viewDistance = 5;
+    Chaos.setViewDistance(5);
     scope.addViewer('', Chaos.viewDistance, new Vector(0, 0));
     expect(scope.active.has(new Vector(-1, -1).getIndexString())).to.be.false;
     scope.addViewer('', Chaos.viewDistance, new Vector(15, 15));
@@ -79,7 +79,7 @@ describe ('WorldScopes', () => {
 
   it('Does not track anything northwest of zero coordinates in a streaming world', () => {
     scope = new WorldScope(); // infinite / streaming
-    Chaos.viewDistance = 5;
+    Chaos.setViewDistance(5);
     scope.addViewer('', Chaos.viewDistance, new Vector(0, 0));
     expect(scope.active.has(new Vector(-1, -1).getIndexString())).to.be.false;
     scope.addViewer('', Chaos.viewDistance, new Vector(15, 15));

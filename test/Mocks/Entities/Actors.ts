@@ -2,8 +2,6 @@ import { Entity } from '../../../src/internal.js';
 import { Paladin } from '../Components/Classes';
 import { Humanoid, Physical, Undead } from '../Components/Traits';
 import { createSilverSword } from '../Entities/Items';
-import Property from '../../../src/EntityComponent/Properties/Property';
-import Value from '../../../src/EntityComponent/Properties/Value';
 
 const addRPGStats = (e: Entity, maxHp: number, maxMa: number): Entity => {
   e._addProperty('HP', maxHp, undefined, maxHp); // Hit Points

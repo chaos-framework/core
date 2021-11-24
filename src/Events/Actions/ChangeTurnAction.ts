@@ -19,8 +19,8 @@ export class ChangeTurnAction extends Action {
     if(Chaos.currentTurn === this.to) {
       return false;
     } else {
-      Chaos.currentTurn = this.to;
-      Chaos.currentTurnSetAt = this.appliedAt;
+      Chaos.setCurrentTurn(this.to);
+      Chaos.setCurrentTurnSetAt(this.appliedAt);
       return true;
     }
   }

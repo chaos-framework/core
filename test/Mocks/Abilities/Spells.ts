@@ -1,6 +1,6 @@
 import { Entity, Ability, OptionalCastParameters, Event } from '../../../src/internal.js';
 
-import { SimpleEvent } from '../Events/SimpleEvent';
+import { SimpleEvent } from '../Events/SimpleEvent.js';
 
 export class Heal extends Ability {
   name = "Heal";

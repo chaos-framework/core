@@ -21,7 +21,7 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "env DEBUG=true mocha"
+    "test": "mocha"
   },
   "files": [
     "lib/**/*"
@@ -38,31 +38,32 @@
   "devDependencies": {
     "@types/assert": "^1.5.4",
     "@types/bresenham": "0.0.0",
-    "@types/chai": "^4.2.14",
+    "@types/chai": "^4.2.22",
     "@types/jest": "^26.0.20",
     "@types/lodash": "^4.14.168",
-    "@types/mocha": "^8.2.0",
-    "@types/node": "^14.14.22",
+    "@types/lodash-es": "^4.17.5",
+    "@types/mocha": "^8.2.3",
+    "@types/node": "^14.17.34",
     "@types/uuid": "^8.3.0",
     "assert": "^2.0.0",
-    "chai": "^4.2.0",
+    "chai": "^4.3.4",
     "i": "^0.3.6",
     "jest": "^26.6.3",
-    "mocha": "^8.2.1",
-    "npm": "^6.14.11",
+    "mocha": "^8.4.0",
+    "npm": "^6.14.15",
     "prettier": "^2.2.1",
     "ts-jest": "^26.5.0",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.4.0",
     "tslint": "^6.1.3",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^4.1.3"
+    "typescript": "^4.5.2"
   },
   "build": "tsc",
   "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
   "lint": "tslint -p tsconfig.json",
   "dependencies": {
     "bresenham": "0.0.4",
-    "lodash": "^4.17.20",
+    "lodash-es": "^4.17.21",
     "queue-typescript": "^1.0.1",
     "uuid": "^8.3.2"
   }

@@ -1,5 +1,6 @@
 import { IChunk, World } from '../../../src/internal.js';
-import BasicLayer, { BasicTiles, basicTiles } from '../Layers/BasicLayer';
+
+import BasicLayer, { BasicTiles, basicTiles } from '../Layers/BasicLayer.js';
 
 const CHUNK_WIDTH = 16;
 

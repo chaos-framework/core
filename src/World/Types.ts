@@ -1,4 +1,4 @@
-import { clamp } from 'lodash';
+import { clamp } from 'lodash-es';
 import { Chunk } from "../internal.js"
 
 // Clamps values from 0-255 and serializes them efficiently

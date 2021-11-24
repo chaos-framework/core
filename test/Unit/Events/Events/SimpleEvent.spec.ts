@@ -3,7 +3,7 @@ import 'mocha';
 
 import { Entity, Vector } from '../../../../src/internal.js';
 
-import { SimpleEvent } from '../../../Mocks/Events/SimpleEvent'
+import { SimpleEvent } from '../../../Mocks/Events/SimpleEvent.js'
 
 
 describe('Simple Events', () => {

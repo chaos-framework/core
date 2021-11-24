@@ -27,11 +27,17 @@ export let actionHooks = new Array<ActionHook>();
 export let executionHooks = new Array<ExecutionHook>();
 
 export let currentTurn: Entity | Player | Team | undefined = undefined;
+export function setCurrentTurn(to: Entity | Player | Team | undefined) { currentTurn = to }
 export let currentTurnSetAt: number = Date.now();
+export function setCurrentTurnSetAt(time?: number) { currentTurnSetAt = time !== undefined ? time : Date.now() }
+
 export let viewDistance = 6; // how far (in chunks) to load around active entities
+export function setViewDistance(distance: number) { viewDistance = distance; }
 export let inactiveViewDistance = 1; // how far (in chunks) to load around inactive entities when they enter an inactive world to check for permissions / modifiers
 export let listenDistance = 25; // how far in tiles to let local entities listen to actions around casters and targets
+export function setListenDistance(distance: number) { listenDistance = distance; }
 export let perceptionGrouping: 'player' | 'team' = 'player';
+export function setPerceptionGrouping(value: 'player' | 'team') { perceptionGrouping = value }
 
 // Kind of an ugly way to let the top-level game own components and link into event system
 let initialReference: any = {

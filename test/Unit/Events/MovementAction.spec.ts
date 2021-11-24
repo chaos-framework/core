@@ -3,7 +3,7 @@ import 'mocha';
 
 import { Entity, ChangeWorldAction, Chaos } from '../../../src/internal.js';
 
-import Room from '../../Mocks/Worlds/Room';
+import Room from '../../Mocks/Worlds/Room.js';
 
 describe('World Changing Actions', () => {
   let room1: Room;

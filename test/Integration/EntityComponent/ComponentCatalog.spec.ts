@@ -5,8 +5,8 @@ import 'mocha';
 
 import { Component, Entity, Chaos } from '../../../src/internal.js';
 
-import Room from '../../Mocks/Worlds/Room';
-import { EntityScopeSpecified, GameScopeSpecified, NoScopeSpecified, WorldScopeSpecified } from '../../Mocks/Components/Functional';
+import Room from '../../Mocks/Worlds/Room.js';
+import { EntityScopeSpecified, GameScopeSpecified, NoScopeSpecified, WorldScopeSpecified } from '../../Mocks/Components/Functional.js';
 
 describe('ComponentCatalog and ComponentContainer integration', () => {
   let entity: Entity;

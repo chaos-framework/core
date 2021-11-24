@@ -3,7 +3,7 @@ import 'mocha';
 
 import { RelativeMoveAction, Entity, Chaos, Vector, ActionType } from '../../../../src/internal.js';
 
-import Room from '../../../Mocks/Worlds/Room';
+import Room from '../../../Mocks/Worlds/Room.js';
 
 describe('MoveAction', () => {
   let target: Entity;

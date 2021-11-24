@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { ComponentCatalog, Entity, Chaos } from '../../../src/internal.js';
-import { EmptyComponent } from '../../Mocks/Components/Functional';
+import { EmptyComponent } from '../../Mocks/Components/Functional.js';
 
-import Room from '../../Mocks/Worlds/Room';
+import Room from '../../Mocks/Worlds/Room.js';
 
 describe('ComponentCatalog', () => {
 

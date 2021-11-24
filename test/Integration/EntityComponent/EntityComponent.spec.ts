@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { Component, Entity, Chaos } from '../../../src/internal.js';
-import { EmptyComponent } from '../../Mocks/Components/Functional';
+import { EmptyComponent } from '../../Mocks/Components/Functional.js';
 
 describe('Entity-Component relationships', function () {
   this.beforeEach(function () {

@@ -4,7 +4,6 @@ import { v4 as uuid } from 'uuid';
 
 import { Team, Chaos } from '../../../src/internal.js';
 
-
 describe('Team', () => {
   let team: Team;
   beforeEach(() => {

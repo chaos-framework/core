@@ -3,12 +3,12 @@ import 'mocha';
 
 import { Entity, Ability, Component, CachesSensedEntities } from '../../../src/internal.js';
 
-import Room from '../../Mocks/Worlds/Room';
-import EmptyAbility from '../../Mocks/Abilities/Empty';
-import { Heal }  from '../../Mocks/Abilities/Spells';
-import { Paladin } from '../../Mocks/Components/Classes';
-import { NonBroadcastingComponent } from '../../Mocks/Components/NonBroadcastingComponent';
-import { Eyes } from '../../Mocks/Components/Sensors';
+import Room from '../../Mocks/Worlds/Room.js';
+import EmptyAbility from '../../Mocks/Abilities/Empty.js';
+import { Heal }  from '../../Mocks/Abilities/Spells.js';
+import { Paladin } from '../../Mocks/Components/Classes.js';
+import { NonBroadcastingComponent } from '../../Mocks/Components/NonBroadcastingComponent.js';
+import { Eyes } from '../../Mocks/Components/Sensors.js';
 
 describe('Entity', () => {
 

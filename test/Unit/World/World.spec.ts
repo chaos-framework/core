@@ -3,8 +3,8 @@ import 'mocha';
 
 import { Chaos, Entity, Vector, World } from '../../../src/internal.js';
 
-import Room from '../../Mocks/Worlds/Room';
-import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld';
+import Room from '../../Mocks/Worlds/Room.js';
+import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld.js';
 
 describe('Worlds', () => {
   describe('Serializing / Deserializing', () => {
