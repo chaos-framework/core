@@ -1,5 +1,4 @@
-import { deserialize } from "v8";
-import { Component, Entity, Printable } from "../../internal";
+import { Component, Entity, Printable } from "../../internal.js";
 
 // tslint:disable-next-line: max-classes-per-file
 

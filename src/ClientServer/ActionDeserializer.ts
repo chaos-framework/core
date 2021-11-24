@@ -1,6 +1,9 @@
 
-import { Action, ActionType,
-  PublishPlayerAction, PublishEntityAction, MoveAction, RelativeMoveAction, OwnEntityAction } from "../internal";
+import { 
+  Action, ActionType, PublishPlayerAction,
+  PublishEntityAction, MoveAction,
+  RelativeMoveAction, OwnEntityAction
+} from "../internal.js";
 
 export default class ActionDeserializer {
   static deserializeAction(json: any): Action {

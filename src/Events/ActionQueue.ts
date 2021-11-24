@@ -1,4 +1,4 @@
-import { Event, Action } from '../internal';
+import { Event, Action } from '../internal.js';
 import { Queue } from 'queue-typescript';
 
 // Enqueues events (or actions directly) to execute in order

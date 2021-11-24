@@ -1,4 +1,4 @@
-import { Action, Ability, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal'; 
+import { Action, Ability, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal.js'; 
 
 export class ForgetAbilityAction extends Action {
   actionType: ActionType = ActionType.FORGET_ABILITY_ACTION;

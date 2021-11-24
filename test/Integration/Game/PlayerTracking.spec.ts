@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Chaos, Team, Player, Entity } from '../../../src/internal';
+import { Chaos, Team, Player, Entity } from '../../../src/internal.js';
 
 
 describe('Player and Game integration', () => {

@@ -1,5 +1,4 @@
-import { Action, Entity, WorldScope, VisibilityType } from '../internal';
-import { NestedMap } from '../Util/NestedMap';
+import { Action, Entity, WorldScope, VisibilityType, NestedMap } from '../internal.js';
 
 export interface Viewer {
   entities: Map<string, Entity>;

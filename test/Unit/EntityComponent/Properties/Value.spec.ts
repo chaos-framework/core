@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { Entity, AbsoluteModification, AdjustmentModification, MultiplierModification,
-Property, Value, PropertyChangeAction } from '../../../../src/internal';
+Property, Value, PropertyChangeAction } from '../../../../src/internal.js';
 
 describe('Entity Property Values', () => {
   let e: Entity;

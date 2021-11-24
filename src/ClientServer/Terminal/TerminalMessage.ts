@@ -1,4 +1,4 @@
-import { Printable, isPrintable, TerminalMessageFragment } from "../../internal";
+import { Printable, isPrintable, TerminalMessageFragment } from "../../internal.js";
 
 export class TerminalMessage {
   channel?: string;

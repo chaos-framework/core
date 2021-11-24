@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, TerminalMessage } from "../../../../src/internal";
+import { Entity, TerminalMessage } from "../../../../src/internal.js";
 
 describe('Terminal Message', () => {
   describe('Printing', () => {

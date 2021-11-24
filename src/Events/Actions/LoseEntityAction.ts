@@ -1,4 +1,4 @@
-import { Action, Component, CachesSensedEntities, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal';
+import { Action, Component, CachesSensedEntities, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal.js';
 
 export class LoseEntityAction extends Action {
   actionType: ActionType = ActionType.LOSE_ENTITY_ACTION;

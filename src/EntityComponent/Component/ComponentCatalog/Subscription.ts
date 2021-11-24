@@ -1,5 +1,4 @@
-import { Component, ComponentCatalog, Scope } from "../../../internal";
-import { actionFunction } from "../../Component";
+import { Component, ComponentCatalog, Scope, actionFunction } from "../../../internal.js";
 
 export class Subscription {
     id: string;

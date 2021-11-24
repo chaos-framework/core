@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Chaos, Scope, Vector, WorldScope } from './../../../src/internal';
+import { Chaos, Scope, Vector, WorldScope } from './../../../src/internal.js';
 
 describe ('WorldScopes', () => {
   let scope: WorldScope;

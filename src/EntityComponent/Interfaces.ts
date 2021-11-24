@@ -1,4 +1,4 @@
-import { Action, Entity, NestedMap } from "../internal";
+import { Action, Entity, NestedMap } from "../internal.js";
 
 export interface Identifiable {
   id: string;

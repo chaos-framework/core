@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType, ComponentContainer } from '../../internal';
+import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType, ComponentContainer } from '../../internal.js';
 
 export class DetachComponentAction extends Action {
   actionType: ActionType = ActionType.DETACH_COMPONENT_ACTION;

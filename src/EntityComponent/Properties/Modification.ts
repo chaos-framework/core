@@ -1,4 +1,4 @@
-import { Entity, Component, Value } from "../../internal";
+import { Entity, Component, Value } from "../../internal.js";
 
 export default abstract class Modification {
   amount: number;

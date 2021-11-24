@@ -1,4 +1,4 @@
-import { Entity, Action, ActionParameters, ActionType, BroadcastType } from '../../internal';
+import { Entity, Action, ActionParameters, ActionType, BroadcastType } from '../../internal.js';
 
 export class LogicalAction extends Action {
   actionType: ActionType = ActionType.LOGICAL;

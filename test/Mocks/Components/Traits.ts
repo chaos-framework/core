@@ -1,4 +1,4 @@
-import { Component, Action, AttachComponentAction, PropertyChangeAction } from '../../../src/internal';
+import { Component, Action, AttachComponentAction, PropertyChangeAction } from '../../../src/internal.js';
 export class Physical extends Component {
 
   constructor(public weight: number) {

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Chaos } from '../../src/internal';
+import { Chaos } from '../../src/internal.js';
 
 describe('Chaos Core', () => {
   it('Coalesces pre and post phases into complete list', () => {

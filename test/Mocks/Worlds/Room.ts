@@ -1,4 +1,4 @@
-import { World, Vector } from '../../../src/internal';
+import { World, Vector } from '../../../src/internal.js';
 
 import BasicLayer, { BasicTiles } from '../Layers/BasicLayer';
 

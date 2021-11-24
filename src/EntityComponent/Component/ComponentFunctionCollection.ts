@@ -1,4 +1,4 @@
-import { Action, actionFunction } from '../../internal';
+import { Action, actionFunction } from '../../internal.js';
 
 export class ComponentFunctionCollection {
   functions = new Map<string | number, actionFunction[]>();

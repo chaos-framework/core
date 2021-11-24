@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Chaos, Entity, Vector, World } from '../../../src/internal';
+import { Chaos, Entity, Vector, World } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room';
 import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld';

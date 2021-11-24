@@ -1,7 +1,7 @@
 import { 
   Property, Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   PropertyChangeAction, ModifyPropertyAction
-} from '../../internal';
+} from '../../internal.js';
 
 export enum ModificationMethod { Absolute, Adjustment, Multiplier }
 

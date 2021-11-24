@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Chaos, Team, Player, Entity } from '../../../src/internal';
+import { Chaos, Team, Player, Entity } from '../../../src/internal.js';
 
 // Attaching an entity, player, team etc to one another from either side should invoke the function of the other
 // This is so that the developer doesn't need to know which is the "real" method to call

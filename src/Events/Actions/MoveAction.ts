@@ -1,5 +1,4 @@
-import { Viewer } from '../../Game/Interfaces';
-import { Action, ActionParameters, Entity, Chaos, ActionType, Vector, BroadcastType } from '../../internal';
+import { Action, ActionParameters, Entity, Chaos, ActionType, Vector, BroadcastType, Viewer } from '../../internal.js';
 
 export class MoveAction extends Action {
   actionType: ActionType = ActionType.MOVE_ACTION;

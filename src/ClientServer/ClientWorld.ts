@@ -1,4 +1,4 @@
-import { World } from '../internal';
+import { World } from '../internal.js';
 
 export default class ClientWorld extends World {
   ephemeral = true;

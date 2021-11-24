@@ -1,4 +1,4 @@
-import { Entity, Ability, OptionalCastParameters, Event } from '../../../src/internal';
+import { Entity, Ability, OptionalCastParameters, Event } from '../../../src/internal.js';
 
 import { SimpleEvent } from '../Events/SimpleEvent';
 

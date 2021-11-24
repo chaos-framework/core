@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { NestedMap, NestedChanges } from '../../../src/internal';
+import { NestedMap, NestedChanges } from '../../../src/internal.js';
 
 describe('NestedMap', () => {
   describe('Without nesting', () => {

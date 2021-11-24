@@ -1,4 +1,4 @@
-import { Entity, Value } from '../../internal';
+import { Entity, Value } from '../../internal.js';
 
 export enum ValueType { Current, Min, Max };
 

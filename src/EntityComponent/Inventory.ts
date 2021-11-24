@@ -1,4 +1,4 @@
-import { Entity } from "../internal";
+import { Entity } from "../internal.js";
 
 export default class Inventory {
   size: number = 0;

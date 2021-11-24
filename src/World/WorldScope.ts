@@ -1,4 +1,4 @@
-import { Chaos, Vector, World } from "../internal";
+import { Chaos, Vector, World } from "../internal.js";
 
 export default class WorldScope {
   active = new Set<string>();

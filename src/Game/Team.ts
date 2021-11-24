@@ -1,7 +1,7 @@
 // tslint:disable: forin
 import { v4 as uuid } from 'uuid';
 
-import { Chaos, Action, ComponentContainer, Player, WorldScope, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges } from '../internal';
+import { Chaos, Action, ComponentContainer, Player, WorldScope, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges } from '../internal.js';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Team implements Viewer, ActionQueuer, ComponentContainer {

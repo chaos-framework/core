@@ -1,7 +1,7 @@
 import { 
   Action, ActionParameters, Entity, ValueType, Value, 
   ModificationMethod, Modification, AbsoluteModification, AdjustmentModification, MultiplierModification, ActionType, BroadcastType,
-} from '../../internal'; 
+} from '../../internal.js'; 
 
 export class ModifyPropertyAction extends Action {
   actionType: ActionType = ActionType.MODIFY_PROPERTY_ACTION;

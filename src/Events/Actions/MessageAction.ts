@@ -1,5 +1,4 @@
-import { Action, ActionParameters, TerminalMessage } from "../../internal";
-import { ActionType, BroadcastType } from "./_types";
+import { Action, ActionParameters, TerminalMessage, ActionType, BroadcastType } from "../../internal.js";
 
 export class MessageAction extends Action {
   actionType = ActionType.MESSAGE;

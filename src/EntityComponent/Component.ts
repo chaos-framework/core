@@ -1,6 +1,6 @@
 
 import { v4 as uuid } from 'uuid';
-import { ComponentFunctionCollection, ComponentContainer, Printable, Action, Scope, Entity, AttachComponentAction, DetachComponentAction } from '../internal'
+import { ComponentFunctionCollection, ComponentContainer, Printable, Action, Scope, Entity, AttachComponentAction, DetachComponentAction } from '../internal.js'
 
 export type actionFunction = (action: Action) => boolean | undefined;
 export function isActionFunction(fn: any): fn is actionFunction {

@@ -1,4 +1,4 @@
-import { Chaos } from '../internal';
+import { Chaos } from '../internal.js';
 
 // Connection
 

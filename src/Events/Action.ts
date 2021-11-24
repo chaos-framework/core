@@ -1,7 +1,7 @@
 import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
   Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable,
   TerminalMessageFragment, TerminalMessage
-} from '../internal';
+} from '../internal.js';
 
 export abstract class Action {
   actionType: ActionType = ActionType.INVALID;

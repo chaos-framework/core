@@ -1,4 +1,4 @@
-import { Component } from '../../../src/internal';
+import { Component } from '../../../src/internal.js';
 
 export class NonBroadcastingComponent extends Component {
   name = "Non-Public Logical Component";

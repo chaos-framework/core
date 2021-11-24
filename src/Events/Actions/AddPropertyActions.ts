@@ -1,6 +1,6 @@
 import {
   Action, ActionParameters, Entity, ActionType, BroadcastType
-} from '../../internal'; 
+} from '../../internal.js'; 
 
 export class AddPropertyAction extends Action {
   actionType = ActionType.ADD_PROPERTY_ACTION;

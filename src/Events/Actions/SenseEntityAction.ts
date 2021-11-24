@@ -1,4 +1,4 @@
-import { Action, Component, ActionParameters, Entity, ActionType, CachesSensedEntities, BroadcastType } from '../../internal';
+import { Action, Component, ActionParameters, Entity, ActionType, CachesSensedEntities, BroadcastType } from '../../internal.js';
 
 export class SenseEntityAction extends Action {
   actionType: ActionType = ActionType.SENSE_ENTITY_ACTION;

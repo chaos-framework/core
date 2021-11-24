@@ -1,14 +1,15 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
-import { MessageType } from '../ClientServer/Messages/Types';
-import { OwnEntityAction } from '../Events/Actions/OwnEntityAction';
-import { Chaos, Team, Action, Entity, WorldScope, Client, NestedMap, PublishPlayerAction, ComponentContainer, ComponentCatalog, Scope } from '../internal';
-import { NestedChanges } from '../Util/NestedMap';
-import { Viewer, ActionQueuer } from './Interfaces';
+import {
+  Chaos, Team, Action, Entity, WorldScope, Client,
+  NestedMap, PublishPlayerAction, ComponentContainer,
+  ComponentCatalog, Scope, MessageType, OwnEntityAction,
+  NestedChanges, Viewer, Broadcaster
+} from '../internal.js';
 
 // TODO clean up above imports
 
-export class Player implements Viewer, ActionQueuer, ComponentContainer {
+export class Player implements Viewer, Broadcaster, ComponentContainer {
   id: string = uuid();
   client?: Client;
   username: string;

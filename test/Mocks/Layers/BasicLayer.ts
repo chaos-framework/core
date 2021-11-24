@@ -1,4 +1,4 @@
-import { Layer } from '../../../src/internal';
+import { Layer } from '../../../src/internal.js';
 
 interface BasicTile {
   name: string,

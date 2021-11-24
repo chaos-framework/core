@@ -1,4 +1,4 @@
-import { Layer } from '../../internal';
+import { Layer } from '../../internal.js';
 
 const min = 0, max = 255;
 

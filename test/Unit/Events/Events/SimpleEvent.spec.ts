@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, Vector } from '../../../../src/internal';
+import { Entity, Vector } from '../../../../src/internal.js';
 
 import { SimpleEvent } from '../../../Mocks/Events/SimpleEvent'
 

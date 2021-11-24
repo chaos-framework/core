@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { EntityScope } from '../../../src/internal';
+import { EntityScope } from '../../../src/internal.js';
 
 describe('EntityScope', () => {
   let scope: EntityScope;

@@ -1,4 +1,4 @@
-import { Action, Ability, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal'; 
+import { Action, Ability, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal.js'; 
 
 export class LearnAbilityAction extends Action {
   actionType: ActionType = ActionType.LEARN_ABILITY_ACTION;

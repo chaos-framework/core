@@ -1,4 +1,4 @@
-import { Component, Action, AttachComponentAction } from '../../../src/internal';
+import { Component, Action, AttachComponentAction } from '../../../src/internal.js';
 
 import { Heal } from '../Abilities/Spells';
 

@@ -1,6 +1,5 @@
-import { Vector } from '../internal';
+import { Vector, Chunk, IChunk } from '../internal.js';
 const CHUNK_WIDTH = 16;
-import Chunk, { IChunk } from './Chunk';
 
 export default abstract class Layer<T> implements ILayer {
   chunks = new Map<string, Chunk<T>>();

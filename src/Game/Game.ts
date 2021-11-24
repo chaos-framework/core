@@ -1,4 +1,4 @@
-import { CONNECTION, CONNECTION_RESPONSE } from "../internal";
+import { CONNECTION, CONNECTION_RESPONSE } from "../internal.js";
 
 export interface Game {
   initialize(option: any): void;

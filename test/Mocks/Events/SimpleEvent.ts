@@ -1,4 +1,4 @@
-import { Action, Event} from '../../../src/internal';
+import { Action, Event} from '../../../src/internal.js';
 
 export class SimpleEvent implements Event {
   index = 0;

@@ -1,5 +1,6 @@
-import { clamp, toInteger } from 'lodash';
-import { bresenham } from 'bresenham';
+import * as _ from 'lodash'
+import b from 'bresenham';
+const bresenham = b.bresenham;
 
 const CHUNK_WIDTH = 16;
 
@@ -8,11 +9,11 @@ export default class Vector {
   y: number;
 
   static fromIndexString(s: string): Vector {
-    const values = s.split('_').map(v => toInteger(v));
+    const values = s.split('_').map(v => _.toInteger(v));
     if (values.length < 2) {
       throw new Error();
     }
-    return new Vector(toInteger(values[0]), toInteger(values[1]));
+    return new Vector(_.toInteger(values[0]), _.toInteger(values[1]));
   }
 
   constructor(x: number, y: number) {
@@ -53,7 +54,7 @@ export default class Vector {
 
   // Clamps to zero-based square of size given
   clamp(size?: Vector): Vector {
-    return new Vector(clamp(this.x, 0, size ? size.x : Number.MAX_VALUE), clamp(this.y, 0, size ? size.y : Number.MAX_VALUE));
+    return new Vector(_.clamp(this.x, 0, size ? size.x : Number.MAX_VALUE), _.clamp(this.y, 0, size ? size.y : Number.MAX_VALUE));
   }
 
   copyAdjusted(x: number, y: number): Vector {

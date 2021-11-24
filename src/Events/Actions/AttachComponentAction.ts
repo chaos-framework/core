@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal';
+import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType } from '../../internal.js';
 
 export class AttachComponentAction extends Action {
   actionType: ActionType = ActionType.ATTACH_COMPONENT_ACTION;

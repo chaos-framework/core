@@ -1,4 +1,4 @@
-import { Component, Entity } from "../internal";
+import { Component, Entity } from "../internal.js";
 
 export class Permission {
     permitted: boolean;

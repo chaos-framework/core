@@ -1,4 +1,4 @@
-import { Entity } from '../../../src/internal';
+import { Entity } from '../../../src/internal.js';
 import { Paladin } from '../Components/Classes';
 import { Humanoid, Physical, Undead } from '../Components/Traits';
 import { createSilverSword } from '../Entities/Items';

@@ -1,5 +1,5 @@
 import { Component, Action, Entity, 
-  Scope, NestedMap, LogicalAction, CachesSensedEntities } from '../../../src/internal';
+  Scope, NestedMap, LogicalAction, CachesSensedEntities } from '../../../src/internal.js';
 
 // tslint:disable: max-classes-per-file
 export class EmptyComponent extends Component {

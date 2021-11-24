@@ -5,7 +5,7 @@ import {
   Listener, Action, IChunk,
   ByteLayer,
   Entity, Vector, Chaos, ClientWorld, WorldScope, Scope,
-} from '../internal';
+} from '../internal.js';
 
 const CHUNK_WIDTH = 16;
 

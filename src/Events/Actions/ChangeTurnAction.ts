@@ -1,6 +1,6 @@
 import { 
   Action, ActionParameters, Entity, ActionType, BroadcastType, Chaos, Player, Team
-} from '../../internal'; 
+} from '../../internal.js'; 
 
 export class ChangeTurnAction extends Action {
   actionType: ActionType = ActionType.CHANGE_TURN_ACTION;

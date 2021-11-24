@@ -1,4 +1,4 @@
-import { Chaos, Player, Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal';
+import { Chaos, Player, Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal.js';
 
 export class OwnEntityAction extends Action {
   actionType = ActionType.OWN_ENTITY_ACTION;

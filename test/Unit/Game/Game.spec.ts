@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-import { Chaos, Entity, Team, Vector, RelativeMoveAction, Player, VisibilityType } from '../../../src/internal';
+import { Chaos, Entity, Team, Vector, RelativeMoveAction, Player, VisibilityType } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room';
 

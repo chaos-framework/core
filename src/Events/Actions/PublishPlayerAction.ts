@@ -1,6 +1,4 @@
-
-import { Player } from '../../Game/Player';
-import { Action, Chaos, ActionType } from '../../internal';
+import { Action, Chaos, ActionType, Player } from '../../internal.js';
 
 export class PublishPlayerAction extends Action {
   actionType = ActionType.PUBLISH_PLAYER_ACTION;

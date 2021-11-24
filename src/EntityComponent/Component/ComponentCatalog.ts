@@ -1,5 +1,7 @@
-import { Action, Chaos, Component, Subscription, ComponentContainer, Scope, World, Entity } from '../../internal';
-import { actionFunction, isActionFunction } from '../Component';
+import { 
+  Action, Chaos, Component, Subscription, ComponentContainer,
+  Scope, World, Entity, actionFunction, isActionFunction
+} from '../../internal.js';
 
 const validSubscriptions = {
   entity: ['world', 'player', 'team', 'game'],

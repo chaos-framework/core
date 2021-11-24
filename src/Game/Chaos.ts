@@ -2,7 +2,7 @@ import {
   Entity, Action, World, Component, Viewer, NestedChanges,
   Player, Team, ActionQueue, ComponentCatalog, ComponentContainer,
   Scope, BroadcastType, VisibilityType, CAST, ExecutionHook, ActionHook
-} from "../internal";
+} from "../internal.js";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
 

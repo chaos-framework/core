@@ -1,7 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { Printable } from '../ClientServer/Terminal/Printable';
 import {
-  Chaos, Vector, World, CachesSensedEntities,
+  Chaos, Vector, World, CachesSensedEntities, Printable,
   Component, ComponentContainer, ComponentCatalog, Event, Action,
   Ability, Property, AttachComponentAction,
   ChangeWorldAction, MoveAction, RelativeMoveAction,
@@ -9,7 +8,7 @@ import {
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, NestedChanges,
   ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction, Player, cachesSensedEntities
-} from '../internal';
+} from '../internal.js';
 
 export class Entity implements ComponentContainer, Printable {
   readonly id: string;

@@ -1,4 +1,4 @@
-import { Action, Entity, Chaos, Player, Team, VisibilityType, CONNECTION_RESPONSE } from '../../../src/internal';
+import { Action, Entity, Chaos, Player, Team, VisibilityType, CONNECTION_RESPONSE } from '../../../src/internal.js';
 
 // Game that only lets uninvolved entities see actions tagged 'visible' 
 export default class EntityVisibilityGame extends Game {

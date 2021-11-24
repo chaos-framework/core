@@ -1,75 +1,75 @@
 // ENTITY AND COMPONENT
-export { Entity } from './EntityComponent/Entity';
-export { Component, DisplayComponent, actionFunction, isActionFunction } from './EntityComponent/Component';
-export { ComponentFunctionCollection } from './EntityComponent/Component/ComponentFunctionCollection';
-export { ComponentContainer } from './EntityComponent/Component/ComponentContainer';
-export { ComponentCatalog } from './EntityComponent/Component/ComponentCatalog';
-export { Subscription } from './EntityComponent/Component/ComponentCatalog/Subscription';
-import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability';
-import Property, { ValueType } from './EntityComponent/Properties/Property';
-import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification';
-import Value, { ModificationMethod } from './EntityComponent/Properties/Value';
-export * from './EntityComponent/Interfaces';
+export { Entity } from './EntityComponent/Entity.js';
+export { Component, DisplayComponent, actionFunction, isActionFunction } from './EntityComponent/Component.js';
+export { ComponentFunctionCollection } from './EntityComponent/Component/ComponentFunctionCollection.js';
+export { ComponentContainer } from './EntityComponent/Component/ComponentContainer.js';
+export { ComponentCatalog } from './EntityComponent/Component/ComponentCatalog.js';
+export { Subscription } from './EntityComponent/Component/ComponentCatalog/Subscription.js';
+import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability.js';
+import Property, { ValueType } from './EntityComponent/Properties/Property.js';
+import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification.js';
+import Value, { ModificationMethod } from './EntityComponent/Properties/Value.js';
+export * from './EntityComponent/Interfaces.js';
 // EVENT AND ACTION IMPORTS
-import { Action, ActionParameters } from './Events/Action';
-export { ActionType, BroadcastType } from './Events/Actions/_types';
-export { Permission } from './Events/Permission';
-import Event from './Events/Event';
-export { SensoryInformation } from './Events/Interfaces';
-export { AddPropertyAction } from './Events/Actions/AddPropertyActions';
-export { AddSlotAction } from './Events/Actions/AddSlotAction';
-export { AttachComponentAction } from './Events/Actions/AttachComponentAction';
-export { DetachComponentAction } from './Events/Actions/DetachComponentAction';
-export { ChangeWorldAction } from './Events/Actions/ChangeWorldAction';
-export { EquipItemAction } from './Events/Actions/EquipItemAction';
-export { LearnAbilityAction } from './Events/Actions/LearnAbilityAction';
-export { ModifyPropertyAction } from './Events/Actions/ModifyPropertyAction';
-export { MoveAction } from './Events/Actions/MoveAction';
-export { PropertyChangeAction } from './Events/Actions/PropertyChangeAction';
-export { PublishEntityAction } from './Events/Actions/PublishEntityAction';
-export { RelativeMoveAction } from './Events/Actions/RelativeMoveAction';
-export { RemovePropertyAction } from './Events/Actions/RemovePropertyAction';
-export { RemoveSlotAction } from './Events/Actions/RemoveSlotAction';
-export { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction';
-export { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction';
-export { SenseEntityAction } from './Events/Actions/SenseEntityAction';
-export { LoseEntityAction } from './Events/Actions/LoseEntityAction';
-export { PublishPlayerAction } from './Events/Actions/PublishPlayerAction';
-export { OwnEntityAction } from './Events/Actions/OwnEntityAction';
-export { LogicalAction } from './Events/Actions/LogicalAction';
-export { MessageAction } from './Events/Actions/MessageAction';
-export { ChangeTurnAction } from './Events/Actions/ChangeTurnAction';
-export { VisibilityType } from './Events/Enums';
-import ActionQueue from './Events/ActionQueue';
+import { Action, ActionParameters } from './Events/Action.js';
+export { ActionType, BroadcastType } from './Events/Actions/_types.js';
+export { Permission } from './Events/Permission.js';
+import Event from './Events/Event.js';
+export { SensoryInformation } from './Events/Interfaces.js';
+export { AddPropertyAction } from './Events/Actions/AddPropertyActions.js';
+export { AddSlotAction } from './Events/Actions/AddSlotAction.js';
+export { AttachComponentAction } from './Events/Actions/AttachComponentAction.js';
+export { DetachComponentAction } from './Events/Actions/DetachComponentAction.js';
+export { ChangeWorldAction } from './Events/Actions/ChangeWorldAction.js';
+export { EquipItemAction } from './Events/Actions/EquipItemAction.js';
+export { LearnAbilityAction } from './Events/Actions/LearnAbilityAction.js';
+export { ModifyPropertyAction } from './Events/Actions/ModifyPropertyAction.js';
+export { MoveAction } from './Events/Actions/MoveAction.js';
+export { PropertyChangeAction } from './Events/Actions/PropertyChangeAction.js';
+export { PublishEntityAction } from './Events/Actions/PublishEntityAction.js';
+export { RelativeMoveAction } from './Events/Actions/RelativeMoveAction.js';
+export { RemovePropertyAction } from './Events/Actions/RemovePropertyAction.js';
+export { RemoveSlotAction } from './Events/Actions/RemoveSlotAction.js';
+export { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction.js';
+export { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction.js';
+export { SenseEntityAction } from './Events/Actions/SenseEntityAction.js';
+export { LoseEntityAction } from './Events/Actions/LoseEntityAction.js';
+export { PublishPlayerAction } from './Events/Actions/PublishPlayerAction.js';
+export { OwnEntityAction } from './Events/Actions/OwnEntityAction.js';
+export { LogicalAction } from './Events/Actions/LogicalAction.js';
+export { MessageAction } from './Events/Actions/MessageAction.js';
+export { ChangeTurnAction } from './Events/Actions/ChangeTurnAction.js';
+export { VisibilityType } from './Events/Enums.js';
+import ActionQueue from './Events/ActionQueue.js';
 // GAME AND WORLD
-export * as Chaos from './Game/Chaos';
-export { Game, isGame } from './Game/Game';
-export { Team } from './Game/Team';
-export { Player } from './Game/Player';
-import { Viewer, ActionQueuer } from './Game/Interfaces';
-import EntityScope from './Game/EntityScope';
-export { World } from './World/World';
+export * as Chaos from './Game/Chaos.js';
+export { Game, isGame } from './Game/Game.js';
+export { Team } from './Game/Team.js';
+export { Player } from './Game/Player.js';
+import { Viewer, ActionQueuer } from './Game/Interfaces.js';
+import EntityScope from './Game/EntityScope.js';
+export { World } from './World/World.js';
 // CLIENT/SERVER
-import ClientWorld from './ClientServer/ClientWorld';
-export * from './ClientServer/Message'
-export { MessageType } from './ClientServer/Messages/Types'
-export { Server } from './ClientServer/Server'
-export { Client } from './ClientServer/Client'
-import ActionDeserializer from './ClientServer/ActionDeserializer';
+import ClientWorld from './ClientServer/ClientWorld.js';
+export * from './ClientServer/Message.js';
+export { MessageType } from './ClientServer/Messages/Types.js';
+export { Server } from './ClientServer/Server.js';
+export { Client } from './ClientServer/Client.js';
+import ActionDeserializer from './ClientServer/ActionDeserializer.js';
 export { ActionDeserializer };
-export { ActionHook, ExecutionHook } from './ClientServer/Hooks';
-export { Printable, isPrintable } from './ClientServer/Terminal/Printable';
-export { TerminalMessage } from './ClientServer/Terminal/TerminalMessage';
-export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessageFragment';
+export { ActionHook, ExecutionHook } from './ClientServer/Hooks.js';
+export { Printable, isPrintable } from './ClientServer/Terminal/Printable.js';
+export { TerminalMessage } from './ClientServer/Terminal/TerminalMessage.js';
+export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessageFragment.js';
 // WORLDS
-import Layer, { ILayer } from './World/Layer';
-import Chunk, { IChunk } from './World/Chunk';
-import WorldScope from './World/WorldScope';
-import ByteLayer from './World/Layers/ByteLayer';
-import Vector from './Math/Vector';
+import Layer, { ILayer } from './World/Layer.js';
+import Chunk, { IChunk } from './World/Chunk.js';
+import WorldScope from './World/WorldScope.js';
+import ByteLayer from './World/Layers/ByteLayer.js';
+import Vector from './Math/Vector.js';
 // UTIL
-export { NestedMap, NestedChanges } from './Util/NestedMap';
-export { withMetadata } from './Util/WithMetadata';
+export { NestedMap, NestedChanges } from './Util/NestedMap.js';
+export { withMetadata } from './Util/WithMetadata.js';
 
 export {
   Ability, Property, Value, ValueType,

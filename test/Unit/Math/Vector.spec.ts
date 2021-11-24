@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Vector } from '../../../src/internal';
+import { Vector } from '../../../src/internal.js';
 
 describe('Vector', () => {
   it('Can check if another vector is within range', () => {

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Chaos, Entity, Player, Team, ChangeTurnAction } from '../../../../src/internal';
+import { Chaos, Entity, Player, Team, ChangeTurnAction } from '../../../../src/internal.js';
 import Room from '../../../Mocks/Worlds/Room';
 
 describe('Change Turn Action', () => {

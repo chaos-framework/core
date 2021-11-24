@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Component, DisplayComponent } from '../../../src/internal';
+import { Component, DisplayComponent } from '../../../src/internal.js';
 
 import { Paladin } from '../../Mocks/Components/Classes';
 import { EmptyComponent } from '../../Mocks/Components/Functional';

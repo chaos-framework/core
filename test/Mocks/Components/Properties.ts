@@ -1,4 +1,4 @@
-import { Component, Action, PropertyChangeAction, EquipItemAction } from '../../../src/internal';
+import { Component, Action, PropertyChangeAction, EquipItemAction } from '../../../src/internal.js';
 
 import { Slash, Stab } from '../Abilities/Attacks';
 

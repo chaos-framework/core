@@ -1,10 +1,7 @@
-import { fail } from 'assert';
-import Terminal from '../../ClientServer/Terminal';
-import { TerminalMessage } from '../../ClientServer/Terminal/TerminalMessage';
-import { TerminalMessageFragment } from '../../ClientServer/Terminal/TerminalMessageFragment';
 import { 
-  Action, Entity, Component, Value, ActionParameters, ActionType, BroadcastType
-} from '../../internal';
+  Action, Entity, Component, Value, ActionParameters, ActionType, BroadcastType,
+  TerminalMessage, TerminalMessageFragment
+} from '../../internal.js';
 
 export class PropertyChangeAction extends Action {
   actionType: ActionType = ActionType.PROPERTY_CHANGE_ACTION;

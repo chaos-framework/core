@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal';
+import { Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal.js';
 
 export class AddSlotAction extends Action {
   actionType = ActionType.ADD_SLOT_ACTION;

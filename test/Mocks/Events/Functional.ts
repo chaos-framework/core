@@ -1,4 +1,4 @@
-import { Action, Event, Entity, PropertyChangeAction, CustomAction } from '../../../src/internal';
+import { Action, Event, Entity, PropertyChangeAction, CustomAction } from '../../../src/internal.js';
 
 export default class RequiresInitialSuccess implements Event {
   step = 0;

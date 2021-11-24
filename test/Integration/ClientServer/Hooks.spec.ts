@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Action, Chaos, LogicalAction, ActionHook, ExecutionHook } from '../../../src/internal';
+import { Action, Chaos, LogicalAction, ActionHook, ExecutionHook } from '../../../src/internal.js';
 
 describe('Hooks', function() {
   beforeEach(function() {

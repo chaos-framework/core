@@ -1,5 +1,4 @@
-import { Action, ActionParameters, Entity, ActionType, Vector, World, BroadcastType } from '../../internal';
-import { Viewer } from '../../Game/Interfaces';
+import { Action, ActionParameters, Entity, ActionType, Vector, World, BroadcastType, Viewer } from '../../internal.js';
 
 export class ChangeWorldAction extends Action {
   actionType: ActionType = ActionType.CHANGE_WORLD_ACTION;

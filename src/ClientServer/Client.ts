@@ -1,4 +1,4 @@
-import { Player, MessageType } from "../internal";
+import { Player, MessageType } from "../internal.js";
 
 export interface Client {
   player: Player; // keep a reference for the player, so it can clean up on unexpected loss of connection

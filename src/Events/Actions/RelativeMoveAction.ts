@@ -1,5 +1,5 @@
 import { Action, ActionParameters, Entity, Chaos, ActionType, Scope, Vector, World, 
-  Viewer, BroadcastType } from '../../internal';
+  Viewer, BroadcastType } from '../../internal.js';
 
 export class RelativeMoveAction extends Action {
   actionType: ActionType = ActionType.RELATIVE_MOVE_ACTION;

@@ -1,5 +1,5 @@
-import Chunk from "./Chunk";
 import { clamp } from 'lodash';
+import { Chunk } from "../internal.js"
 
 // Clamps values from 0-255 and serializes them efficiently
 export class ShortChunk extends Chunk<number> {

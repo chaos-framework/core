@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import { v4 as uuid } from 'uuid';
 
-import { Team, Chaos } from '../../../src/internal';
+import { Team, Chaos } from '../../../src/internal.js';
 
 
 describe('Team', () => {

@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Chaos, ActionType, BroadcastType } from '../../internal';
+import { Action, ActionParameters, Entity, Chaos, ActionType, BroadcastType } from '../../internal.js';
 
 export class UnpublishEntityAction extends Action {
   actionType: ActionType = ActionType.UNPUBLISH_ENTITY_ACTION;

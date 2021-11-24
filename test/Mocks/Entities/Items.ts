@@ -1,4 +1,4 @@
-import { Entity } from '../../../src/internal';
+import { Entity } from '../../../src/internal.js';
 import { Sword, Silver } from '../Components/Properties';
 
 export const createSilverSword = (): Entity => {

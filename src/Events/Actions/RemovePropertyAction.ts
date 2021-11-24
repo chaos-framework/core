@@ -1,6 +1,6 @@
 import { 
   Action, ActionParameters, Entity, ActionType, BroadcastType
-} from '../../internal'; 
+} from '../../internal.js'; 
 
 export class RemovePropertyAction extends Action {
   actionType: ActionType = ActionType.REMOVE_PROPERTY_ACTION;

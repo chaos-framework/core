@@ -1,4 +1,4 @@
-import { Action, Component, Entity, LoseEntityAction, NestedMap, SenseEntityAction, CachesSensedEntities } from '../../../src/internal';
+import { Action, Component, Entity, LoseEntityAction, NestedMap, SenseEntityAction, CachesSensedEntities } from '../../../src/internal.js';
 
 export class Eyes extends Component implements CachesSensedEntities {
   sensedEntities: NestedMap<Entity>;

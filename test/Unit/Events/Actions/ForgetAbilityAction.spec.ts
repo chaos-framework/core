@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { ForgetAbilityAction, Entity, Chaos } from '../../../../src/internal';
+import { ForgetAbilityAction, Entity, Chaos } from '../../../../src/internal.js';
 
 import EmptyAbility from '../../../Mocks/Abilities/Empty';
 
