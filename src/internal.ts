@@ -70,6 +70,7 @@ import Vector from './Math/Vector.js';
 // UTIL
 export { NestedMap, NestedChanges } from './Util/NestedMap.js';
 export { withMetadata } from './Util/WithMetadata.js';
+export { bresenham, bresenhamGenerator, Point } from './Util/Bresenham.js';
 
 export {
   Ability, Property, Value, ValueType,

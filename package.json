@@ -37,7 +37,6 @@
   "homepage": "https://github.com/chaos-framework/core#readme",
   "devDependencies": {
     "@types/assert": "^1.5.4",
-    "@types/bresenham": "0.0.0",
     "@types/chai": "^4.2.22",
     "@types/jest": "^26.0.20",
     "@types/lodash": "^4.14.168",
@@ -62,7 +61,6 @@
   "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
   "lint": "tslint -p tsconfig.json",
   "dependencies": {
-    "bresenham": "0.0.4",
     "lodash-es": "^4.17.21",
     "queue-typescript": "^1.0.1",
     "uuid": "^8.3.2"

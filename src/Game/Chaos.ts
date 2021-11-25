@@ -5,6 +5,7 @@ import {
 } from "../internal.js";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
+export function setId(value: string) { id = value }
 
 let processing = false;
 

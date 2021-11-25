@@ -1,6 +1,5 @@
 import { clamp, toInteger } from 'lodash-es';
-import b from 'bresenham';
-const bresenham = b.bresenham;
+import { bresenhamGenerator, Point } from '../internal.js'
 
 const CHUNK_WIDTH = 16;
 
@@ -91,16 +90,15 @@ export default class Vector {
 
   getLineTo(other: Vector): Vector[] {
     // TODO using external lib for some reason.. expensive to cast, should rewrite bresenham
-    const points = bresenham(this.x, this.y, other.x, other.y);
     const vectors: Vector[] = [];
-    for(const point of points) {
+    for(const point of this.getLineToIterable(other)) {
       vectors.push(new Vector(point.x, point.y));
     }
     return vectors;
   }
 
-  getLineToIterable(other: Vector): Generator<Vector> {
-    return iterableVectorLine(this, other);
+  getLineToIterable(other: Vector): Generator<Point> {
+    return bresenhamGenerator(this.x, this.y, other.x, other.y);
   }
 
   length(): number {
