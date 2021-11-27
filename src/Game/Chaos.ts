@@ -15,6 +15,7 @@ let postPhases = ['react', 'output'];
 
 export const worlds: Map<string, World> = new Map<string, World>();
 export const entities: Map<string, Entity> = new Map<string, Entity>();
+export const allComponents: Map<string, Component> = new Map<string, Component>();
 
 export const teams: Map<string, Team> = new Map<string, Team>();
 export const teamsByName: Map<string, Team> = new Map<string, Team>();
@@ -50,11 +51,12 @@ let initialReference: any = {
 export let components = new ComponentCatalog(initialReference); // all components
 export const reference: ComponentContainer = {
   ...initialReference,
-  components
+  components: components
 }
 
 export function reset() {
   entities.clear();
+  components.clear();
   components.unpublish();
   components.clear();
   players.clear();

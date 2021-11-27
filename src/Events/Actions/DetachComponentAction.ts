@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType, ComponentContainer } from '../../internal.js';
+import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType, ComponentContainer, Chaos } from '../../internal.js';
 
 export class DetachComponentAction extends Action {
   actionType: ActionType = ActionType.DETACH_COMPONENT_ACTION;
@@ -18,6 +18,32 @@ export class DetachComponentAction extends Action {
     return true;
   }
 
+  serialize(): DetachComponentAction.Serialized {
+    return {
+      ...super.serialize(),
+      target: this.target.id,
+      component: this.component.id
+    };
+  }
+
+  static deserialize(json: any): DetachComponentAction {
+    try {
+      // Deserialize common fields
+      const common = Action.deserializeCommonFields(json);
+      const { target } = common;
+      // Deserialize unique fields
+      const component = Chaos.allComponents.get(json.component);
+      if(component === undefined) {
+        throw new Error(`Couldn't find component.`);  // TODO define a commmon error for type + field that is bad
+      } else if (target === undefined) {
+        throw new Error(`Couldn't find target.`);  // TODO define a commmon error for type + field that is bad
+      }
+      // Build the action if we did indeed find
+      return new DetachComponentAction({ ...common, target, component });
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export namespace DetachComponentAction {
@@ -30,4 +56,9 @@ export namespace DetachComponentAction {
   }
 
   export interface Params extends EntityParams, ComponentParams { }
+
+  export interface Serialized extends Action.Serialized {
+    target: string,
+    component: string
+  }
 }

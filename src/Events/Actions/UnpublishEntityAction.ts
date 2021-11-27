@@ -22,6 +22,10 @@ export class UnpublishEntityAction extends Action {
   apply(): boolean {
     return this.entity._unpublish();
   }
+    
+  getEntity(): Entity {
+    return this.entity;
+  }
 
   serialize(): UnpublishEntityAction.Serialized {
     return {
@@ -29,27 +33,17 @@ export class UnpublishEntityAction extends Action {
       entity: this.entity.id
     };
   };
-  
-  getEntity(): Entity {
-    return this.entity;
-  }
 
   static deserialize(json: UnpublishEntityAction.Serialized): UnpublishEntityAction {
-    try {
-      // Deserialize common fields
-      const common = Action.deserializeCommonFields(json);
-      // Deserialize unique fields
-      const entityId = json.entity;
-      // Build the action if fields are proper, otherwise throw an error
-      if (entityId && Chaos.entities.has(entityId)) {
-        const a = new UnpublishEntityAction({ ...common, entity: Chaos.entities.get(entityId)! });
-        return a;
-      } else {
-        throw new Error('UnpublishEntityAction fields not correct.');
-      }
-    } catch (error) {
-      throw error;
+    // Deserialize common fields
+    const common = Action.deserializeCommonFields(json);
+    // Deserialize unique fields
+    const entity = Chaos.entities.get(json.entity);
+    // Build the action if fields are proper, otherwise throw an error
+    if (entity === undefined) {
+      throw new Error('UnpublishEntityAction fields not correct.');
     }
+    return new UnpublishEntityAction({ ...common, entity });
   }
 }
 
