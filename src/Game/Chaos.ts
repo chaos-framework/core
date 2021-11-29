@@ -1,5 +1,5 @@
 import {
-  Entity, Action, World, Component, Viewer, NestedChanges,
+  Entity, Action, World, Component, Viewer, NestedChanges, ActionProcessor,
   Player, Team, ActionQueue, ComponentCatalog, ComponentContainer,
   Scope, BroadcastType, VisibilityType, CAST, ExecutionHook, ActionHook
 } from "../internal.js";
@@ -7,7 +7,7 @@ import {
 export let id: string = "Unnamed Game";  // Name of loaded game
 export function setId(value: string) { id = value }
 
-let processing = false;
+const processor = new ActionProcessor;
 
 let phases = ['modify', 'permit', 'react', 'output']
 let prePhases = ['modify', 'permit'];
@@ -21,9 +21,6 @@ export const teams: Map<string, Team> = new Map<string, Team>();
 export const teamsByName: Map<string, Team> = new Map<string, Team>();
 export const players: Map<string, Player> = new Map<string, Player>();
 export const playersWithoutTeams = new Map<string, Player>();
-
-export let actionQueue = new ActionQueue();
-let actionsThisProcess: Action[] = [];
 
 export let actionHooks = new Array<ActionHook>();
 export let executionHooks = new Array<ExecutionHook>();
@@ -146,43 +143,6 @@ export function castAsClient(msg: CAST): string | undefined {
   }
 }
 
-export function process(action?: Action) {
-  if(processing === true) {
-    // Reactions fire on their own before the original finishes, so we have to make sure to let hooks see it
-    if(action?.inReactionTo !== undefined) {
-      actionsThisProcess.push(action);
-      broadcastToActionHooks(action);
-    }
-    return;
-  }
-  processing = true;
-  let nextAction = actionQueue.getNextAction();
-  while(nextAction !== undefined) {
-    actionsThisProcess.push(nextAction);
-    nextAction.execute();
-    broadcastToActionHooks(nextAction);
-    nextAction = actionQueue.getNextAction();
-  }
-  if(actionsThisProcess.length > 0) {
-    broadcastToExecutionHooks(actionsThisProcess);
-  }
-  broadcastAll(); // TODO make this conditional on server role?
-  actionsThisProcess = [];
-  processing = false;
-}
-
-function broadcastToActionHooks(action: Action) {
-  for (const hook of actionHooks) {
-    hook(action);
-  }
-}
-
-function broadcastToExecutionHooks(actions: Action[]) {
-  for (const hook of executionHooks) {
-    hook(actions);
-  }
-}
-
 export function addWorld(world: World): boolean {
   worlds.set(world.id, world);
   return true;
@@ -207,13 +167,18 @@ export function addEntity(e: Entity): boolean {
 export function removeEntity(e: Entity): boolean {
   entities.delete(e.id);
   if(e.world) {
-    e.world.removeEntity(e);
+    e.world.removeEntity(e);  // TODO this should be moved
   }
   return true;
 }
 
 export function addPlayer(player: Player) {
   players.set(player.id, player);
+}
+
+export function removePlayer(player: Player | string) {
+  const id = player instanceof Player ? player.id : player;
+  players.delete(id);
 }
 
 export function getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
@@ -239,83 +204,6 @@ export function sense(a: Action): boolean {
 
 export function senseEntity(e: Entity): boolean {
   return true;
-}
-
-export function queueActionForProcessing(action: Action) {
-  actionQueue.enqueue(action);
-}
-
-export function queueForBroadcast(action: Action, to?: Player | Team) {
-  // Check if this action contains any visiblity changes and publish/unpublish entities as needed first
-  if(action.visibilityChanges?.changes !== undefined) {
-    publishVisibilityChanges(action.visibilityChanges.changes, action.visibilityChanges.type === 'addition');
-  }
-  // Check if this message needs to be broadcasted to clients at all
-  if(action.broadcastType === BroadcastType.NONE) {
-    return;
-  } else if (action.broadcastType === BroadcastType.DIRECT) {
-    return;
-  }
-  // Broadcast to everyone, if specified, or more specific clients
-  if(action.broadcastType === BroadcastType.FULL) {
-    for(const [, player] of players) {
-      player.enqueueAction(action);
-    }
-  } else {
-    // Broadcast out to either visibility type based on sense of relevent entities
-    if(perceptionGrouping === 'team') {
-      for(const [, team] of teams) {
-        if(
-          (action.target && (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
-          (action.caster && (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
-          ) {
-            team.enqueueAction(action);
-          }
-      }
-      // TODO players without teams
-    } else {
-      for(const [, player] of players) {
-        if(
-          (action.target && (player.entities.has(action.target.id) || player.sensedEntities.has(action.target.id))) ||
-          (action.caster && (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))
-          ) {
-            player.enqueueAction(action);
-          }
-      }
-    }
-  }
-  return;
-}
-
-export function broadcastAll() {
-  for(const [, player] of players) {
-    player.broadcast();
-  }
-}
-
-export function publishVisibilityChanges(changesInVisibility: NestedChanges, addition = true) {
-  if(perceptionGrouping === 'team') {
-    // TODO
-  } else {
-    // Broadcast newly visible 
-    if(changesInVisibility.changes['player'] !== undefined) {
-      const playerChanges = changesInVisibility.changes['player'];
-      for(const playerId in playerChanges) {
-        const player = players.get(playerId);
-        if(player !== undefined && player.client !== undefined) {
-          const newEntityIds = changesInVisibility.changes['player'][playerId].values();
-          // tslint:disable-next-line: forin
-          for(const entityId of newEntityIds) {
-            const entity = getEntity(entityId);
-            if(entity !== undefined) {
-              const action = addition ? entity.getPublishedInPlaceAction() : entity.unpublish();
-              player.enqueueAction(action);
-            }
-          }
-        }
-      }
-    }
-  }
 }
 
 // Optionally modify underlying serialized method to customize it for a team or player.
