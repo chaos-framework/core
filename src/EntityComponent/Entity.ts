@@ -158,7 +158,6 @@ export class Entity implements ComponentContainer, Printable {
   }
 
   // Publishing
-  
   publish({caster, world, position, using, metadata}: PublishEntityAction.EntityParams): PublishEntityAction {
     return new PublishEntityAction({caster, target: this, entity: this, world, position, using, metadata});
   }
@@ -186,6 +185,10 @@ export class Entity implements ComponentContainer, Printable {
     Chaos.removeEntity(this);
     this.components.unpublish();
     // TODO and persistence stuff
+    this._leaveTeam();
+    for (const [id, player] of this.players) {
+      this._revokeOwnershipFrom(player);
+    }
     this.published = false;
     return true;
   }

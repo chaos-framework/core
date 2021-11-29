@@ -170,6 +170,22 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     }
   }
 
+  _unpublish(): boolean {
+    if(!this.published) {
+      return false;
+    }
+    // Disown all entities
+    for(const [id, entity] of this.entities) {
+      this._disownEntity(entity);
+    }
+    // Leave the team, if joined
+    this._leaveTeam();
+    // Remove from Chaos directory
+    Chaos.players.delete(this.id);
+    this.published = false;
+    return true;
+  }
+
   serializeForClient(): Player.SerializedForClient {
     return { id: this.id, username: this.username, admin: this.admin, team: this.team?.id, entities: Array.from(this.entities.keys()) };
   }

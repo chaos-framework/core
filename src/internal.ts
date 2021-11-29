@@ -35,6 +35,7 @@ export { UnpublishEntityAction } from './Events/Actions/UnpublishEntityAction.js
 export { SenseEntityAction } from './Events/Actions/SenseEntityAction.js';
 export { LoseEntityAction } from './Events/Actions/LoseEntityAction.js';
 export { PublishPlayerAction } from './Events/Actions/PublishPlayerAction.js';
+export { UnpublishPlayerAction } from './Events/Actions/UnpublishPlayerAction.js';
 export { OwnEntityAction } from './Events/Actions/OwnEntityAction.js';
 export { LogicalAction } from './Events/Actions/LogicalAction.js';
 export { MessageAction } from './Events/Actions/MessageAction.js';
@@ -44,6 +45,7 @@ import ActionQueue from './Events/ActionQueue.js';
 // GAME AND WORLD
 export * as Chaos from './Game/Chaos.js';
 export { Game, isGame } from './Game/Game.js';
+export { ActionProcessor } from "./Game/ActionProcessor.js";
 export { Team } from './Game/Team.js';
 export { Player } from './Game/Player.js';
 import { Viewer, ActionQueuer } from './Game/Interfaces.js';
@@ -70,7 +72,7 @@ import Vector from './Math/Vector.js';
 // UTIL
 export { NestedMap, NestedChanges } from './Util/NestedMap.js';
 export { withMetadata } from './Util/WithMetadata.js';
-export { bresenham, bresenhamGenerator, Point } from './Util/Bresenham.js';
+export { bresenham, bresenhamGenerator, Point } from './Math/Bresenham.js';
 
 export {
   Ability, Property, Value, ValueType,
