@@ -197,7 +197,9 @@ export class Entity implements ComponentContainer, Printable {
   }
 
   _attach(component: Component): boolean {
-    Chaos.allComponents.set(component.id, component);
+    if(this.published) {
+      Chaos.allComponents.set(component.id, component);
+    }
     this.components.addComponent(component); // TODO check for unique flag, or duplicate ID -- return false if already attached
     if(cachesSensedEntities(component)) {
       this.sensedEntities.addChild(component.sensedEntities);

@@ -246,5 +246,4 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
     });
   });
 
-
 });

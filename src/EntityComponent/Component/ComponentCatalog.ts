@@ -147,7 +147,10 @@ export class ComponentCatalog {
     if(this.subscribers.size > 0) {
       this.clearSubscriptions();
     }
-    this.all.forEach(component => this.createComponentSubscriptions(component));
+    for(const [id, component] of this.all) {
+      this.createComponentSubscriptions(component);
+      component._publish();
+    }
   }
 
   clearSubscriptions() {
@@ -169,7 +172,7 @@ export class ComponentCatalog {
     }
     // Unpublish all contained components
     for(const [, component] of this.all) {
-      component.unpublish();
+      component._unpublish();
     }
   }
 

@@ -1,6 +1,6 @@
 
 import { v4 as uuid } from 'uuid';
-import { ComponentFunctionCollection, ComponentContainer, Printable, Action, Scope, Entity, AttachComponentAction, DetachComponentAction } from '../internal.js'
+import { ComponentFunctionCollection, ComponentContainer, Printable, Action, Scope, Entity, AttachComponentAction, DetachComponentAction, Chaos } from '../internal.js'
 
 export type actionFunction = (action: Action) => boolean | undefined;
 export function isActionFunction(fn: any): fn is actionFunction {
@@ -50,18 +50,23 @@ export abstract class Component implements Printable {
     return new AttachComponentAction({ target, caster, component: this, using, metadata });
   }
 
-
   _attach(parent: ComponentContainer) {
     this.parent = parent;
+    if(this.parent.isPublished()) {
+      Chaos.allComponents.set(this.id, this);
+    }
   }
 
-  
   detach({target, caster, using, metadata}: DetachComponentAction.ComponentParams, force = false): DetachComponentAction {
     return new DetachComponentAction({ target, caster, component: this, using, metadata });
   }
 
   _detach() {
-    this.parent = undefined;
+    if(this.parent !== undefined) {
+      this.parent.components.removeComponent(this);
+      this.parent = undefined;
+      Chaos.allComponents.delete(this.id);
+    }
   }
 
   destroy(): boolean {
@@ -88,8 +93,12 @@ export abstract class Component implements Printable {
     }
   }
 
-  unpublish() {
-    // TODO any potential DB removals
+  _publish() {
+    Chaos.allComponents.set(this.id, this);
+  }
+
+  _unpublish() {
+    Chaos.allComponents.delete(this.id);
   }
 }
 
@@ -114,7 +123,7 @@ export namespace Component {
     tags: string[]
   }
   
-  export function  Deserialize(json: Component.Serialized): Component  {
+  export function Deserialize(json: Component.Serialized): Component  {
     throw new Error();
   }
   
