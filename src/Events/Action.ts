@@ -130,7 +130,7 @@ export abstract class Action {
     }
 
     // Queue in the game
-    Chaos.queueForBroadcast(this);
+    Chaos.processor.queueForBroadcast(this);
 
     // Do any special teardown for this action (ie unloading areas of the world we've moved away from)
     this.teardown();
@@ -147,7 +147,7 @@ export abstract class Action {
     // Generate terminal message
     this.generateMessage();
 
-    Chaos.process(this);
+    Chaos.processor.process(this);
 
     return this.applied;
   }
@@ -315,7 +315,7 @@ export abstract class Action {
 
   followup(o: Action | Event): void {
     this.followups.push(o);
-    Chaos.actionQueue.enqueue(o);
+    Chaos.processor.queue.enqueue(o);
   }
 
   static serializedHasRequiredFields(json: any, additional: string[]): boolean {

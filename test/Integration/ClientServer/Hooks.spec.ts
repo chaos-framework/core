@@ -13,10 +13,10 @@ describe('Hooks', function() {
       let callCount = 0;
       const testHook: ActionHook = (action: Action) => { callCount++ };
       Chaos.attachActionHook(testHook);
-      Chaos.queueActionForProcessing(new LogicalAction('TEST'));
-      Chaos.queueActionForProcessing(new LogicalAction('TEST'));
-      Chaos.queueActionForProcessing(new LogicalAction('TEST'));
-      Chaos.process();
+      Chaos.processor.enqueue(new LogicalAction('TEST'));
+      Chaos.processor.enqueue(new LogicalAction('TEST'));
+      Chaos.processor.enqueue(new LogicalAction('TEST'));
+      Chaos.processor.process();
       expect(callCount).to.equal(3);
     })
   });
@@ -27,10 +27,10 @@ describe('Hooks', function() {
       let totalActions = 0;
       const testHook: ExecutionHook = (actions: Action[]) => { callCount++; totalActions = actions.length; };
       Chaos.attachExecutionHook(testHook);
-      Chaos.queueActionForProcessing(new LogicalAction('TEST'));
-      Chaos.queueActionForProcessing(new LogicalAction('TEST'));
-      Chaos.queueActionForProcessing(new LogicalAction('TEST'));
-      Chaos.process();
+      Chaos.processor.enqueue(new LogicalAction('TEST'));
+      Chaos.processor.enqueue(new LogicalAction('TEST'));
+      Chaos.processor.enqueue(new LogicalAction('TEST'));
+      Chaos.processor.process();
       expect(callCount).to.equal(1);
       expect(totalActions).to.equal(3);
     })

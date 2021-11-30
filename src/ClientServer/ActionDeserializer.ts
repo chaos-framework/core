@@ -2,7 +2,7 @@
 import { 
   Action, ActionType, PublishPlayerAction,
   PublishEntityAction, MoveAction,
-  RelativeMoveAction, OwnEntityAction, UnpublishEntityAction, ChangeTurnAction, AddPropertyAction, AttachComponentAction, ChangeWorldAction, DetachComponentAction
+  RelativeMoveAction, OwnEntityAction, UnpublishEntityAction, ChangeTurnAction, DetachComponentAction, AttachComponentAction
 } from "../internal.js";
 
 export default class ActionDeserializer {
@@ -15,6 +15,7 @@ export default class ActionDeserializer {
           case ActionType.ADD_SLOT_ACTION:
             break;
           case ActionType.ATTACH_COMPONENT_ACTION:
+            return AttachComponentAction.deserialize(json);
             break
           case ActionType.CHANGE_TURN_ACTION:
             return ChangeTurnAction.deserialize(json);

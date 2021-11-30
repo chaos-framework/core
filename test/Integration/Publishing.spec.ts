@@ -5,7 +5,7 @@ import { Component, Entity, Chaos, World, Vector } from '../../src/internal.js';
 import { EmptyComponent } from '../Mocks/Components/Functional.js';
 import Room from '../Mocks/Worlds/Room.js';
 
-describe.only('Publishing and unpublishing entities and their components', function () {
+describe('Publishing and unpublishing entities and their components', function () {
   let entity: Entity;
   let component: Component;
   let world: Room;

@@ -1,9 +1,17 @@
-import { Action, ActionQueue, Chaos, NestedChanges, Player, Team } from '../internal';
+import { Action, Event, ActionQueue, BroadcastType, Chaos, NestedChanges, Player, Team } from '../internal.js';
 
 export class ActionProcessor {
   queue = new ActionQueue();
   actionsThisProcess: Action[] = [];
   processing = false;
+
+  enqueue(item: Action | Event) {
+    this.queue.enqueue(item);
+  }
+
+  reset() {
+    this.queue.reset();
+  }
 
   process(action?: Action) {
     if(this.processing === true) {
@@ -55,13 +63,13 @@ export class ActionProcessor {
     }
     // Broadcast to everyone, if specified, or more specific clients
     if(action.broadcastType === BroadcastType.FULL) {
-      for(const [, player] of players) {
+      for(const [, player] of Chaos.players) {
         player.enqueueAction(action);
       }
     } else {
       // Broadcast out to either visibility type based on sense of relevent entities
-      if(perceptionGrouping === 'team') {
-        for(const [, team] of teams) {
+      if(Chaos.perceptionGrouping === 'team') {
+        for(const [, team] of Chaos.teams) {
           if(
             (action.target && (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
             (action.caster && (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
@@ -71,7 +79,7 @@ export class ActionProcessor {
         }
         // TODO players without teams
       } else {
-        for(const [, player] of players) {
+        for(const [, player] of Chaos.players) {
           if(
             (action.target && (player.entities.has(action.target.id) || player.sensedEntities.has(action.target.id))) ||
             (action.caster && (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))

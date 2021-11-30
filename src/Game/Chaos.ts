@@ -1,13 +1,13 @@
 import {
-  Entity, Action, World, Component, Viewer, NestedChanges, ActionProcessor,
-  Player, Team, ActionQueue, ComponentCatalog, ComponentContainer,
-  Scope, BroadcastType, VisibilityType, CAST, ExecutionHook, ActionHook
+  Entity, Action, World, Component, Viewer, ActionProcessor,
+  Player, Team, ComponentCatalog, ComponentContainer,
+  Scope, VisibilityType, CAST, ExecutionHook, ActionHook
 } from "../internal.js";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
 export function setId(value: string) { id = value }
 
-const processor = new ActionProcessor;
+export const processor = new ActionProcessor();
 
 let phases = ['modify', 'permit', 'react', 'output']
 let prePhases = ['modify', 'permit'];
@@ -61,7 +61,7 @@ export function reset() {
   teams.clear();
   teamsByName.clear();
   worlds.clear();
-  actionQueue = new ActionQueue();
+  processor.reset();
   actionHooks = new Array<ActionHook>();
   executionHooks = new Array<ExecutionHook>();
   currentTurn = undefined;

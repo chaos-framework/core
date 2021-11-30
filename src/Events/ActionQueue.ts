@@ -17,6 +17,10 @@ export default class ActionQueue {
     this.followups.enqueue(o);
   }
 
+  reset() {
+    this.queue = new Queue<Event | Action>()
+  }
+
   // Get then next Action in the queue, either from an event or directly.
   // Return undefined if none found.
   getNextAction(): Action | undefined {

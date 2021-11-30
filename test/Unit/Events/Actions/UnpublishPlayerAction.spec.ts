@@ -3,9 +3,7 @@ import 'mocha';
 
 import { Chaos, ActionType, Player, UnpublishPlayerAction } from '../../../../src/internal.js';
 
-import Room from '../../../Mocks/Worlds/Room.js';
-
-describe.only('UnpublishPlayerAction', () => {
+describe('UnpublishPlayerAction', () => {
   let player: Player;
 
   beforeEach(() => {

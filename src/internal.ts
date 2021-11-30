@@ -43,9 +43,9 @@ export { ChangeTurnAction } from './Events/Actions/ChangeTurnAction.js';
 export { VisibilityType } from './Events/Enums.js';
 import ActionQueue from './Events/ActionQueue.js';
 // GAME AND WORLD
+export { ActionProcessor } from "./Game/ActionProcessor.js";
 export * as Chaos from './Game/Chaos.js';
 export { Game, isGame } from './Game/Game.js';
-export { ActionProcessor } from "./Game/ActionProcessor.js";
 export { Team } from './Game/Team.js';
 export { Player } from './Game/Player.js';
 import { Viewer, ActionQueuer } from './Game/Interfaces.js';
