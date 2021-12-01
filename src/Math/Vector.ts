@@ -51,6 +51,14 @@ export default class Vector {
     return new Vector(this.x, this.y);
   }
 
+  floor(): Vector {
+    return new Vector(Math.floor(this.x), Math.floor(this.y));
+  }
+
+  ceil(): Vector {
+    return new Vector(Math.ceil(this.x), Math.ceil(this.y));
+  }
+
   // Clamps to zero-based square of size given
   clamp(size?: Vector): Vector {
     return new Vector(clamp(this.x, 0, size ? size.x : Number.MAX_VALUE), clamp(this.y, 0, size ? size.y : Number.MAX_VALUE));
