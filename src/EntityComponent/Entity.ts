@@ -207,6 +207,7 @@ export class Entity implements ComponentContainer, Printable {
     if(cachesSensedEntities(component)) {
       this.sensedEntities.addChild(component.sensedEntities);
     }
+    component._publish();
     return true;
   }
 
@@ -475,7 +476,7 @@ export class Entity implements ComponentContainer, Printable {
 
   serializeForClient(): Entity.SerializedForClient {
     const components: Component.SerializedForClient[] = [];
-    this.components.all.forEach(c => { 
+    this.components.all.forEach(c => {
       if(c.broadcast) {
         components.push(c.serializeForClient());
       }

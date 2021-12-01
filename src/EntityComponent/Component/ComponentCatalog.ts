@@ -55,6 +55,9 @@ export class ComponentCatalog {
     }
     this.createComponentSubscriptions(component);
     component.parent = this.parent;
+    if(this.parent.isPublished()) {
+      component._publish();
+    }
   }
 
   createComponentSubscriptions(component: Component) {
@@ -98,6 +101,8 @@ export class ComponentCatalog {
       this.unsubscribe(subscription);
     });
     this.subscriptionsByComponent.delete(id);
+    // Unpublish the component
+    component._unpublish();
   }
 
   // Attach a subscriber to this component

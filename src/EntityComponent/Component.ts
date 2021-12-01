@@ -15,7 +15,7 @@ export abstract class Component implements Printable {
   description?: string;
   tags = new Set<string>();   // usually frontend stuff, like filtering for traits vs statuses, etc
   public: boolean = false;    // can other entities see this component? TODO: needed?
-  broadcast: boolean = false; // do we tell client about this component at all?
+  broadcast: boolean = true; // do we tell client about this component at all?
   unique: boolean = true;     // whether or not more of one of this type of class can be attached to an entity
   //propertyModifications: Modification[] = [];
 
@@ -39,7 +39,12 @@ export abstract class Component implements Printable {
   }
 
   serialize(): object {
-    return { id: this.id, name: this.name, data: this.data } // TODO convert to json string?
+    return { 
+      id: this.id,
+      name: this.name,
+      data: this.data,
+      broadcast: this.broadcast
+    } // TODO convert to json string?
   }
 
   unserialize(id: number, name: string, data: object) {

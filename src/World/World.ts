@@ -28,7 +28,7 @@ export abstract class World implements ComponentContainer, Listener {
 
   scope: WorldScope; // which parts of the world are seen by who
 
-  constructor({id = uuid(), name = 'Unnamed World', fill = 0, width, height, streaming = false, additionalLayers}: World.ConstructorParams) {
+  constructor({id = uuid(), name = 'Unnamed World', fill = 0, width, height, streaming = false, additionalLayers}: World.ConstructorParams = {}) {
     this.id = id;
     this.name = name;
     this.width = width;

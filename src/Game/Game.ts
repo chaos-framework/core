@@ -1,7 +1,7 @@
 import { CONNECTION, CONNECTION_RESPONSE } from "../internal.js";
 
 export interface Game {
-  initialize(option: any): void;
+  initialize(option?: any): void;
   shutdown(): void;
   play(): void;
   onPlayerConnect(msg: CONNECTION): CONNECTION_RESPONSE;
