@@ -18,7 +18,7 @@ export abstract class World implements ComponentContainer, Listener {
   // additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
 
   entities = new Map<string, Entity>();
-  entitiesByChunk: Map<string, Set<string>> = new Map<string, Set<string>>();
+  entitiesByChunk: Map<string, Map<string, Entity>> = new Map<string, Map<string, Entity>>();
 
   width?: number;
   height?: number;
@@ -78,9 +78,9 @@ export abstract class World implements ComponentContainer, Listener {
       this.entities.set(entity.id, entity);
       const chunkIndex = entity.position.toChunkSpace().getIndexString();
       if(!this.entitiesByChunk.has(chunkIndex)) {
-        this.entitiesByChunk.set(chunkIndex, new Set<string>());        
+        this.entitiesByChunk.set(chunkIndex, new Map<string, Entity>());        
       }
-      this.entitiesByChunk.get(chunkIndex)?.add(entity.id);
+      this.entitiesByChunk.get(chunkIndex)?.set(entity.id, entity);
       return true;
     }
     return false;
@@ -109,11 +109,9 @@ export abstract class World implements ComponentContainer, Listener {
         }
         const newString = to.toChunkSpace().getIndexString();
         if(!this.entitiesByChunk.has(newString)) {
-          this.entitiesByChunk.set(newString, new Set<string>([entity.id]));
+          this.entitiesByChunk.set(newString, new Map<string, Entity>());
         }
-        else {
-          this.entitiesByChunk.get(newString)!.add(entity.id);
-        }
+        this.entitiesByChunk.get(newString)!.set(entity.id, entity);
       }
     }
   }
@@ -157,8 +155,7 @@ export abstract class World implements ComponentContainer, Listener {
     const chunk = vector.toChunkSpace().getIndexString();
     const entitiesInChunk = this.entitiesByChunk.get(chunk);
     if(entitiesInChunk) {
-      for(const id of entitiesInChunk) {
-        const entity = Chaos.getEntity(id); // TODO super suboptimal -- quick hack
+      for(const [, entity] of entitiesInChunk) {
         if(entity && entity.position.equals(vector)) {
           entities.push(entity);
         }
