@@ -223,8 +223,8 @@ export function serializeForScope(viewer: Viewer): SerializedForClient {
     o.teams.push(team.serializeForClient());
   }
   // Gather all visible worlds and serialize with visible baselayer chunks
-  for(const kv of viewer.getWorldScopes()) {
-    const world = worlds.get(kv[0]);
+  for(const [id, worldScope] of viewer.getWorldScopes()) {
+    const world = worlds.get(id);
     if(world !== undefined) {
       o.worlds.push(world.serializeForClient());
     }
@@ -252,17 +252,20 @@ export function DeserializeAsClient(serialized: SerializedForClient, clientPlaye
     const deserialized = Team.DeserializeAsClient(team);
     teams.set(deserialized.id, deserialized);  // TODO addTeam
   }
+  for(const world of serialized.worlds) {
+    const deserialized = World.deserializeAsClient(world);
+    addWorld(deserialized);
+  }
   for(const entity of serialized.entities) {
     const deserialized = Entity.DeserializeAsClient(entity);
     addEntity(deserialized);
+    if(deserialized.world !== undefined) {
+      deserialized._publish(deserialized.world, deserialized.position);
+    }
   }
   for(const player of serialized.players) {
     const isOwner = player.id === clientPlayerId;
     const deserialized = Player.DeserializeAsClient(player, isOwner);
     addPlayer(deserialized);
-  }
-  for(const world of serialized.worlds) {
-    const deserialized = World.deserializeAsClient(world);
-    addWorld(deserialized);
   }
 }

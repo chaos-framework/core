@@ -110,15 +110,13 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     const changes = this.sensedEntities.addChild(entity.sensedEntities);
     entity._grantOwnershipTo(this);
     // Modify scope, if appropriate
-    if (entity.world) {
+    if (entity.world !== undefined) {
       let scope = this.scopesByWorld.get(entity.world.id);
-      if (scope) {
-        scope.addViewer(entity.id, Chaos.viewDistance, entity.position.toChunkSpace());
-      } else {
+      if (scope === undefined) {
         scope = entity.world.createScope();
-        scope.addViewer(entity.id, Chaos.viewDistance, entity.position.toChunkSpace());
         this.scopesByWorld.set(entity.world.id, scope);
       }
+      scope.addViewer(entity.id, Chaos.viewDistance, entity.position.toChunkSpace());
     }
     return changes;
   }

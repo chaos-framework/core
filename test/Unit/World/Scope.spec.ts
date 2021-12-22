@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Chaos, Scope, Vector, WorldScope } from './../../../src/internal.js';
+import { Chaos, Vector, WorldScope } from './../../../src/internal.js';
 
 describe ('WorldScopes', () => {
   let scope: WorldScope;
@@ -77,7 +77,7 @@ describe ('WorldScopes', () => {
     expect(scope.active.has(new Vector(15, 15).getIndexString())).to.be.true;
   });
 
-  it('Does not track anything northwest of zero coordinates in a streaming world', () => {
+  it('Does not track anything southeast of zero coordinates in a streaming world', () => {
     scope = new WorldScope(); // infinite / streaming
     Chaos.setViewDistance(5);
     scope.addViewer('', Chaos.viewDistance, new Vector(0, 0));

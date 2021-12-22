@@ -7,7 +7,7 @@ import {
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, NestedChanges,
-  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction, Player, cachesSensedEntities
+  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction, Player, cachesSensedEntities, GlyphCode347
 } from '../internal.js';
 
 export class Entity implements ComponentContainer, Printable {
@@ -37,14 +37,15 @@ export class Entity implements ComponentContainer, Printable {
   world?: World;
   position: Vector = new Vector(0, 0);
 
-  // TODO art asset
-  // TODO single char for display in leiu of art asset
+  asset?: string;
+  glyph: GlyphCode347;
 
-  constructor({ id = uuid(), name = 'Unnamed Entity', metadata, team, active = false, omnipotent = false }: Entity.ConstructorParams = {}) { // TODO 
+  constructor({ id = uuid(), name = 'Unnamed Entity', metadata, team, active = false, omnipotent = false, glyph = GlyphCode347['?'] }: Entity.ConstructorParams = {}) { // TODO 
     this.id = id;
     this.name = name;
     this.active = active;
     this.omnipotent = omnipotent;
+    this.glyph = glyph;
     // tslint:disable-next-line: forin
     for(const key in metadata) {
       this.metadata.set(key, metadata[key]);
@@ -483,10 +484,13 @@ export class Entity implements ComponentContainer, Printable {
     });
     return { 
       id: this.id,
+      position: this.position.serialize(),
       name: this.name,
       active: this.active,
       omnipotent: this.omnipotent,
-      components
+      world: this.world?.id,
+      components,
+      glyph: this.glyph
     };
   }
 
@@ -500,7 +504,8 @@ export namespace Entity {
     team?: Team,
     metadata?: {[key: string]: string | number | boolean | undefined},
     active?: boolean,
-    omnipotent?: boolean
+    omnipotent?: boolean,
+    glyph?: GlyphCode347
   }
 
   export interface Serialized {
@@ -510,12 +515,14 @@ export namespace Entity {
   export interface SerializedForClient {
     id: string,
     name: string,
+    position: string,
     world?: string,
     metadata?: {[key: string]: string | number | boolean | undefined},
     active?: boolean,
     omnipotent?: boolean,
     team?: string,
-    components?: Component.SerializedForClient[]
+    components?: Component.SerializedForClient[],
+    glyph?: GlyphCode347
   }
 
   export function Deserialize(json: Entity.Serialized): Entity {
@@ -524,22 +531,23 @@ export namespace Entity {
 
   export function DeserializeAsClient(json: Entity.SerializedForClient): Entity {
     try {
-      const { id, name, metadata, team, active, omnipotent, components, world: worldId } = json;
-      const deserialized = new Entity({ id, name, metadata, active, omnipotent });
-      if(worldId !== undefined) {
+      const { id, name, metadata, team, active, omnipotent, components, world: worldId, glyph } = json;
+      const deserialized = new Entity({ id, name, metadata, active, omnipotent, glyph });
+      deserialized.position = Vector.deserialize(json.position);
+      if (worldId !== undefined) {
         const world = Chaos.getWorld(worldId);
-        if(world !== undefined) {
+        if (world !== undefined) {
           deserialized.world = world;
         }
       }
-      if(team !== undefined) {
+      if (team !== undefined) {
         const t = Chaos.teams.get(team);
-        if(t === undefined) {
+        if (t === undefined) {
           throw new Error(`Team for Entity ${id} is not defined locally.`)
         }
       }
-      if(components) {
-        for(let c of components) {
+      if (components !== undefined) {
+        for (let c of components) {
           deserialized._attach(Component.DeserializeAsClient(c));
         }
       }

@@ -37,7 +37,7 @@ export class MoveAction extends Action {
     if (world && this.from.differentChunkFrom(this.to)) {
       // Check if this entity is active, and therefore needs to persist the world around it
       // Also check if action was permitted. If so, remove old view. If neither is true, just remove old.
-      if (this.target.active && this.permitted) {
+      if (this.target.active && this.applied) {
         world.removeView(this.target, this.from.toChunkSpace(), this.to.toChunkSpace());
       } else {
         world.removeView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());

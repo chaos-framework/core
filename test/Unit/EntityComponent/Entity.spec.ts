@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, Ability, Component, CachesSensedEntities } from '../../../src/internal.js';
+import { Entity, Ability, Component, CachesSensedEntities, GlyphCode347 } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
 import EmptyAbility from '../../Mocks/Abilities/Empty.js';
@@ -24,7 +24,7 @@ describe('Entity', () => {
     let serializedForClient: Entity.SerializedForClient;
     let paladin: Component;
     beforeEach(() => {
-      e = new Entity({ name: "CS Test", active: true, omnipotent: false });
+      e = new Entity({ name: "CS Test", active: true, omnipotent: false, glyph: GlyphCode347['@'] });
       paladin = new Paladin()
       e._attach(paladin);
       e._attach(new NonBroadcastingComponent());  // this should not get serialized for any client
@@ -34,12 +34,14 @@ describe('Entity', () => {
     it('Serializing for clients', () => {
       expect(serializedForClient.id).to.equal(e.id);
       expect(serializedForClient.active).to.be.true;
+      expect(serializedForClient.glyph).to.equal(GlyphCode347['@']);
     });
 
     it('Deserializing as a client', () => {
       const deserializedAsClient = Entity.DeserializeAsClient(serializedForClient);
       expect(deserializedAsClient.id).to.equal(e.id);
       expect(deserializedAsClient.active).to.be.true;
+      expect(deserializedAsClient.glyph).to.equal(GlyphCode347['@']);
     });
 
     it('Includes components, public only, when serializing for clients', () => {

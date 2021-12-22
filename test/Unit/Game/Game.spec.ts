@@ -24,6 +24,7 @@ describe('Game', () => {
       room = new Room();
       otherRoom = new Room();
       Chaos.addWorld(room);
+      Chaos.addWorld(otherRoom);
       e = new Entity();
       e._publish(room, room.stageLeft);
       p._ownEntity(e);

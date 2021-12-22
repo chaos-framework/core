@@ -73,6 +73,7 @@ import Vector from './Math/Vector.js';
 export { NestedMap, NestedChanges } from './Util/NestedMap.js';
 export { withMetadata } from './Util/WithMetadata.js';
 export { bresenham, bresenhamGenerator, Point } from './Math/Bresenham.js';
+export { GlyphCode347 } from './Util/Glyphs.js';
 
 export {
   Ability, Property, Value, ValueType,
