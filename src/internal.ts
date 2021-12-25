@@ -65,7 +65,7 @@ export { TerminalMessage } from './ClientServer/Terminal/TerminalMessage.js';
 export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessageFragment.js';
 // WORLDS
 import Layer, { ILayer } from './World/Layer.js';
-import Chunk, { IChunk } from './World/Chunk.js';
+export { Chunk, CHUNK_WIDTH } from './World/Chunk.js';
 import WorldScope from './World/WorldScope.js';
 import ByteLayer from './World/Layers/ByteLayer.js';
 import Vector from './Math/Vector.js';
@@ -80,7 +80,7 @@ export {
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters,
-  Layer, Chunk, WorldScope, IChunk, ILayer, ByteLayer,
+  Layer, WorldScope, ILayer, ByteLayer,
   ClientWorld,
   Viewer, ActionQueuer as Broadcaster, EntityScope,
   Event, ActionQueue,

@@ -2,8 +2,7 @@ import { v4 as uuid } from 'uuid';
 
 import { 
   ComponentContainer, ComponentCatalog,
-  Listener, Action, IChunk,
-  ByteLayer,
+  Listener, Action, ByteLayer,
   Entity, Vector, Chaos, ClientWorld, WorldScope, Scope,
 } from '../internal.js';
 
@@ -20,11 +19,12 @@ export abstract class World implements ComponentContainer, Listener {
   entities = new Map<string, Entity>();
   entitiesByChunk: Map<string, Map<string, Entity>> = new Map<string, Map<string, Entity>>();
 
+  fill: number = 0;
   width?: number;
   height?: number;
 
   streaming: boolean = false; // whether or not to load/unload chunks from memory
-  ephemeral: boolean = true;  // should be forgotten + all contained entities deleted when unloaded
+  ephemeral: boolean = true;  // should be forgotten + all non-active entities deleted when unloaded
 
   scope: WorldScope; // which parts of the world are seen by who
 
@@ -36,7 +36,7 @@ export abstract class World implements ComponentContainer, Listener {
     this.streaming = streaming;
     this.scope = new WorldScope(width, height);
 
-    this.baseLayer = new ByteLayer(fill);
+    this.baseLayer = new ByteLayer(this.fill);
     // TODO check for width and height and force streaming if undefined or the world is too large
     // TODO if not streaming, should this super constructor handle creating chunks with default values?
 

@@ -1,8 +1,8 @@
-import { Vector, Chunk, IChunk } from '../internal.js';
+import { Vector, Chunk } from '../internal.js';
 const CHUNK_WIDTH = 16;
 
-export default abstract class Layer<T> implements ILayer {
-  chunks = new Map<string, Chunk<T>>();
+export default abstract class Layer<T, C extends Chunk<T>> implements ILayer {
+  chunks = new Map<string, C>();
   fill: any;
 
   constructor(fill: any) {
@@ -40,7 +40,7 @@ export default abstract class Layer<T> implements ILayer {
   }
 
   // Initialize chunks, optionally with a base for context
-  initializeChunk(x: number, y: number): IChunk {
+  initializeChunk(x: number, y: number): C {
     const k = new Vector(x, y).getIndexString();
     let chunk = this.chunks.get(k);
     if(chunk) {
@@ -76,7 +76,7 @@ export default abstract class Layer<T> implements ILayer {
 export interface ILayer {
   setTile(x: number, y: number, tile: any): void;
   getTile(x: number, y: number): any | undefined;
-  getChunk(x: number, y: number): IChunk | undefined;
-  initializeChunk(x: number, y: number, base?: IChunk): IChunk;
+  getChunk(x: number, y: number): Chunk | undefined;
+  initializeChunk(x: number, y: number, base?: Chunk): Chunk;
   forgetChunk(key: string): void;
 }
