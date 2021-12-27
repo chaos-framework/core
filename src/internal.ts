@@ -64,10 +64,11 @@ export { Printable, isPrintable } from './ClientServer/Terminal/Printable.js';
 export { TerminalMessage } from './ClientServer/Terminal/TerminalMessage.js';
 export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessageFragment.js';
 // WORLDS
-import Layer, { ILayer } from './World/Layer.js';
+export { Layer } from './World/Layer.js';
 export { Chunk, CHUNK_WIDTH } from './World/Chunk.js';
+export { ArrayChunk } from './World/Chunks/ArrayChunk.js'
 import WorldScope from './World/WorldScope.js';
-import ByteLayer from './World/Layers/ByteLayer.js';
+import { ByteLayer } from './World/Layers/ByteLayer.js';  // TODO toss this in a standard lib or something
 import Vector from './Math/Vector.js';
 // UTIL
 export { NestedMap, NestedChanges } from './Util/NestedMap.js';
@@ -80,7 +81,7 @@ export {
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters,
-  Layer, WorldScope, ILayer, ByteLayer,
+  WorldScope, ByteLayer,
   ClientWorld,
   Viewer, ActionQueuer as Broadcaster, EntityScope,
   Event, ActionQueue,

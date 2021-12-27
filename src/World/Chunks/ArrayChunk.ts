@@ -1,6 +1,6 @@
-import { Chunk, CHUNK_WIDTH } from "../../internal";
+import { Chunk, CHUNK_WIDTH } from "../../internal.js";
 
-export default class ArrayChunk<T> implements Chunk {
+export class ArrayChunk<T> implements Chunk<T> {
   tiles: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]; // 16 x 16
 
   constructor(fill: T) {

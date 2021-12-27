@@ -14,7 +14,7 @@ export abstract class Layer<T extends Chunk<any>> {
   // TODO events for setting tiles
   set(x: number, y: number, value: ExtractLayoutParameter<T>) {
     const chunk = this.getChunk(x, y);
-    if(chunk) {
+    if(chunk !== undefined) {
       const relativeX = x % CHUNK_WIDTH;
       const relativeY = y % CHUNK_WIDTH;
       chunk.setTile(relativeX, relativeY, value);
@@ -30,6 +30,13 @@ export abstract class Layer<T extends Chunk<any>> {
     }
     return undefined;
   };
+
+  setChunk(x: number, y: number, chunk: T): void {
+    const key = new Vector(x, y).toChunkSpace().getIndexString();
+    if (!this.chunks.has(key)) {
+      this.chunks.set(key, chunk);
+    }
+  }
 
   // Get the chunk that the absolute x/y coordinates fall under
   getChunk(x: number, y: number): Chunk<ExtractLayoutParameter<T>> | undefined {

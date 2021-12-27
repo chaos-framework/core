@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { 
   ComponentContainer, ComponentCatalog,
   Listener, Action, ArrayChunk,
-  Entity, Vector, Chaos, ClientWorld, WorldScope, Scope, Layer,
+  Entity, Vector, Chaos, ClientWorld, WorldScope, Scope, Layer, Chunk, ByteLayer,
 } from '../internal.js';
 
 const CHUNK_WIDTH = 16;
@@ -14,7 +14,7 @@ export abstract class World implements ComponentContainer, Listener {
   published = false;
   components: ComponentCatalog = new ComponentCatalog(this);
   baseLayer: Layer<ArrayChunk<number>>;
-  // additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
+  layers: Map<string, Layer<any>>;
 
   entities = new Map<string, Entity>();
   entitiesByChunk: Map<string, Map<string, Entity>> = new Map<string, Map<string, Entity>>();
@@ -28,7 +28,7 @@ export abstract class World implements ComponentContainer, Listener {
 
   scope: WorldScope; // which parts of the world are seen by who
 
-  constructor({id = uuid(), name = 'Unnamed World', fill = 0, width, height, streaming = false, additionalLayers}: World.ConstructorParams = {}) {
+  constructor({ id = uuid(), name = 'Unnamed World', width, height, streaming = false, baseLayer = new ByteLayer(0), additionalLayers }: World.ConstructorParams) {
     this.id = id;
     this.name = name;
     this.width = width;
@@ -36,16 +36,18 @@ export abstract class World implements ComponentContainer, Listener {
     this.streaming = streaming;
     this.scope = new WorldScope(width, height);
 
-    this.baseLayer = new ByteLayer(this.fill);
+    this.baseLayer = baseLayer;
+    this.layers = additionalLayers || new Map<string, Layer<any>>();
+    this.layers.set('base', this.baseLayer);
     // TODO check for width and height and force streaming if undefined or the world is too large
     // TODO if not streaming, should this super constructor handle creating chunks with default values?
 
     // Initialize the relevant layers with default values
-    if(!streaming && width && height) {
+    if (!streaming && width && height) {
       const chunkWidth = getChunkSpaceCoordinates(width);
       const chunkHeight = getChunkSpaceCoordinates(height);
-      for(let x = 0; x <= chunkWidth; x++) {
-        for(let y = 0; y <= chunkHeight; y++) {
+      for (let x = 0; x <= chunkWidth; x++) {
+        for (let y = 0; y <= chunkHeight; y++) {
           this.initializeChunk(x, y);
         }
       }
@@ -164,34 +166,21 @@ export abstract class World implements ComponentContainer, Listener {
   }
 
   getTile(x: number, y: number, layer?: string): any {
-    // if(layer && this.additionalLayers.has(layer)) {
-    //   return this.additionalLayers.get(layer)?.getTile(x, y);
-    // } else {
-      return this.baseLayer.get(x, y);
-    // }
-  }
-
-  // getTileAll(x: number, y: number): any {
-  //   const t:any = {};
-  //   t['base'] = this.baseLayer.getTile(x, y);
-  //   for(let k in this.additionalLayers) {
-  //     t[k] = this.additionalLayers.get(k)?.getTile(x, y);
-  //   }
-  // }
-
-  initializeChunk(x: number, y: number) {
-    const baseChunk: IChunk = this.baseLayer.initializeChunk(x, y);
-    // for(let k in this.additionalLayers) {
-    //   this.additionalLayers.get(k)?.initializeChunk(x, y, baseChunk);
-    // }
-    if(this.streaming) {
-      this.populateChunk(x, y, baseChunk);
+    const results: any = {};
+    for (const [name, layer] of this.layers) {
+      results[name] = layer.get(x, y)
     }
+    return results;
   }
 
-  populateChunk(x: number, y: number, chunk: IChunk): void { }
+  getBaseTile(x: number, y: number): number | undefined {
+    return this.baseLayer.get(x, y);
+  }
+
+  abstract initializeChunk(x: number, y: number): void;
 
   // TODO setTile and _setTile
+
   handle(phase: string, action: Action) {
     this.components.handle(phase, action);
   }
@@ -217,11 +206,11 @@ export namespace World {
   export interface ConstructorParams {
     id?: string,
     name?: string,
-    fill?: number,
     width?: number,
     height?: number,
     streaming?: boolean,
-    additionalLayers?: any
+    baseLayer: Layer<ArrayChunk<number>>,
+    additionalLayers?: Map<string, Layer<any>>
   }
 
   export interface Serialized {
@@ -239,7 +228,7 @@ export namespace World {
   }
 
   export function deserializeAsClient(json: World.SerializedForClient): World {
-    return new ClientWorld(json);
+    return new ClientWorld({ ...json, baseLayer: new ByteLayer(0) });
   }
 }
 

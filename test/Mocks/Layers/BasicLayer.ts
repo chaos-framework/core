@@ -1,4 +1,4 @@
-import { Layer } from '../../../src/internal.js';
+// import { Layer } from '../../../src/internal.js';
 
 interface BasicTile {
   name: string,
@@ -28,21 +28,21 @@ export enum BasicTiles {
   Air, Ground, Wall
 }
 
-export default class BasicLayer extends Layer<BasicTile> {
-  constructor(fill: number) {
-    super(BasicLayer.getTileFromInt(fill));
-  }
+// export default class BasicLayer extends Layer<BasicTile> {
+//   constructor(fill: number) {
+//     super(BasicLayer.getTileFromInt(fill));
+//   }
 
-  setTile(x: number, y: number, tile: number) {
-    super.setTile(x, y, BasicLayer.getTileFromInt(tile));
-  }
+//   setTile(x: number, y: number, tile: number) {
+//     super.setTile(x, y, BasicLayer.getTileFromInt(tile));
+//   }
 
-  static getTileFromInt(i: number) {
-    if (i >= 0 && i < basicTiles.length) {
-      return basicTiles[i];
-    } else {
-      // TODO log error?
-      return basicTiles[0];
-    }
-  }
-}
+//   static getTileFromInt(i: number) {
+//     if (i >= 0 && i < basicTiles.length) {
+//       return basicTiles[i];
+//     } else {
+//       // TODO log error?
+//       return basicTiles[0];
+//     }
+//   }
+// }

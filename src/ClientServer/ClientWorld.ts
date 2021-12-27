@@ -1,11 +1,15 @@
-import { World } from '../internal.js';
+import { ByteLayer, World } from '../internal.js';
 
 export default class ClientWorld extends World {
   ephemeral = true;
 
-  constructor({id, name, fill, width, height}: World.ConstructorParams) {
-    super({id, name, fill, width, height, streaming: true});
+  constructor({id, name, width, height, baseLayer }: World.ConstructorParams) {
+    super({id, name, width, height, baseLayer, streaming: true});
   }
 
-  serialize(): string { return ''; }
+  initializeChunk(x: number, y: number) {
+    
+  }
+
+  serialize(): string { return '' }
 }

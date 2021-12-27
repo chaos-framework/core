@@ -109,7 +109,7 @@ describe('Worlds', () => {
     });
   });
 
-  describe('Width and height limits', () => {
+  describe.skip('Width and height limits', () => {
 
   });
 
@@ -122,7 +122,7 @@ describe('Worlds', () => {
 
     it('Should be empty initially', () => {
       expect(world.scope.active.size).to.equal(0);
-      expect(world.getTile(0, 0)).to.be.undefined;
+      expect(world.getBaseTile(0, 0)).to.be.undefined;
     });
 
     it('Should stream in as active entities are added', () => {
@@ -130,7 +130,7 @@ describe('Worlds', () => {
       e.active = true;
       e._publish(world, new Vector(0,0));
       expect(world.scope.active.size).to.be.greaterThan(0);
-      expect(world.getTile(0, 0)).to.be.not.undefined;
+      expect(world.getBaseTile(0, 0)).to.be.not.undefined;
     });
 
     it('Should unload old tiles as entities move', () => {
@@ -138,7 +138,7 @@ describe('Worlds', () => {
       e.active = true;
       e._publish(world, new Vector(0,0));
       e.move({ to: new Vector(400, 400) }).execute();
-      expect(world.getTile(0, 0)).to.be.undefined;
+      expect(world.getBaseTile(0, 0)).to.be.undefined;
     });
 
     it('Should not unload chunks still being viewed by other entities', () => {
@@ -150,7 +150,7 @@ describe('Worlds', () => {
       other._publish(world, new Vector(0,0));
       e.move({ to: new Vector(400, 400) }).execute();
       expect(world.scope.active.has(other.position.toChunkSpace().getIndexString())).to.be.true;
-      expect(world.getTile(0, 0)).to.not.be.undefined;
+      expect(world.getBaseTile(0, 0)).to.not.be.undefined;
     });
 
     it('Should only persist chunks being viewed by active entities', () => {
@@ -160,7 +160,7 @@ describe('Worlds', () => {
       other.publish({ world, position: new Vector(0,0) }).execute();
       e.move({ to: new Vector(400, 400) }).execute();
       expect(world.scope.active.has(other.position.toChunkSpace().getIndexString())).to.be.false;
-      expect(world.getTile(0, 0)).to.be.undefined;
+      expect(world.getBaseTile(0, 0)).to.be.undefined;
     });
 
   });
