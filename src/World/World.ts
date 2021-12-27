@@ -2,8 +2,8 @@ import { v4 as uuid } from 'uuid';
 
 import { 
   ComponentContainer, ComponentCatalog,
-  Listener, Action, ByteLayer,
-  Entity, Vector, Chaos, ClientWorld, WorldScope, Scope,
+  Listener, Action, ArrayChunk,
+  Entity, Vector, Chaos, ClientWorld, WorldScope, Scope, Layer,
 } from '../internal.js';
 
 const CHUNK_WIDTH = 16;
@@ -13,7 +13,7 @@ export abstract class World implements ComponentContainer, Listener {
   name: string;
   published = false;
   components: ComponentCatalog = new ComponentCatalog(this);
-  baseLayer: ByteLayer;
+  baseLayer: Layer<ArrayChunk<number>>;
   // additionalLayers: Map<string, ILayer> = new Map<string, ILayer>();
 
   entities = new Map<string, Entity>();
@@ -116,7 +116,6 @@ export abstract class World implements ComponentContainer, Listener {
     }
   }
 
-  // Add 
   addView(e: Entity, to: Vector, from?: Vector) {
     if(this.streaming) {
       const { id, active } = e;
@@ -168,7 +167,7 @@ export abstract class World implements ComponentContainer, Listener {
     // if(layer && this.additionalLayers.has(layer)) {
     //   return this.additionalLayers.get(layer)?.getTile(x, y);
     // } else {
-      return this.baseLayer.getTile(x, y);
+      return this.baseLayer.get(x, y);
     // }
   }
 
