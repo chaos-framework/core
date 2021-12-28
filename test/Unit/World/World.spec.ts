@@ -21,6 +21,7 @@ describe('Worlds', () => {
       expect(serialized.name).to.equal("Serialization Test");
       expect(serialized.width).to.equal(world.width);
       expect(serialized.height).to.equal(world.height);
+      // TODO layers
     });
 
     it('Can deserialize as a a client', () => {
@@ -29,7 +30,12 @@ describe('Worlds', () => {
       expect(clientWorld.name).to.equal("Serialization Test");
       expect(clientWorld.width).to.equal(world.width);
       expect(clientWorld.height).to.equal(world.height);
+      // TODO layers
     });
+  });
+
+  describe('Holding different layers', function() {
+    
   });
 
   describe('Holding entities', () => {
@@ -84,7 +90,7 @@ describe('Worlds', () => {
     });
 
     // TODO cannot publish same entity twice!
-    // TODO also to worlds, different problem..
+    // TODO also to different worlds, different problem..
   });
 
   describe('Querying for entities', () => {
