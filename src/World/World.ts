@@ -165,12 +165,17 @@ export abstract class World implements ComponentContainer, Listener {
     return entities;
   }
 
+  // Get a tile by location. Optionally pass a layer to get just that single value.
   getTile(x: number, y: number, layer?: string): any {
-    const results: any = {};
-    for (const [name, layer] of this.layers) {
-      results[name] = layer.get(x, y)
+    if (layer === undefined) {
+      const results: any = {};
+      for (const [name, layer] of this.layers) {
+        results[name] = layer.get(x, y)
+      }
+      return results;
+    } else {
+      return this.layers.get(layer)?.get(x, y);
     }
-    return results;
   }
 
   getBaseTile(x: number, y: number): number | undefined {

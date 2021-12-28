@@ -5,6 +5,8 @@ import { Chaos, Entity, Vector, World } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
 import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld.js';
+import Earth from '../../Mocks/Worlds/Earth.js';
+import { AtmosphericComposition } from '../../Mocks/Layers/Atmosphere.js';
 
 describe('Worlds', () => {
   describe('Serializing / Deserializing', () => {
@@ -34,8 +36,30 @@ describe('Worlds', () => {
     });
   });
 
-  describe('Holding different layers', function() {
-    
+  describe.only('Holding different layers', function() {
+    const earth = new Earth();
+    const e = new Entity({ name: "Test Entity", active: true });
+    e._publish(earth, new Vector(0, 0));
+
+    it('Should have a baselayer that can be referenced directly and returns numbers', function() {
+      expect(earth.baseLayer).to.exist;
+      expect(typeof earth.getBaseTile(0, 0)).to.equal('number');
+    });
+
+    it('Should have additional layers that can be accessed by name', function() {
+      expect(earth.layers.get('atmosphere')).to.exist;
+      expect(typeof earth.getTile(0, 0, 'atmosphere')).to.equal('object');
+      expect(earth.layers.get('lightLevel')).to.exist;
+      expect(typeof earth.getTile(0, 0, 'lightLevel')).to.equal('number');
+    });
+
+    it('Should return an object containing the value of all layers when getting a tile', function() {
+      const tile = earth.getTile(0,0);
+      expect(typeof tile).to.equal('object');
+      expect(typeof tile.base).to.equal('number');
+      expect(typeof tile.atmosphere).to.equal('object');
+      expect(typeof tile.lightLevel).to.equal('number');
+    });
   });
 
   describe('Holding entities', () => {
