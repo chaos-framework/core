@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Action, Entity, Chaos, MoveAction, RelativeMoveAction, Vector, Player, Team } from '../../../src/internal.js';
+import { Action, Entity, Chaos, MoveAction, Vector, Player, Team } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
 import { SensesAll } from '../../Mocks/Components/Functional.js';
@@ -61,8 +61,8 @@ describe('Action Integration', () => {
       target.team = targetTeam;
       castingPlayer._ownEntity(caster);
       targetPlayer._ownEntity(target);
-      const action = new RelativeMoveAction({ 
-        caster, target, amount: new Vector(1, 0)
+      const action = new MoveAction({ 
+        caster, target, to: target.position.copyAdjusted(1, 0)
       });
       action.collectListeners();
       expect(action.listeners.find(el => el === castingPlayer)).to.exist;
@@ -72,7 +72,7 @@ describe('Action Integration', () => {
     });
 
     describe('Entities, targets, witnesses, and world when caster and target are in same world', () => {
-      let action: RelativeMoveAction;
+      let action: MoveAction;
       let caster: Entity;
       let target: Entity;
       let casterWitness: Entity;
@@ -91,9 +91,7 @@ describe('Action Integration', () => {
         targetWitness._publish(room, room.stageRight.add(new Vector(0, -1)));
         // TODO need to get witness players and teams as well... right? ahhh may need a method on each entity to gather listeners as well
         // that'll actually be really nice but not the priority at the moment
-        action = new RelativeMoveAction({ 
-          caster, target, amount: new Vector(1, 0)
-        });
+        action = target.moveRelative({ caster, amount: new Vector(1, 0) });
         Chaos.setListenDistance(25); // the default, but enforcing just in case
       });
 
@@ -119,7 +117,7 @@ describe('Action Integration', () => {
     });
 
     describe('Entities, targets, witnesses, and worlds when caster and target are in different worlds', () => {
-      let action: RelativeMoveAction;
+      let action: MoveAction;
       let caster: Entity;
       let target: Entity;
       let casterWitness: Entity;
@@ -138,9 +136,7 @@ describe('Action Integration', () => {
         target._publish(targetRoom, targetRoom.stageRight);
         targetWitness = new Entity();
         targetWitness._publish(targetRoom, targetRoom.stageLeft.add(new Vector(0, -1)));
-        action = new RelativeMoveAction({ 
-          caster, target, amount: new Vector(1, 0)
-        });
+        action = target.moveRelative({ caster, amount: new Vector(1, 0) });
       });
 
       it('Includes caster, target, their worlds, witnesses in respective worlds, players, teams, and the game', () => {

@@ -2,7 +2,7 @@
 import { 
   Action, ActionType, PublishPlayerAction,
   PublishEntityAction, MoveAction,
-  RelativeMoveAction, OwnEntityAction, UnpublishEntityAction, ChangeTurnAction, DetachComponentAction, AttachComponentAction
+  OwnEntityAction, UnpublishEntityAction, ChangeTurnAction, DetachComponentAction, AttachComponentAction
 } from "../internal.js";
 
 export default class ActionDeserializer {
@@ -30,8 +30,6 @@ export default class ActionDeserializer {
             return PublishPlayerAction.deserialize(json);
           case ActionType.MOVE_ACTION:
             return MoveAction.deserialize(json);
-          case ActionType.RELATIVE_MOVE_ACTION:
-            return RelativeMoveAction.deserialize(json);
           case ActionType.OWN_ENTITY_ACTION:
             return OwnEntityAction.deserialize(json);
           case ActionType.UNPUBLISH_ENTITY_ACTION:

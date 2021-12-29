@@ -21,7 +21,8 @@ export class MoveAction extends Action {
   }
 
   apply(): boolean {
-    return this.target._move(this.to);
+    this.scopeChanges = this.target._move(this.to);
+    return this.scopeChanges !== undefined
   }
 
   initialize() {
@@ -105,6 +106,10 @@ export namespace MoveAction {
 
   export interface EntityParams extends ActionParameters {
     to: Vector;
+  }
+
+  export interface EntityRelativeParams extends ActionParameters {
+    amount: Vector;
   }
 
   export interface Serialized extends Action.Serialized {

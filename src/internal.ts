@@ -27,7 +27,6 @@ export { ModifyPropertyAction } from './Events/Actions/ModifyPropertyAction.js';
 export { MoveAction } from './Events/Actions/MoveAction.js';
 export { PropertyChangeAction } from './Events/Actions/PropertyChangeAction.js';
 export { PublishEntityAction } from './Events/Actions/PublishEntityAction.js';
-export { RelativeMoveAction } from './Events/Actions/RelativeMoveAction.js';
 export { RemovePropertyAction } from './Events/Actions/RemovePropertyAction.js';
 export { RemoveSlotAction } from './Events/Actions/RemoveSlotAction.js';
 export { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction.js';

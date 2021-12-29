@@ -36,7 +36,7 @@ describe('Worlds', () => {
     });
   });
 
-  describe.only('Holding different layers', function() {
+  describe('Holding different layers', function() {
     const earth = new Earth();
     const e = new Entity({ name: "Test Entity", active: true });
     e._publish(earth, new Vector(0, 0));

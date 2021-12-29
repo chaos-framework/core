@@ -190,6 +190,12 @@ export abstract class World implements ComponentContainer, Listener {
     this.components.handle(phase, action);
   }
 
+  isInBounds(position: Vector) {
+    return  position.x > 0 && position.y > 0 
+            && (this.width === undefined || position.x < this.width) 
+            && (this.height === undefined || position.y < this.height);
+  }
+
   createScope(): WorldScope {
     return new WorldScope(this.width, this.height);
   }

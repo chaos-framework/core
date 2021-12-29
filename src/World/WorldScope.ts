@@ -64,6 +64,27 @@ export default class WorldScope {
     return new ScopeChange([], totalRemoved);
   }
 
+  moveViewer(viewer: string, distance: number, to: Vector, from: Vector): ScopeChange {
+    // Get newly viewed chunks, subtracting the previous view for this entity if provided
+    const newChunks = from !== undefined ? subtract(this.getChunksInView(from, distance), this.getChunksInView(to, distance)) : this.getChunksInView(to, distance);
+    const oldChunks = to !== undefined ? subtract(this.getChunksInView(to, distance), this.getChunksInView(from, distance)) : this.getChunksInView(from, distance);
+    const totalAdded: string[] = [];
+    const totalRemoved: string[] = [];
+    // Add new tiles + viewers
+    for (let chunk of newChunks) {
+      if (this.addChunkViewer(viewer, chunk)) {
+        totalAdded.push(chunk);
+      }
+    }
+    // Remove old tiles + viewers
+    for (let chunk of oldChunks) {
+      if (this.removeChunkViewer(viewer, chunk)) {
+        totalRemoved.push(chunk);
+      }
+    }
+    return new ScopeChange(totalAdded, totalRemoved);
+  }
+
   // TODO move viewer, and use in Entity _move
 
   getMoveChange(viewer: string, distance: number, from: Vector, to: Vector): ScopeChange {

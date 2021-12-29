@@ -3,12 +3,13 @@ import {
   Chaos, Vector, World, CachesSensedEntities, Printable,
   Component, ComponentContainer, ComponentCatalog, Event, Action,
   Ability, Property, AttachComponentAction,
-  ChangeWorldAction, MoveAction, RelativeMoveAction,
+  ChangeWorldAction, MoveAction,
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, NestedChanges,
   ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction, Player, cachesSensedEntities, GlyphCode347
 } from '../internal.js';
+import { ScopeChange } from '../World/WorldScope.js';
 
 export class Entity implements ComponentContainer, Printable {
   readonly id: string;
@@ -375,12 +376,17 @@ export class Entity implements ComponentContainer, Printable {
     return new MoveAction({caster, target: this, to, using, metadata});
   }
 
-  moveRelative({ caster, amount, using, metadata }: RelativeMoveAction.EntityParams): RelativeMoveAction {
-    return new RelativeMoveAction({caster, target: this, amount, using, metadata});
+  moveRelative({ caster, amount, using, metadata }: MoveAction.EntityRelativeParams): MoveAction {
+    return new MoveAction({caster, target: this, to: this.position.copyAdjusted(amount.x, amount.y), using, metadata});
   }
 
-  _move(to: Vector): boolean {
+  _move(to: Vector): Map<string, ScopeChange> | undefined {
+    // Make sure we're in bounds, return undefined if not
+    if (this.world !== undefined && !this.world.isInBounds(to)) {
+      return undefined;
+    }
     // Let the world know to to move to a different container if the destination is in a different chunk
+    let scopeChanges = new Map<string, ScopeChange>();
     if (this.world && this.position.differentChunkFrom(to)) {
       this.world.moveEntity(this, this.position, to);
       // Let owning players or teams, if any, know for scope change.
@@ -389,22 +395,20 @@ export class Entity implements ComponentContainer, Printable {
         const scope = this.team.scopesByWorld.get(this.world.id);
         if(scope) {
           // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-          scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
-          scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
+          scopeChanges.set(this.team.id, scope.moveViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace()));
         }
       } else {
-        for(let [, player] of this.players) {
+        for(let [id, player] of this.players) {
           const scope = player.scopesByWorld.get(this.world.id);
           if(scope) {
-            scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
-            scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
+            scopeChanges.set(id, scope.moveViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace()));
           }
         }
       }
     }
     // Make the move
     this.position = to;
-    return true;
+    return scopeChanges;
   }
 
   // Senses

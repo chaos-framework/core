@@ -1,7 +1,8 @@
 import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
   Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable,
-  TerminalMessageFragment, TerminalMessage
+  TerminalMessageFragment, TerminalMessage, Scope
 } from '../internal.js';
+import { ScopeChange } from '../World/WorldScope.js';
 
 export abstract class Action {
   actionType: ActionType = ActionType.INVALID;
@@ -36,6 +37,7 @@ export abstract class Action {
   sensors = new Map<string, SensoryInformation | boolean>();
 
   visibilityChanges?: { type: 'addition' | 'removal', changes?: NestedChanges }
+  scopeChanges?: Map<string, ScopeChange>;
 
   listeners: ComponentContainer[] = [];
   listenerIds = new Set<string>();
