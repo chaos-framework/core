@@ -7,9 +7,9 @@ import {
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, NestedChanges,
-  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction, Player, cachesSensedEntities, GlyphCode347
+  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction,
+  Player, cachesSensedEntities, GlyphCode347, NestedSet
 } from '../internal.js';
-import { ScopeChange } from '../World/WorldScope.js';
 
 export class Entity implements ComponentContainer, Printable {
   readonly id: string;
@@ -30,6 +30,7 @@ export class Entity implements ComponentContainer, Printable {
   team?: Team;                          // team that this entity belongs to
 
   sensedEntities: NestedMap<Entity>;
+  visibleChunks: NestedSet;
 
   // Places for items to be equipped
   slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
@@ -51,6 +52,7 @@ export class Entity implements ComponentContainer, Printable {
     for(const key in metadata) {
       this.metadata.set(key, metadata[key]);
     }
+    this.visibleChunks = new NestedSet(id, 'entity');
     this.sensedEntities = new NestedMap<Entity>(id, 'entity');
     if(team) {
       this.team = team;
@@ -164,17 +166,21 @@ export class Entity implements ComponentContainer, Printable {
     return new PublishEntityAction({caster, target: this, entity: this, world, position, using, metadata});
   }
 
-  _publish(world: World, position: Vector, preloaded = false): boolean {
+  _publish(world: World, position: Vector): NestedChanges | undefined {
     if(this.published) {
-      return false;
+      return undefined;
+    }
+    // Get the visibility changes for adding to the world, or alternatively the world will fail to add it
+    const changes = world.addEntity(this);
+    if (!changes) {
+      return undefined; // failed to publish -- probably out of bounds
     }
     this.published = true;
     this.position = position;
-    world.addEntity(this, preloaded);
     this.world = world;
     Chaos.addEntity(this);
     this.components.publish();
-    return true;
+    return changes;
   }
 
   // Unpublishing
@@ -380,35 +386,37 @@ export class Entity implements ComponentContainer, Printable {
     return new MoveAction({caster, target: this, to: this.position.copyAdjusted(amount.x, amount.y), using, metadata});
   }
 
-  _move(to: Vector): Map<string, ScopeChange> | undefined {
+  _move(to: Vector): NestedSet | undefined {
+    // TODO SCOPE
     // Make sure we're in bounds, return undefined if not
-    if (this.world !== undefined && !this.world.isInBounds(to)) {
-      return undefined;
-    }
-    // Let the world know to to move to a different container if the destination is in a different chunk
-    let scopeChanges = new Map<string, ScopeChange>();
-    if (this.world && this.position.differentChunkFrom(to)) {
-      this.world.moveEntity(this, this.position, to);
-      // Let owning players or teams, if any, know for scope change.
-      const { perceptionGrouping } = Chaos;
-      if (perceptionGrouping === 'team' && this.team !== undefined) {
-        const scope = this.team.scopesByWorld.get(this.world.id);
-        if(scope) {
-          // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-          scopeChanges.set(this.team.id, scope.moveViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace()));
-        }
-      } else {
-        for(let [id, player] of this.players) {
-          const scope = player.scopesByWorld.get(this.world.id);
-          if(scope) {
-            scopeChanges.set(id, scope.moveViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace()));
-          }
-        }
-      }
-    }
-    // Make the move
-    this.position = to;
-    return scopeChanges;
+    // if (this.world !== undefined && !this.world.isInBounds(to)) {
+    //   return undefined;
+    // }
+    // // Let the world know to to move to a different container if the destination is in a different chunk
+    // let scopeChanges = new Map<string, ScopeChange>();
+    // if (this.world && this.position.differentChunkFrom(to)) {
+    //   this.world.moveEntity(this, this.position, to);
+    //   // Let owning players or teams, if any, know for scope change.
+    //   const { perceptionGrouping } = Chaos;
+    //   if (perceptionGrouping === 'team' && this.team !== undefined) {
+    //     const scope = this.team.scopesByWorld.get(this.world.id);
+    //     if(scope) {
+    //       // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
+    //       scopeChanges.set(this.team.id, scope.moveViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace()));
+    //     }
+    //   } else {
+    //     for(let [id, player] of this.players) {
+    //       const scope = player.scopesByWorld.get(this.world.id);
+    //       if(scope) {
+    //         scopeChanges.set(id, scope.moveViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace()));
+    //       }
+    //     }
+    //   }
+    // }
+    // // Make the move
+    // this.position = to;
+    // return scopeChanges;
+    return undefined;       // TODO SCOPE
   }
 
   // Senses

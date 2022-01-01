@@ -16,7 +16,9 @@ export class OwnEntityAction extends Action {
     if(this.player.entities.has(this.entity.id)) {
       return false; // player already owns this entity
     }
-    this.visibilityChanges = { type: "addition", changes: this.player._ownEntity(this.entity) };
+    const [entity, chunk] = this.player._ownEntity(this.entity);
+    this.entityVisibilityChanges = { type: "addition", changes: entity };
+    this.entityVisibilityChanges = { type: "addition", changes: entity };
     return true;
   }
 

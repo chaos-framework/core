@@ -29,19 +29,7 @@ export class ChangeWorldAction extends Action {
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
-    if(super.isInPlayerOrTeamScope(viewer)) {
-      return true;
-    } else {
-      const fromScope = viewer.getWorldScopes().get(this.from.id);
-      const toScope = viewer.getWorldScopes().get(this.to.id);
-      if(fromScope && fromScope.containsPosition(this.originPosition)) {
-        return true;
-      }
-      if(toScope && toScope.containsPosition(this.position)) {
-        return true;
-      }
-    }
-    return false;
+    return true; // TODO SCOPE
   }
 }
 

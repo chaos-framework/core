@@ -52,8 +52,8 @@ export class ActionProcessor {
 
   queueForBroadcast(action: Action, to?: Player | Team) {
     // Check if this action contains any visiblity changes and publish/unpublish entities as needed first
-    if(action.visibilityChanges?.changes !== undefined) {
-      this.publishVisibilityChanges(action.visibilityChanges.changes, action.visibilityChanges.type === 'addition');
+    if(action.entityVisibilityChanges?.changes !== undefined) {
+      this.publishVisibilityChanges(action.entityVisibilityChanges.changes, action.entityVisibilityChanges.type === 'addition');
     }
     // Check if this message needs to be broadcasted to clients at all
     if(action.broadcastType === BroadcastType.NONE) {

@@ -31,11 +31,12 @@ export let currentTurnSetAt: number = Date.now();
 export function setCurrentTurnSetAt(time?: number) { currentTurnSetAt = time !== undefined ? time : Date.now() }
 
 export let viewDistance = 6; // how far (in chunks) to load around active entities
-export function setViewDistance(distance: number) { viewDistance = distance; }
+export function setViewDistance(distance: number) { viewDistance = distance; } // TODO make sure this doesn't get changed while any entities are published
 export let inactiveViewDistance = 1; // how far (in chunks) to load around inactive entities when they enter an inactive world to check for permissions / modifiers
 export let listenDistance = 25; // how far in tiles to let local entities listen to actions around casters and targets
 export function setListenDistance(distance: number) { listenDistance = distance; }
-export let perceptionGrouping: 'player' | 'team' = 'player';
+export type PerceptionGrouping = 'player' | 'team';
+export let perceptionGrouping: PerceptionGrouping = 'player';
 export function setPerceptionGrouping(value: 'player' | 'team') { perceptionGrouping = value }
 
 // Kind of an ugly way to let the top-level game own components and link into event system
@@ -62,6 +63,7 @@ export function reset() {
   teamsByName.clear();
   worlds.clear();
   processor.reset();
+  viewDistance = 6;
   actionHooks = new Array<ActionHook>();
   executionHooks = new Array<ExecutionHook>();
   currentTurn = undefined;
@@ -223,12 +225,13 @@ export function serializeForScope(viewer: Viewer): SerializedForClient {
     o.teams.push(team.serializeForClient());
   }
   // Gather all visible worlds and serialize with visible baselayer chunks
-  for(const [id, worldScope] of viewer.getWorldScopes()) {
-    const world = worlds.get(id);
-    if(world !== undefined) {
-      o.worlds.push(world.serializeForClient());
-    }
-  }
+        // TODO SCOPE
+  // for(const [id, worldScope] of viewer.getWorldScopes()) { 
+  //   const world = worlds.get(id);
+  //   if(world !== undefined) {
+  //     o.worlds.push(world.serializeForClient());
+  //   }
+  // }
   // Gather all entities in sight
   const visibleEntities = viewer.getSensedAndOwnedEntities();
   for(const [, entity] of visibleEntities) {

@@ -66,11 +66,12 @@ export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessage
 export { Layer } from './World/Layer.js';
 export { Chunk, CHUNK_WIDTH } from './World/Chunk.js';
 export { ArrayChunk } from './World/Chunks/ArrayChunk.js'
-import WorldScope from './World/WorldScope.js';
 import { ByteLayer } from './World/Layers/ByteLayer.js';  // TODO toss this in a standard lib or something
 import Vector from './Math/Vector.js';
 // UTIL
-export { NestedMap, NestedChanges } from './Util/NestedMap.js';
+export { NestedMap } from './Util/Nest/NestedMap.js';
+export { NestedSet } from './Util/Nest/NestedSet.js';
+export { NestedChanges } from './Util/Nest/NestedChanges.js';
 export { withMetadata } from './Util/WithMetadata.js';
 export { bresenham, bresenhamGenerator, Point } from './Math/Bresenham.js';
 export { GlyphCode347 } from './Util/Glyphs.js';
@@ -80,7 +81,7 @@ export {
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters,
-  WorldScope, ByteLayer,
+  ByteLayer,
   ClientWorld,
   Viewer, ActionQueuer as Broadcaster, EntityScope,
   Event, ActionQueue,

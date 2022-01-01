@@ -20,7 +20,7 @@ export class SenseEntityAction extends Action {
   apply(): boolean {
     const changes = this.caster._senseEntity(this.target, this.using);
     if(changes.hasChanges) {
-      this.visibilityChanges = { type: 'addition', changes };
+      this.entityVisibilityChanges = { type: 'addition', changes };
     }
     return true;
   }

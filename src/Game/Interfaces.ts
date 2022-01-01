@@ -1,10 +1,10 @@
-import { Action, Entity, WorldScope, VisibilityType, NestedMap } from '../internal.js';
+import { Action, Entity, VisibilityType, NestedMap, NestedSet } from '../internal.js';
 
 export interface Viewer {
   entities: Map<string, Entity>;
   sensedEntities: NestedMap<Entity>;
+  visibleChunks: NestedSet;
   getSensedAndOwnedEntities(): Map<string, Entity>;
-  getWorldScopes(): Map<string, WorldScope>;
 }
 
 export interface ActionQueuer {

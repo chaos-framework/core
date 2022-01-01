@@ -20,7 +20,7 @@ export class LoseEntityAction extends Action {
   apply(): boolean {
     const changes = this.caster._loseEntity(this.target, this.using);
     if(changes.hasChanges) {
-      this.visibilityChanges = { type: 'removal', changes };
+      this.entityVisibilityChanges = { type: 'removal', changes };
     }
     return true;
   }

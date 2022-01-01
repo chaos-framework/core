@@ -1,4 +1,4 @@
-import { World, ByteLayer, ArrayChunk, Layer } from '../../../src/internal.js';
+import { World, ByteLayer, ArrayChunk, Layer, Vector } from '../../../src/internal.js';
 import Atmosphere, { AtmosphericComposition, earthAtmosphere } from '../Layers/Atmosphere.js';
 import LightLevel from '../Layers/LightLevel.js';
 

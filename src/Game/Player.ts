@@ -1,10 +1,10 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
 import {
-  Chaos, Team, Action, Entity, WorldScope, Client,
+  Chaos, Team, Action, Entity, Client,
   NestedMap, PublishPlayerAction, ComponentContainer,
   ComponentCatalog, Scope, MessageType, OwnEntityAction,
-  NestedChanges, Viewer, Broadcaster
+  NestedChanges, Viewer, Broadcaster, NestedSet
 } from '../internal.js';
 
 // TODO clean up above imports
@@ -20,9 +20,9 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
   components: ComponentCatalog = new ComponentCatalog(this);
 
   admin = false;
-  scopesByWorld: Map<string, WorldScope>;
   
   sensedEntities: NestedMap<Entity>;
+  visibleChunks: NestedSet;
 
   broadcastQueue = new Queue<Action>();
   published = true; // TODO change this?
@@ -44,9 +44,9 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
       Chaos.playersWithoutTeams.set(this.id, this);
     }
     if(Chaos.perceptionGrouping === 'team' && this.team) {
-      this.scopesByWorld = this.team.scopesByWorld;
+      this.visibleChunks = this.team.visibleChunks;
     } else {
-      this.scopesByWorld = new Map<string, WorldScope>();
+      this.visibleChunks = new NestedSet(id, 'player');
     }
     Chaos.players.set(this.id, this);
   }
@@ -68,10 +68,6 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
 
   getSensedAndOwnedEntities(): Map<string, Entity> {
     return new Map([...this.entities.entries(), ...this.sensedEntities.map.entries()]);
-  }
-
-  getWorldScopes(): Map<string, WorldScope> {
-    return this.scopesByWorld;
   }
 
   enqueueAction(action: Action) {
@@ -101,24 +97,16 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     return new OwnEntityAction({ caster, using, entity, player: this, metadata });
   }
 
-  _ownEntity(entity: Entity): NestedChanges | undefined {
+  _ownEntity(entity: Entity): [NestedChanges | undefined, NestedChanges | undefined] {
     // Make sure we don't already own this entity
     if (this.entities.has(entity.id)) {
-      return undefined;
+      return [undefined, undefined];
     }
     this.entities.set(entity.id, entity);
-    const changes = this.sensedEntities.addChild(entity.sensedEntities);
+    const entityVisibilityChanges = this.sensedEntities.addChild(entity.sensedEntities);
+    const chunkVisibilityChanges = this.visibleChunks.addChild(entity.visibleChunks);
     entity._grantOwnershipTo(this);
-    // Modify scope, if appropriate
-    if (entity.world !== undefined) {
-      let scope = this.scopesByWorld.get(entity.world.id);
-      if (scope === undefined) {
-        scope = entity.world.createScope();
-        this.scopesByWorld.set(entity.world.id, scope);
-      }
-      scope.addViewer(entity.id, Chaos.viewDistance, entity.position.toChunkSpace());
-    }
-    return changes;
+    return [entityVisibilityChanges, chunkVisibilityChanges];
   }
 
   _disownEntity(entity: Entity): NestedChanges | undefined {

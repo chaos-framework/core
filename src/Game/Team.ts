@@ -1,7 +1,7 @@
 // tslint:disable: forin
 import { v4 as uuid } from 'uuid';
 
-import { Chaos, Action, ComponentContainer, Player, WorldScope, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges } from '../internal.js';
+import { Chaos, Action, ComponentContainer, Player, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges, NestedSet } from '../internal.js';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Team implements Viewer, ActionQueuer, ComponentContainer {
@@ -15,7 +15,7 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
 
   components: ComponentCatalog = new ComponentCatalog(this);
 
-  scopesByWorld: Map<string, WorldScope> = new Map<string, WorldScope>();
+  visibleChunks: NestedSet;
 
   published = true; // TODO change this?
 
@@ -23,6 +23,7 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     this.id = id;
     this.name = name ? name : this.id.substring(this.id.length - 8);
     this.sensedEntities = new NestedMap<Entity>(id, 'team');
+    this.visibleChunks = new NestedSet(id, 'team');
     Chaos.teams.set(this.id, this);
     Chaos.teamsByName.set(this.name, this);
   }
@@ -55,10 +56,6 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
 
   senseEntity(e: Entity): boolean {
     return true;
-  }
-
-  getWorldScopes(): Map<string, WorldScope> {
-    return this.scopesByWorld;
   }
 
   // TODO refactor as iterator for performance

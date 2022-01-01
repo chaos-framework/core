@@ -1,5 +1,5 @@
 import { chunk } from 'lodash';
-import { ArrayChunk, ByteLayer, Chunk, World } from '../../../src/internal.js';
+import { ArrayChunk, ByteLayer, Chunk, Vector, World } from '../../../src/internal.js';
 
 import { BasicTiles, basicTiles } from '../Layers/BasicLayer.js';
 
@@ -8,8 +8,8 @@ const CHUNK_WIDTH = 16;
 export default class StreamingCheckerboardWorld extends World {
   ephemeral = true;
 
-  constructor() {
-    super({ baseLayer: new ByteLayer(BasicTiles.Air), streaming: true });
+  constructor(size?: Vector) {
+    super({ baseLayer: new ByteLayer(BasicTiles.Air), streaming: true, size: size || Vector.max() });
   }
 
   serialize(): string {
@@ -17,7 +17,7 @@ export default class StreamingCheckerboardWorld extends World {
   }
 
   unserialize(data: string): StreamingCheckerboardWorld {
-    return new StreamingCheckerboardWorld();
+    return new StreamingCheckerboardWorld;
   }
 
   initializeChunk(x: number, y: number) {

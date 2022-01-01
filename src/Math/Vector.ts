@@ -135,6 +135,10 @@ export default class Vector {
     return new Vector(0, 0);
   }
 
+  static max(): Vector {
+    return new Vector(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
+  }
+
   // TODO distance, cast ray between two points, etc
 }
 
