@@ -33,7 +33,7 @@ export class PublishEntityAction extends Action {
   }
 
   apply(): boolean {
-    this.chunkVisibilityChanges = { additions: this.entity._publish(this.world, this.position) };
+    this.chunkVisibilityChanges = { additions: this.entity._publish(this.world, this.position) || undefined };
     return this.chunkVisibilityChanges.additions !== undefined;
   }
 

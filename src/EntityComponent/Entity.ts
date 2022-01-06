@@ -166,14 +166,14 @@ export class Entity implements ComponentContainer, Printable {
     return new PublishEntityAction({caster, target: this, entity: this, world, position, using, metadata});
   }
 
-  _publish(world: World, position: Vector): NestedChanges | undefined {
+  _publish(world: World, position: Vector): NestedChanges | false {
     if(this.published) {
-      return undefined;
+      return false;
     }
     // Get the visibility changes for adding to the world, or alternatively the world will fail to add it
     const changes = world.addEntity(this);
     if (!changes) {
-      return undefined; // failed to publish -- probably out of bounds
+      return false; // failed to publish -- probably out of bounds
     }
     this.published = true;
     this.position = position;
@@ -189,7 +189,7 @@ export class Entity implements ComponentContainer, Printable {
     return new UnpublishEntityAction({caster, target, entity: this, using, metadata});
   }
 
-  _unpublish(): boolean {
+  _unpublish(): NestedChanges | false {
     Chaos.removeEntity(this);
     this.components.unpublish();
     // TODO and persistence stuff
@@ -198,7 +198,7 @@ export class Entity implements ComponentContainer, Printable {
       this._revokeOwnershipFrom(player);
     }
     this.published = false;
-    return true;
+    return this.world?.removeEntity(this) || false;
   }
 
   // Attaching components

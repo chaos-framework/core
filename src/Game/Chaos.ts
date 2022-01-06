@@ -168,9 +168,6 @@ export function addEntity(e: Entity): boolean {
 
 export function removeEntity(e: Entity): boolean {
   entities.delete(e.id);
-  if(e.world) {
-    e.world.removeEntity(e);  // TODO this should be moved
-  }
   return true;
 }
 

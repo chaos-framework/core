@@ -68,6 +68,10 @@ export default class Vector {
     return new Vector(this.x + x, this.y + y);
   }
 
+  toRealSpace(): Vector {
+    return new Vector(Math.floor(this.x * CHUNK_WIDTH), Math.floor(this.y * CHUNK_WIDTH));
+  }
+
   toChunkSpace(): Vector {
     return new Vector(Math.floor(this.x / CHUNK_WIDTH), Math.floor(this.y / CHUNK_WIDTH));
   }

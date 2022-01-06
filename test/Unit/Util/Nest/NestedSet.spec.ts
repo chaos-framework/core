@@ -3,7 +3,7 @@ import 'mocha';
 
 import { NestedSet } from '../../../../src/internal.js';
 
-describe.only('NestedSet', () => {
+describe('NestedSet', () => {
   describe('Without nesting', () => {
     let unnested: NestedSet;
     const id = 'solo';
@@ -43,14 +43,6 @@ describe.only('NestedSet', () => {
       expect(changes.changes[level]).to.exist;
       expect(changes.changes[level]![id]).to.exist;
       expect(changes.changes[level]![id]).to.contain('1');
-    });
-
-    it.skip('Tracks changes for multiple additions.', () => {
-
-    });
-
-    it.skip('Tracks changes for multiple subtractions.', () => {
-
     });
   });
 

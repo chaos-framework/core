@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Component, Entity, Chaos, World, Vector, Player, Team, Viewer } from '../../src/internal.js';
+import { Component, Entity, Chaos, World, Vector, Player, Team, Viewer, NestedChanges } from '../../src/internal.js';
 
 import Room from '../Mocks/Worlds/Room.js';
 import StreamingCheckerboardWorld from '../Mocks/Worlds/StreamingCheckerboardWorld.js';
@@ -49,14 +49,34 @@ describe.only('World and chunk visibility tracking and loading', function() {
 
   describe('Entities and worlds tracking visible chunks', function() {
     describe('Active entities', function() {
-      it.skip('Tracks chunks when published to a world', function () {
-        entityA1._publish(fixedWorld1, Vector.zero());
+      it('Tracks chunks when published to a world', function () {
+        // Publish and cache changes
+        const changes = entityA1._publish(fixedWorld1, Vector.zero())! as NestedChanges;
+        const zeroInWorld = fixedWorld1.getFullChunkID(0, 0);
+        // Test changes
+        expect(changes.changes['world'][fixedWorld1.id].has(zeroInWorld)).to.be.true;
+        expect(changes.changes['entity'][entityA1.id].has(zeroInWorld)).to.be.true;
+        // Make sure changes also applied to nodes themselves
+        expect(entityA1.visibleChunks.has(zeroInWorld)).to.be.true;
+        expect(fixedWorld1.visibleChunks.has(zeroInWorld)).to.be.true;
       });
 
       it.skip('Tracks and forgets chunks when moving through a world', function () {
+          // Publish
+          entityA1._publish(fixedWorld1, Vector.zero());
       });
 
-      it.skip('Forgets chunks when unpublished from a world', function () {
+      it('Forgets chunks when unpublished from a world', function () {
+        entityA1._publish(fixedWorld1, Vector.zero());
+        const changes = entityA1._unpublish() as NestedChanges;
+        const zeroInWorld = fixedWorld1.getFullChunkID(0, 0);
+        // Test changes
+        expect(changes.changes['world'][fixedWorld1.id].has(zeroInWorld)).to.be.true;
+        expect(changes.changes['entity'][entityA1.id].has(zeroInWorld)).to.be.true;
+        // Make sure changes also applied to the world node
+        // TODO should the changes include the deleted node?
+        expect(entityA1.visibleChunks.has(zeroInWorld)).to.be.false;
+        expect(fixedWorld1.visibleChunks.has(zeroInWorld)).to.be.false;
       });
 
       it.skip('Updates chunks appropriately after a ChangeWorldAction', function () {

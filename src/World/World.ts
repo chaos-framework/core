@@ -1,3 +1,4 @@
+import { chunk } from 'lodash';
 import { v4 as uuid } from 'uuid';
 
 import { 
@@ -79,19 +80,21 @@ export abstract class World implements ComponentContainer, Listener {
       this.entitiesByChunk.get(chunkIndex)?.set(entity.id, entity);
       // Add visible chunks to the entity and attach it
       const viewDistance = entity.active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
-      const changes = entity.visibleChunks.addSet(this.getChunksInView(entity.position, viewDistance));
+      const changes = entity.visibleChunks.addSet(new Set<string>(this.getChunksInView(entity.position, viewDistance).map(v => this.getFullChunkID(v.x, v.y))));
       this.visibleChunks.addChild(entity.visibleChunks, changes);
       return changes;
     }
     return false;
   }
 
-  removeEntity(e: Entity): boolean {
-    if(e.id && this.entities.has(e.id)) {
-      this.entities.delete(e.id);
-      const chunk = e.position.toChunkSpace().getIndexString();
-      this.entitiesByChunk.get(chunk)?.delete(e.id); 
-      return true;
+  removeEntity(entity: Entity): NestedChanges | false {
+    if(entity.id && this.entities.has(entity.id)) {
+      this.entities.delete(entity.id);
+      const chunk = entity.position.toChunkSpace().getIndexString();
+      this.entitiesByChunk.get(chunk)?.delete(entity.id);
+      // Get changes from world and entity
+      const changes = this.visibleChunks.removeChild(entity.id)
+      return entity.visibleChunks.clear(changes);
     }
     return false;
   }
@@ -119,18 +122,33 @@ export abstract class World implements ComponentContainer, Listener {
   addTemporaryViewer(position: Vector, active: boolean): NestedSet {
     const viewDistance = active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
     const chunksInView = this.getChunksInView(position, viewDistance);
-    const temporaryViewer = new NestedSet(uuid(), 'entity', chunksInView);
+    for (const chunk of chunksInView) {
+      this.load(chunk);
+    }
+    const temporaryViewer = new NestedSet(uuid(), 'entity', new Set<string>(chunksInView.map(v => this.getFullChunkID(v.x, v.y))));
     this.visibleChunks.addChild(temporaryViewer);
     return temporaryViewer;
   }
 
   // Remove a viewer, probably a surrogate/temporary one
   removeViewer(id: string) {
-    this.visibleChunks.removeChild(id);
+    const changes = this.visibleChunks.removeChild(id).changes['world'];
+    // TODO SCOPE unload
   }
 
-  getChunksInView(center: Vector, distance: number): Set<string> {
-    const chunks = new Set<string>();
+  load(coordinates: Vector) {
+    const key = coordinates.getIndexString();
+    if (!this.visibleChunks.has(key)) {
+      this.initializeChunk(coordinates.x, coordinates.y); // TODO this should return entities [] also
+    }
+  }
+
+  unload(coordinates: Vector) {
+    // TODO SCOPE unload
+  }
+
+  getChunksInView(center: Vector, distance: number): Vector[] { // TODO SCOPE unit test
+    const chunks: Vector[] = [];
     let topLeft = center.add(new Vector(-distance, -distance));
     let bottomRight = center.add(new Vector(distance, distance));
     topLeft = topLeft.clamp();
@@ -139,7 +157,9 @@ export abstract class World implements ComponentContainer, Listener {
     }
     for (let x = topLeft.x; x <= bottomRight.x; x++) {
       for (let y = topLeft.y; y <= bottomRight.y; y++) {
-        chunks.add(new Vector(x, y).getIndexString());
+        if(this.isChunkInBounds(new Vector(x, y))) {
+          chunks.push(new Vector(x, y));
+        }
       }
     }
     return chunks;
@@ -198,7 +218,14 @@ export abstract class World implements ComponentContainer, Listener {
 
   isInBounds(position: Vector) {
     const { x, y } = position.toChunkSpace();
-    return  x > 0 && y > 0
+    return  x >= 0 && y >= 0
+            && x < this.size.x 
+            && y < this.size.y;
+  }
+
+  isChunkInBounds(position: Vector) {
+    const { x, y } = position;
+    return  x >= 0 && y >= 0
             && x < this.size.x 
             && y < this.size.y;
   }
@@ -215,7 +242,7 @@ export abstract class World implements ComponentContainer, Listener {
   }
 
   getFullChunkID(x: number, y: number): string {
-    return `${this.id}${new Vector(x, y).getIndexString}`;
+    return `${this.id}_${new Vector(x, y).getIndexString()}`;
   }
 }
 

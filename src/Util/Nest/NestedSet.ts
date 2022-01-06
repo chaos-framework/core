@@ -135,6 +135,14 @@ export class NestedSet {
     return changes;
   }
 
+  clear(changes: NestedChanges = new NestedChanges()): NestedChanges {
+    for (const value of this.set) {
+      changes.add(this.level, this.id, value);
+    }
+    this.set.clear();
+    return changes;
+  }
+
   has(id: string): boolean {
     return this.set.has(id);
   }
