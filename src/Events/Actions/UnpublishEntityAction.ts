@@ -20,7 +20,7 @@ export class UnpublishEntityAction extends Action {
   }
 
   apply(): boolean {
-    this.chunkVisibilityChanges = { removals: this.entity._unpublish() || undefined };
+    this.chunkVisibilityChanges = this.entity._unpublish() || undefined;
     return true;
   }
     

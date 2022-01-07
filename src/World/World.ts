@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { 
   ComponentContainer, ComponentCatalog,
   Listener, Action, ArrayChunk,
-  Entity, Vector, Chaos, ClientWorld, Scope, Layer, ByteLayer, NestedMap, NestedSet, NestedChanges,
+  Entity, Vector, Chaos, ClientWorld, Scope, Layer, ByteLayer, NestedSetChanges, NestedSet, NestedChanges,
 } from '../internal.js';
 
 const CHUNK_WIDTH = 16;
@@ -68,7 +68,7 @@ export abstract class World implements ComponentContainer, Listener {
     return undefined;
   };
 
-  addEntity(entity: Entity): NestedChanges | false {
+  addEntity(entity: Entity): NestedSetChanges | false {
     if (!this.entities.has(entity.id) && this.isInBounds(entity.position)) {
       // Add the entity to full list
       this.entities.set(entity.id, entity);
@@ -87,7 +87,7 @@ export abstract class World implements ComponentContainer, Listener {
     return false;
   }
 
-  removeEntity(entity: Entity): NestedChanges | false {
+  removeEntity(entity: Entity): NestedSetChanges | false {
     if(entity.id && this.entities.has(entity.id)) {
       this.entities.delete(entity.id);
       const chunk = entity.position.toChunkSpace().getIndexString();
@@ -99,9 +99,10 @@ export abstract class World implements ComponentContainer, Listener {
     return false;
   }
 
-  moveEntity(entity: Entity, from: Vector, to: Vector) {
+  moveEntity(entity: Entity, from: Vector, to: Vector): NestedChanges | undefined {
     if(entity.id && this.entities.has(entity.id)) {
       if(from.differentChunkFrom(to)) {
+        // Track which chunk the entity is in
         const oldString = from.toChunkSpace().getIndexString();
         const old = this.entitiesByChunk.get(oldString);
         if(old) {
@@ -115,8 +116,11 @@ export abstract class World implements ComponentContainer, Listener {
           this.entitiesByChunk.set(newString, new Map<string, Entity>());
         }
         this.entitiesByChunk.get(newString)!.set(entity.id, entity);
+        // Change which chunks are now visible to the entity
+
       }
     }
+    return undefined;
   }
 
   addTemporaryViewer(position: Vector, active: boolean): NestedSet {
@@ -132,7 +136,7 @@ export abstract class World implements ComponentContainer, Listener {
 
   // Remove a viewer, probably a surrogate/temporary one
   removeViewer(id: string) {
-    const changes = this.visibleChunks.removeChild(id).changes['world'];
+    const changes = this.visibleChunks.removeChild(id).removed['world'];
     // TODO SCOPE unload
   }
 

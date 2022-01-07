@@ -1,4 +1,5 @@
   // tslint:disable: max-classes-per-file
+import { NestedSetChanges } from "../../internal.js";
 
 export class NestedSet {
   entriesByChildren = new Map<string, Set<string>>(); // entry A is granted by child node B, C, and D
@@ -11,7 +12,7 @@ export class NestedSet {
   constructor(public readonly id: string, public readonly level: string, public readonly set = new Set<string>()) { };
 
   // NOTE that this will not produce any changes, as the parent will extract values in
-  addParent(node: NestedSet, changes: NestedChanges = new NestedChanges()): NestedChanges {
+  addParent(node: NestedSet, changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges {
     // Make sure we don't have this parent already -- no need to do anything if so
     if(this.parents.has(node.id)) {
       return changes;
@@ -25,7 +26,7 @@ export class NestedSet {
     this.parents.delete(id); // nothing else to do here, right? 
   };
 
-  addChild(node: NestedSet, changes: NestedChanges = new NestedChanges()): NestedChanges {
+  addChild(node: NestedSet, changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges {
     if(this.children.has(node.id)) {
       return changes;
     }
@@ -38,7 +39,7 @@ export class NestedSet {
     return changes;
   };
 
-  removeChild(id: string, changes: NestedChanges = new NestedChanges()): NestedChanges {
+  removeChild(id: string, changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges {
     const child = this.children.get(id);
     if(child === undefined) {
       return changes;
@@ -54,7 +55,7 @@ export class NestedSet {
           this.set.delete(value);
           this.entriesByChildren.delete(value);
           // Track this change
-          changes.add(this.level, this.id, value);
+          changes.remove(this.level, this.id, value);
           // Let parents know that we've lost this value
           for(const [parentId, parentNode] of this.parents) {
             parentNode.remove(value, this.id, changes);
@@ -66,7 +67,7 @@ export class NestedSet {
     return changes;
   };
 
-  add(value: string, node?: string, changes: NestedChanges = new NestedChanges()): NestedChanges {
+  add(value: string, node?: string, changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges {
     // Record in the result if this is a new entry
     if(!this.set.has(value)){
       changes.add(this.level, this.id, value);
@@ -87,14 +88,14 @@ export class NestedSet {
     return changes;
   }
 
-  addSet(values: Set<string>, node?: string, changes: NestedChanges = new NestedChanges()): NestedChanges {
+  addSet(values: Set<string>, node?: string, changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges {
     for (const value of values) {
       this.add(value, node, changes);
     }
     return changes;
   }
 
-  remove(value: string, node?: string, changes: NestedChanges = new NestedChanges()): NestedChanges  {
+  remove(value: string, node?: string, changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges  {
     if(!this.set.has(value)) {
       return changes;
     }
@@ -108,7 +109,7 @@ export class NestedSet {
         // See if no other downstream source is providing this entry
         if(byChildren.size === 0) {
           this.set.delete(value);
-          changes.add(this.level, this.id, value);
+          changes.remove(this.level, this.id, value);
         }
       }
     } else {
@@ -118,7 +119,7 @@ export class NestedSet {
       } else {
         // If no node specified and no child is providing this, just delete and return the change that was made
         this.set.delete(value);
-        changes.add(this.level, this.id, value);
+        changes.remove(this.level, this.id, value);
       }
     }
     // Let all parents know that we've removed this entry
@@ -128,16 +129,34 @@ export class NestedSet {
     return changes;
   }
 
-  removeSet(values: Set<string>, node?: string, changes: NestedChanges = new NestedChanges()): NestedChanges  {
+  removeSet(values: Set<string>, node?: string, changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges  {
     for (const value of values) {
       this.remove(value, node, changes);
     }
     return changes;
   }
 
-  clear(changes: NestedChanges = new NestedChanges()): NestedChanges {
+  replace(values: Set<string>, node?: string, changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges  {
+    const toRemove = new Set<string>();
+    const toAdd = new Set<string>();
+    for (const value of values) {
+      if (!this.set.has(value)) {
+        toAdd.add(value);
+      }
+    }
+    for (const existing of this.set) {
+      if (!values.has(existing)) {
+        toRemove.add(existing);
+      }
+    }
+    this.addSet(toAdd, node, changes);
+    this.removeSet(toRemove, node, changes);
+    return changes;
+  }
+
+  clear(changes: NestedSetChanges = new NestedSetChanges()): NestedSetChanges {
     for (const value of this.set) {
-      changes.add(this.level, this.id, value);
+      changes.remove(this.level, this.id, value);
     }
     this.set.clear();
     return changes;
@@ -163,22 +182,4 @@ export class NestedSet {
     return undefined;
   }
 
-}
-
-// Returns type, parent id, and entry ids
-export class NestedChanges {
-  hasChanges = false;
-  changes: { [key: string]: { [key:string]: Set<string> }} = {};
-
-  add(level: string, id: string, entry: string) {
-    if(this.changes[level] === undefined) {
-      this.changes[level] = {};
-    }
-    if(this.changes[level]![id] === undefined) {
-      this.changes[level][id] = new Set<string>();
-    }
-    this.changes[level]![id]!.add(entry);
-    
-    this.hasChanges = true;
-  }
 }

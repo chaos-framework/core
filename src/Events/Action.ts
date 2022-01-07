@@ -1,6 +1,6 @@
 import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
   Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable,
-  TerminalMessageFragment, TerminalMessage, Scope
+  TerminalMessageFragment, TerminalMessage, Scope, NestedSet, NestedSetChanges
 } from '../internal.js';
 
 export abstract class Action {
@@ -36,7 +36,7 @@ export abstract class Action {
   sensors = new Map<string, SensoryInformation | boolean>();
 
   entityVisibilityChanges?: { type: 'addition' | 'removal', changes?: NestedChanges }
-  chunkVisibilityChanges?: { additions?: NestedChanges, removals?: NestedChanges };
+  chunkVisibilityChanges?: NestedSetChanges;
 
   listeners: ComponentContainer[] = [];
   listenerIds = new Set<string>();

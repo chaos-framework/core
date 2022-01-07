@@ -4,7 +4,7 @@ import {
   Chaos, Team, Action, Entity, Client,
   NestedMap, PublishPlayerAction, ComponentContainer,
   ComponentCatalog, Scope, MessageType, OwnEntityAction,
-  NestedChanges, Viewer, Broadcaster, NestedSet
+  NestedChanges, Viewer, Broadcaster, NestedSet, NestedSetChanges
 } from '../internal.js';
 
 // TODO clean up above imports
@@ -97,7 +97,7 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     return new OwnEntityAction({ caster, using, entity, player: this, metadata });
   }
 
-  _ownEntity(entity: Entity): [NestedChanges | undefined, NestedChanges | undefined] {
+  _ownEntity(entity: Entity): [NestedChanges | undefined, NestedSetChanges | undefined] {
     // Make sure we don't already own this entity
     if (this.entities.has(entity.id)) {
       return [undefined, undefined];
