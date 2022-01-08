@@ -99,10 +99,17 @@ describe.only('World and chunk visibility tracking and loading', function() {
         expect(changes.added['entity'][entityA1.id]).to.include(fixedWorld2.getFullChunkID(0, 0));
       });
 
-      it.skip('Persists chunks after an active entity is unpublished when one active entity is still remaining', function() {
+      it('Persists chunks after an active entity is unpublished when one active entity is still remaining', function() {
+        entityA1._publish(fixedWorld1, Vector.zero());
+        entityA2._publish(fixedWorld1, Vector.zero());
+        const changes = entityA1._unpublish() as NestedSetChanges;
+        expect(changes.removed['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
+        expect(changes.removed['world']).to.not.exist;
       });
 
-      it.skip('Does not track chunks outside the bounds of the world', function() {
+      it('Does not track chunks outside the bounds of the world', function() {
+        entityA1._publish(fixedWorld1, Vector.zero());
+        expect(fixedWorld1.visibleChunks.set).to.not.include(fixedWorld1.getFullChunkID(-1, -1));
       });
     });
 
