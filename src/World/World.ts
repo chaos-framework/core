@@ -68,7 +68,7 @@ export abstract class World implements ComponentContainer, Listener {
     return undefined;
   };
 
-  addEntity(entity: Entity): NestedSetChanges | false {
+  addEntity(entity: Entity, changes?: NestedSetChanges): NestedSetChanges | false {
     if (!this.entities.has(entity.id) && this.isInBounds(entity.position)) {
       // Add the entity to full list
       this.entities.set(entity.id, entity);
@@ -80,20 +80,25 @@ export abstract class World implements ComponentContainer, Listener {
       this.entitiesByChunk.get(chunkIndex)?.set(entity.id, entity);
       // Add visible chunks to the entity and attach it
       const viewDistance = entity.active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
-      const changes = entity.visibleChunks.addSet(new Set<string>(this.getChunksInView(entity.position, viewDistance).map(v => this.getFullChunkID(v.x, v.y))));
+      if(changes === undefined) {
+        changes = new NestedSetChanges();
+      }
+      entity.visibleChunks.addSet(new Set<string>(this.getChunksInView(entity.position, viewDistance).map(v => this.getFullChunkID(v.x, v.y))), undefined, changes);
       this.visibleChunks.addChild(entity.visibleChunks, changes);
       return changes;
     }
     return false;
   }
 
-  removeEntity(entity: Entity): NestedSetChanges | false {
+  removeEntity(entity: Entity, changes?: NestedSetChanges): NestedSetChanges | false {
     if(entity.id && this.entities.has(entity.id)) {
       this.entities.delete(entity.id);
       const chunk = entity.position.toChunkSpace().getIndexString();
       this.entitiesByChunk.get(chunk)?.delete(entity.id);
       // Get changes from world and entity
-      const changes = this.visibleChunks.removeChild(entity.id)
+      if(changes === undefined) {
+        changes = new NestedSetChanges();
+      }this.visibleChunks.removeChild(entity.id, changes)
       return entity.visibleChunks.clear(changes);
     }
     return false;

@@ -422,10 +422,19 @@ export class Entity implements ComponentContainer, Printable {
     return new ChangeWorldAction({caster, target: this, from, to, position, using, metadata});
   }
 
-  _changeWorlds(to: World, position: Vector): boolean {
+  _changeWorlds(to: World, position: Vector): NestedSetChanges | false {
+    if (!to.isInBounds(position)) {
+      return false;
+    }
+    const changes = new NestedSetChanges(); // track chunks we're losing and gaining visibility of
+    if (this.world !== undefined) {
+      this.world.removeEntity(this, changes);
+    }
+    this.position = position;
+    to.addEntity(this, changes);
     this.world = to;
     // TODO component catalog callback
-    return true;
+    return changes;
   }
 
   // Players

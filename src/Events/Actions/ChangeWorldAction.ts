@@ -1,4 +1,5 @@
-import { Action, ActionParameters, Entity, ActionType, Vector, World, BroadcastType, Viewer } from '../../internal.js';
+import { eachRight } from 'lodash';
+import { Action, ActionParameters, Entity, ActionType, Vector, World, BroadcastType, Viewer, NestedSet, NestedSetChanges } from '../../internal.js';
 
 export class ChangeWorldAction extends Action {
   actionType: ActionType = ActionType.CHANGE_WORLD_ACTION;
@@ -10,6 +11,8 @@ export class ChangeWorldAction extends Action {
   originPosition: Vector;
   position: Vector;
   movementAction = true;
+
+  temporaryViewer?: NestedSet;
 
   constructor({caster, target, from, to, position, using, metadata }: ChangeWorldAction.Params) {
     super({caster, using, metadata });
@@ -24,8 +27,24 @@ export class ChangeWorldAction extends Action {
     }
   }
 
+  initialize() {
+    // Add temporary viewers to chunks in new location
+    this.temporaryViewer = this.to.addTemporaryViewer(this.position.toChunkSpace(), this.target.active);
+  }
+
+  teardown() {
+    // Unload temporary new chunks
+    this.to.removeViewer(this.temporaryViewer!.id);
+  }
+
   apply(): boolean {
-    return this.target._changeWorlds(this.to, this.position);
+    const result = this.target._changeWorlds(this.to, this.position);
+    if (result instanceof NestedSetChanges) {
+      this.chunkVisibilityChanges = result;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {

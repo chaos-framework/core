@@ -89,7 +89,14 @@ describe.only('World and chunk visibility tracking and loading', function() {
         expect(fixedWorld1.visibleChunks.has(zeroInWorld)).to.be.false;
       });
 
-      it.skip('Updates chunks appropriately after a ChangeWorldAction', function() {
+      it('Updates chunks appropriately after a ChangeWorldAction', function() {
+        entityA1._publish(fixedWorld1, Vector.zero());
+        const changes = entityA1._changeWorlds(fixedWorld2, Vector.zero()) as NestedSetChanges;
+        expect(changes).to.not.be.false;
+        expect(changes.removed['world'][fixedWorld1.id]).to.include(fixedWorld1.getFullChunkID(0, 0));
+        expect(changes.removed['entity'][entityA1.id]).to.include(fixedWorld1.getFullChunkID(0, 0));
+        expect(changes.added['world'][fixedWorld2.id]).to.include(fixedWorld2.getFullChunkID(0, 0));
+        expect(changes.added['entity'][entityA1.id]).to.include(fixedWorld2.getFullChunkID(0, 0));
       });
 
       it.skip('Persists chunks after an active entity is unpublished when one active entity is still remaining', function() {
