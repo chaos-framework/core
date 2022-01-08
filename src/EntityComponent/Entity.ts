@@ -386,15 +386,16 @@ export class Entity implements ComponentContainer, Printable {
     return new MoveAction({caster, target: this, to: this.position.copyAdjusted(amount.x, amount.y), using, metadata});
   }
 
-  _move(to: Vector): NestedSet | undefined {
+  _move(to: Vector): NestedSetChanges | undefined {
     // Make sure we're in bounds, return undefined if not
     if (this.world !== undefined && !this.world.isInBounds(to)) {
       return undefined;
     }
     // Let the world know we're moving and track the chunk load changes
+    const changes = this.world?.moveEntity(this, this.position, to);
     // Make the move
     this.position = to;
-    return undefined;
+    return changes;
   }
 
   // Senses

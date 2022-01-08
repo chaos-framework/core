@@ -99,7 +99,7 @@ export abstract class World implements ComponentContainer, Listener {
     return false;
   }
 
-  moveEntity(entity: Entity, from: Vector, to: Vector): NestedChanges | undefined {
+  moveEntity(entity: Entity, from: Vector, to: Vector): NestedSetChanges | undefined {
     if(entity.id && this.entities.has(entity.id)) {
       if(from.differentChunkFrom(to)) {
         // Track which chunk the entity is in
@@ -117,7 +117,9 @@ export abstract class World implements ComponentContainer, Listener {
         }
         this.entitiesByChunk.get(newString)!.set(entity.id, entity);
         // Change which chunks are now visible to the entity
-
+        const viewDistance = entity.active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
+        // TODO SCOPE need to MASSIVELY optimize this vvv
+        return entity.visibleChunks.replace(new Set<string>(this.getChunksInView(to.toChunkSpace(), viewDistance).map(v => this.getFullChunkID(v.x, v.y))));
       }
     }
     return undefined;

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, Chaos, Vector, Player, Team, Viewer, NestedChanges, NestedSetChanges } from '../../src/internal.js';
+import { Entity, Chaos, Vector, Player, Team, Viewer, NestedChanges, NestedSetChanges, NestedSet } from '../../src/internal.js';
 
 import Room from '../Mocks/Worlds/Room.js';
 import StreamingCheckerboardWorld from '../Mocks/Worlds/StreamingCheckerboardWorld.js';
@@ -49,7 +49,7 @@ describe.only('World and chunk visibility tracking and loading', function() {
 
   describe('Entities and worlds tracking visible chunks', function() {
     describe('Active entities', function() {
-      it('Tracks chunks when published to a world', function () {
+      it('Tracks chunks when published to a world', function() {
         // Publish and cache changes
         const changes = entityA1._publish(fixedWorld1, Vector.zero())! as NestedSetChanges;
         const zeroInWorld = fixedWorld1.getFullChunkID(0, 0);
@@ -61,12 +61,22 @@ describe.only('World and chunk visibility tracking and loading', function() {
         expect(fixedWorld1.visibleChunks.has(zeroInWorld)).to.be.true;
       });
 
-      it.skip('Tracks and forgets chunks when moving through a world', function () {
+      it('Tracks and forgets chunks when moving through a world', function() {
           // Publish
           entityA1._publish(fixedWorld1, Vector.zero());
+          // Will not have any changes for moves within the same chunk
+          const noChanges = entityA1._move(new Vector(1, 1)) as NestedSetChanges;
+          expect(noChanges).to.be.undefined;
+          // Will have changes when moving between chunks
+          const changes = entityA1._move(new Vector(32, 32)) as NestedSetChanges;
+          expect(changes?.hasChanges).to.be.true;
+          expect(changes.added['world'][fixedWorld1.id]).to.contain(fixedWorld1.getFullChunkID(2, 2));
+          expect(changes.removed['world'][fixedWorld1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
+          expect(changes.added['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(2, 2));
+          expect(changes.removed['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
       });
 
-      it('Forgets chunks when unpublished from a world', function () {
+      it('Forgets chunks when unpublished from a world', function() {
         entityA1._publish(fixedWorld1, Vector.zero());
         const changes = entityA1._unpublish() as NestedSetChanges;
         const zeroInWorld = fixedWorld1.getFullChunkID(0, 0);
@@ -79,29 +89,28 @@ describe.only('World and chunk visibility tracking and loading', function() {
         expect(fixedWorld1.visibleChunks.has(zeroInWorld)).to.be.false;
       });
 
-      it.skip('Updates chunks appropriately after a ChangeWorldAction', function () {
+      it.skip('Updates chunks appropriately after a ChangeWorldAction', function() {
       });
 
-      it.skip('Persists chunks when another active entity leaves the world', function () {
+      it.skip('Persists chunks after an active entity is unpublished when one active entity is still remaining', function() {
       });
 
-      it.skip('Does not track chunks outside the bounds of the world', function () {
+      it.skip('Does not track chunks outside the bounds of the world', function() {
       });
     });
 
     describe.skip('Inactive entities', function() {
 
-      it.skip('Does not track chunks when published to a world', function () {
+      it.skip('Does not track chunks when published to a world', function() {
       });
 
-      it.skip('Does not track or forget chunks when moving through a world', function () {
+      it.skip('Does not track or forget chunks when moving through a world', function() {
       });
 
-      it.skip('Does not persist chunks when an active entity leaves the world', function () {
+      it.skip('Does not persist chunks when an active entity leaves the world', function() {
       });
 
-      it.skip('Can be published to a world but is immediately unloaded after', function () {
-
+      it.skip('Can be published to a world but is immediately unloaded after', function() {
       });
     });
 

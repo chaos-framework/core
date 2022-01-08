@@ -3,7 +3,7 @@ import 'mocha';
 
 import { NestedSet } from '../../../../src/internal.js';
 
-describe.only('NestedSet', () => {
+describe('NestedSet', () => {
   describe('Without nesting', () => {
     let unnested: NestedSet;
     const id = 'solo';
