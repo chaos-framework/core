@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Chaos, ActionType, BroadcastType } from '../../internal.js';
+import { Action, ActionParameters, Entity, Chaos, ActionType, BroadcastType, NestedSetChanges } from '../../internal.js';
 
 export class UnpublishEntityAction extends Action {
   actionType: ActionType = ActionType.UNPUBLISH_ENTITY_ACTION;
@@ -20,7 +20,10 @@ export class UnpublishEntityAction extends Action {
   }
 
   apply(): boolean {
-    this.chunkVisibilityChanges = this.entity._unpublish() || undefined;
+    const changes = this.entity._unpublish()
+    if (changes instanceof NestedSetChanges) {
+      this.chunkVisibilityChanges = changes;
+    }
     return true;
   }
     

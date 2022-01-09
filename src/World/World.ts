@@ -68,7 +68,7 @@ export abstract class World implements ComponentContainer, Listener {
     return undefined;
   };
 
-  addEntity(entity: Entity, changes?: NestedSetChanges): NestedSetChanges | false {
+  addEntity(entity: Entity, changes?: NestedSetChanges): NestedSetChanges | boolean {
     if (!this.entities.has(entity.id) && this.isInBounds(entity.position)) {
       // Add the entity to full list
       this.entities.set(entity.id, entity);
@@ -78,19 +78,22 @@ export abstract class World implements ComponentContainer, Listener {
         this.entitiesByChunk.set(chunkIndex, new Map<string, Entity>());        
       }
       this.entitiesByChunk.get(chunkIndex)?.set(entity.id, entity);
-      // Add visible chunks to the entity and attach it
-      const viewDistance = entity.active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
-      if(changes === undefined) {
-        changes = new NestedSetChanges();
+      // Add visible chunks to the entity and attach it, but only if entity is active
+      if (entity.active) {
+        const viewDistance = entity.active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
+        if(changes === undefined) {
+          changes = new NestedSetChanges();
+        }
+        entity.visibleChunks.addSet(new Set<string>(this.getChunksInView(entity.position, viewDistance).map(v => this.getFullChunkID(v.x, v.y))), undefined, changes);
+        this.visibleChunks.addChild(entity.visibleChunks, changes);
+        return changes;
       }
-      entity.visibleChunks.addSet(new Set<string>(this.getChunksInView(entity.position, viewDistance).map(v => this.getFullChunkID(v.x, v.y))), undefined, changes);
-      this.visibleChunks.addChild(entity.visibleChunks, changes);
-      return changes;
+      return true;
     }
     return false;
   }
 
-  removeEntity(entity: Entity, changes?: NestedSetChanges): NestedSetChanges | false {
+  removeEntity(entity: Entity, changes?: NestedSetChanges): NestedSetChanges | boolean {
     if(entity.id && this.entities.has(entity.id)) {
       this.entities.delete(entity.id);
       const chunk = entity.position.toChunkSpace().getIndexString();
@@ -104,8 +107,8 @@ export abstract class World implements ComponentContainer, Listener {
     return false;
   }
 
-  moveEntity(entity: Entity, from: Vector, to: Vector): NestedSetChanges | undefined {
-    if(entity.id && this.entities.has(entity.id)) {
+  moveEntity(entity: Entity, from: Vector, to: Vector): NestedSetChanges | boolean {
+    if(entity.id && this.entities.has(entity.id) && this.isInBounds(to)) {
       if(from.differentChunkFrom(to)) {
         // Track which chunk the entity is in
         const oldString = from.toChunkSpace().getIndexString();
@@ -121,13 +124,16 @@ export abstract class World implements ComponentContainer, Listener {
           this.entitiesByChunk.set(newString, new Map<string, Entity>());
         }
         this.entitiesByChunk.get(newString)!.set(entity.id, entity);
-        // Change which chunks are now visible to the entity
-        const viewDistance = entity.active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
-        // TODO SCOPE need to MASSIVELY optimize this vvv
-        return entity.visibleChunks.replace(new Set<string>(this.getChunksInView(to.toChunkSpace(), viewDistance).map(v => this.getFullChunkID(v.x, v.y))));
+        // Change which chunks are now visible to the entity, if active
+        if (entity.active) {
+          const viewDistance = entity.active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
+          // TODO SCOPE need to MASSIVELY optimize this vvv
+          return entity.visibleChunks.replace(new Set<string>(this.getChunksInView(to.toChunkSpace(), viewDistance).map(v => this.getFullChunkID(v.x, v.y))));
+        }
       }
+      return true;
     }
-    return undefined;
+    return false;
   }
 
   addTemporaryViewer(position: Vector, active: boolean): NestedSet {

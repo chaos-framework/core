@@ -1,4 +1,4 @@
-import { Action, ActionParameters, World, Vector, Entity, Chaos, ActionType, BroadcastType, NestedSet } from '../../internal.js';
+import { Action, ActionParameters, World, Vector, Entity, Chaos, ActionType, BroadcastType, NestedSet, NestedSetChanges } from '../../internal.js';
 
 export class PublishEntityAction extends Action {
   actionType: ActionType = ActionType.PUBLISH_ENTITY_ACTION;
@@ -33,7 +33,10 @@ export class PublishEntityAction extends Action {
   }
 
   apply(): boolean {
-    this.chunkVisibilityChanges = this.entity._publish(this.world, this.position) || undefined;
+    const changes = this.entity._publish(this.world, this.position);
+    if (changes instanceof NestedSetChanges) {
+      this.chunkVisibilityChanges = changes;
+    }
     return true;
   }
 

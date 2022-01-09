@@ -6,7 +6,7 @@ import { Entity, Chaos, Vector, Player, Team, Viewer, NestedChanges, NestedSetCh
 import Room from '../Mocks/Worlds/Room.js';
 import StreamingCheckerboardWorld from '../Mocks/Worlds/StreamingCheckerboardWorld.js';
 
-describe.only('World and chunk visibility tracking and loading', function() {
+describe.only('World and chunk visibility tracking', function() {
   let fixedWorld1: Room;
   let fixedWorld2: Room;
   let streamingWorld: StreamingCheckerboardWorld;
@@ -62,18 +62,19 @@ describe.only('World and chunk visibility tracking and loading', function() {
       });
 
       it('Tracks and forgets chunks when moving through a world', function() {
-          // Publish
-          entityA1._publish(fixedWorld1, Vector.zero());
-          // Will not have any changes for moves within the same chunk
-          const noChanges = entityA1._move(new Vector(1, 1)) as NestedSetChanges;
-          expect(noChanges).to.be.undefined;
-          // Will have changes when moving between chunks
-          const changes = entityA1._move(new Vector(32, 32)) as NestedSetChanges;
-          expect(changes?.hasChanges).to.be.true;
-          expect(changes.added['world'][fixedWorld1.id]).to.contain(fixedWorld1.getFullChunkID(2, 2));
-          expect(changes.removed['world'][fixedWorld1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
-          expect(changes.added['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(2, 2));
-          expect(changes.removed['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
+        // Publish
+        entityA1._publish(fixedWorld1, Vector.zero());
+        // Will not have any changes for moves within the same chunk
+        const noChanges = entityA1._move(new Vector(1, 1));
+        expect(typeof noChanges === 'boolean').to.be.true;
+        expect(noChanges).to.be.true;
+        // Will have changes when moving between chunks
+        const changes = entityA1._move(new Vector(32, 32)) as NestedSetChanges;
+        expect(changes?.hasChanges).to.be.true;
+        expect(changes.added['world'][fixedWorld1.id]).to.contain(fixedWorld1.getFullChunkID(2, 2));
+        expect(changes.removed['world'][fixedWorld1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
+        expect(changes.added['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(2, 2));
+        expect(changes.removed['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
       });
 
       it('Forgets chunks when unpublished from a world', function() {
@@ -113,12 +114,17 @@ describe.only('World and chunk visibility tracking and loading', function() {
       });
     });
 
-    describe.skip('Inactive entities', function() {
-
-      it.skip('Does not track chunks when published to a world', function() {
+    describe('Inactive entities', function() {
+      it('Does not track chunks when published to a world', function() {
+        inactiveEntity.publish({ world: fixedWorld1, position: Vector.zero() }).execute();
+        expect(inactiveEntity.visibleChunks.set).to.not.contain(fixedWorld1.getFullChunkID(0, 0))
       });
 
-      it.skip('Does not track or forget chunks when moving through a world', function() {
+      it('Does not track or forget chunks when moving through a world', function() {
+        entityA1.publish({ world: fixedWorld1, position: Vector.zero() }).execute();
+        inactiveEntity.publish({ world: fixedWorld1, position: Vector.zero() }).execute();
+        inactiveEntity.move({ to: new Vector(32, 32) }).execute();
+        expect(inactiveEntity.visibleChunks.set).to.not.contain(fixedWorld1.getFullChunkID(2, 2));
       });
 
       it.skip('Does not persist chunks when an active entity leaves the world', function() {

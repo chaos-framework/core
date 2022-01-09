@@ -166,7 +166,7 @@ export class Entity implements ComponentContainer, Printable {
     return new PublishEntityAction({caster, target: this, entity: this, world, position, using, metadata});
   }
 
-  _publish(world: World, position: Vector): NestedSetChanges | false {
+  _publish(world: World, position: Vector): NestedSetChanges | boolean {
     if(this.published) {
       return false;
     }
@@ -189,7 +189,7 @@ export class Entity implements ComponentContainer, Printable {
     return new UnpublishEntityAction({caster, target, entity: this, using, metadata});
   }
 
-  _unpublish(): NestedSetChanges | false {
+  _unpublish(): NestedSetChanges | boolean {
     Chaos.removeEntity(this);
     this.components.unpublish();
     // TODO and persistence stuff
@@ -386,16 +386,19 @@ export class Entity implements ComponentContainer, Printable {
     return new MoveAction({caster, target: this, to: this.position.copyAdjusted(amount.x, amount.y), using, metadata});
   }
 
-  _move(to: Vector): NestedSetChanges | undefined {
+  _move(to: Vector): NestedSetChanges | boolean {
     // Make sure we're in bounds, return undefined if not
-    if (this.world !== undefined && !this.world.isInBounds(to)) {
-      return undefined;
+    if (!this.world?.isInBounds(to)) {
+      return false;
     }
     // Let the world know we're moving and track the chunk load changes
     const changes = this.world?.moveEntity(this, this.position, to);
-    // Make the move
-    this.position = to;
-    return changes;
+    if (changes) {
+      // Make the move
+      this.position = to;
+      return changes
+    }
+    return false;
   }
 
   // Senses

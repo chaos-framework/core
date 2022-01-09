@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Chaos, ActionType, Vector, BroadcastType, Viewer } from '../../internal.js';
+import { Action, ActionParameters, Entity, Chaos, ActionType, Vector, BroadcastType, Viewer, NestedSetChanges } from '../../internal.js';
 
 export class MoveAction extends Action {
   actionType: ActionType = ActionType.MOVE_ACTION;
@@ -21,9 +21,12 @@ export class MoveAction extends Action {
   }
 
   apply(): boolean {
-    // this.scopeChanges = this.target._move(this.to);
-    // return this.scopeChanges !== undefined
-    return true;       // TODO SCOPE
+    const result = this.target._move(this.to);
+    if (result instanceof NestedSetChanges) {
+      this.chunkVisibilityChanges = result;
+      return true;
+    }
+    return result || false;
   }
 
   initialize() {
