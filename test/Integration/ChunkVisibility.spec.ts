@@ -51,66 +51,76 @@ describe.only('World and chunk visibility tracking', function() {
     describe('Active entities', function() {
       it('Tracks chunks when published to a world', function() {
         // Publish and cache changes
-        const changes = entityA1._publish(fixedWorld1, Vector.zero())! as NestedSetChanges;
-        const zeroInWorld = fixedWorld1.getFullChunkID(0, 0);
+        const action = entityA1.publish({ world: streamingWorld, position: Vector.zero() });
+        action.execute();
+        const zeroInWorld = streamingWorld.getFullChunkID(0, 0);
         // Test changes
-        expect(changes.added['world'][fixedWorld1.id].has(zeroInWorld)).to.be.true;
-        expect(changes.added['entity'][entityA1.id].has(zeroInWorld)).to.be.true;
+        expect(action.chunkVisibilityChanges!.added['world'][streamingWorld.id].has(zeroInWorld)).to.be.true;
+        expect(action.chunkVisibilityChanges!.added['entity'][entityA1.id].has(zeroInWorld)).to.be.true;
         // Make sure changes also applied to nodes themselves
         expect(entityA1.visibleChunks.has(zeroInWorld)).to.be.true;
-        expect(fixedWorld1.visibleChunks.has(zeroInWorld)).to.be.true;
+        expect(streamingWorld.visibleChunks.has(zeroInWorld)).to.be.true;
       });
 
       it('Tracks and forgets chunks when moving through a world', function() {
         // Publish
-        entityA1._publish(fixedWorld1, Vector.zero());
+        entityA1.publish({ world: streamingWorld, position: Vector.zero() }).execute();
         // Will not have any changes for moves within the same chunk
-        const noChanges = entityA1._move(new Vector(1, 1));
-        expect(typeof noChanges === 'boolean').to.be.true;
-        expect(noChanges).to.be.true;
+        let move = entityA1.move({ to: new Vector(1, 1) });
+        move.execute();
+        expect(move.chunkVisibilityChanges.hasChanges).to.be.false;
         // Will have changes when moving between chunks
-        const changes = entityA1._move(new Vector(32, 32)) as NestedSetChanges;
-        expect(changes?.hasChanges).to.be.true;
-        expect(changes.added['world'][fixedWorld1.id]).to.contain(fixedWorld1.getFullChunkID(2, 2));
-        expect(changes.removed['world'][fixedWorld1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
-        expect(changes.added['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(2, 2));
-        expect(changes.removed['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
+        const action = entityA1.move({ to: new Vector(32, 32) });
+        action.execute();
+        expect(action.chunkVisibilityChanges?.hasChanges).to.be.true;
+        expect(action.chunkVisibilityChanges.added['world'][streamingWorld.id]).to.contain(streamingWorld.getFullChunkID(2, 2));
+        expect(action.chunkVisibilityChanges.removed['world'][streamingWorld.id]).to.contain(streamingWorld.getFullChunkID(0, 0));
+        expect(action.chunkVisibilityChanges.added['entity'][entityA1.id]).to.contain(streamingWorld.getFullChunkID(2, 2));
+        expect(action.chunkVisibilityChanges.removed['entity'][entityA1.id]).to.contain(streamingWorld.getFullChunkID(0, 0));
       });
 
       it('Forgets chunks when unpublished from a world', function() {
-        entityA1._publish(fixedWorld1, Vector.zero());
-        const changes = entityA1._unpublish() as NestedSetChanges;
-        const zeroInWorld = fixedWorld1.getFullChunkID(0, 0);
+        entityA1.publish({ world: streamingWorld, position: Vector.zero() }).execute();
+        const unpublish = entityA1.unpublish();
+        unpublish.execute();
         // Test changes
-        expect(changes.removed['world'][fixedWorld1.id].has(zeroInWorld)).to.be.true;
-        expect(changes.removed['entity'][entityA1.id].has(zeroInWorld)).to.be.true;
+        const zeroInWorld = streamingWorld.getFullChunkID(0, 0);
+        expect(unpublish.chunkVisibilityChanges.removed['world'][streamingWorld.id].has(zeroInWorld)).to.be.true;
+        expect(unpublish.chunkVisibilityChanges.removed['entity'][entityA1.id].has(zeroInWorld)).to.be.true;
         // Make sure changes also applied to the world node
         // TODO should the changes include the deleted node?
         expect(entityA1.visibleChunks.has(zeroInWorld)).to.be.false;
-        expect(fixedWorld1.visibleChunks.has(zeroInWorld)).to.be.false;
+        expect(streamingWorld.visibleChunks.has(zeroInWorld)).to.be.false;
       });
 
       it('Updates chunks appropriately after a ChangeWorldAction', function() {
-        entityA1._publish(fixedWorld1, Vector.zero());
-        const changes = entityA1._changeWorlds(fixedWorld2, Vector.zero()) as NestedSetChanges;
-        expect(changes).to.not.be.false;
-        expect(changes.removed['world'][fixedWorld1.id]).to.include(fixedWorld1.getFullChunkID(0, 0));
-        expect(changes.removed['entity'][entityA1.id]).to.include(fixedWorld1.getFullChunkID(0, 0));
-        expect(changes.added['world'][fixedWorld2.id]).to.include(fixedWorld2.getFullChunkID(0, 0));
-        expect(changes.added['entity'][entityA1.id]).to.include(fixedWorld2.getFullChunkID(0, 0));
+        entityA1.publish({ world: fixedWorld1, position: Vector.zero() }).execute();
+        const changeWorlds = entityA1.changeWorlds({ to: streamingWorld, position: Vector.zero() });
+        changeWorlds.execute();
+        expect(changeWorlds.chunkVisibilityChanges.hasChanges).to.be.true;
+        expect(changeWorlds.chunkVisibilityChanges.removed['world'][fixedWorld1.id]).to.include(fixedWorld1.getFullChunkID(0, 0));
+        expect(changeWorlds.chunkVisibilityChanges.removed['entity'][entityA1.id]).to.include(fixedWorld1.getFullChunkID(0, 0));
+        expect(changeWorlds.chunkVisibilityChanges.added['world'][streamingWorld.id]).to.include(streamingWorld.getFullChunkID(0, 0));
+        expect(changeWorlds.chunkVisibilityChanges.added['entity'][entityA1.id]).to.include(streamingWorld.getFullChunkID(0, 0));
       });
 
       it('Persists chunks after an active entity is unpublished when one active entity is still remaining', function() {
         entityA1._publish(fixedWorld1, Vector.zero());
         entityA2._publish(fixedWorld1, Vector.zero());
-        const changes = entityA1._unpublish() as NestedSetChanges;
-        expect(changes.removed['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
-        expect(changes.removed['world']).to.not.exist;
+        const unpublish = entityA1.unpublish();
+        unpublish.execute();
+        expect(unpublish.chunkVisibilityChanges.removed['entity'][entityA1.id]).to.contain(fixedWorld1.getFullChunkID(0, 0));
+        expect(unpublish.chunkVisibilityChanges.removed['world']).to.not.exist;
       });
 
       it('Does not track chunks outside the bounds of the world', function() {
         entityA1._publish(fixedWorld1, Vector.zero());
         expect(fixedWorld1.visibleChunks.set).to.not.include(fixedWorld1.getFullChunkID(-1, -1));
+      });
+
+      it('Does not keep a world loaded after an entity fails to publish to it', function() {
+        entityA1.publish({ world: streamingWorld, position: Vector.zero() }).deniedByDefault().execute();
+        expect(inactiveEntity.visibleChunks.set).to.not.contain(fixedWorld1.getFullChunkID(0, 0));
       });
     });
 
@@ -127,14 +137,18 @@ describe.only('World and chunk visibility tracking', function() {
         expect(inactiveEntity.visibleChunks.set).to.not.contain(fixedWorld1.getFullChunkID(2, 2));
       });
 
-      it.skip('Does not persist chunks when an active entity leaves the world', function() {
+      it('Does not persist chunks when an active entity leaves the world', function() {
+        entityA1.publish({ world: streamingWorld, position: Vector.zero() }).execute();
+        inactiveEntity.publish({ world: streamingWorld, position: Vector.zero() }).execute();
+        entityA1.unpublish().execute();
+        expect(streamingWorld.visibleChunks.set).to.not.include(streamingWorld.getFullChunkID(0, 0));
       });
 
-      it.skip('Can be published to a world but is immediately unloaded after', function() {
+      it('Can be published to a world but is immediately unloaded after', function() {
+        inactiveEntity.publish({ world: streamingWorld, position: Vector.zero() }).execute();
+        entityA1.unpublish().execute();
+        expect(inactiveEntity.visibleChunks.set).to.not.contain(fixedWorld1.getFullChunkID(0, 0));
       });
-    });
-
-    describe.skip('Loading and unloading worlds around failed entity publishing', function() {
     });
 
     describe.skip('Making an inactive published entity active', function() {

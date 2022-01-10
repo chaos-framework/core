@@ -47,6 +47,7 @@ export default class Vector {
     return magnitude <= radius;
   }
 
+  // Return a new copy of this vector
   copy(): Vector {
     return new Vector(this.x, this.y);
   }

@@ -8,6 +8,7 @@ export class MoveAction extends Action {
   from: Vector;
   to: Vector;
   movementAction = true;
+  chunkVisibilityChanges = new NestedSetChanges;
 
   constructor({ caster, target, to, using, metadata }: MoveAction.Params) {
     super({ caster, using, metadata });
@@ -21,12 +22,7 @@ export class MoveAction extends Action {
   }
 
   apply(): boolean {
-    const result = this.target._move(this.to);
-    if (result instanceof NestedSetChanges) {
-      this.chunkVisibilityChanges = result;
-      return true;
-    }
-    return result || false;
+    return this.target._move(this.to, this.chunkVisibilityChanges);
   }
 
   initialize() {

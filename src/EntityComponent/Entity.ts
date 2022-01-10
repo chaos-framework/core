@@ -166,21 +166,21 @@ export class Entity implements ComponentContainer, Printable {
     return new PublishEntityAction({caster, target: this, entity: this, world, position, using, metadata});
   }
 
-  _publish(world: World, position: Vector): NestedSetChanges | boolean {
+  _publish(world: World, position: Vector, changes?: NestedSetChanges): boolean {
     if(this.published) {
       return false;
     }
     // Get the visibility changes for adding to the world, or alternatively the world will fail to add it
-    const changes = world.addEntity(this);
-    if (!changes) {
-      return false; // failed to publish -- probably out of bounds
+    const result = world.addEntity(this, changes);
+    if (!result) {
+      return false;
     }
     this.published = true;
     this.position = position;
     this.world = world;
     Chaos.addEntity(this);
     this.components.publish();
-    return changes;
+    return true;
   }
 
   // Unpublishing
@@ -189,16 +189,19 @@ export class Entity implements ComponentContainer, Printable {
     return new UnpublishEntityAction({caster, target, entity: this, using, metadata});
   }
 
-  _unpublish(): NestedSetChanges | boolean {
-    Chaos.removeEntity(this);
-    this.components.unpublish();
-    // TODO and persistence stuff
-    this._leaveTeam();
-    for (const [id, player] of this.players) {
-      this._revokeOwnershipFrom(player);
+  _unpublish(changes?: NestedSetChanges): boolean {
+    if(this.world?.removeEntity(this, changes)) {
+      Chaos.removeEntity(this);
+      this.components.unpublish();
+      // TODO and persistence stuff
+      this._leaveTeam();
+      for (const [id, player] of this.players) {
+        this._revokeOwnershipFrom(player);
+        this.published = false;
+      }
+      return true;
     }
-    this.published = false;
-    return this.world?.removeEntity(this) || false;
+    return false;
   }
 
   // Attaching components
@@ -386,19 +389,15 @@ export class Entity implements ComponentContainer, Printable {
     return new MoveAction({caster, target: this, to: this.position.copyAdjusted(amount.x, amount.y), using, metadata});
   }
 
-  _move(to: Vector): NestedSetChanges | boolean {
-    // Make sure we're in bounds, return undefined if not
-    if (!this.world?.isInBounds(to)) {
-      return false;
+  _move(to: Vector, changes = new NestedSetChanges): boolean {
+    const { world } = this;
+    if (world !== undefined) { 
+      // Let the world know we're moving and track the chunk load changes
+      return world.moveEntity(this, this.position, to, changes);
+    } else {
+      this.position = to.copy();
+      return true;
     }
-    // Let the world know we're moving and track the chunk load changes
-    const changes = this.world?.moveEntity(this, this.position, to);
-    if (changes) {
-      // Make the move
-      this.position = to;
-      return changes
-    }
-    return false;
   }
 
   // Senses
@@ -421,23 +420,27 @@ export class Entity implements ComponentContainer, Printable {
 
   // World
   
-  changeWorlds({caster, from, to, position, using, metadata}: ChangeWorldAction.EntityParams): ChangeWorldAction {
-    return new ChangeWorldAction({caster, target: this, from, to, position, using, metadata});
+  changeWorlds({caster, to, position, using, metadata}: ChangeWorldAction.EntityParams): ChangeWorldAction {
+    if(this.world === undefined) {
+      throw new Error();
+    }
+    return new ChangeWorldAction({caster, target: this, from: this.world, to, position, using, metadata});
   }
 
-  _changeWorlds(to: World, position: Vector): NestedSetChanges | false {
+  _changeWorlds(to: World, position: Vector, changes = new NestedSetChanges): boolean {
     if (!to.isInBounds(position)) {
       return false;
     }
-    const changes = new NestedSetChanges(); // track chunks we're losing and gaining visibility of
     if (this.world !== undefined) {
-      this.world.removeEntity(this, changes);
+      if (!this.world.removeEntity(this, changes)) {
+        return false;
+      }
     }
     this.position = position;
     to.addEntity(this, changes);
     this.world = to;
     // TODO component catalog callback
-    return changes;
+    return true;
   }
 
   // Players

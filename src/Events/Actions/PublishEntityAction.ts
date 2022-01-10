@@ -11,6 +11,7 @@ export class PublishEntityAction extends Action {
   movementAction = true;
 
   temporaryViewer?: NestedSet;
+  chunkVisibilityChanges = new NestedSetChanges;
 
   constructor({ caster, target, entity, world, position, using, metadata }: PublishEntityAction.Params) {
     super({caster, using, metadata });
@@ -24,20 +25,16 @@ export class PublishEntityAction extends Action {
 
   initialize() {
     // Add temporary viewers to chunks in new location
-    this.temporaryViewer = this.world.addTemporaryViewer(this.position.toChunkSpace(), this.entity.active);
+    this.temporaryViewer = this.world.addTemporaryViewer(this.position.toChunkSpace(), this.entity.active, this.chunkVisibilityChanges);
   }
 
   teardown() {
     // Unload temporary new chunks
-    this.world.removeViewer(this.temporaryViewer!.id);
+    this.world.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
   }
 
   apply(): boolean {
-    const changes = this.entity._publish(this.world, this.position);
-    if (changes instanceof NestedSetChanges) {
-      this.chunkVisibilityChanges = changes;
-    }
-    return true;
+    return this.entity._publish(this.world, this.position, this.chunkVisibilityChanges);
   }
 
   serialize(): PublishEntityAction.Serialized {

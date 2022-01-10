@@ -13,6 +13,7 @@ export class ChangeWorldAction extends Action {
   movementAction = true;
 
   temporaryViewer?: NestedSet;
+  chunkVisibilityChanges = new NestedSetChanges;
 
   constructor({caster, target, from, to, position, using, metadata }: ChangeWorldAction.Params) {
     super({caster, using, metadata });
@@ -29,22 +30,16 @@ export class ChangeWorldAction extends Action {
 
   initialize() {
     // Add temporary viewers to chunks in new location
-    this.temporaryViewer = this.to.addTemporaryViewer(this.position.toChunkSpace(), this.target.active);
+    this.temporaryViewer = this.to.addTemporaryViewer(this.position.toChunkSpace(), this.target.active, this.chunkVisibilityChanges);
   }
 
   teardown() {
     // Unload temporary new chunks
-    this.to.removeViewer(this.temporaryViewer!.id);
+    this.to.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
   }
 
   apply(): boolean {
-    const result = this.target._changeWorlds(this.to, this.position);
-    if (result instanceof NestedSetChanges) {
-      this.chunkVisibilityChanges = result;
-      return true;
-    } else {
-      return false;
-    }
+    return this.target._changeWorlds(this.to, this.position, this.chunkVisibilityChanges);
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
@@ -55,10 +50,10 @@ export class ChangeWorldAction extends Action {
 export namespace ChangeWorldAction {
   export interface Params extends EntityParams {
     target: Entity;
+    from: World
   }
   
   export interface EntityParams extends ActionParameters {
-    from: World,
     to: World,
     position: Vector;
   }

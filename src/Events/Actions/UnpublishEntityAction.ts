@@ -8,6 +8,8 @@ export class UnpublishEntityAction extends Action {
   target?: Entity; // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
   movementAction = true;
 
+  chunkVisibilityChanges = new NestedSetChanges;
+
   constructor({ caster, target, entity, using, metadata }: UnpublishEntityAction.Params) {
     super({caster, using, metadata });
     this.entity = entity;
@@ -20,11 +22,7 @@ export class UnpublishEntityAction extends Action {
   }
 
   apply(): boolean {
-    const changes = this.entity._unpublish()
-    if (changes instanceof NestedSetChanges) {
-      this.chunkVisibilityChanges = changes;
-    }
-    return true;
+    return this.entity._unpublish(this.chunkVisibilityChanges)
   }
     
   getEntity(): Entity {
