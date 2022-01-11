@@ -45,6 +45,14 @@ describe.only('World and chunk visibility tracking', function() {
     entityA2 = new Entity({ active: true });
     entityB1 = new Entity({ active: true });
     inactiveEntity = new Entity;
+
+    entityA1._joinTeam(teamA);
+    entityA2._joinTeam(teamA);
+    entityB1._joinTeam(teamB);
+    
+    playerA1._ownEntity(entityA1);
+    playerA2._ownEntity(entityA2);
+    playerB._ownEntity(entityB1);
   });
 
   describe('Entities and worlds tracking visible chunks', function() {
@@ -59,6 +67,8 @@ describe.only('World and chunk visibility tracking', function() {
         expect(action.chunkVisibilityChanges!.added['entity'][entityA1.id].has(zeroInWorld)).to.be.true;
         // Make sure changes also applied to nodes themselves
         expect(entityA1.visibleChunks.has(zeroInWorld)).to.be.true;
+        expect(teamA.visibleChunks.has(zeroInWorld)).to.be.true;
+        expect(playerA1.visibleChunks.has(zeroInWorld)).to.be.true;
         expect(streamingWorld.visibleChunks.has(zeroInWorld)).to.be.true;
       });
 

@@ -1,4 +1,4 @@
-import { Action, Event, ActionQueue, BroadcastType, Chaos, NestedChanges, Player, Team } from '../internal.js';
+import { Action, Event, ActionQueue, BroadcastType, Chaos, NestedChanges, Player, Team, NestedSetChanges } from '../internal.js';
 
 export class ActionProcessor {
   queue = new ActionQueue();
@@ -51,10 +51,7 @@ export class ActionProcessor {
   }
 
   queueForBroadcast(action: Action, to?: Player | Team) {
-    // Check if this action contains any visiblity changes and publish/unpublish entities as needed first
-    if(action.entityVisibilityChanges?.changes !== undefined) {
-      this.publishVisibilityChanges(action.entityVisibilityChanges.changes, action.entityVisibilityChanges.type === 'addition');
-    }
+    // TODO SCOPE publish new chunks and entities
     // Check if this message needs to be broadcasted to clients at all
     if(action.broadcastType === BroadcastType.NONE) {
       return;
@@ -92,29 +89,45 @@ export class ActionProcessor {
     return;
   }
 
-  publishVisibilityChanges(changesInVisibility: NestedChanges, addition = true) {
-    if(Chaos.perceptionGrouping === 'team') {
-      // TODO
-    } else {
-      // Broadcast newly visible 
-      if(changesInVisibility.changes['player'] !== undefined) {
-        const playerChanges = changesInVisibility.changes['player'];
-        for(const playerId in playerChanges) {
-          const player = Chaos.players.get(playerId);
-          if(player !== undefined && player.client !== undefined) {
-            const newEntityIds = changesInVisibility.changes['player'][playerId].values();
-            // tslint:disable-next-line: forin
-            for(const entityId of newEntityIds) {
-              const entity = Chaos.getEntity(entityId);
-              if(entity !== undefined) {
-                const action = addition ? entity.getPublishedInPlaceAction() : entity.unpublish();
-                player.enqueueAction(action);
-              }
-            }
-          }
-        }
-      }
-    }
+  publishNewChunks(changes: NestedSetChanges) {
+
+  }
+
+  unpublishOldChunks(changes: NestedSetChanges) {
+
+  }
+
+  publishNewEntities(changes: NestedChanges) {
+
+  }
+
+  publishOldEntities(changes: NestedChanges) {
+
+  }
+
+  publishVisibilityAdditions(chunkChanges: NestedSetChanges, entityChanges: NestedChanges) {
+    // if(Chaos.perceptionGrouping === 'team') {
+    //   // TODO
+    // } else {
+    //   // Broadcast newly visible 
+    //   if(changesInVisibility.changes['player'] !== undefined) {
+    //     const playerChanges = changesInVisibility.changes['player'];
+    //     for(const playerId in playerChanges) {
+    //       const player = Chaos.players.get(playerId);
+    //       if(player !== undefined && player.client !== undefined) {
+    //         const newEntityIds = changesInVisibility.changes['player'][playerId].values();
+    //         // tslint:disable-next-line: forin
+    //         for(const entityId of newEntityIds) {
+    //           const entity = Chaos.getEntity(entityId);
+    //           if(entity !== undefined) {
+    //             const action = addition ? entity.getPublishedInPlaceAction() : entity.unpublish();
+    //             player.enqueueAction(action);
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   broadcastAll() {

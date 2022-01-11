@@ -97,27 +97,28 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     return new OwnEntityAction({ caster, using, entity, player: this, metadata });
   }
 
-  _ownEntity(entity: Entity): [NestedChanges | undefined, NestedSetChanges | undefined] {
+  _ownEntity(entity: Entity, chunkVisibilityChanges?: NestedSetChanges, entityVisibilityChanges?: NestedChanges): boolean {
     // Make sure we don't already own this entity
     if (this.entities.has(entity.id)) {
-      return [undefined, undefined];
+      return false;
     }
     this.entities.set(entity.id, entity);
-    const entityVisibilityChanges = this.sensedEntities.addChild(entity.sensedEntities);
-    const chunkVisibilityChanges = this.visibleChunks.addChild(entity.visibleChunks);
+    this.visibleChunks.addChild(entity.visibleChunks, chunkVisibilityChanges);
+    this.sensedEntities.addChild(entity.sensedEntities, entityVisibilityChanges);
     entity._grantOwnershipTo(this);
-    return [entityVisibilityChanges, chunkVisibilityChanges];
+    return true
   }
 
-  _disownEntity(entity: Entity): NestedChanges | undefined {
+  _disownEntity(entity: Entity, chunkVisibilityChanges?: NestedSetChanges, entityVisibilityChanges?: NestedChanges): boolean {
     if (!this.entities.has(entity.id)) {
-      return undefined;
+      return false;
     }
     entity.players.delete(this.id);
     this.entities.delete(entity.id);
     entity._revokeOwnershipFrom(this);
-    const changes = this.sensedEntities.removeChild(entity.id);
-    return changes;
+    this.visibleChunks.removeChild(entity.id, chunkVisibilityChanges);
+    this.sensedEntities.removeChild(entity.id, entityVisibilityChanges);
+    return true;
   }
   
   _joinTeam(team: Team): boolean {

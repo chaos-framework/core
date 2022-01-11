@@ -406,16 +406,18 @@ export class Entity implements ComponentContainer, Printable {
     return new SenseEntityAction({caster: this, target, using, metadata});
   }
 
-  _senseEntity(entity: Entity, using: CachesSensedEntities): NestedChanges {
-    return using.sensedEntities.add(entity.id, entity);
+  _senseEntity(entity: Entity, using: CachesSensedEntities, changes?: NestedChanges) {
+    using.sensedEntities.add(entity.id, entity, undefined, changes);
+    return true;
   }
 
   loseEntity({target, using, metadata}: SenseEntityAction.EntityParams): SenseEntityAction {
     return new SenseEntityAction({caster: this, target, using, metadata});
   }
 
-  _loseEntity(entity: Entity, from: CachesSensedEntities): NestedChanges {
-    return from.sensedEntities.remove(entity.id);
+  _loseEntity(entity: Entity, from: CachesSensedEntities, changes?: NestedChanges): boolean {
+    from.sensedEntities.remove(entity.id, 'undefined', changes);
+    return true;
   }
 
   // World
@@ -462,11 +464,13 @@ export class Entity implements ComponentContainer, Printable {
 
   // Teams
   // TODO action
-  _joinTeam(team: Team) {
+  _joinTeam(team: Team): boolean {
     if(team !== undefined) {
       this.team = team;
       team._addEntity(this);
+      return true;
     }
+    return false;
   }
   
   // TODO action

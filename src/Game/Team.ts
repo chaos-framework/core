@@ -1,7 +1,7 @@
 // tslint:disable: forin
 import { v4 as uuid } from 'uuid';
 
-import { Chaos, Action, ComponentContainer, Player, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges, NestedSet } from '../internal.js';
+import { Chaos, Action, ComponentContainer, Player, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges, NestedSet, NestedSetChanges } from '../internal.js';
 import { Viewer, ActionQueuer } from './Interfaces';
 
 export class Team implements Viewer, ActionQueuer, ComponentContainer {
@@ -71,6 +71,7 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     }
     this.players.set(player.id, player);
     this.sensedEntities.addChild(player.sensedEntities);
+    this.visibleChunks.addChild(player.visibleChunks);
     player._joinTeam(this);
     return true;
   }
@@ -99,24 +100,27 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
   }
 
   // TODO action generator
-  _addEntity(entity: Entity): NestedChanges | undefined {
+  _addEntity(entity: Entity, chunkVisibilityChanges?: NestedSetChanges, entityVisibilityChanges?: NestedChanges): boolean {
     if(this.entities.has(entity.id)) {
-      return undefined;
+      return false;
     }
     this.entities.set(entity.id, entity);
     entity._joinTeam(this);
-    return this.sensedEntities.addChild(entity.sensedEntities);
+    this.visibleChunks.addChild(entity.visibleChunks, chunkVisibilityChanges);
+    this.sensedEntities.addChild(entity.sensedEntities, entityVisibilityChanges);
+    return true;
   }
 
-  _removeEntity(entity: Entity): NestedChanges | undefined {
+  _removeEntity(entity: Entity, chunkVisibilityChanges?: NestedSetChanges, entityVisibilityChanges?: NestedChanges): boolean {
     if(!this.entities.has(entity.id)) {
-      return undefined;
+      return false;
     }
     this.entities.delete(entity.id);
     entity._leaveTeam();
-    return this.sensedEntities.removeChild(entity.id);
+    this.visibleChunks.removeChild(entity.id, chunkVisibilityChanges);
+    this.sensedEntities.removeChild(entity.id, entityVisibilityChanges);
+    return true;
   }
-
 }
 
 // tslint:disable-next-line: no-namespace
