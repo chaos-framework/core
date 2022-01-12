@@ -222,13 +222,20 @@ export function serializeForScope(viewer: Viewer): SerializedForClient {
     o.teams.push(team.serializeForClient());
   }
   // Gather all visible worlds and serialize with visible baselayer chunks
-        // TODO SCOPE
-  // for(const [id, worldScope] of viewer.getWorldScopes()) { 
-  //   const world = worlds.get(id);
-  //   if(world !== undefined) {
-  //     o.worlds.push(world.serializeForClient());
-  //   }
-  // }
+  // TODO SCOPE -- I have to track visible worlds in their own nested set, for NOW this is acceptable
+  const worldIds = new Set<string>();
+  for (const worldChunk of viewer.visibleChunks.set) {
+    const id = worldChunk.split('_')[0];
+    if(id !== undefined) {
+      worldIds.add(id);
+    }
+  }  
+  for (const worldId of worldIds) {
+    const world = worlds.get(worldId)?.serializeForClient();
+    if(world !== undefined) {
+      o.worlds.push(world);
+    }
+  }
   // Gather all entities in sight
   const visibleEntities = viewer.getSensedAndOwnedEntities();
   for(const [, entity] of visibleEntities) {

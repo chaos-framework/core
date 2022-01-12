@@ -55,7 +55,7 @@ export class NestedMap<T> {
           this.map.delete(entryId);
           this.entriesByChildren.delete(entryId);
           // Track this change
-          changes.add(this.level, this.id, entryId);
+          changes.remove(this.level, this.id, entryId);
           // Let parents know that we've lost this value
           for(const [parentId, parentNode] of this.parents) {
             parentNode.remove(entryId, this.id, changes);
@@ -102,7 +102,7 @@ export class NestedMap<T> {
         // See if no other downstream source is providing this entry
         if(byChildren.size === 0) {
           this.map.delete(id);
-          changes.add(this.level, this.id, id);
+          changes.remove(this.level, this.id, id);
         }
       }
     } else {
@@ -112,11 +112,11 @@ export class NestedMap<T> {
       } else {
         // If no node specified and no child is providing this, just delete and return the change that was made
         this.map.delete(id);
-        changes.add(this.level, this.id, id);
+        changes.remove(this.level, this.id, id);
       }
     }
     // Let all parents know that we've removed this entry
-    for(const [parentId, parentNode] of this.parents) {
+    for(const [, parentNode] of this.parents) {
       parentNode.remove(id, this.id, changes);
     }
     return changes;

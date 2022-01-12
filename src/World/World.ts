@@ -44,8 +44,8 @@ export abstract class World implements ComponentContainer, Listener {
 
     // Initialize the relevant layers with default values
     if (!streaming) {
-      for (let x = 0; x <= size.x; x++) {
-        for (let y = 0; y <= size.y; y++) {
+      for (let x = 0; x < size.x; x++) {
+        for (let y = 0; y < size.y; y++) {
           this.initializeChunk(x, y);
         }
       }

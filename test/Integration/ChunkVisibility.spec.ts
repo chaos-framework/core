@@ -6,7 +6,7 @@ import { Entity, Chaos, Vector, Player, Team, Viewer, NestedChanges, NestedSetCh
 import Room from '../Mocks/Worlds/Room.js';
 import StreamingCheckerboardWorld from '../Mocks/Worlds/StreamingCheckerboardWorld.js';
 
-describe.only('World and chunk visibility tracking', function() {
+describe('World and chunk visibility tracking', function() {
   let fixedWorld1: Room;
   let fixedWorld2: Room;
   let streamingWorld: StreamingCheckerboardWorld;

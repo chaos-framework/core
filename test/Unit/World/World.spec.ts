@@ -12,7 +12,7 @@ describe('Worlds', () => {
     const world = new StreamingCheckerboardWorld(new Vector(5, 5));
     expect(world.isInBounds(new Vector(0, 0))).to.be.true;
     expect(world.isInBounds(new Vector(16, 16))).to.be.true;
-    expect(world.isInBounds(new Vector(16 * 5, 16 * 5))).to.be.true;
+    expect(world.isInBounds(new Vector(16 * 5 - 1, 16 * 5 - 1))).to.be.true;
     expect(world.isInBounds(new Vector(16 * 5, 16 * 5))).to.be.false;
     expect(world.isInBounds(new Vector(5000, 5000))).to.be.false;
     world.size = new Vector(20, 20);
@@ -52,8 +52,9 @@ describe('Worlds', () => {
 
   describe('Holding different layers', function() {
     const earth = new Earth();
-    const e = new Entity({ name: "Test Entity", active: true });
-    e._publish(earth, new Vector(0, 0));
+    earth.addTemporaryViewer(new Vector(0,0), true);
+    // const e = new Entity({ name: "Test Entity", active: true });
+    // e._publish(earth, new Vector(0, 0));
 
     it('Should have a baselayer that can be referenced directly and returns numbers', function() {
       expect(earth.baseLayer).to.exist;

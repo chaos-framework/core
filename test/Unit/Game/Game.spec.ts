@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import 'mocha';
-import { Chaos, Entity, Team, Vector, Player, VisibilityType } from '../../../src/internal.js';
+import { Chaos, Entity, Team, Player } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
 
 describe('Game', () => {
   beforeEach(() => { Chaos.reset(); });
 
-  describe('Serializing with scope for client', () =>{
+  describe('Serializing with scope for client', () => {
     let p: Player;
     let e: Entity;
     let red: Team;
@@ -25,7 +25,7 @@ describe('Game', () => {
       otherRoom = new Room();
       Chaos.addWorld(room);
       Chaos.addWorld(otherRoom);
-      e = new Entity();
+      e = new Entity({ active: true });
       e._publish(room, room.stageLeft);
       p._ownEntity(e);
       serialized = Chaos.serializeForScope(p);
@@ -52,65 +52,5 @@ describe('Game', () => {
       Chaos.DeserializeAsClient(serialized, '');
       expect(Chaos.entities.has(e.id)).to.be.true;
     });
-  })
-
-  // LOL NOT ANYMORE
-  // it('Should be a singleton', () => {
-  //   expect(game).to.be.not.null;
-  //   expect(Chaos.).to.be.not.null;
-  //   expect(Chaos.).to.equal(game);
-  // });
-
-  // describe('Default visibility functions', () => {
-  //   let game: Game;
-  //   let e: Entity;
-  //   let world: Room;
-  //   let amount: Vector;
-  //   let team: Team;
-  //   let player: Player;
-  //   beforeEach(() => {
-  //     Chaos.reset();
-  //     game.perceptionGrouping = 'team';
-  //     game.viewDistance = 1;
-  //     world = new Room(5,5);
-  //     game.worlds.set(world.id, world);
-  //     e = new Entity({ name: "Test Entity" });
-  //     e._publish(world, world.stageLeft);
-  //     amount = new Vector(1,1);
-  //     team = new Team({ name: 'Test' });
-  //     game.teams.set('Test', team);
-  //     player = new Player({ username: 'Test', teams: [team.id]})
-  //     game.players.set(player.id, player);
-  //     player._ownEntity(e);
-  //   });
-    
-  //   it('Should return VISIBLE for team visibility if the entity is on the team', () => {
-  //     const a = new RelativeMoveAction({caster: e, target: e, amount });
-  //     expect(game.getActionVisibilityToTeam(a, team)).to.equal(VisibilityType.VISIBLE);
-  //   });
-
-  //   it('Should return VISIBLE for player visibility if the entity is owned by the player', () => {
-  //     const a = new RelativeMoveAction({caster: e, target: e, amount });
-  //     expect(game.getActionVisibilityToPlayer(a, player)).to.equal(VisibilityType.VISIBLE);
-  //   });
-
-  //   it('Should return VISIBLE for team visibility if an unowned entity is in scope', () => {
-  //     const newEntity = new Entity({ name: "Unowned" });
-  //     newEntity._publish(world, world.stageRight);
-  //     const a = new RelativeMoveAction({caster: newEntity, target: newEntity, amount });
-  //     expect(game.getActionVisibilityToTeam(a, team)).to.equal(VisibilityType.VISIBLE);
-  //   });
-
-  //   it('Should return VISIBLE for player visibility if an unowned entity is in scope', () => {
-  //     const newEntity = new Entity({ name: "Unowned" });
-  //     newEntity._publish(world, world.stageRight);
-  //     const a = new RelativeMoveAction({caster: newEntity, target: newEntity, amount });
-  //     expect(game.getActionVisibilityToPlayer(a, player)).to.equal(VisibilityType.VISIBLE);
-  //   });
-
-  //   it('Should return VISIBLE for entity visibility no matter what', () => {
-  //     const a = new RelativeMoveAction({caster: e, target: e, amount });
-  //     expect(game.getActionVisibilityToEntity(a, e)).to.equal(VisibilityType.VISIBLE);
-  //   });
-  // });
+  });
 });

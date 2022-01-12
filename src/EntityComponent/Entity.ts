@@ -197,8 +197,8 @@ export class Entity implements ComponentContainer, Printable {
       this._leaveTeam();
       for (const [id, player] of this.players) {
         this._revokeOwnershipFrom(player);
-        this.published = false;
       }
+      this.published = false;
       return true;
     }
     return false;
@@ -393,7 +393,13 @@ export class Entity implements ComponentContainer, Printable {
     const { world } = this;
     if (world !== undefined) { 
       // Let the world know we're moving and track the chunk load changes
-      return world.moveEntity(this, this.position, to, changes);
+      const couldMove = world.moveEntity(this, this.position, to, changes);
+      if (couldMove) {
+        this.position = to.copy();
+        return true;
+      } else {
+        return false;
+      }
     } else {
       this.position = to.copy();
       return true;
