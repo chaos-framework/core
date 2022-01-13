@@ -81,7 +81,11 @@ export abstract class World implements ComponentContainer, Listener {
       // Add visible chunks to the entity and attach it, but only if entity is active
       if (entity.active) {
         const viewDistance = entity.active ? Chaos.viewDistance : Chaos.inactiveViewDistance;
-        entity.visibleChunks.addSet(new Set<string>(this.getChunksInView(entity.position, viewDistance).map(v => this.getFullChunkID(v.x, v.y))), undefined, changes);
+        const chunksInView = this.getChunksInView(entity.position, viewDistance);
+        for (const position of chunksInView) {
+          this.load(position);
+        }
+        entity.visibleChunks.addSet(new Set<string>(chunksInView.map(v => this.getFullChunkID(v.x, v.y))), undefined, changes);
         this.visibleChunks.addChild(entity.visibleChunks, changes);
       }
       return true;
@@ -95,7 +99,8 @@ export abstract class World implements ComponentContainer, Listener {
       const chunk = entity.position.toChunkSpace().getIndexString();
       this.entitiesByChunk.get(chunk)?.delete(entity.id);
       // Get changes from world and entity
-      this.visibleChunks.removeChild(entity.id, changes)
+      const removed = this.visibleChunks.removeChild(entity.id, changes);
+      this.loadAndUnloadChanges(removed);
       entity.visibleChunks.clear(changes);
       return true;
     }
@@ -125,6 +130,7 @@ export abstract class World implements ComponentContainer, Listener {
           // TODO SCOPE need to MASSIVELY optimize this vvv
           entity.visibleChunks.replace(new Set<string>(this.getChunksInView(to.toChunkSpace(), viewDistance).map(v => this.getFullChunkID(v.x, v.y))), undefined, changes);
         }
+        this.loadAndUnloadChanges(changes);
       }
       return true;
     }
@@ -146,8 +152,7 @@ export abstract class World implements ComponentContainer, Listener {
   // Remove a viewer, probably a surrogate/temporary one
   removeViewer(id: string, changes?: NestedSetChanges): NestedSetChanges {
     changes ??= new NestedSetChanges;
-    this.visibleChunks.removeChild(id, changes);
-    // TODO SCOPE unload
+    this.loadAndUnloadChanges(this.visibleChunks.removeChild(id, changes));
     return changes;
   }
 
@@ -160,6 +165,27 @@ export abstract class World implements ComponentContainer, Listener {
 
   unload(coordinates: Vector) {
     // TODO SCOPE unload
+  }
+
+  loadAndUnloadChanges(changes: NestedSetChanges) {
+    // Load new areas
+    const toLoad = changes.added['world']?.[this.id];
+    if(toLoad !== undefined) {
+      for (const fullChunkID of toLoad) {
+        const indexString = fullChunkID.split('_');
+        const vector = Vector.fromIndexString(`${indexString[1]}_${indexString[2]}`); // lol god damnit
+        this.load(vector);
+      }
+    }
+    // Unload areas left
+    const toUnload = changes.removed['world']?.[this.id];
+    if (toUnload !== undefined) {
+      for (const fullChunkID of toUnload) {
+        const indexString = fullChunkID.split('_');
+        const vector = Vector.fromIndexString(`${indexString[1]}_${indexString[2]}`); // lol god damnit
+        this.unload(vector);
+      }
+    }
   }
 
   getChunksInView(center: Vector, distance: number): Vector[] { // TODO SCOPE unit test
