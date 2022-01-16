@@ -1,10 +1,9 @@
 // tslint:disable: forin
 import { v4 as uuid } from 'uuid';
 
-import { Chaos, Action, ComponentContainer, Player, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges, NestedSet, NestedSetChanges } from '../internal.js';
-import { Viewer, ActionQueuer } from './Interfaces';
+import { Chaos, Action, Viewer, ComponentContainer, Player, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges, NestedSet, NestedSetChanges } from '../internal.js';
 
-export class Team implements Viewer, ActionQueuer, ComponentContainer {
+export class Team implements Viewer, ComponentContainer {
   id: string = uuid();
   name: string;
 
@@ -39,10 +38,13 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     return undefined;
   };
 
-  enqueueAction(a: Action) {
+  queueForBroadcast(action: Action, serialized?: any) {
+    if (serialized === undefined) {
+      serialized = action.serialize();
+    }
     // Queue broadcast for all players
     for(const [, player] of this.players) {
-      player.enqueueAction(a);
+      player.queueForBroadcast(action, serialized);
     }
   }
 

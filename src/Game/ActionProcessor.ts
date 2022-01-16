@@ -1,4 +1,4 @@
-import { Action, Event, ActionQueue, BroadcastType, Chaos, NestedChanges, Player, Team, NestedSetChanges } from '../internal.js';
+import { Action, Event, ActionQueue, BroadcastType, Chaos, NestedChanges, Player, Team, NestedSetChanges, Viewer, UnpublishEntityAction, VisibilityType, PublishEntityAction } from '../internal.js';
 
 export class ActionProcessor {
   queue = new ActionQueue();
@@ -14,9 +14,9 @@ export class ActionProcessor {
   }
 
   process(action?: Action) {
-    if(this.processing === true) {
+    if (this.processing === true) {
       // Reactions fire on their own before the original finishes, so we have to make sure to let hooks see it
-      if(action?.inReactionTo !== undefined) {
+      if (action?.inReactionTo !== undefined) {
         this.actionsThisProcess.push(action);
         this.broadcastToActionHooks(action);
       }
@@ -30,10 +30,10 @@ export class ActionProcessor {
       this.broadcastToActionHooks(nextAction);
       nextAction = this.queue.getNextAction();
     }
-    if(this.actionsThisProcess.length > 0) {
+    if (this.actionsThisProcess.length > 0) {
       this.broadcastToExecutionHooks();
     }
-    this.broadcastAll(); // TODO make this conditional on server role?
+    this.sendData(); // TODO make this conditional on server role?
     this.actionsThisProcess = [];
     this.processing = false;
   }
@@ -51,37 +51,53 @@ export class ActionProcessor {
   }
 
   queueForBroadcast(action: Action, to?: Player | Team) {
-    // TODO SCOPE publish new chunks and entities
+    // TODO ADMIN much easier to push new chunks at game-level
     // Check if this message needs to be broadcasted to clients at all
-    if(action.broadcastType === BroadcastType.NONE) {
+    if (action.broadcastType === BroadcastType.NONE) {
       return;
     } else if (action.broadcastType === BroadcastType.DIRECT) {
       return;
     }
     // Broadcast to everyone, if specified, or more specific clients
-    if(action.broadcastType === BroadcastType.FULL) {
-      for(const [, player] of Chaos.players) {
-        player.enqueueAction(action);
+    if (action.broadcastType === BroadcastType.FULL) {
+      for (const [, player] of Chaos.players) {
+        player.queueForBroadcast(action);
       }
     } else {
       // Broadcast out to either visibility type based on sense of relevent entities
-      if(Chaos.perceptionGrouping === 'team') {
-        for(const [, team] of Chaos.teams) {
-          if(
+      if (Chaos.perceptionGrouping === 'team') {
+        for (const [, team] of Chaos.teams) {
+          if (
             (action.target && (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
             (action.caster && (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
             ) {
-              team.enqueueAction(action);
+              team.queueForBroadcast(action);
             }
         }
         // TODO players without teams
       } else {
-        for(const [, player] of Chaos.players) {
-          if(
+        for (const [, player] of Chaos.players) {
+          if (
             (action.target && (player.entities.has(action.target.id) || player.sensedEntities.has(action.target.id))) ||
             (action.caster && (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))
             ) {
-              player.enqueueAction(action);
+              const newChunks = action.chunkVisibilityChanges?.added['player']?.[player.id];
+              if (newChunks !== undefined) {
+                this.publishChunks(newChunks, player);
+              }
+              const newEntities = action.entityVisibilityChanges?.added['player']?.[player.id];
+              if (newEntities !== undefined) {
+                this.publishEntities(newEntities, player);
+              }
+              player.queueForBroadcast(action);
+              const oldChunks = action.chunkVisibilityChanges?.removed['player']?.[player.id];
+              if (oldChunks !== undefined) {
+                this.publishChunks(oldChunks, player);
+              }
+              const oldEntities = action.entityVisibilityChanges?.removed['player']?.[player.id];
+              if (oldEntities !== undefined) {
+                this.publishEntities(oldEntities, player);
+              }
             }
         }
       }
@@ -89,49 +105,28 @@ export class ActionProcessor {
     return;
   }
 
-  publishNewChunks(changes: NestedSetChanges) {
+  publishChunks(chunks: Set<string>, to: Viewer) {
 
   }
 
-  unpublishOldChunks(changes: NestedSetChanges) {
+  unpublishChunks(changes: Set<string>, from: Viewer) {
 
   }
 
-  publishNewEntities(changes: NestedChanges) {
-
+  publishEntities(entities: Set<string>, to: Viewer) {
+    for (const id of entities) {
+      to.queueForBroadcast(Chaos.getEntity(id)!.getPublishedInPlaceAction());
+    }
   }
 
-  publishOldEntities(changes: NestedChanges) {
-
+  unpublishEntities(entities: Set<string>, from: Viewer) {
+    for (const id of entities) {
+      from.queueForBroadcast(new UnpublishEntityAction({ entity: Chaos.getEntity(id)! }));
+    }
   }
 
-  publishVisibilityAdditions(chunkChanges: NestedSetChanges, entityChanges: NestedChanges) {
-    // if(Chaos.perceptionGrouping === 'team') {
-    //   // TODO
-    // } else {
-    //   // Broadcast newly visible 
-    //   if(changesInVisibility.changes['player'] !== undefined) {
-    //     const playerChanges = changesInVisibility.changes['player'];
-    //     for(const playerId in playerChanges) {
-    //       const player = Chaos.players.get(playerId);
-    //       if(player !== undefined && player.client !== undefined) {
-    //         const newEntityIds = changesInVisibility.changes['player'][playerId].values();
-    //         // tslint:disable-next-line: forin
-    //         for(const entityId of newEntityIds) {
-    //           const entity = Chaos.getEntity(entityId);
-    //           if(entity !== undefined) {
-    //             const action = addition ? entity.getPublishedInPlaceAction() : entity.unpublish();
-    //             player.enqueueAction(action);
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-  }
-
-  broadcastAll() {
-    for(const [, player] of Chaos.players) {
+  sendData() {
+    for (const [, player] of Chaos.players) {
       player.broadcast();
     }
   }

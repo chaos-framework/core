@@ -5,5 +5,5 @@ export interface Chunk<T> {
   getTile(x: number, y: number): any | undefined;
   toArray(): any[];
   each(callback: (tile: T) => any): void;
-  stringify(callback: (tile: T) => string): string;
+  serialize(): any;
 }

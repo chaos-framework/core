@@ -4,12 +4,12 @@ import {
   Chaos, Team, Action, Entity, Client,
   NestedMap, PublishPlayerAction, ComponentContainer,
   ComponentCatalog, Scope, MessageType, OwnEntityAction,
-  NestedChanges, Viewer, Broadcaster, NestedSet, NestedSetChanges
+  NestedChanges, Viewer, NestedSet, NestedSetChanges
 } from '../internal.js';
 
 // TODO clean up above imports
 
-export class Player implements Viewer, Broadcaster, ComponentContainer {
+export class Player implements Viewer, ComponentContainer {
   id: string = uuid();
   client?: Client;
   username: string;
@@ -24,7 +24,7 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
   sensedEntities: NestedMap<Entity>;
   visibleChunks: NestedSet;
 
-  broadcastQueue = new Queue<Action>();
+  broadcastQueue = new Queue<any>();
   published = true; // TODO change this?
 
   constructor({ id = uuid(), username, team, admin = false, client }: Player.ConstructorParams = {}) {
@@ -70,9 +70,12 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     return new Map([...this.entities.entries(), ...this.sensedEntities.map.entries()]);
   }
 
-  enqueueAction(action: Action) {
-    if(this.client !== undefined) {
-      this.broadcastQueue.enqueue(action);
+  queueForBroadcast(action: Action, serialized?: any) {
+    if (serialized === undefined) {
+      serialized = action.serialize();
+    }
+    if (this.client !== undefined) {
+      this.broadcastQueue.enqueue(serialized);
     }
   }
 
@@ -120,7 +123,7 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     this.sensedEntities.removeChild(entity.id, entityVisibilityChanges);
     return true;
   }
-  
+
   _joinTeam(team: Team): boolean {
     // Make sure we're not already on a team
     if(this.team !== undefined) {

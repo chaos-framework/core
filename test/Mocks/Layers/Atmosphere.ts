@@ -1,4 +1,4 @@
-import { ArrayChunk, Layer } from "../../../src/internal.js";
+import { ArrayChunk, Layer, Vector } from "../../../src/internal.js";
 
 export interface AtmosphericComposition {
   O2: number;

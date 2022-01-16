@@ -67,4 +67,8 @@ export abstract class Layer<T extends Chunk<any>> {
     }
   }
 
+  serializeChunk(position: Vector): any {
+    return this.getChunk(position.x, position.y)?.serialize();
+  }
+
 }

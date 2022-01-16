@@ -273,6 +273,18 @@ export abstract class World implements ComponentContainer, Listener {
 
   abstract serialize(): string;
 
+  serializeChunk(position: Vector): any;
+  serializeChunk(x: number, y: number): any
+  serializeChunk(position: any, other?: any): any {
+    if (!(position instanceof Vector)) {
+      position = new Vector(position, other);
+    } 
+    const o: { [key: string] : any } = {};
+    for (const [id, layer] of this.layers) {
+      o.id = layer.getChunk(position.x, position.y)?.serialize();
+    }
+  }
+
   serializeForClient(): World.SerializedForClient {
     return {
       id: this.id,

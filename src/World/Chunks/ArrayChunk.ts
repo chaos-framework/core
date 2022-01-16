@@ -1,4 +1,4 @@
-import { Chunk, CHUNK_WIDTH } from "../../internal.js";
+import { Chunk, CHUNK_WIDTH, Vector } from "../../internal.js";
 
 export class ArrayChunk<T> implements Chunk<T> {
   tiles: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]; // 16 x 16
@@ -45,13 +45,7 @@ export class ArrayChunk<T> implements Chunk<T> {
     }
   }
 
-  stringify(callback: (tile: T) => string): string {
-    let a = [];
-    for (let x = 0; x < CHUNK_WIDTH; x++) {
-      for (let y = 0; y < CHUNK_WIDTH; y++) {
-        a.push(callback(this.tiles[x][y]));
-      }
-    }
-    return a.join('');
+  serialize(): T[] {
+    return this.toArray();
   }
 }

@@ -47,7 +47,7 @@ export * as Chaos from './Game/Chaos.js';
 export { Game, isGame } from './Game/Game.js';
 export { Team } from './Game/Team.js';
 export { Player } from './Game/Player.js';
-import { Viewer, ActionQueuer } from './Game/Interfaces.js';
+export { Viewer } from './Game/Viewer.js';
 import EntityScope from './Game/EntityScope.js';
 export { World } from './World/World.js';
 // CLIENT/SERVER
@@ -84,7 +84,7 @@ export {
   Action, ActionParameters,
   ByteLayer,
   ClientWorld,
-  Viewer, ActionQueuer as Broadcaster, EntityScope,
+  EntityScope,
   Event, ActionQueue,
   Vector,
 }
