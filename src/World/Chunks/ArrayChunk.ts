@@ -3,11 +3,15 @@ import { Chunk, CHUNK_WIDTH, Vector } from "../../internal.js";
 export class ArrayChunk<T> implements Chunk<T> {
   tiles: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]; // 16 x 16
 
-  constructor(fill: T) {
-    // Fill the chunk with an instance of a tile
-    for (let x = 0; x < CHUNK_WIDTH; x++) {
-      for (let y = 0; y < CHUNK_WIDTH; y++) {
-        this.setTile(x, y, fill);
+  constructor(fill: T, data?: T[]) {
+    if (data !== undefined) {
+      this.fillFromArray(data);
+    } else {
+      // Fill the chunk with an instance of a tile
+      for (let x = 0; x < CHUNK_WIDTH; x++) {
+        for (let y = 0; y < CHUNK_WIDTH; y++) {
+          this.setTile(x, y, fill);
+        }
       }
     }
   }
@@ -28,18 +32,26 @@ export class ArrayChunk<T> implements Chunk<T> {
 
   toArray(): T[] {
     let a = []
-    for (let x = 0; x < CHUNK_WIDTH; x++) {
-      for (let y = 0; y < CHUNK_WIDTH; y++) {
+    for (let y = 0; y < CHUNK_WIDTH; y++) {
+      for (let x = 0; x < CHUNK_WIDTH; x++) {
         a.push(this.tiles[x][y]);
       }
     }
     return a;
   }
 
+  fillFromArray(data: T[]) {
+    for (let y = 0; y < CHUNK_WIDTH; y++) {
+      for (let x = 0; x < CHUNK_WIDTH; x++) {
+        this.tiles[x][y] = data[x + (y * CHUNK_WIDTH)];
+      }
+    }
+  }
+
   each(callback: (tile: T) => T): void {
     let a = [];
-    for (let x = 0; x < CHUNK_WIDTH; x++) {
-      for (let y = 0; y < CHUNK_WIDTH; y++) {
+    for (let y = 0; y < CHUNK_WIDTH; y++) {
+      for (let x = 0; x < CHUNK_WIDTH; x++) {
         this.tiles[x][y] = callback(this.tiles[x][y]);
       }
     }
@@ -48,4 +60,5 @@ export class ArrayChunk<T> implements Chunk<T> {
   serialize(): T[] {
     return this.toArray();
   }
+
 }

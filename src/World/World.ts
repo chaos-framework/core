@@ -249,7 +249,7 @@ export abstract class World implements ComponentContainer, Listener {
     return this.baseLayer.get(x, y);
   }
 
-  abstract initializeChunk(x: number, y: number): void;
+  abstract initializeChunk(x: number, y: number, data?: { [key: string]: any }): void;
 
   // TODO setTile and _setTile
 
@@ -271,11 +271,19 @@ export abstract class World implements ComponentContainer, Listener {
             && y < this.size.y;
   }
 
+  getFullChunkID(x: number, y: number): string {
+    return `${this.id}_${new Vector(x, y).getIndexString()}`;
+  }
+
+  hasChunk(x: number, y: number): boolean {
+    return this.baseLayer.getChunk(x, y) !== undefined;
+  }
+
   abstract serialize(): string;
 
-  serializeChunk(position: Vector): { [key: string] : any };
-  serializeChunk(x: number, y: number): { [key: string] : any }
-  serializeChunk(position: any, other?: any): { [key: string] : any } {
+  serializeChunk(position: Vector): { base: any, [key: string] : any };
+  serializeChunk(x: number, y: number): { base: any, [key: string] : any }
+  serializeChunk(position: any, other?: any): { base: any, [key: string] : any } {
     if (!(position instanceof Vector)) {
       position = new Vector(position, other);
     } 
@@ -283,7 +291,11 @@ export abstract class World implements ComponentContainer, Listener {
     for (const [id, layer] of this.layers) {
       o[id] = layer.getChunk(position.x, position.y)?.serialize();
     }
-    return o;
+    return o as { base: any, [key: string] : any };
+  }
+
+  deserializeChunk(position: Vector, chunkData: { [key: string]: any }) {
+    this.initializeChunk(position.x, position.y, chunkData);
   }
 
   serializeForClient(): World.SerializedForClient {
@@ -293,10 +305,6 @@ export abstract class World implements ComponentContainer, Listener {
       width: this.size.x,
       height: this.size.y
     }
-  }
-
-  getFullChunkID(x: number, y: number): string {
-    return `${this.id}_${new Vector(x, y).getIndexString()}`;
   }
 }
 

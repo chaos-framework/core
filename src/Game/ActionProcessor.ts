@@ -1,4 +1,4 @@
-import { Action, Event, ActionQueue, BroadcastType, Chaos, NestedChanges, Player, Team, NestedSetChanges, Viewer, UnpublishEntityAction, VisibilityType, PublishEntityAction } from '../internal.js';
+import { Action, Event, ActionQueue, BroadcastType, Chaos, NestedChanges, Player, Team, NestedSetChanges, Viewer, UnpublishEntityAction, VisibilityType, PublishEntityAction, Vector, World } from '../internal.js';
 
 export class ActionProcessor {
   queue = new ActionQueue();
@@ -106,7 +106,17 @@ export class ActionProcessor {
   }
 
   publishChunks(chunks: Set<string>, to: Viewer) {
-
+    for (const chunk of chunks) {
+      const [worldId, x, y] = chunk.split('_');
+      if (!worldId || !x || !y) {
+        throw new Error(`publishChunks failed -- invalid string ${chunk}`);
+      }
+      const world = Chaos.getWorld(worldId);
+      if (world === undefined) {
+        throw new Error(`publishChunks failed -- could not find world ${worldId}`);
+      }
+      world
+    }
   }
 
   unpublishChunks(changes: Set<string>, from: Viewer) {

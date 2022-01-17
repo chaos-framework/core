@@ -1,11 +1,13 @@
-import { Action, ActionType, BroadcastType, ActionParameters, Entity, World, Vector } from '../../internal.js';
+import { Action, ActionType, BroadcastType, ActionParameters, Entity, World, Vector, Chaos } from '../../internal.js';
 
 export class PublishChunkAction extends Action {
   actionType: ActionType = ActionType.PUBLISH_CHUNK_ACTION;
   broadcastType = BroadcastType.NONE; // TODO only broadcast to owners?
 
   world: World;
-  position: Vector
+  position: Vector;
+
+  data?: any;
 
   constructor({ caster, world, position, using, metadata }: PublishChunkAction.Params) {
     super({ caster, using, metadata });
@@ -18,13 +20,24 @@ export class PublishChunkAction extends Action {
     return true;
   }
 
-  serializeForClient() {
+  serializeForClient(): PublishChunkAction.SerializedForClient {
     return {
       worldId: this.world.id,
       position: this.position.getIndexString(),
-      layers: this.world.serializeChunk(this.position),
+      layerData: this.world.serializeChunk(this.position),
       permitted: true,
       actionType: ActionType.PUBLISH_CHUNK_ACTION
+    }
+  }
+
+  static deserializeAsClient(json: PublishChunkAction.SerializedForClient) {
+    const world = Chaos.getWorld(json.worldId);
+    if (world === undefined) {
+      throw new Error(`Could not find world ID ${json.worldId} when publishing chunk.`);
+    }
+    const position = Vector.fromIndexString(json.position);
+    if (!world.hasChunk(position.x, position.y)) {
+      world.initializeChunk(position.x, position.y, json.layerData);
     }
   }
 }
@@ -42,7 +55,7 @@ export namespace PublishChunkAction {
   }
 
   export interface SerializedForClient extends Serialized {
-    layers: {
+    layerData: {
       base: string,
       [key: string]: string
     }

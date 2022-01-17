@@ -6,7 +6,7 @@ import { Entity, Chaos, Vector, Player, Team, Viewer, NestedChanges, NestedSetCh
 import Earth from '../Mocks/Worlds/Earth.js';
 import { earthAtmosphere } from '../Mocks/Layers/Atmosphere.js';
 
-describe.only('Serialzing world data', function () {
+describe('Serialzing world data', function () {
   let earth: Earth;
   let activeEntity: Entity;
   beforeEach(function() {

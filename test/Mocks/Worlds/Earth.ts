@@ -19,10 +19,10 @@ export default class Earth extends World {
     this.lightLevel = (this.layers.get('lightLevel')! as LightLevel); // obnoxious, maybe should refactor assigning within super constructor
   }
 
-  initializeChunk(x: number, y: number): void {
-    this.baseLayer.setChunk(x, y, new ArrayChunk<number>(0));
-    this.atmosphere.setChunk(x, y, new ArrayChunk<AtmosphericComposition>(earthAtmosphere));
-    this.lightLevel.setChunk(x, y, new ArrayChunk<number>(1));
+  initializeChunk(x: number, y: number, data?: { base: any, [key: string]: any }): void {
+    this.baseLayer.setChunk(x, y, new ArrayChunk<number>(0, data?.['base']));
+    this.atmosphere.setChunk(x, y, new ArrayChunk<AtmosphericComposition>(earthAtmosphere, data?.['atmosphere']));
+    this.lightLevel.setChunk(x, y, new ArrayChunk<number>(1, data?.['lightLevel']));
   }
 
   serialize(): string {
