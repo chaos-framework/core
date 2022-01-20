@@ -4,7 +4,7 @@ import { Chaos, Entity, Team, Player } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
 
-describe('Game', () => {
+describe.only('Game', () => {
   beforeEach(() => { Chaos.reset(); });
 
   describe('Serializing with scope for client', () => {
@@ -46,6 +46,9 @@ describe('Game', () => {
       const world = serialized.worlds.find(sw => sw.id === room.id);
       expect(world).to.exist;
       expect(serialized.worlds).to.not.contain(otherRoom.id);
+      // World chunk data
+      expect(serialized.worldData[world!.id]?.[0]?.x).to.equal(0);
+      expect(serialized.worldData[world!.id]?.[0]?.data['base']?.[0]).to.equal(2);
     });
 
     it('Deserializes into a ClientGame correctly', () => {

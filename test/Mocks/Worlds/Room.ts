@@ -7,7 +7,7 @@ export default class Room extends World {
   readonly stageRight: Vector;
 
   constructor(public width: number = 9, public height: number = 9) {
-    super({ size: new Vector(width, height), baseLayer: new ByteLayer(BasicTiles.Air) });
+    super({ size: new Vector(width, height).toChunkSpaceCeil(), streaming: false, baseLayer: new ByteLayer(BasicTiles.Air) });
     if(width < 5 || height < 5) {
       throw new Error();
     }

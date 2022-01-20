@@ -1,7 +1,7 @@
 import {
   Entity, Action, World, Component, Viewer, ActionProcessor,
   Player, Team, ComponentCatalog, ComponentContainer,
-  Scope, VisibilityType, CAST, ExecutionHook, ActionHook
+  Scope, VisibilityType, CAST, ExecutionHook, ActionHook, Vector
 } from "../internal.js";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
@@ -212,7 +212,7 @@ export function percieve(a: Action, viewer: Player | Team, visibility: Visibilit
 }
 
 export function serializeForScope(viewer: Viewer): SerializedForClient {
-  const o: SerializedForClient = { id: id, players: [], teams: [], worlds: [], entities: [] }
+  const o: SerializedForClient = { id: id, players: [], teams: [], worlds: [], entities: [], worldData: {} }
   // Serialize all players
   for(const player of players.values()) {
     o.players.push(player.serializeForClient());
@@ -225,11 +225,18 @@ export function serializeForScope(viewer: Viewer): SerializedForClient {
   // TODO SCOPE -- I have to track visible worlds in their own nested set, for NOW this is acceptable
   const worldIds = new Set<string>();
   for (const worldChunk of viewer.visibleChunks.set) {
-    const id = worldChunk.split('_')[0];
+    const [id, x, y] = worldChunk.split('_');
     if(id !== undefined) {
       worldIds.add(id);
+      const world = getWorld(id);
+      if (world === undefined) {
+        throw new Error(`Could not find work id ${id} when serializing chunk ${x} ${y} for client.`)
+      }
+      o.worldData[id] ??= [];
+      // yeesh
+      o.worldData[id].push({ x: parseInt(x), y: parseInt(y), data: world.serializeChunk(parseInt(x), parseInt(y)) });
     }
-  }  
+  }
   for (const worldId of worldIds) {
     const world = worlds.get(worldId)?.serializeForClient();
     if(world !== undefined) {
@@ -251,26 +258,34 @@ export interface SerializedForClient {
   players: Player.SerializedForClient[],
   teams: Team.SerializedForClient[],
   worlds: World.SerializedForClient[],
+  worldData: { [key: string]: { x: number, y: number, data: { base: any, [key: string] : any } }[] } 
   entities: Entity.SerializedForClient[]
 }
 
 export function DeserializeAsClient(serialized: SerializedForClient, clientPlayerId: string) {
-  for(const team of serialized.teams) {
+  for (const team of serialized.teams) {
     const deserialized = Team.DeserializeAsClient(team);
     teams.set(deserialized.id, deserialized);  // TODO addTeam
   }
-  for(const world of serialized.worlds) {
+  for (const world of serialized.worlds) {
     const deserialized = World.deserializeAsClient(world);
     addWorld(deserialized);
+    // Load chunk data
+    const chunks = serialized.worldData[deserialized.id];
+    if (chunks !== undefined) {
+      for (const chunk of chunks) {
+        deserialized.deserializeChunk(new Vector(chunk.x, chunk.y), chunk.data);
+      }
+    }
   }
-  for(const entity of serialized.entities) {
+  for (const entity of serialized.entities) {
     const deserialized = Entity.DeserializeAsClient(entity);
     addEntity(deserialized);
     if(deserialized.world !== undefined) {
       deserialized._publish(deserialized.world, deserialized.position);
     }
   }
-  for(const player of serialized.players) {
+  for (const player of serialized.players) {
     const isOwner = player.id === clientPlayerId;
     const deserialized = Player.DeserializeAsClient(player, isOwner);
     addPlayer(deserialized);

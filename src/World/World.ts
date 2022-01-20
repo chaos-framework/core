@@ -28,7 +28,7 @@ export abstract class World implements ComponentContainer, Listener {
 
   visibleChunks: NestedSet;
 
-  constructor({ id = uuid(), name = 'Unnamed World', size = Vector.max(), streaming = false, baseLayer = new ByteLayer(0), additionalLayers }: World.ConstructorParams) {
+  constructor({ id = uuid(), name = 'Unnamed World', size = Vector.max(), streaming = true, baseLayer = new ByteLayer(0), additionalLayers }: World.ConstructorParams) {
     this.id = id;
     this.name = name;
     this.size = size

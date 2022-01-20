@@ -65,6 +65,10 @@ export default class Vector {
     return new Vector(clamp(this.x, 0, size ? size.x : Number.MAX_VALUE), clamp(this.y, 0, size ? size.y : Number.MAX_VALUE));
   }
 
+  area(): number {
+    return this.x * this.y;
+  }
+
   copyAdjusted(x: number, y: number): Vector {
     return new Vector(this.x + x, this.y + y);
   }
