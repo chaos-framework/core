@@ -4,7 +4,7 @@ import { Chaos, Entity, Team, Player } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
 
-describe.only('Game', () => {
+describe('Game', () => {
   beforeEach(() => { Chaos.reset(); });
 
   describe('Serializing with scope for client', () => {
@@ -54,6 +54,7 @@ describe.only('Game', () => {
     it('Deserializes into a ClientGame correctly', () => {
       Chaos.DeserializeAsClient(serialized, '');
       expect(Chaos.entities.has(e.id)).to.be.true;
+      // TODO double check more of these fields
     });
   });
 });

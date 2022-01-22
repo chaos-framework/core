@@ -1,6 +1,7 @@
 export const CHUNK_WIDTH = 16;
 
 export interface Chunk<T> {
+  data: any;
   setTile(x: number, y: number, tile: T): void;
   getTile(x: number, y: number): any | undefined;
   toArray(): any[];

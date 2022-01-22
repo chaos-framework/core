@@ -81,11 +81,11 @@ export class Player implements Viewer, ComponentContainer {
 
   broadcast() {
     if(this.client !== undefined) {
-      let action = this.broadcastQueue.dequeue();
-      while(action !== undefined) {
+      let serializedAction = this.broadcastQueue.dequeue();
+      while(serializedAction !== undefined) {
         // TODO batch these
-        this.client.broadcast(MessageType.ACTION, action.serialize());
-        action = this.broadcastQueue.dequeue();
+        this.client.broadcast(MessageType.ACTION, serializedAction);
+        serializedAction = this.broadcastQueue.dequeue();
       }
     }
   }
