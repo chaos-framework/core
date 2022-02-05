@@ -1,4 +1,4 @@
-import { ByteLayer, World } from '../internal.js';
+import { ArrayChunk, ByteLayer, World } from '../internal.js';
 
 export default class ClientWorld extends World {
   ephemeral = true;
@@ -7,8 +7,8 @@ export default class ClientWorld extends World {
     super({id, name, size, baseLayer, streaming: true});
   }
 
-  initializeChunk(x: number, y: number) {
-    
+  initializeChunk(x: number, y: number, data?: { base: any, [key: string]: any }) {
+    this.baseLayer.setChunk(x, y, new ArrayChunk<number>(0, data?.['base']));
   }
 
   serialize(): string { return '' }
