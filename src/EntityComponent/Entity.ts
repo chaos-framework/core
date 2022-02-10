@@ -3,11 +3,12 @@ import {
   Chaos, Vector, World, CachesSensedEntities, Printable,
   Component, ComponentContainer, ComponentCatalog, Event, Action,
   Ability, Property, AttachComponentAction,
-  ChangeWorldAction, MoveAction, RelativeMoveAction,
+  ChangeWorldAction, MoveAction,
   PublishEntityAction, UnpublishEntityAction,
   AddSlotAction, RemoveSlotAction, AddPropertyAction,
   OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, NestedChanges,
-  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction, Player, cachesSensedEntities, GlyphCode347
+  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction,
+  Player, cachesSensedEntities, GlyphCode347, NestedSet, NestedSetChanges
 } from '../internal.js';
 
 export class Entity implements ComponentContainer, Printable {
@@ -29,6 +30,7 @@ export class Entity implements ComponentContainer, Printable {
   team?: Team;                          // team that this entity belongs to
 
   sensedEntities: NestedMap<Entity>;
+  visibleChunks: NestedSet;
 
   // Places for items to be equipped
   slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
@@ -50,6 +52,7 @@ export class Entity implements ComponentContainer, Printable {
     for(const key in metadata) {
       this.metadata.set(key, metadata[key]);
     }
+    this.visibleChunks = new NestedSet(id, 'entity');
     this.sensedEntities = new NestedMap<Entity>(id, 'entity');
     if(team) {
       this.team = team;
@@ -163,13 +166,17 @@ export class Entity implements ComponentContainer, Printable {
     return new PublishEntityAction({caster, target: this, entity: this, world, position, using, metadata});
   }
 
-  _publish(world: World, position: Vector, preloaded = false): boolean {
+  _publish(world: World, position: Vector, changes?: NestedSetChanges): boolean {
     if(this.published) {
+      return false;
+    }
+    // Get the visibility changes for adding to the world, or alternatively the world will fail to add it
+    const result = world.addEntity(this, changes);
+    if (!result) {
       return false;
     }
     this.published = true;
     this.position = position;
-    world.addEntity(this, preloaded);
     this.world = world;
     Chaos.addEntity(this);
     this.components.publish();
@@ -182,16 +189,19 @@ export class Entity implements ComponentContainer, Printable {
     return new UnpublishEntityAction({caster, target, entity: this, using, metadata});
   }
 
-  _unpublish(): boolean {
-    Chaos.removeEntity(this);
-    this.components.unpublish();
-    // TODO and persistence stuff
-    this._leaveTeam();
-    for (const [id, player] of this.players) {
-      this._revokeOwnershipFrom(player);
+  _unpublish(changes?: NestedSetChanges): boolean {
+    if(this.world?.removeEntity(this, changes)) {
+      Chaos.removeEntity(this);
+      this.components.unpublish();
+      // TODO and persistence stuff
+      this._leaveTeam();
+      for (const [id, player] of this.players) {
+        this._revokeOwnershipFrom(player);
+      }
+      this.published = false;
+      return true;
     }
-    this.published = false;
-    return true;
+    return false;
   }
 
   // Attaching components
@@ -375,36 +385,25 @@ export class Entity implements ComponentContainer, Printable {
     return new MoveAction({caster, target: this, to, using, metadata});
   }
 
-  moveRelative({ caster, amount, using, metadata }: RelativeMoveAction.EntityParams): RelativeMoveAction {
-    return new RelativeMoveAction({caster, target: this, amount, using, metadata});
+  moveRelative({ caster, amount, using, metadata }: MoveAction.EntityRelativeParams): MoveAction {
+    return new MoveAction({caster, target: this, to: this.position.copyAdjusted(amount.x, amount.y), using, metadata});
   }
 
-  _move(to: Vector): boolean {
-    // Let the world know to to move to a different container if the destination is in a different chunk
-    if (this.world && this.position.differentChunkFrom(to)) {
-      this.world.moveEntity(this, this.position, to);
-      // Let owning players or teams, if any, know for scope change.
-      const { perceptionGrouping } = Chaos;
-      if (perceptionGrouping === 'team' && this.team !== undefined) {
-        const scope = this.team.scopesByWorld.get(this.world.id);
-        if(scope) {
-          // TODO SERIOUS optimization here -- no need to repeat so many calculations between 
-          scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
-          scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
-        }
+  _move(to: Vector, changes = new NestedSetChanges): boolean {
+    const { world } = this;
+    if (world !== undefined) { 
+      // Let the world know we're moving and track the chunk load changes
+      const couldMove = world.moveEntity(this, this.position, to, changes);
+      if (couldMove) {
+        this.position = to.copy();
+        return true;
       } else {
-        for(let [, player] of this.players) {
-          const scope = player.scopesByWorld.get(this.world.id);
-          if(scope) {
-            scope.addViewer(this.id, Chaos.viewDistance, to.toChunkSpace(), this.position.toChunkSpace());
-            scope.removeViewer(this.id, Chaos.viewDistance, this.position.toChunkSpace(), to.toChunkSpace());
-          }
-        }
+        return false;
       }
+    } else {
+      this.position = to.copy();
+      return true;
     }
-    // Make the move
-    this.position = to;
-    return true;
   }
 
   // Senses
@@ -413,25 +412,40 @@ export class Entity implements ComponentContainer, Printable {
     return new SenseEntityAction({caster: this, target, using, metadata});
   }
 
-  _senseEntity(entity: Entity, using: CachesSensedEntities): NestedChanges {
-    return using.sensedEntities.add(entity.id, entity);
+  _senseEntity(entity: Entity, using: CachesSensedEntities, changes?: NestedChanges) {
+    using.sensedEntities.add(entity.id, entity, undefined, changes);
+    return true;
   }
 
   loseEntity({target, using, metadata}: SenseEntityAction.EntityParams): SenseEntityAction {
     return new SenseEntityAction({caster: this, target, using, metadata});
   }
 
-  _loseEntity(entity: Entity, from: CachesSensedEntities): NestedChanges {
-    return from.sensedEntities.remove(entity.id);
+  _loseEntity(entity: Entity, from: CachesSensedEntities, changes?: NestedChanges): boolean {
+    from.sensedEntities.remove(entity.id, 'undefined', changes);
+    return true;
   }
 
   // World
   
-  changeWorlds({caster, from, to, position, using, metadata}: ChangeWorldAction.EntityParams): ChangeWorldAction {
-    return new ChangeWorldAction({caster, target: this, from, to, position, using, metadata});
+  changeWorlds({caster, to, position, using, metadata}: ChangeWorldAction.EntityParams): ChangeWorldAction {
+    if(this.world === undefined) {
+      throw new Error();
+    }
+    return new ChangeWorldAction({caster, target: this, from: this.world, to, position, using, metadata});
   }
 
-  _changeWorlds(to: World, position: Vector): boolean {
+  _changeWorlds(to: World, position: Vector, changes = new NestedSetChanges): boolean {
+    if (!to.isInBounds(position)) {
+      return false;
+    }
+    if (this.world !== undefined) {
+      if (!this.world.removeEntity(this, changes)) {
+        return false;
+      }
+    }
+    this.position = position;
+    to.addEntity(this, changes);
     this.world = to;
     // TODO component catalog callback
     return true;
@@ -456,11 +470,13 @@ export class Entity implements ComponentContainer, Printable {
 
   // Teams
   // TODO action
-  _joinTeam(team: Team) {
+  _joinTeam(team: Team): boolean {
     if(team !== undefined) {
       this.team = team;
       team._addEntity(this);
+      return true;
     }
+    return false;
   }
   
   // TODO action

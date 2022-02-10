@@ -1,57 +1,64 @@
-import { Chunk, CHUNK_WIDTH } from "../../internal";
+import { Chunk, CHUNK_WIDTH, Vector } from "../../internal.js";
 
-export default class ArrayChunk<T> implements Chunk {
-  tiles: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]; // 16 x 16
+export class ArrayChunk<T> implements Chunk<T> {
+  data: T[][] = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]; // 16 x 16
 
-  constructor(fill: T) {
-    // Fill the chunk with an instance of a tile
-    for(let x = 0; x < CHUNK_WIDTH; x++) {
-      for(let y = 0; y < CHUNK_WIDTH; y++) {
-        this.setTile(x,y,fill);
+  constructor(fill: T, data?: T[]) {
+    if (data !== undefined) {
+      this.fillFromArray(data);
+    } else {
+      // Fill the chunk with an instance of a tile
+      for (let x = 0; x < CHUNK_WIDTH; x++) {
+        for (let y = 0; y < CHUNK_WIDTH; y++) {
+          this.setTile(x, y, fill);
+        }
       }
     }
   }
 
   setTile(x: number, y: number, tile: T) {
-    if(x < 0 || x >= 16 || y < 0 || y >= 16) {
+    if (x < 0 || x >= 16 || y < 0 || y >= 16) {
       throw Error();
     }
-    this.tiles[x][y] = tile;
+    this.data[x][y] = tile;
   }
 
   getTile(x: number, y: number): T | undefined {
-    if(x < 0 || x >= 16 || y < 0 || y >= 16) {
+    if (x < 0 || x >= 16 || y < 0 || y >= 16) {
       throw Error();
     }
-    return this.tiles[x][y];
+    return this.data[x][y];
   }
 
   toArray(): T[] {
     let a = []
-    for(let x = 0; x < CHUNK_WIDTH; x++) {
-      for(let y = 0; y < CHUNK_WIDTH; y++) {
-        a.push(this.tiles[x][y]);
+    for (let y = 0; y < CHUNK_WIDTH; y++) {
+      for (let x = 0; x < CHUNK_WIDTH; x++) {
+        a.push(this.data[x][y]);
       }
     }
     return a;
   }
 
-  each(callback: (tile: T) => T): void {
-    let a = [];
-    for(let x = 0; x < CHUNK_WIDTH; x++) {
-      for(let y = 0; y < CHUNK_WIDTH; y++) {
-        this.tiles[x][y] = callback(this.tiles[x][y]);
+  fillFromArray(data: T[]) {
+    for (let y = 0; y < CHUNK_WIDTH; y++) {
+      for (let x = 0; x < CHUNK_WIDTH; x++) {
+        this.data[x][y] = data[x + (y * CHUNK_WIDTH)];
       }
     }
   }
 
-  stringify(callback: (tile: T) => string): string {
+  each(callback: (tile: T) => T): void {
     let a = [];
-    for(let x = 0; x < CHUNK_WIDTH; x++) {
-      for(let y = 0; y < CHUNK_WIDTH; y++) {
-        a.push(callback(this.tiles[x][y]));
+    for (let y = 0; y < CHUNK_WIDTH; y++) {
+      for (let x = 0; x < CHUNK_WIDTH; x++) {
+        this.data[x][y] = callback(this.data[x][y]);
       }
     }
-    return a.join('');
   }
+
+  serialize(): T[] {
+    return this.toArray();
+  }
+
 }

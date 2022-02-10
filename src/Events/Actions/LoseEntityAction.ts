@@ -1,4 +1,4 @@
-import { Action, Component, CachesSensedEntities, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal.js';
+import { Action, Component, CachesSensedEntities, ActionParameters, Entity, ActionType, BroadcastType, NestedChanges } from '../../internal.js';
 
 export class LoseEntityAction extends Action {
   actionType: ActionType = ActionType.LOSE_ENTITY_ACTION;
@@ -10,6 +10,8 @@ export class LoseEntityAction extends Action {
   target: Entity;
   using: Component & CachesSensedEntities;
 
+  entityVisibilityChanges = new NestedChanges;
+
   constructor({caster, target, using, metadata }: LoseEntityAction.Params) {
     super({caster, using, metadata });
     this.caster = caster;
@@ -18,11 +20,7 @@ export class LoseEntityAction extends Action {
   }
 
   apply(): boolean {
-    const changes = this.caster._loseEntity(this.target, this.using);
-    if(changes.hasChanges) {
-      this.visibilityChanges = { type: 'removal', changes };
-    }
-    return true;
+    return this.target._loseEntity(this.target, this.using, this.entityVisibilityChanges);
   }
 }
 

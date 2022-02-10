@@ -1,15 +1,15 @@
 import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
 import {
-  Chaos, Team, Action, Entity, WorldScope, Client,
+  Chaos, Team, Action, Entity, Client,
   NestedMap, PublishPlayerAction, ComponentContainer,
   ComponentCatalog, Scope, MessageType, OwnEntityAction,
-  NestedChanges, Viewer, Broadcaster
+  NestedChanges, Viewer, NestedSet, NestedSetChanges
 } from '../internal.js';
 
 // TODO clean up above imports
 
-export class Player implements Viewer, Broadcaster, ComponentContainer {
+export class Player implements Viewer, ComponentContainer {
   id: string = uuid();
   client?: Client;
   username: string;
@@ -20,11 +20,11 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
   components: ComponentCatalog = new ComponentCatalog(this);
 
   admin = false;
-  scopesByWorld: Map<string, WorldScope>;
   
   sensedEntities: NestedMap<Entity>;
+  visibleChunks: NestedSet;
 
-  broadcastQueue = new Queue<Action>();
+  broadcastQueue = new Queue<any>();
   published = true; // TODO change this?
 
   constructor({ id = uuid(), username, team, admin = false, client }: Player.ConstructorParams = {}) {
@@ -44,9 +44,9 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
       Chaos.playersWithoutTeams.set(this.id, this);
     }
     if(Chaos.perceptionGrouping === 'team' && this.team) {
-      this.scopesByWorld = this.team.scopesByWorld;
+      this.visibleChunks = this.team.visibleChunks;
     } else {
-      this.scopesByWorld = new Map<string, WorldScope>();
+      this.visibleChunks = new NestedSet(id, 'player');
     }
     Chaos.players.set(this.id, this);
   }
@@ -70,23 +70,22 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     return new Map([...this.entities.entries(), ...this.sensedEntities.map.entries()]);
   }
 
-  getWorldScopes(): Map<string, WorldScope> {
-    return this.scopesByWorld;
-  }
-
-  enqueueAction(action: Action) {
-    if(this.client !== undefined) {
-      this.broadcastQueue.enqueue(action);
+  queueForBroadcast(action: Action, serialized?: any) {
+    if (serialized === undefined) {
+      serialized = action.serialize();
+    }
+    if (this.client !== undefined) {
+      this.broadcastQueue.enqueue(serialized);
     }
   }
 
   broadcast() {
     if(this.client !== undefined) {
-      let action = this.broadcastQueue.dequeue();
-      while(action !== undefined) {
+      let serializedAction = this.broadcastQueue.dequeue();
+      while(serializedAction !== undefined) {
         // TODO batch these
-        this.client.broadcast(MessageType.ACTION, action.serialize());
-        action = this.broadcastQueue.dequeue();
+        this.client.broadcast(MessageType.ACTION, serializedAction);
+        serializedAction = this.broadcastQueue.dequeue();
       }
     }
   }
@@ -101,37 +100,30 @@ export class Player implements Viewer, Broadcaster, ComponentContainer {
     return new OwnEntityAction({ caster, using, entity, player: this, metadata });
   }
 
-  _ownEntity(entity: Entity): NestedChanges | undefined {
+  _ownEntity(entity: Entity, chunkVisibilityChanges?: NestedSetChanges, entityVisibilityChanges?: NestedChanges): boolean {
     // Make sure we don't already own this entity
     if (this.entities.has(entity.id)) {
-      return undefined;
+      return false;
     }
     this.entities.set(entity.id, entity);
-    const changes = this.sensedEntities.addChild(entity.sensedEntities);
+    this.visibleChunks.addChild(entity.visibleChunks, chunkVisibilityChanges);
+    this.sensedEntities.addChild(entity.sensedEntities, entityVisibilityChanges);
     entity._grantOwnershipTo(this);
-    // Modify scope, if appropriate
-    if (entity.world !== undefined) {
-      let scope = this.scopesByWorld.get(entity.world.id);
-      if (scope === undefined) {
-        scope = entity.world.createScope();
-        this.scopesByWorld.set(entity.world.id, scope);
-      }
-      scope.addViewer(entity.id, Chaos.viewDistance, entity.position.toChunkSpace());
-    }
-    return changes;
+    return true
   }
 
-  _disownEntity(entity: Entity): NestedChanges | undefined {
+  _disownEntity(entity: Entity, chunkVisibilityChanges?: NestedSetChanges, entityVisibilityChanges?: NestedChanges): boolean {
     if (!this.entities.has(entity.id)) {
-      return undefined;
+      return false;
     }
     entity.players.delete(this.id);
     this.entities.delete(entity.id);
     entity._revokeOwnershipFrom(this);
-    const changes = this.sensedEntities.removeChild(entity.id);
-    return changes;
+    this.visibleChunks.removeChild(entity.id, chunkVisibilityChanges);
+    this.sensedEntities.removeChild(entity.id, entityVisibilityChanges);
+    return true;
   }
-  
+
   _joinTeam(team: Team): boolean {
     // Make sure we're not already on a team
     if(this.team !== undefined) {

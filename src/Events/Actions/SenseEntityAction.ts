@@ -1,4 +1,4 @@
-import { Action, Component, ActionParameters, Entity, ActionType, CachesSensedEntities, BroadcastType } from '../../internal.js';
+import { Action, Component, ActionParameters, Entity, ActionType, CachesSensedEntities, BroadcastType, NestedChanges } from '../../internal.js';
 
 export class SenseEntityAction extends Action {
   actionType: ActionType = ActionType.SENSE_ENTITY_ACTION;
@@ -10,6 +10,8 @@ export class SenseEntityAction extends Action {
   target: Entity;             // entity being sensed
   using: Component & CachesSensedEntities;  // component doing the sensing
 
+  entityVisibilityChanges = new NestedChanges;
+
   constructor({caster, target, using, metadata }: SenseEntityAction.Params) {
     super({caster, using, metadata });
     this.caster = caster;
@@ -18,11 +20,7 @@ export class SenseEntityAction extends Action {
   }
 
   apply(): boolean {
-    const changes = this.caster._senseEntity(this.target, this.using);
-    if(changes.hasChanges) {
-      this.visibilityChanges = { type: 'addition', changes };
-    }
-    return true;
+    return this.caster._senseEntity(this.target, this.using, this.entityVisibilityChanges);
   }
 }
 

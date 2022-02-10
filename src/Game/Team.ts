@@ -1,10 +1,9 @@
 // tslint:disable: forin
 import { v4 as uuid } from 'uuid';
 
-import { Chaos, Action, ComponentContainer, Player, WorldScope, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges } from '../internal.js';
-import { Viewer, ActionQueuer } from './Interfaces';
+import { Chaos, Action, Viewer, ComponentContainer, Player, NestedMap, Entity, ComponentCatalog, Scope, NestedChanges, NestedSet, NestedSetChanges } from '../internal.js';
 
-export class Team implements Viewer, ActionQueuer, ComponentContainer {
+export class Team implements Viewer, ComponentContainer {
   id: string = uuid();
   name: string;
 
@@ -15,7 +14,7 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
 
   components: ComponentCatalog = new ComponentCatalog(this);
 
-  scopesByWorld: Map<string, WorldScope> = new Map<string, WorldScope>();
+  visibleChunks: NestedSet;
 
   published = true; // TODO change this?
 
@@ -23,6 +22,7 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     this.id = id;
     this.name = name ? name : this.id.substring(this.id.length - 8);
     this.sensedEntities = new NestedMap<Entity>(id, 'team');
+    this.visibleChunks = new NestedSet(id, 'team');
     Chaos.teams.set(this.id, this);
     Chaos.teamsByName.set(this.name, this);
   }
@@ -38,10 +38,13 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     return undefined;
   };
 
-  enqueueAction(a: Action) {
+  queueForBroadcast(action: Action, serialized?: any) {
+    if (serialized === undefined) {
+      serialized = action.serialize();
+    }
     // Queue broadcast for all players
     for(const [, player] of this.players) {
-      player.enqueueAction(a);
+      player.queueForBroadcast(action, serialized);
     }
   }
 
@@ -57,10 +60,6 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     return true;
   }
 
-  getWorldScopes(): Map<string, WorldScope> {
-    return this.scopesByWorld;
-  }
-
   // TODO refactor as iterator for performance
   getSensedAndOwnedEntities(): Map<string, Entity> {
     return new Map([...this.entities.entries(), ...this.sensedEntities.map.entries()]);
@@ -74,6 +73,7 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
     }
     this.players.set(player.id, player);
     this.sensedEntities.addChild(player.sensedEntities);
+    this.visibleChunks.addChild(player.visibleChunks);
     player._joinTeam(this);
     return true;
   }
@@ -102,24 +102,27 @@ export class Team implements Viewer, ActionQueuer, ComponentContainer {
   }
 
   // TODO action generator
-  _addEntity(entity: Entity): NestedChanges | undefined {
+  _addEntity(entity: Entity, chunkVisibilityChanges?: NestedSetChanges, entityVisibilityChanges?: NestedChanges): boolean {
     if(this.entities.has(entity.id)) {
-      return undefined;
+      return false;
     }
     this.entities.set(entity.id, entity);
     entity._joinTeam(this);
-    return this.sensedEntities.addChild(entity.sensedEntities);
+    this.visibleChunks.addChild(entity.visibleChunks, chunkVisibilityChanges);
+    this.sensedEntities.addChild(entity.sensedEntities, entityVisibilityChanges);
+    return true;
   }
 
-  _removeEntity(entity: Entity): NestedChanges | undefined {
+  _removeEntity(entity: Entity, chunkVisibilityChanges?: NestedSetChanges, entityVisibilityChanges?: NestedChanges): boolean {
     if(!this.entities.has(entity.id)) {
-      return undefined;
+      return false;
     }
     this.entities.delete(entity.id);
     entity._leaveTeam();
-    return this.sensedEntities.removeChild(entity.id);
+    this.visibleChunks.removeChild(entity.id, chunkVisibilityChanges);
+    this.sensedEntities.removeChild(entity.id, entityVisibilityChanges);
+    return true;
   }
-
 }
 
 // tslint:disable-next-line: no-namespace

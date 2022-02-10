@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Chaos, ActionType, BroadcastType } from '../../internal.js';
+import { Action, ActionParameters, Entity, Chaos, ActionType, BroadcastType, NestedSetChanges } from '../../internal.js';
 
 export class UnpublishEntityAction extends Action {
   actionType: ActionType = ActionType.UNPUBLISH_ENTITY_ACTION;
@@ -7,6 +7,8 @@ export class UnpublishEntityAction extends Action {
   entity: Entity;
   target?: Entity; // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
   movementAction = true;
+
+  chunkVisibilityChanges = new NestedSetChanges;
 
   constructor({ caster, target, entity, using, metadata }: UnpublishEntityAction.Params) {
     super({caster, using, metadata });
@@ -20,7 +22,7 @@ export class UnpublishEntityAction extends Action {
   }
 
   apply(): boolean {
-    return this.entity._unpublish();
+    return this.entity._unpublish(this.chunkVisibilityChanges)
   }
     
   getEntity(): Entity {

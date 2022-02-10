@@ -47,6 +47,7 @@ export default class Vector {
     return magnitude <= radius;
   }
 
+  // Return a new copy of this vector
   copy(): Vector {
     return new Vector(this.x, this.y);
   }
@@ -64,8 +65,16 @@ export default class Vector {
     return new Vector(clamp(this.x, 0, size ? size.x : Number.MAX_VALUE), clamp(this.y, 0, size ? size.y : Number.MAX_VALUE));
   }
 
+  area(): number {
+    return this.x * this.y;
+  }
+
   copyAdjusted(x: number, y: number): Vector {
     return new Vector(this.x + x, this.y + y);
+  }
+
+  toRealSpace(): Vector {
+    return new Vector(Math.floor(this.x * CHUNK_WIDTH), Math.floor(this.y * CHUNK_WIDTH));
   }
 
   toChunkSpace(): Vector {
@@ -133,6 +142,10 @@ export default class Vector {
 
   static zero(): Vector {
     return new Vector(0, 0);
+  }
+
+  static max(): Vector {
+    return new Vector(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
   }
 
   // TODO distance, cast ray between two points, etc

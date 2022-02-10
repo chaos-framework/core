@@ -27,7 +27,6 @@ export { ModifyPropertyAction } from './Events/Actions/ModifyPropertyAction.js';
 export { MoveAction } from './Events/Actions/MoveAction.js';
 export { PropertyChangeAction } from './Events/Actions/PropertyChangeAction.js';
 export { PublishEntityAction } from './Events/Actions/PublishEntityAction.js';
-export { RelativeMoveAction } from './Events/Actions/RelativeMoveAction.js';
 export { RemovePropertyAction } from './Events/Actions/RemovePropertyAction.js';
 export { RemoveSlotAction } from './Events/Actions/RemoveSlotAction.js';
 export { ForgetAbilityAction } from './Events/Actions/ForgetAbilityAction.js';
@@ -48,7 +47,7 @@ export * as Chaos from './Game/Chaos.js';
 export { Game, isGame } from './Game/Game.js';
 export { Team } from './Game/Team.js';
 export { Player } from './Game/Player.js';
-import { Viewer, ActionQueuer } from './Game/Interfaces.js';
+export { Viewer } from './Game/Viewer.js';
 import EntityScope from './Game/EntityScope.js';
 export { World } from './World/World.js';
 // CLIENT/SERVER
@@ -64,13 +63,16 @@ export { Printable, isPrintable } from './ClientServer/Terminal/Printable.js';
 export { TerminalMessage } from './ClientServer/Terminal/TerminalMessage.js';
 export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessageFragment.js';
 // WORLDS
-import Layer, { ILayer } from './World/Layer.js';
+export { Layer } from './World/Layer.js';
 export { Chunk, CHUNK_WIDTH } from './World/Chunk.js';
-import WorldScope from './World/WorldScope.js';
-import ByteLayer from './World/Layers/ByteLayer.js';
+export { ArrayChunk } from './World/Chunks/ArrayChunk.js'
+import { ByteLayer } from './World/Layers/ByteLayer.js';  // TODO toss this in a standard lib or something
 import Vector from './Math/Vector.js';
 // UTIL
-export { NestedMap, NestedChanges } from './Util/NestedMap.js';
+export { NestedMap } from './Util/Nest/NestedMap.js';
+export { NestedSet } from './Util/Nest/NestedSet.js';
+export { NestedChanges } from './Util/Nest/NestedChanges.js';
+export { NestedSetChanges } from './Util/Nest/NestedSetChanges.js';
 export { withMetadata } from './Util/WithMetadata.js';
 export { bresenham, bresenhamGenerator, Point } from './Math/Bresenham.js';
 export { GlyphCode347 } from './Util/Glyphs.js';
@@ -80,9 +82,9 @@ export {
   Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
   OptionalCastParameters, Grant, ModificationMethod,
   Action, ActionParameters,
-  Layer, WorldScope, ILayer, ByteLayer,
+  ByteLayer,
   ClientWorld,
-  Viewer, ActionQueuer as Broadcaster, EntityScope,
+  EntityScope,
   Event, ActionQueue,
   Vector,
 }

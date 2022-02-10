@@ -1,4 +1,4 @@
-import { Action, ActionParameters, Entity, Chaos, ActionType, Vector, BroadcastType, Viewer } from '../../internal.js';
+import { Action, ActionParameters, Entity, Chaos, ActionType, Vector, BroadcastType, Viewer, NestedSetChanges } from '../../internal.js';
 
 export class MoveAction extends Action {
   actionType: ActionType = ActionType.MOVE_ACTION;
@@ -8,6 +8,7 @@ export class MoveAction extends Action {
   from: Vector;
   to: Vector;
   movementAction = true;
+  chunkVisibilityChanges = new NestedSetChanges;
 
   constructor({ caster, target, to, using, metadata }: MoveAction.Params) {
     super({ caster, using, metadata });
@@ -21,14 +22,16 @@ export class MoveAction extends Action {
   }
 
   apply(): boolean {
-    return this.target._move(this.to);
+    return this.target._move(this.to, this.chunkVisibilityChanges);
   }
 
   initialize() {
     // Ask world to load new chunks if needed.
-    const { world } = this.target;
-    if (world && this.from.differentChunkFrom(this.to)) {
-      world.addView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());
+    const { from, to, target } = this;
+    const { world } = target;
+    if (world && from.differentChunkFrom(to)) {
+      // TODO SCOPE
+      // world.addView(target, to.toChunkSpace(), from.toChunkSpace());
     }
   }
 
@@ -38,23 +41,15 @@ export class MoveAction extends Action {
       // Check if this entity is active, and therefore needs to persist the world around it
       // Also check if action was permitted. If so, remove old view. If neither is true, just remove old.
       if (this.target.active && this.applied) {
-        world.removeView(this.target, this.from.toChunkSpace(), this.to.toChunkSpace());
-      } else {
-        world.removeView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());
+      //   world.removeView(this.target, this.from.toChunkSpace(), this.to.toChunkSpace());
+      // } else {
+      //   world.removeView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());
       }
     }
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
-    if (super.isInPlayerOrTeamScope(viewer)) {
-      return true;
-    }
-    if (this.target.world) {
-      const worldScope = viewer.getWorldScopes().get(this.target.world.id);
-      if (worldScope) {
-        return worldScope.containsPosition(this.from) || worldScope.containsPosition(this.to);
-      }
-    }
+    // TODO SCOPE
     return false;
   }
 
@@ -105,6 +100,10 @@ export namespace MoveAction {
 
   export interface EntityParams extends ActionParameters {
     to: Vector;
+  }
+
+  export interface EntityRelativeParams extends ActionParameters {
+    amount: Vector;
   }
 
   export interface Serialized extends Action.Serialized {

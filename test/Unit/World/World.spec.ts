@@ -5,8 +5,24 @@ import { Chaos, Entity, Vector, World } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
 import StreamingCheckerboardWorld from '../../Mocks/Worlds/StreamingCheckerboardWorld.js';
+import Earth from '../../Mocks/Worlds/Earth.js';
 
 describe('Worlds', () => {
+  it('Can accurately tell if a passed position is within its bounds', function() {
+    const world = new StreamingCheckerboardWorld(new Vector(5, 5));
+    expect(world.isInBounds(new Vector(0, 0))).to.be.true;
+    expect(world.isInBounds(new Vector(16, 16))).to.be.true;
+    expect(world.isInBounds(new Vector(16 * 5 - 1, 16 * 5 - 1))).to.be.true;
+    expect(world.isInBounds(new Vector(16 * 5, 16 * 5))).to.be.false;
+    expect(world.isInBounds(new Vector(5000, 5000))).to.be.false;
+    world.size = new Vector(20, 20);
+    expect(world.isInBounds(new Vector(0, 0))).to.be.true;
+    expect(world.isInBounds(new Vector(16, 16))).to.be.true;
+    expect(world.isInBounds(new Vector(16 * 20 - 1, 16 * 20 - 1))).to.be.true;
+    expect(world.isInBounds(new Vector(16 * 20, 20 * 5))).to.be.false;
+    expect(world.isInBounds(new Vector(5000, 5000))).to.be.false;
+  });
+
   describe('Serializing / Deserializing', () => {
     let world: World;
     let serialized: World.SerializedForClient;
@@ -19,16 +35,45 @@ describe('Worlds', () => {
     it('Can serialize for a client', () => {
       expect(serialized.id).to.equal(world.id);
       expect(serialized.name).to.equal("Serialization Test");
-      expect(serialized.width).to.equal(world.width);
-      expect(serialized.height).to.equal(world.height);
+      expect(serialized.width).to.equal(world.size.x);
+      expect(serialized.height).to.equal(world.size.y);
+      // TODO layers
     });
 
     it('Can deserialize as a a client', () => {
       const clientWorld = World.deserializeAsClient(serialized);
       expect(clientWorld.id).to.equal(world.id);
       expect(clientWorld.name).to.equal("Serialization Test");
-      expect(clientWorld.width).to.equal(world.width);
-      expect(clientWorld.height).to.equal(world.height);
+      expect(clientWorld.size.x).to.equal(world.size.x);
+      expect(clientWorld.size.y).to.equal(world.size.y);
+      // TODO layers
+    });
+  });
+
+  describe('Holding different layers', function() {
+    const earth = new Earth();
+    earth.addTemporaryViewer(new Vector(0,0), true);
+    // const e = new Entity({ name: "Test Entity", active: true });
+    // e._publish(earth, new Vector(0, 0));
+
+    it('Should have a baselayer that can be referenced directly and returns numbers', function() {
+      expect(earth.baseLayer).to.exist;
+      expect(typeof earth.getBaseTile(0, 0)).to.equal('number');
+    });
+
+    it('Should have additional layers that can be accessed by name', function() {
+      expect(earth.layers.get('atmosphere')).to.exist;
+      expect(typeof earth.getTile(0, 0, 'atmosphere')).to.equal('object');
+      expect(earth.layers.get('lightLevel')).to.exist;
+      expect(typeof earth.getTile(0, 0, 'lightLevel')).to.equal('number');
+    });
+
+    it('Should return an object containing the value of all layers when getting a tile', function() {
+      const tile = earth.getTile(0,0);
+      expect(typeof tile).to.equal('object');
+      expect(typeof tile.base).to.equal('number');
+      expect(typeof tile.atmosphere).to.equal('object');
+      expect(typeof tile.lightLevel).to.equal('number');
     });
   });
 
@@ -84,7 +129,7 @@ describe('Worlds', () => {
     });
 
     // TODO cannot publish same entity twice!
-    // TODO also to worlds, different problem..
+    // TODO also to different worlds, different problem..
   });
 
   describe('Querying for entities', () => {
@@ -107,61 +152,5 @@ describe('Worlds', () => {
       expect(room.getEntitiesWithinRadius(new Vector(10,10), 5).length).to.equal(5);
       expect(room.getEntitiesWithinRadius(new Vector(50,50), 10).length).to.equal(13);
     });
-  });
-
-  describe('Width and height limits', () => {
-
-  });
-
-  describe('Streaming world', () => {
-    let world: World;
-    beforeEach(() => {
-      Chaos.reset();
-      world = new StreamingCheckerboardWorld();
-    });
-
-    it('Should be empty initially', () => {
-      expect(world.scope.active.size).to.equal(0);
-      expect(world.getTile(0, 0)).to.be.undefined;
-    });
-
-    it('Should stream in as active entities are added', () => {
-      const e = new Entity({ name: "Test Entity" });
-      e.active = true;
-      e._publish(world, new Vector(0,0));
-      expect(world.scope.active.size).to.be.greaterThan(0);
-      expect(world.getTile(0, 0)).to.be.not.undefined;
-    });
-
-    it('Should unload old tiles as entities move', () => {
-      const e = new Entity({ name: "Test Entity" });
-      e.active = true;
-      e._publish(world, new Vector(0,0));
-      e.move({ to: new Vector(400, 400) }).execute();
-      expect(world.getTile(0, 0)).to.be.undefined;
-    });
-
-    it('Should not unload chunks still being viewed by other entities', () => {
-      const e = new Entity({ name: "Test Entity" });
-      const other = new Entity({name: "Other Test Entity"});
-      e.active = true;
-      other.active = true;
-      e._publish(world, new Vector(0,0));
-      other._publish(world, new Vector(0,0));
-      e.move({ to: new Vector(400, 400) }).execute();
-      expect(world.scope.active.has(other.position.toChunkSpace().getIndexString())).to.be.true;
-      expect(world.getTile(0, 0)).to.not.be.undefined;
-    });
-
-    it('Should only persist chunks being viewed by active entities', () => {
-      const e = new Entity({ name: "Test Entity", active: true });
-      const other = new Entity({ name: "Other Test Entity" });
-      e.publish({ world, position: new Vector(0,0) }).execute();
-      other.publish({ world, position: new Vector(0,0) }).execute();
-      e.move({ to: new Vector(400, 400) }).execute();
-      expect(world.scope.active.has(other.position.toChunkSpace().getIndexString())).to.be.false;
-      expect(world.getTile(0, 0)).to.be.undefined;
-    });
-
   });
 });

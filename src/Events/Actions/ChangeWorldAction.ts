@@ -1,4 +1,5 @@
-import { Action, ActionParameters, Entity, ActionType, Vector, World, BroadcastType, Viewer } from '../../internal.js';
+import { eachRight } from 'lodash';
+import { Action, ActionParameters, Entity, ActionType, Vector, World, BroadcastType, Viewer, NestedSet, NestedSetChanges } from '../../internal.js';
 
 export class ChangeWorldAction extends Action {
   actionType: ActionType = ActionType.CHANGE_WORLD_ACTION;
@@ -10,6 +11,9 @@ export class ChangeWorldAction extends Action {
   originPosition: Vector;
   position: Vector;
   movementAction = true;
+
+  temporaryViewer?: NestedSet;
+  chunkVisibilityChanges = new NestedSetChanges;
 
   constructor({caster, target, from, to, position, using, metadata }: ChangeWorldAction.Params) {
     super({caster, using, metadata });
@@ -24,34 +28,32 @@ export class ChangeWorldAction extends Action {
     }
   }
 
+  initialize() {
+    // Add temporary viewers to chunks in new location
+    this.temporaryViewer = this.to.addTemporaryViewer(this.position.toChunkSpace(), this.target.active, this.chunkVisibilityChanges);
+  }
+
+  teardown() {
+    // Unload temporary new chunks
+    this.to.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
+  }
+
   apply(): boolean {
-    return this.target._changeWorlds(this.to, this.position);
+    return this.target._changeWorlds(this.to, this.position, this.chunkVisibilityChanges);
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
-    if(super.isInPlayerOrTeamScope(viewer)) {
-      return true;
-    } else {
-      const fromScope = viewer.getWorldScopes().get(this.from.id);
-      const toScope = viewer.getWorldScopes().get(this.to.id);
-      if(fromScope && fromScope.containsPosition(this.originPosition)) {
-        return true;
-      }
-      if(toScope && toScope.containsPosition(this.position)) {
-        return true;
-      }
-    }
-    return false;
+    return true; // TODO SCOPE
   }
 }
 
 export namespace ChangeWorldAction {
   export interface Params extends EntityParams {
     target: Entity;
+    from: World
   }
   
   export interface EntityParams extends ActionParameters {
-    from: World,
     to: World,
     position: Vector;
   }

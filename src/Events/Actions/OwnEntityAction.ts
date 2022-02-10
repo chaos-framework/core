@@ -1,4 +1,4 @@
-import { Chaos, Player, Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal.js';
+import { Chaos, Player, Action, ActionParameters, Entity, ActionType, BroadcastType, NestedSetChanges, NestedSet, NestedChanges } from '../../internal.js';
 
 export class OwnEntityAction extends Action {
   actionType = ActionType.OWN_ENTITY_ACTION;
@@ -6,8 +6,12 @@ export class OwnEntityAction extends Action {
   player: Player;
   entity: Entity;
 
+  chunkVisibilityChanges = new NestedSetChanges;
+  entityVisibilityChanges = new NestedChanges;
+
   constructor({ caster, target, entity, player, using, metadata }: OwnEntityAction.Params) {
     super({caster, using, metadata });
+    this.target = target;
     this.player = player;
     this.entity = entity;
   }
@@ -16,8 +20,8 @@ export class OwnEntityAction extends Action {
     if(this.player.entities.has(this.entity.id)) {
       return false; // player already owns this entity
     }
-    this.visibilityChanges = { type: "addition", changes: this.player._ownEntity(this.entity) };
-    return true;
+    const result = this.player._ownEntity(this.entity, this.chunkVisibilityChanges, this.entityVisibilityChanges);
+    return result;
   }
 
   serialize(): OwnEntityAction.Serialized {

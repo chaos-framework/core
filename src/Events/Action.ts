@@ -1,6 +1,6 @@
 import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
   Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable,
-  TerminalMessageFragment, TerminalMessage
+  TerminalMessageFragment, TerminalMessage, Scope, NestedSet, NestedSetChanges
 } from '../internal.js';
 
 export abstract class Action {
@@ -35,7 +35,8 @@ export abstract class Action {
   anticipators = new Set<string>();
   sensors = new Map<string, SensoryInformation | boolean>();
 
-  visibilityChanges?: { type: 'addition' | 'removal', changes?: NestedChanges }
+  entityVisibilityChanges?: NestedChanges;
+  chunkVisibilityChanges?: NestedSetChanges;
 
   listeners: ComponentContainer[] = [];
   listenerIds = new Set<string>();
@@ -344,16 +345,7 @@ export abstract class Action {
   abstract apply(): boolean;
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
-    const worldScopes = viewer.getWorldScopes();
-    const { caster } = this;
-    const relevantEntity = this.getEntity();
-    if(caster && caster.world && worldScopes.has(caster.world.id) && worldScopes.get(caster.world.id)!.containsPosition(caster.position)) {
-      return true;
-    }
-    if(relevantEntity && relevantEntity.world && worldScopes.has(relevantEntity.world.id) && worldScopes.get(relevantEntity.world.id)!.containsPosition(relevantEntity.position)) {
-      return true;
-    }
-    return false;
+    return true; // SCOPE
   };
 
   // Get the relevant entity, by default the target but some actions apply to an entity that is not the target

@@ -1,4 +1,4 @@
-import { Action, ActionParameters, World, Vector, Entity, Chaos, ActionType, BroadcastType } from '../../internal.js';
+import { Action, ActionParameters, World, Vector, Entity, Chaos, ActionType, BroadcastType, NestedSet, NestedSetChanges } from '../../internal.js';
 
 export class PublishEntityAction extends Action {
   actionType: ActionType = ActionType.PUBLISH_ENTITY_ACTION;
@@ -9,6 +9,9 @@ export class PublishEntityAction extends Action {
   position: Vector;
   target?: Entity; // likely unused; if the publishing is a hostile, could be cancelled by target in a meaningful way
   movementAction = true;
+
+  temporaryViewer?: NestedSet;
+  chunkVisibilityChanges = new NestedSetChanges;
 
   constructor({ caster, target, entity, world, position, using, metadata }: PublishEntityAction.Params) {
     super({caster, using, metadata });
@@ -21,20 +24,17 @@ export class PublishEntityAction extends Action {
   }
 
   initialize() {
-    // Ask world to load new chunks if needed.
-    this.world.addView(this.entity, this.position.toChunkSpace());
+    // Add temporary viewers to chunks in new location
+    this.temporaryViewer = this.world.addTemporaryViewer(this.position.toChunkSpace(), this.entity.active, this.chunkVisibilityChanges);
   }
 
   teardown() {
-    // Unload new chunks if needed
-    const { id } = this.entity;
-    if(!this.entity.active) {
-      this.world.removeView(this.entity, this.position.toChunkSpace());
-    }
+    // Unload temporary new chunks
+    this.world.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
   }
 
   apply(): boolean {
-    return this.entity._publish(this.world, this.position);
+    return this.entity._publish(this.world, this.position, this.chunkVisibilityChanges);
   }
 
   serialize(): PublishEntityAction.Serialized {
