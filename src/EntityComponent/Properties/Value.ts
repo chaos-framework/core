@@ -45,7 +45,7 @@ export default class Value {
     return new PropertyChangeAction({
       caster,
       target: this.property.entity,
-      property: this.property.name,
+      propertyName: this.property.name,
       type: 'set',
       value: this.type,
       amount,
@@ -54,10 +54,12 @@ export default class Value {
     });
   }
 
-  // Set the base value from a direct action
-  public _set(value: number) {
+  // Set the base value from a direct action, return delta after calculating
+  public _set(value: number): number {
+    const originalBase = this.base;
     this.base = value;
     this.calculate();
+    return this.calculated - originalBase;
   }
 
   // Create an adjust action
@@ -65,7 +67,7 @@ export default class Value {
     return new PropertyChangeAction({
       caster,
       target: this.property.entity,
-      property: this.property.name,
+      propertyName: this.property.name,
       type: 'adjust',
       value: this.type,
       amount,
@@ -74,16 +76,18 @@ export default class Value {
     });
   }
 
-  // Adjust the base value from a direct action
-  public _adjust(amount: number) {
+  // Adjust the base value from a direct action, return delta after calculating
+  public _adjust(amount: number): number {
+    const originalBase = this.base;
     this.base += amount;
     this.calculate();
+    return this.calculated - originalBase;
   }
 
   // Create a modifier application action
   public modify({ caster, method, amount, using, metadata }: ModifyPropertyAction.ValueParams): ModifyPropertyAction {
     return new ModifyPropertyAction({
-      property: this.property.name, target: this.property.entity,caster, method, amount, using, metadata
+      propertyName: this.property.name, target: this.property.entity,caster, method, amount, using, metadata
     });
   }
 

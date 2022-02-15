@@ -1,7 +1,8 @@
 import { 
   Action, Entity, Component, Value, ActionParameters, ActionType, BroadcastType,
-  TerminalMessage, TerminalMessageFragment
-} from '../../internal.js';
+  TerminalMessage, 
+  Property,
+  ValueType} from '../../internal.js';
 
 export class PropertyChangeAction extends Action {
   actionType: ActionType = ActionType.PROPERTY_CHANGE_ACTION;
@@ -10,11 +11,13 @@ export class PropertyChangeAction extends Action {
   successVerb?: string;
   failureVerb?: string;
 
-  property: string;
+  target: Entity;
+  property: Property;
   type: 'adjust' | 'set';
-  value: 'current' | 'min' | 'max';
+  value: ValueType;
   amount: number;
   finalAmount: number;
+  previousValue: number;
   adjustments: { amount: number, by?: Entity | Component }[] = [];
   multipliers: { amount: number, by?: Entity | Component }[] = [];
 
@@ -22,6 +25,7 @@ export class PropertyChangeAction extends Action {
     super({caster, using, metadata });
     this.target = target;
     this.property = property;
+    this.previousValue = property[value].calculated;
     this.type = type;
     this.value = value;
     this.amount = amount;
@@ -31,27 +35,36 @@ export class PropertyChangeAction extends Action {
   apply(): boolean {
     this.calculate();
     const { target, property, type, finalAmount } = this;
-    const p = this.target?.properties.get(property);
-    // See if we have this property
-    if(p) {
-      // Figure out which value we're adjusting (current, min, or max)
-      let v: Value;
-      switch(this.value) {
-        case 'min':
-          v = p.min;
-          break;
-        case 'max':
-          v = p.max;
-          break;
-        default:
-          v = p.current;
-          break;
-      }
-      // Either adjust or set this number
-      type === 'adjust' ? v._adjust(finalAmount) : v._set(finalAmount);
-      return true;
+    // Figure out which value we're adjusting (current, min, or max)
+    let v: Value;
+    switch(this.value) {
+      case 'min':
+        v = property.min;
+        break;
+      case 'max':
+        v = property.max;
+        break;
+      default:
+        v = property.current;
+        break;
     }
-    return false;
+    // TODO make sure we didn't break a min/max order rule, ie trying to set max below min should totally fail action
+    // Either adjust or set this number
+    const delta = type === 'adjust' ? v._adjust(finalAmount) : v._set(finalAmount);
+    // Update threshold state if either threshold was newly crossed
+    const oldMinState = property.minState;
+    const newMinState = property.updateMinState();
+    if (newMinState !== undefined) {
+      const { caster, target, using, previousValue } = this;
+      property.getMinThresholdAction({ caster, target, using, previousValue, oldState: oldMinState })
+    }
+    const oldMaxState = property.maxState;
+    const newMaxState = property.updateMaxState();
+    if (newMaxState !== undefined) {
+      const { caster, target, using, previousValue } = this;
+      property.getMaxThresholdAction({ caster, target, using, previousValue, oldState: oldMaxState })
+    }
+    return true;
   }
 
   calculate(): number { 
@@ -84,7 +97,7 @@ export class PropertyChangeAction extends Action {
   }
 
   effects(key: string): boolean {
-    return key === this.property;
+    return key === this.property.name;
   }
 
   increases(key: string): boolean {
@@ -117,7 +130,7 @@ export class PropertyChangeAction extends Action {
         this.target,
         '--',
         this.finalAmount.toString(),
-        this.property
+        this.property.name
       )
     }
   }
@@ -131,7 +144,7 @@ export namespace PropertyChangeAction {
 
   export interface Params extends ValueParams {	
     target: Entity,	
-    property: string,	
+    property: Property,	
     value?: 'current' | 'min' | 'max',	
     type?: 'adjust' | 'set'	
   }	

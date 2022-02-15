@@ -7,58 +7,58 @@ export class ModifyPropertyAction extends Action {
   actionType: ActionType = ActionType.MODIFY_PROPERTY_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
-  property: string;             // What property to modify
+  propertyName: string;             // What property to modify
   value: ValueType;             // Current / Min / Max value
   method: ModificationMethod;   // Absolute, Set, or Adjustment
   amount: number;               // The value to modify by
 
-  constructor({ caster, target, property, value = ValueType.Current, method = ModificationMethod.Adjustment, amount, using, metadata }: ModifyPropertyAction.Params) {
+  constructor({ caster, target, propertyName, value = ValueType.current, method = ModificationMethod.Adjustment, amount, using, metadata }: ModifyPropertyAction.Params) {
     super({caster, using, metadata });
     this.target = target;
-    this.property = property;
+    this.propertyName = propertyName;
     this.value = value;
     this.method = method;
     this.amount = amount;
   }
 
   apply(): boolean {
-    const { target, value, property, method, amount } = this;
-    const p = target?.properties.get(property);
+    const { target, value: type, propertyName: name, method, amount } = this;
+    const property = target?.properties.get(name);
     // See if we have this property
-    if(p) {
+    if(property !== undefined) {
       // Figure out which value we're adjusting (current, min, or max)
-      let v: Value;
-      switch(value) {
+      let value: Value;
+      switch(type) {
         case ValueType.Min:
-          v = p.min;
+          value = property.min;
           break;
         case ValueType.Max:
-          v = p.max;
+          value = property.max;
           break;
         default:
-          v = p.current;
+          value = property.current;
           break;
       }
-      let m: Modification;
+      let modification: Modification;
       switch(method) {
         case ModificationMethod.Absolute:
-          m = new AbsoluteModification(amount);
+          modification = new AbsoluteModification(amount);
           break;
         case ModificationMethod.Multiplier:
-          m = new MultiplierModification(amount);
+          modification = new MultiplierModification(amount);
           break;
         default:
-          m = new AdjustmentModification(amount);
+          modification = new AdjustmentModification(amount);
           break;
       }
-      v._apply(m);
+      value._apply(modification);
       return true;
     }
     return false;
   }
 
   effects(key: string): boolean {
-    return key === this.property;
+    return key === this.propertyName;
   }
 
 }
@@ -71,7 +71,7 @@ export namespace ModifyPropertyAction {
   
   export interface Params extends ValueParams {
     target: Entity,
-    property: string,
+    propertyName: string,
     value?: ValueType,
   }
 }
