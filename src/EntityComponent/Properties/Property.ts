@@ -1,10 +1,9 @@
-import { PropertyThresholdAction } from '../../Events/Actions/PropertyThresholdAction.js';
-import { ActionParameters, Entity, Value } from '../../internal.js';
+import { Entity, Value, PropertyThresholdAction } from '../../internal.js';
 
-type ValueType = 'current' | 'min' | 'max';
-type ThresholdState = 'out' | 'in' | 'equals';
+export type ValueType = 'current' | 'min' | 'max';
+export type ThresholdState = 'out' | 'in' | 'equals';
 
-export default class Property implements Property {
+export class Property implements Property {
   entity: Entity;
   name: string;
   current: Value;

@@ -12,7 +12,7 @@ export class ModifyPropertyAction extends Action {
   method: ModificationMethod;   // Absolute, Set, or Adjustment
   amount: number;               // The value to modify by
 
-  constructor({ caster, target, propertyName, value = ValueType.current, method = ModificationMethod.Adjustment, amount, using, metadata }: ModifyPropertyAction.Params) {
+  constructor({ caster, target, propertyName, value ='current', method = ModificationMethod.Adjustment, amount, using, metadata }: ModifyPropertyAction.Params) {
     super({caster, using, metadata });
     this.target = target;
     this.propertyName = propertyName;
@@ -29,10 +29,10 @@ export class ModifyPropertyAction extends Action {
       // Figure out which value we're adjusting (current, min, or max)
       let value: Value;
       switch(type) {
-        case ValueType.Min:
+        case 'min':
           value = property.min;
           break;
-        case ValueType.Max:
+        case 'max':
           value = property.max;
           break;
         default:

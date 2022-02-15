@@ -3,7 +3,7 @@ import { bresenhamGenerator, Point } from '../internal.js'
 
 const CHUNK_WIDTH = 16;
 
-export default class Vector {
+export class Vector {
   x: number;
   y: number;
 

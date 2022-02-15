@@ -1,5 +1,5 @@
 import { 
-  Action, Entity, Component, ActionParameters, ActionType, BroadcastType, PropertyChangeAction, Value, Property, ValueType
+  Action, Entity, Component, ActionParameters, ActionType, BroadcastType, PropertyChangeAction,
 } from '../../internal.js';
 
 export class PropertyThresholdAction extends Action {

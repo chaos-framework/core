@@ -1,4 +1,4 @@
-export default class EntityScope {
+export class EntityScope {
   visibleEntities = new Set<string>();  // which entities this viewer can see
   entitiesWithSight = new Map<string, Set<string>>(); // which of this viewer's entities (V) are seeing each entity (K)
 

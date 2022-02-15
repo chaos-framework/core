@@ -1,12 +1,21 @@
-import { 
-  Property, Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
-  PropertyChangeAction, ModifyPropertyAction
+import {
+  Property,
+  Modification,
+  AdjustmentModification,
+  MultiplierModification,
+  AbsoluteModification,
+  PropertyChangeAction,
+  ModifyPropertyAction,
 } from '../../internal.js';
 
-export enum ModificationMethod { Absolute, Adjustment, Multiplier }
+export enum ModificationMethod {
+  Absolute,
+  Adjustment,
+  Multiplier,
+}
 
-export default class Value {
-  property: Property;  // parent property
+export class Value {
+  property: Property; // parent property
   base: number;
   calculated: number;
   type: 'current' | 'min' | 'max';
@@ -26,14 +35,14 @@ export default class Value {
     let newValue: number = this.base;
     // Iterate over all modifiers
     // Order of operations is overrides (absolute values), adjustments, and multipliers
-    for(let m of this.absolutes) {
+    for (let m of this.absolutes) {
       this.calculated = m.apply(newValue);
       return;
     }
-    this.adjustments.map(m => {
+    this.adjustments.map((m) => {
       newValue = m.apply(newValue);
     });
-    this.multipliers.map(m => {
+    this.multipliers.map((m) => {
       newValue = m.apply(newValue);
     });
     // Set to the current value
@@ -45,12 +54,12 @@ export default class Value {
     return new PropertyChangeAction({
       caster,
       target: this.property.entity,
-      propertyName: this.property.name,
+      property: this.property,
       type: 'set',
       value: this.type,
       amount,
       using,
-      metadata
+      metadata,
     });
   }
 
@@ -67,12 +76,12 @@ export default class Value {
     return new PropertyChangeAction({
       caster,
       target: this.property.entity,
-      propertyName: this.property.name,
+      property: this.property,
       type: 'adjust',
       value: this.type,
       amount,
       using,
-      metadata
+      metadata,
     });
   }
 
@@ -87,25 +96,42 @@ export default class Value {
   // Create a modifier application action
   public modify({ caster, method, amount, using, metadata }: ModifyPropertyAction.ValueParams): ModifyPropertyAction {
     return new ModifyPropertyAction({
-      propertyName: this.property.name, target: this.property.entity,caster, method, amount, using, metadata
+      propertyName: this.property.name,
+      target: this.property.entity,
+      caster,
+      method,
+      amount,
+      using,
+      metadata,
     });
   }
 
   // Apply a Modifier from an Effect and recalculate values
   public _apply(modification: Modification): void {
-    if(modification instanceof AdjustmentModification) { this.adjustments.push(modification); }
-    if(modification instanceof MultiplierModification) { this.multipliers.push(modification); }
-    if(modification instanceof AbsoluteModification) { this.absolutes.push(modification); }
+    if (modification instanceof AdjustmentModification) {
+      this.adjustments.push(modification);
+    }
+    if (modification instanceof MultiplierModification) {
+      this.multipliers.push(modification);
+    }
+    if (modification instanceof AbsoluteModification) {
+      this.absolutes.push(modification);
+    }
     modification.value = this;
     this.calculate();
   }
 
   // Remove a Modifier from an Effect and recalculate values
   public _remove(modification: Modification) {
-    if(modification instanceof AdjustmentModification) { this.adjustments.splice(this.adjustments.indexOf(modification), 1); }
-    if(modification instanceof MultiplierModification) { this.multipliers.splice(this.multipliers.indexOf(modification), 1); }
-    if(modification instanceof AbsoluteModification) { this.absolutes.splice(this.absolutes.indexOf(modification), 1); }
+    if (modification instanceof AdjustmentModification) {
+      this.adjustments.splice(this.adjustments.indexOf(modification), 1);
+    }
+    if (modification instanceof MultiplierModification) {
+      this.multipliers.splice(this.multipliers.indexOf(modification), 1);
+    }
+    if (modification instanceof AbsoluteModification) {
+      this.absolutes.splice(this.absolutes.indexOf(modification), 1);
+    }
     this.calculate();
   }
-
 }

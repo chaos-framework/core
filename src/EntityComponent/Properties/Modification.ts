@@ -1,6 +1,6 @@
 import { Entity, Component, Value } from "../../internal.js";
 
-export default abstract class Modification {
+export abstract class Modification {
   amount: number;
   value?: Value;
   by?: Entity | Component;

@@ -1,6 +1,6 @@
 import { Event, Entity, Component } from '../internal.js';
 
-export default abstract class Ability {
+export abstract class Ability {
   abstract name: string;
   granter?: Entity | Component;
   using?: Entity | Component;

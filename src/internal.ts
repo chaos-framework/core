@@ -5,16 +5,16 @@ export { ComponentFunctionCollection } from './EntityComponent/Component/Compone
 export { ComponentContainer } from './EntityComponent/Component/ComponentContainer.js';
 export { ComponentCatalog } from './EntityComponent/Component/ComponentCatalog.js';
 export { Subscription } from './EntityComponent/Component/ComponentCatalog/Subscription.js';
-import Ability, { OptionalCastParameters, Grant } from './EntityComponent/Ability.js';
-import Property, { ValueType } from './EntityComponent/Properties/Property.js';
-import Modification, { AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification.js';
-import Value, { ModificationMethod } from './EntityComponent/Properties/Value.js';
+export { Ability, OptionalCastParameters, Grant } from './EntityComponent/Ability.js';
+export { Property, ValueType, ThresholdState } from './EntityComponent/Properties/Property.js';
+export { Modification, AdjustmentModification, MultiplierModification, AbsoluteModification } from './EntityComponent/Properties/Modification.js';
+export { Value, ModificationMethod } from './EntityComponent/Properties/Value.js';
 export * from './EntityComponent/Interfaces.js';
 // EVENT AND ACTION IMPORTS
-import { Action, ActionParameters } from './Events/Action.js';
+export { Action, ActionParameters } from './Events/Action.js';
 export { ActionType, BroadcastType } from './Events/Actions/_types.js';
 export { Permission } from './Events/Permission.js';
-import Event from './Events/Event.js';
+export { Event } from './Events/Event.js';
 export { SensoryInformation } from './Events/Interfaces.js';
 export { AddPropertyAction } from './Events/Actions/AddPropertyActions.js';
 export { AddSlotAction } from './Events/Actions/AddSlotAction.js';
@@ -39,8 +39,9 @@ export { OwnEntityAction } from './Events/Actions/OwnEntityAction.js';
 export { LogicalAction } from './Events/Actions/LogicalAction.js';
 export { MessageAction } from './Events/Actions/MessageAction.js';
 export { ChangeTurnAction } from './Events/Actions/ChangeTurnAction.js';
+export { PropertyThresholdAction } from './Events/Actions/PropertyThresholdAction.js';
 export { VisibilityType } from './Events/Enums.js';
-import ActionQueue from './Events/ActionQueue.js';
+export { ActionQueue } from './Events/ActionQueue.js';
 // GAME AND WORLD
 export { ActionProcessor } from "./Game/ActionProcessor.js";
 export * as Chaos from './Game/Chaos.js';
@@ -48,10 +49,10 @@ export { Game, isGame } from './Game/Game.js';
 export { Team } from './Game/Team.js';
 export { Player } from './Game/Player.js';
 export { Viewer } from './Game/Viewer.js';
-import EntityScope from './Game/EntityScope.js';
+export { EntityScope } from './Game/EntityScope.js';
 export { World } from './World/World.js';
 // CLIENT/SERVER
-import ClientWorld from './ClientServer/ClientWorld.js';
+export { ClientWorld } from './ClientServer/ClientWorld.js';
 export * from './ClientServer/Message.js';
 export { MessageType } from './ClientServer/Messages/Types.js';
 export { Server } from './ClientServer/Server.js';
@@ -66,8 +67,8 @@ export { TerminalMessageFragment } from './ClientServer/Terminal/TerminalMessage
 export { Layer } from './World/Layer.js';
 export { Chunk, CHUNK_WIDTH } from './World/Chunk.js';
 export { ArrayChunk } from './World/Chunks/ArrayChunk.js'
-import { ByteLayer } from './World/Layers/ByteLayer.js';  // TODO toss this in a standard lib or something
-import Vector from './Math/Vector.js';
+export { ByteLayer } from './World/Layers/ByteLayer.js';  // TODO toss this in a standard lib or something
+export { Vector } from './Math/Vector.js';
 // UTIL
 export { NestedMap } from './Util/Nest/NestedMap.js';
 export { NestedSet } from './Util/Nest/NestedSet.js';
@@ -76,15 +77,3 @@ export { NestedSetChanges } from './Util/Nest/NestedSetChanges.js';
 export { withMetadata } from './Util/WithMetadata.js';
 export { bresenham, bresenhamGenerator, Point } from './Math/Bresenham.js';
 export { GlyphCode347 } from './Util/Glyphs.js';
-
-export {
-  Ability, Property, Value, ValueType,
-  Modification, AdjustmentModification, MultiplierModification, AbsoluteModification,
-  OptionalCastParameters, Grant, ModificationMethod,
-  Action, ActionParameters,
-  ByteLayer,
-  ClientWorld,
-  EntityScope,
-  Event, ActionQueue,
-  Vector,
-}

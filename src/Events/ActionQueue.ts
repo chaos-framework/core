@@ -2,7 +2,7 @@ import { Event, Action } from '../internal.js';
 import { Queue } from 'queue-typescript';
 
 // Enqueues events (or actions directly) to execute in order
-export default class ActionQueue {
+export class ActionQueue {
   queue: Queue<Event | Action> = new Queue<Event | Action>();     // Current action + reactions
   followups: Queue<Event | Action> = new Queue<Event | Action>(); // Followups
 

@@ -75,7 +75,7 @@ describe('Entity Property Values', () => {
     // Target should be parent/property entity
     expect(a.target).to.equal(e);
     // Property should be parent property
-    expect(a.property).to.equal('HP');
+    expect(a.property.name).to.equal('HP');
     // Should be "Current" value by default
     expect(a.value).to.equal('current')
     // Should be "Set" method by default
@@ -89,7 +89,7 @@ describe('Entity Property Values', () => {
     // Target should be parent/property entity
     expect(a.target).to.equal(e);
     // Property should be parent property
-    expect(a.property).to.equal('HP');
+    expect(a.property.name).to.equal('HP');
     // Should be "Current" value by default
     expect(a.value).to.equal('current')
     // Should be "Set" method by default
