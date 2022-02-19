@@ -1,9 +1,12 @@
-import { Action, Event, ActionQueue, BroadcastType, Chaos, NestedChanges, Player, Team, NestedSetChanges, Viewer, UnpublishEntityAction, VisibilityType, PublishEntityAction, Vector, World } from '../internal.js';
+import { Queue } from 'queue-typescript';
+import { Action, Event, BroadcastType, Chaos, Player, Team, Viewer, UnpublishEntityAction, EffectGenerator, Effect, ActionEffect } from '../internal.js';
 
 export class ActionProcessor {
-  queue = new ActionQueue();
+  queue = new Queue<EffectGenerator<any>>();
   actionsThisProcess: Action[] = [];
   processing = false;
+
+  constructor(private broadcasts: boolean = true) { }
 
   enqueue(item: Action | Event) {
     this.queue.enqueue(item);
@@ -37,6 +40,25 @@ export class ActionProcessor {
     this.actionsThisProcess = [];
     this.processing = false;
   }
+
+  run(item: EffectGenerator<ActionEffect>, actionsThisRun: Action[] = []) {
+    for(const effect of item.run()) {
+      switch(effect.type) {
+        case 'REACT':
+          this.run(effect.data)
+          break;
+        case 'FOLLOWUP':
+          // TODO fix to use queue
+          this.run(effect.data)
+          break;
+        default:
+          break;
+      }
+      actionsThisRun.push(effect.data)
+    }
+  }
+
+  proc(starting)
 
   broadcastToActionHooks(action: Action) {
     for (const hook of Chaos.actionHooks) {

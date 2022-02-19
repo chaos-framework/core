@@ -13,6 +13,8 @@ let phases = ['modify', 'permit', 'react', 'output']
 let prePhases = ['modify', 'permit'];
 let postPhases = ['react', 'output'];
 
+// const phases = new Set<string>()
+
 export const worlds: Map<string, World> = new Map<string, World>();
 export const entities: Map<string, Entity> = new Map<string, Entity>();
 export const allComponents: Map<string, Component> = new Map<string, Component>();

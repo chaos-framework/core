@@ -1,9 +1,9 @@
 import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
-  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable,
-  TerminalMessageFragment, TerminalMessage, Scope, NestedSet, NestedSetChanges
+  Permission, SensoryInformation, NestedChanges, Viewer, Vector, Printable, ActionEffect, effectTypes,
+  TerminalMessageFragment, TerminalMessage, NestedSetChanges, Effect, EffectGenerator
 } from '../internal.js';
 
-export abstract class Action {
+export abstract class Action implements EffectGenerator<ActionEffect> {
   actionType: ActionType = ActionType.INVALID;
   broadcastType: BroadcastType = BroadcastType.FULL;
 
@@ -47,7 +47,7 @@ export abstract class Action {
   additionalListeners: ComponentContainer[] = [];
 
   followups: (Action | Event)[] = [];
-  reactions: Action[] = [];
+  reactions: (Action | Event)[] = [];
   inReactionTo?: Action;
 
   // Function to run to check if the action is still feasible after any modifiers / counters etc
@@ -84,27 +84,26 @@ export abstract class Action {
   }
 
   execute(force: boolean = false): boolean {
-    // console.log(''.padStart(this.nested, ' ') + this.actionType );
     this.initialize();
 
     // If target is unpublished, just run through locally attached components (these may need to do work before publishing)
-    if (this.target && !this.target.isPublished() && !(this instanceof PublishEntityAction)) {
-      if (!this.skipPrePhases) {
-        for(const phase of Chaos.getPrePhases()) {
-          this.target.handle(phase, this);
-        }
-      }
-      this.decidePermission();
-      if (this.permitted || force) {
-        this.apply();
-      }
-      if (!this.skipPostPhases) {
-        for(const phase of Chaos.getPostPhases()) {
-          this.target.handle(phase, this);
-        }
-      }
-      return true;
-    }
+    // if (this.target && !this.target.isPublished() && !(this instanceof PublishEntityAction)) {
+    //   if (!this.skipPrePhases) {
+    //     for(const phase of Chaos.getPrePhases()) {
+    //       this.target.handle(phase, this);
+    //     }
+    //   }
+    //   this.decidePermission();
+    //   if (this.permitted || force) {
+    //     this.apply();
+    //   }
+    //   if (!this.skipPostPhases) {
+    //     for(const phase of Chaos.getPostPhases()) {
+    //       this.target.handle(phase, this);
+    //     }
+    //   }
+    //   return true;
+    // }
 
     // Get listeners (entities, maps, systems, etc) in order they should modify/react
     this.collectListeners();
@@ -151,6 +150,14 @@ export abstract class Action {
     Chaos.processor.process(this);
 
     return this.applied;
+  }
+
+  *run(): Generator<ActionEffect, boolean> {
+    return true;
+  }
+
+  runPrivate() {
+
   }
 
   addListener(listener: ComponentContainer) {
@@ -227,14 +234,6 @@ export abstract class Action {
 
     // Add any additional listeners specified by the action
     this.additionalListeners.map(listener => this.addListener(listener));
-  }
-
-  handlePrePhases() {
-
-  }
-
-  handlePostPhases() {
-    
   }
 
   permit({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
