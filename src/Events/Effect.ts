@@ -1,26 +1,13 @@
-export type Effect = [
-  method: string,
-  data: any
-]
+export type Effect = readonly [ string, any ]
 
-export type EffectGenerator<T extends Effect, R = any, N = any> = {
+export type EffectGenerator<T extends Effect, R = any, N = any> = Generator<T, R, N>
+export type EffectRunner<T extends Effect, R = any, N = any> = {
   run(): Generator<T, R, N>
 }
 
-export type Reaction = [
-  method: 'REACTION',
-  generator: ActionEffectGenerator
-]
+export type Immediate = readonly [ 'IMMEDIATE', EffectRunner<ActionEffect> ]
+export type Followup = readonly  ['FOLLOWUP', EffectRunner<ActionEffect> ]
+export type Delay = readonly [ 'DELAY', number ]
 
-export type Followup = [
-  method: 'FOLLOWUP',
-  generator: ActionEffectGenerator
-]
-
-export type Break = [
-  method: 'BREAK',
-  milliseconds: number
-]
-
-export type ActionEffect = Reaction | Followup | Break;
-export type ActionEffectGenerator = EffectGenerator<ActionEffect>
+export type ActionEffect = Immediate | Followup | Delay;
+export type ActionEffectGenerator = EffectGenerator<ActionEffect, boolean>;

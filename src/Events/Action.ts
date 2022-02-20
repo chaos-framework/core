@@ -1,9 +1,10 @@
 import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
-  Permission, SensoryInformation, NestedChanges, Viewer, Vector, Printable, ActionEffect, effectTypes,
-  TerminalMessageFragment, TerminalMessage, NestedSetChanges, Effect, EffectGenerator
+  Permission, SensoryInformation, NestedChanges, Viewer, Vector, Printable, ActionEffect,
+  TerminalMessageFragment, TerminalMessage, NestedSetChanges, EffectRunner, Followup, processRunner
 } from '../internal.js';
+import { Immediate } from './Effect.js';
 
-export abstract class Action implements EffectGenerator<ActionEffect> {
+export abstract class Action implements EffectRunner<ActionEffect> {
   actionType: ActionType = ActionType.INVALID;
   broadcastType: BroadcastType = BroadcastType.FULL;
 
@@ -38,8 +39,7 @@ export abstract class Action implements EffectGenerator<ActionEffect> {
   entityVisibilityChanges?: NestedChanges;
   chunkVisibilityChanges?: NestedSetChanges;
 
-  listeners: ComponentContainer[] = [];
-  listenerIds = new Set<string>();
+  listeners = new Map<string, ComponentContainer>();
 
   // Additional worlds and points that entities in a radius around can be included. 
   additionalListenPoints: { world: World, position: Vector }[] = [];
@@ -83,29 +83,10 @@ export abstract class Action implements EffectGenerator<ActionEffect> {
     return this;
   }
 
-  execute(force: boolean = false): boolean {
+  *run(force: boolean = false): Generator<ActionEffect, boolean> {
     this.initialize();
 
-    // If target is unpublished, just run through locally attached components (these may need to do work before publishing)
-    // if (this.target && !this.target.isPublished() && !(this instanceof PublishEntityAction)) {
-    //   if (!this.skipPrePhases) {
-    //     for(const phase of Chaos.getPrePhases()) {
-    //       this.target.handle(phase, this);
-    //     }
-    //   }
-    //   this.decidePermission();
-    //   if (this.permitted || force) {
-    //     this.apply();
-    //   }
-    //   if (!this.skipPostPhases) {
-    //     for(const phase of Chaos.getPostPhases()) {
-    //       this.target.handle(phase, this);
-    //     }
-    //   }
-    //   return true;
-    // }
-
-    // Get listeners (entities, maps, systems, etc) in order they should modify/react
+    // Get listeners (nearby entities, worlds, systems, etc)
     this.collectListeners();
 
     // Assume that caster has full awareness
@@ -116,54 +97,49 @@ export abstract class Action implements EffectGenerator<ActionEffect> {
     // Handle all pre-phases
     if (!this.skipPrePhases) {
       for(const phase of Chaos.getPrePhases()) {
-        for(const listener of this.listeners) {
+        for(const [,listener] of this.listeners) {
           listener.handle(phase, this);
         }
       }
     }
 
-    // See if this action was not permitted by any modifiers
+    // See if the action is allowed after any modifiers
     this.decidePermission();
     // Apply this action to the target, checking for permission and if still feasible
     if ((this.permitted && this.feasabilityCallback !== undefined ? this.feasabilityCallback(this) : true) || force) {
-      this.applied = this.apply();
-    }
-
-    // Queue in the game
-    Chaos.processor.queueForBroadcast(this);
-
-    // Do any special teardown for this action (ie unloading areas of the world we've moved away from)
-    this.teardown();
-
-    // Handle all post-phases
-    if (!this.skipPostPhases) {
-      for(const phase of Chaos.getPostPhases()) {
-        for(const listener of this.listeners) {
-          listener.handle(phase, this);
-        }
+      const generator = this.apply();
+      let res = generator.next();
+      while (!res.done) {
+        yield res.value;
       }
+      return res.value;
     }
 
     // Generate terminal message
     this.generateMessage();
 
-    Chaos.processor.process(this);
+    // Handle all post-phases
+    if (!this.skipPostPhases) {
+      for(const phase of Chaos.getPostPhases()) {
+        for(const [,listener] of this.listeners) {
+          listener.handle(phase, this);
+        }
+      }
+    }
+    
+    this.teardown();
 
     return this.applied;
   }
 
-  *run(): Generator<ActionEffect, boolean> {
-    return true;
-  }
-
+  // Runs this action internally, without broadcasting to any clients. Useful for entity factories or game initialization.
   runPrivate() {
-
+    processRunner(this, false);
   }
 
   addListener(listener: ComponentContainer) {
-    if(!this.listenerIds.has(listener.id)) {
-      this.listeners.push(listener);
-      this.listenerIds.add(listener.id);
+    if(!this.listeners.has(listener.id)) {
+      this.listeners.set(listener.id,listener);
     }
   }
 
@@ -293,29 +269,12 @@ export abstract class Action implements EffectGenerator<ActionEffect> {
     
   }
 
-  counter(action: Action): boolean {
-    action.nested = this.nested + 1;
-    if (action.nested < 10) {
-      return action.execute();
-    }
-    return false;
+  react(action: Action): Immediate {
+    return ['IMMEDIATE', action];
   }
 
-  react(action: Action): boolean {
-    this.reactions.push(action);
-    action.nested = this.nested + 1;
-    action.inReactionTo = this;
-    if (action.nested < 10) {
-      this.reactions.push(action);
-      return action.execute();
-    }
-    // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle
-    return false;
-  }
-
-  followup(o: Action | Event): void {
-    this.followups.push(o);
-    Chaos.processor.queue.enqueue(o);
+  followup(item: Action | Event): Followup {
+    return ['FOLLOWUP', item]
   }
 
   static serializedHasRequiredFields(json: any, additional: string[]): boolean {
@@ -341,7 +300,7 @@ export abstract class Action implements EffectGenerator<ActionEffect> {
     return { caster, target, using, metadata, permitted };
   }
 
-  abstract apply(): boolean;
+  abstract apply(): Generator<ActionEffect, boolean>;
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
     return true; // SCOPE

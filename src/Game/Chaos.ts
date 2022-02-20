@@ -1,13 +1,11 @@
 import {
-  Entity, Action, World, Component, Viewer, ActionProcessor,
+  Entity, Action, World, Component, Viewer,
   Player, Team, ComponentCatalog, ComponentContainer,
   Scope, VisibilityType, CAST, ExecutionHook, ActionHook, Vector
 } from "../internal.js";
 
 export let id: string = "Unnamed Game";  // Name of loaded game
 export function setId(value: string) { id = value }
-
-export const processor = new ActionProcessor();
 
 let phases = ['modify', 'permit', 'react', 'output']
 let prePhases = ['modify', 'permit'];
@@ -64,7 +62,6 @@ export function reset() {
   teams.clear();
   teamsByName.clear();
   worlds.clear();
-  processor.reset();
   viewDistance = 6;
   actionHooks = new Array<ActionHook>();
   executionHooks = new Array<ExecutionHook>();

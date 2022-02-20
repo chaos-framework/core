@@ -44,7 +44,7 @@ export * from './Events/Actions/PropertyThresholdAction.js';
 export * from './Events/Enums.js';
 export * from './Events/ActionQueue.js';
 // GAME AND WORLD
-export * from "./Game/ActionProcessor.js";
+export * from "./Game/Processor.js";
 export * as Chaos from './Game/Chaos.js';
 export * from './Game/Game.js';
 export * from './Game/Team.js';

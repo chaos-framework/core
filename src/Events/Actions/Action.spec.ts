@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Action } from '../../../src/internal.js';
+import { Action, ActionEffectGenerator } from '../../../src/internal.js';
 
 // Fake concrete implementation
 class TestAction extends Action {

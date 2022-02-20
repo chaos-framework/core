@@ -1,6 +1,6 @@
-import { Entity, ActionEffect, EffectGenerator, Effect } from "../internal.js";
+import { Entity, ActionEffect, EffectRunner } from "../internal.js";
 
-export interface Event extends EffectGenerator<ActionEffect> {
+export interface Event extends EffectRunner<ActionEffect> {
   // TODO add ID for the client's sake
   caster?: Entity;
 

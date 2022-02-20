@@ -1,51 +1,70 @@
-import { Action, ActionParameters, Entity, Chaos, ActionType, BroadcastType, NestedSetChanges } from '../../internal.js';
+import {
+  Action,
+  ActionParameters,
+  Entity,
+  Chaos,
+  ActionType,
+  BroadcastType,
+  NestedSetChanges,
+  ActionEffectGenerator
+} from '../../internal.js'
 
 export class UnpublishEntityAction extends Action {
-  actionType: ActionType = ActionType.UNPUBLISH_ENTITY_ACTION;
-  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
+  actionType: ActionType = ActionType.UNPUBLISH_ENTITY_ACTION
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY
 
-  entity: Entity;
-  target?: Entity; // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
-  movementAction = true;
+  entity: Entity
+  target?: Entity // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
+  movementAction = true
 
-  chunkVisibilityChanges = new NestedSetChanges;
+  chunkVisibilityChanges = new NestedSetChanges()
 
-  constructor({ caster, target, entity, using, metadata }: UnpublishEntityAction.Params) {
-    super({caster, using, metadata });
-    this.entity = entity;
-    this.target = target;
+  constructor({
+    caster,
+    target,
+    entity,
+    using,
+    metadata
+  }: UnpublishEntityAction.Params) {
+    super({ caster, using, metadata })
+    this.entity = entity
+    this.target = target
     // Let the abstract impl of execute know to let listeners react around the entity itself
-    if(entity.world !== undefined) {
-      this.additionalListenPoints = [{ world: entity.world, position: entity.position }];
+    if (entity.world !== undefined) {
+      this.additionalListenPoints = [
+        { world: entity.world, position: entity.position }
+      ]
     }
-    this.additionalListeners = [entity];
+    this.additionalListeners = [entity]
   }
 
-  apply(): boolean {
+  *apply(): ActionEffectGenerator {
     return this.entity._unpublish(this.chunkVisibilityChanges)
   }
-    
+
   getEntity(): Entity {
-    return this.entity;
+    return this.entity
   }
 
   serialize(): UnpublishEntityAction.Serialized {
     return {
       ...super.serialize(),
       entity: this.entity.id
-    };
-  };
+    }
+  }
 
-  static deserialize(json: UnpublishEntityAction.Serialized): UnpublishEntityAction {
+  static deserialize(
+    json: UnpublishEntityAction.Serialized
+  ): UnpublishEntityAction {
     // Deserialize common fields
-    const common = Action.deserializeCommonFields(json);
+    const common = Action.deserializeCommonFields(json)
     // Deserialize unique fields
-    const entity = Chaos.entities.get(json.entity);
+    const entity = Chaos.entities.get(json.entity)
     // Build the action if fields are proper, otherwise throw an error
     if (entity === undefined) {
-      throw new Error('UnpublishEntityAction fields not correct.');
+      throw new Error('UnpublishEntityAction fields not correct.')
     }
-    return new UnpublishEntityAction({ ...common, entity });
+    return new UnpublishEntityAction({ ...common, entity })
   }
 }
 
@@ -59,6 +78,6 @@ export namespace UnpublishEntityAction {
   }
 
   export interface Serialized extends Action.Serialized {
-    entity: string;
+    entity: string
   }
 }

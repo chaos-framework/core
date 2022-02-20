@@ -1,38 +1,51 @@
-import { Action, Component, CachesSensedEntities, ActionParameters, Entity, ActionType, BroadcastType, NestedChanges } from '../../internal.js';
+import {
+  Action,
+  Component,
+  CachesSensedEntities,
+  ActionParameters,
+  Entity,
+  ActionType,
+  BroadcastType,
+  NestedChanges,
+  ActionEffectGenerator
+} from '../../internal.js'
 
 export class LoseEntityAction extends Action {
-  actionType: ActionType = ActionType.LOSE_ENTITY_ACTION;
-  broadcastType = BroadcastType.NONE;
+  actionType: ActionType = ActionType.LOSE_ENTITY_ACTION
+  broadcastType = BroadcastType.NONE
 
-  broadcast = false;
+  broadcast = false
 
-  caster: Entity;
-  target: Entity;
-  using: Component & CachesSensedEntities;
+  caster: Entity
+  target: Entity
+  using: Component & CachesSensedEntities
 
-  entityVisibilityChanges = new NestedChanges;
+  entityVisibilityChanges = new NestedChanges()
 
-  constructor({caster, target, using, metadata }: LoseEntityAction.Params) {
-    super({caster, using, metadata });
-    this.caster = caster;
-    this.using = using;
-    this.target = target;
+  constructor({ caster, target, using, metadata }: LoseEntityAction.Params) {
+    super({ caster, using, metadata })
+    this.caster = caster
+    this.using = using
+    this.target = target
   }
 
-  apply(): boolean {
-    return this.target._loseEntity(this.target, this.using, this.entityVisibilityChanges);
+  *apply(): ActionEffectGenerator {
+    return this.target._loseEntity(
+      this.target,
+      this.using,
+      this.entityVisibilityChanges
+    )
   }
 }
 
 // tslint:disable-next-line: no-namespace
 export namespace LoseEntityAction {
-  export interface EntityParams extends ActionParameters { 
-    target: Entity;
-    using: Component & CachesSensedEntities;
+  export interface EntityParams extends ActionParameters {
+    target: Entity
+    using: Component & CachesSensedEntities
   }
 
   export interface Params extends EntityParams {
-    caster: Entity;
+    caster: Entity
   }
-
 }

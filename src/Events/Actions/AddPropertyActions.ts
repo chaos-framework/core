@@ -1,5 +1,5 @@
 import {
-  Action, ActionParameters, Entity, ActionType, BroadcastType
+  Action, ActionParameters, Entity, ActionType, BroadcastType, ActionEffectGenerator
 } from '../../internal.js'; 
 
 export class AddPropertyAction extends Action {
@@ -21,7 +21,7 @@ export class AddPropertyAction extends Action {
     this.max = max;
   }
 
-  apply(): boolean {
+  *apply(): ActionEffectGenerator {
     return this.target._addProperty(this.name, this.current, this.min, this.max);
   }
 }
