@@ -8,16 +8,16 @@ import {
   Vector,
   Chaos,
   ActionEffectGenerator
-} from '../../internal.js'
+} from '../../internal.js';
 
 export class PublishChunkAction extends Action {
-  actionType: ActionType = ActionType.PUBLISH_CHUNK_ACTION
-  broadcastType = BroadcastType.NONE // TODO only broadcast to owners?
+  actionType: ActionType = ActionType.PUBLISH_CHUNK_ACTION;
+  broadcastType = BroadcastType.NONE; // TODO only broadcast to owners?
 
-  world: World
-  position: Vector
+  world: World;
+  position: Vector;
 
-  data?: any
+  data?: any;
 
   constructor({
     caster,
@@ -26,13 +26,13 @@ export class PublishChunkAction extends Action {
     using,
     metadata
   }: PublishChunkAction.Params) {
-    super({ caster, using, metadata })
-    this.world = world
-    this.position = position
+    super({ caster, using, metadata });
+    this.world = world;
+    this.position = position;
   }
 
   *apply(): ActionEffectGenerator {
-    return true
+    return true;
   }
 
   serializeForClient(): PublishChunkAction.SerializedForClient {
@@ -42,39 +42,39 @@ export class PublishChunkAction extends Action {
       layerData: this.world.serializeChunk(this.position),
       permitted: true,
       actionType: ActionType.PUBLISH_CHUNK_ACTION
-    }
+    };
   }
 
   static deserializeAsClient(json: PublishChunkAction.SerializedForClient) {
-    const world = Chaos.getWorld(json.worldId)
+    const world = Chaos.getWorld(json.worldId);
     if (world === undefined) {
       throw new Error(
         `Could not find world ID ${json.worldId} when publishing chunk.`
-      )
+      );
     }
-    const position = Vector.fromIndexString(json.position)
+    const position = Vector.fromIndexString(json.position);
     if (!world.hasChunk(position.x, position.y)) {
-      world.initializeChunk(position.x, position.y, json.layerData)
+      world.initializeChunk(position.x, position.y, json.layerData);
     }
   }
 }
 
 export namespace PublishChunkAction {
   export interface Params extends ActionParameters {
-    caster?: Entity
-    world: World
-    position: Vector
+    caster?: Entity;
+    world: World;
+    position: Vector;
   }
 
   export interface Serialized extends Action.Serialized {
-    worldId: string
-    position: string // vector
+    worldId: string;
+    position: string; // vector
   }
 
   export interface SerializedForClient extends Serialized {
     layerData: {
-      base: string
-      [key: string]: string
-    }
+      base: string;
+      [key: string]: string;
+    };
   }
 }

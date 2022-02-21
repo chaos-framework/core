@@ -1,7 +1,17 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Entity, Chaos, Vector, Player, Team, Viewer, NestedChanges, NestedSetChanges, NestedSet } from '../../src/internal.js';
+import {
+  Entity,
+  Chaos,
+  Vector,
+  Player,
+  Team,
+  Viewer,
+  NestedChanges,
+  NestedSetChanges,
+  NestedSet
+} from '../../src/internal.js';
 
 import Earth from '../Mocks/Worlds/Earth.js';
 import { earthAtmosphere } from '../Mocks/Layers/Atmosphere.js';
@@ -9,11 +19,13 @@ import { earthAtmosphere } from '../Mocks/Layers/Atmosphere.js';
 describe('Serialzing world data', function () {
   let earth: Earth;
   let activeEntity: Entity;
-  beforeEach(function() {
+  beforeEach(function () {
     earth = new Earth();
     activeEntity = new Entity({ active: true });
-    activeEntity.publish({ world: earth, position: new Vector(0, 0) }).execute();
-  })
+    activeEntity
+      .publish({ world: earth, position: new Vector(0, 0) })
+      .runPrivate();
+  });
 
   it('Should serialize data for individual chunks correctly', function () {
     const data = earth.serializeChunk(0, 0);
@@ -21,5 +33,5 @@ describe('Serialzing world data', function () {
     expect(data.base?.[0]).to.equal(0);
     expect(data.lightLevel?.[0]).to.equal(1);
     expect(data.atmosphere?.[0]).to.equal(earthAtmosphere);
-  })
+  });
 });

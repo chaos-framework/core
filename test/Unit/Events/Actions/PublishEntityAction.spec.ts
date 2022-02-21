@@ -1,7 +1,13 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { PublishEntityAction, Entity, Chaos, Vector, ActionType } from '../../../../src/internal.js';
+import {
+  PublishEntityAction,
+  Entity,
+  Chaos,
+  Vector,
+  ActionType
+} from '../../../../src/internal.js';
 
 import Room from '../../../Mocks/Worlds/Room.js';
 
@@ -12,7 +18,7 @@ describe('PublishEntityAction', () => {
 
   beforeEach(() => {
     Chaos.reset();
-    entity = new Entity({ name: "Test Entity" });
+    entity = new Entity({ name: 'Test Entity' });
     world = new Room(10, 10);
     Chaos.worlds.set(world.id, world);
     position = world.stageLeft;
@@ -20,7 +26,7 @@ describe('PublishEntityAction', () => {
 
   it('Publishes and entity', () => {
     const a = new PublishEntityAction({ entity, world, position });
-    a.apply();
+    a.apply().next();
     expect(entity.world).to.equal(world);
     expect(entity.position.equals(position)).to.be.true;
     expect(entity.world).to.equal(world);
@@ -35,7 +41,13 @@ describe('PublishEntityAction', () => {
   });
 
   it('Can deserialize from proper json', () => {
-    const json: PublishEntityAction.Serialized = { entity: entity.serializeForClient(), world: world.id, position: position.serialize(), permitted: true, actionType: ActionType.PUBLISH_ENTITY_ACTION };
+    const json: PublishEntityAction.Serialized = {
+      entity: entity.serializeForClient(),
+      world: world.id,
+      position: position.serialize(),
+      permitted: true,
+      actionType: ActionType.PUBLISH_ENTITY_ACTION
+    };
     const a = PublishEntityAction.deserialize(json);
     expect(a instanceof PublishEntityAction).to.be.true;
     expect(a.entity.id).to.equal(entity.id);
@@ -43,5 +55,4 @@ describe('PublishEntityAction', () => {
     expect(a.world).to.equal(world);
     expect(a.position.equals(position)).to.be.true;
   });
-
 });

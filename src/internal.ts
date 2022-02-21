@@ -15,7 +15,7 @@ export * from './Events/Action.js';
 export * from './Events/Actions/_types.js';
 export * from './Events/Permission.js';
 export * from './Events/Event.js';
-export * from './Events/Effect'
+export * from './Events/Effect.js';
 export * from './Events/Interfaces.js';
 export * from './Events/Actions/AddPropertyActions.js';
 export * from './Events/Actions/AddSlotAction.js';
@@ -42,9 +42,8 @@ export * from './Events/Actions/MessageAction.js';
 export * from './Events/Actions/ChangeTurnAction.js';
 export * from './Events/Actions/PropertyThresholdAction.js';
 export * from './Events/Enums.js';
-export * from './Events/ActionQueue.js';
 // GAME AND WORLD
-export * from "./Game/Processor.js";
+export * from './Game/Processor.js';
 export * as Chaos from './Game/Chaos.js';
 export * from './Game/Game.js';
 export * from './Game/Team.js';
@@ -66,8 +65,8 @@ export * from './ClientServer/Terminal/TerminalMessageFragment.js';
 // WORLDS
 export * from './World/Layer.js';
 export * from './World/Chunk.js';
-export * from './World/Chunks/ArrayChunk.js'
-export * from './World/Layers/ByteLayer.js';  // TODO toss this in a standard lib or something
+export * from './World/Chunks/ArrayChunk.js';
+export * from './World/Layers/ByteLayer.js'; // TODO toss this in a standard lib or something
 export * from './Math/Vector.js';
 // UTIL
 export * from './Util/Nest/NestedMap.js';

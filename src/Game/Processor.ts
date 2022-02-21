@@ -1,52 +1,69 @@
 import { Queue } from 'queue-typescript';
 import { Stack } from 'stack-typescript';
-import { Action, BroadcastType, Chaos, Player, Team, Viewer, UnpublishEntityAction, EffectRunner, ActionEffect, EffectGenerator } from '../internal.js';
+import {
+  Action,
+  BroadcastType,
+  Chaos,
+  Player,
+  Team,
+  Viewer,
+  UnpublishEntityAction,
+  ActionEffectGenerator,
+  ActionEffectRunner
+} from '../internal.js';
 
-export async function processRunner(item: EffectRunner<ActionEffect>, broadcast = false) {
-  const followups = new Queue<EffectRunner<ActionEffect>>();
-  const immediates = new Stack<EffectGenerator<ActionEffect>>();
+export async function processRunner(item: ActionEffectRunner, broadcast = false) {
+  const followups = new Queue<ActionEffectRunner>();
+  const immediates = new Stack<[ActionEffectRunner, ActionEffectGenerator]>();
   const actionsThisProcess: Action[] = [];
-  let current = item.run();
-  while (current !== undefined) {
-    let effect = current.next().value;
+  let currentActionOrEvent: ActionEffectRunner = item;
+  let currentGenerator: ActionEffectGenerator | undefined = item.run();
+  while (currentActionOrEvent !== undefined) {
+    let next = currentGenerator.next();
     // Handle whatever effect
-    while (effect !== undefined) {
+    while (next.done === false) {
+      const effect = next.value;
       switch (effect[0]) {
         case 'IMMEDIATE':
-          const [,actionOrEvent] = effect;
+          const [, actionOrEvent] = effect;
           // TODO check for length of reactions stack and ignore if too deep?
-          immediates.push(current)
-          current = effect[1];
+          immediates.push([currentActionOrEvent, currentGenerator]);
+          currentActionOrEvent = actionOrEvent;
+          currentGenerator = actionOrEvent.run();
           break;
         case 'FOLLOWUP':
-          followups.enqueue(effect[1])
+          followups.enqueue(effect[1]);
           break;
         case 'DELAY':
           // get starting time in ms
           // broadcast
           // delay rest
           // await
-        // DECISION
+          // DECISION
           // broadcast all
           // await decision
-        break;
+          break;
       }
-      effect = current.next().value;
+      next = currentGenerator.next();
     }
     // Track that this action was finished applying and broadcast to hooks that want to read it immediately
-    if (current instanceof Action) {
-      actionsThisProcess.push(current);
+    if (currentActionOrEvent instanceof Action) {
+      actionsThisProcess.push(currentActionOrEvent);
       if (broadcast === true) {
-        broadcastToActionHooks(current);
+        broadcastToActionHooks(currentActionOrEvent);
         // TODO queue for broadcast
       }
     }
     // Pop last generator-in-progress OR next followup's generator
-    current = immediates.pop() || followups.dequeue().run();
+    if (immediates.length > 0) {
+      [currentActionOrEvent, currentGenerator] = immediates.pop();
+    } else {
+      currentActionOrEvent = followups.dequeue();
+      currentGenerator = currentActionOrEvent?.run();
+    }
   }
   if (broadcast === true) {
     broadcastToExecutionHooks(actionsThisProcess);
-
   }
 }
 
@@ -80,37 +97,42 @@ function queueForBroadcast(action: Action, to?: Player | Team) {
     if (Chaos.perceptionGrouping === 'team') {
       for (const [, team] of Chaos.teams) {
         if (
-          (action.target && (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
-          (action.caster && (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
-          ) {
-            team.queueForBroadcast(action);
-          }
+          (action.target &&
+            (team.entities.has(action.target.id) || team.sensedEntities.has(action.target.id))) ||
+          (action.caster &&
+            (team.entities.has(action.caster.id) || team.sensedEntities.has(action.caster.id)))
+        ) {
+          team.queueForBroadcast(action);
+        }
       }
       // TODO players without teams
     } else {
       for (const [, player] of Chaos.players) {
         if (
-          (action.target && (player.entities.has(action.target.id) || player.sensedEntities.has(action.target.id))) ||
-          (action.caster && (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))
-          ) {
-            const newChunks = action.chunkVisibilityChanges?.added['player']?.[player.id];
-            if (newChunks !== undefined) {
-              publishChunks(newChunks, player);
-            }
-            const newEntities = action.entityVisibilityChanges?.added['player']?.[player.id];
-            if (newEntities !== undefined) {
-              publishEntities(newEntities, player);
-            }
-            player.queueForBroadcast(action);
-            const oldChunks = action.chunkVisibilityChanges?.removed['player']?.[player.id];
-            if (oldChunks !== undefined) {
-              publishChunks(oldChunks, player);
-            }
-            const oldEntities = action.entityVisibilityChanges?.removed['player']?.[player.id];
-            if (oldEntities !== undefined) {
-              publishEntities(oldEntities, player);
-            }
+          (action.target &&
+            (player.entities.has(action.target.id) ||
+              player.sensedEntities.has(action.target.id))) ||
+          (action.caster &&
+            (player.entities.has(action.caster.id) || player.sensedEntities.has(action.caster.id)))
+        ) {
+          const newChunks = action.chunkVisibilityChanges?.added['player']?.[player.id];
+          if (newChunks !== undefined) {
+            publishChunks(newChunks, player);
           }
+          const newEntities = action.entityVisibilityChanges?.added['player']?.[player.id];
+          if (newEntities !== undefined) {
+            publishEntities(newEntities, player);
+          }
+          player.queueForBroadcast(action);
+          const oldChunks = action.chunkVisibilityChanges?.removed['player']?.[player.id];
+          if (oldChunks !== undefined) {
+            publishChunks(oldChunks, player);
+          }
+          const oldEntities = action.entityVisibilityChanges?.removed['player']?.[player.id];
+          if (oldEntities !== undefined) {
+            publishEntities(oldEntities, player);
+          }
+        }
       }
     }
   }
@@ -127,13 +149,11 @@ function publishChunks(chunks: Set<string>, to: Viewer) {
     if (world === undefined) {
       throw new Error(`publishChunks failed -- could not find world ${worldId}`);
     }
-    world
+    world;
   }
 }
 
-function unpublishChunks(changes: Set<string>, from: Viewer) {
-
-}
+function unpublishChunks(changes: Set<string>, from: Viewer) {}
 
 function publishEntities(entities: Set<string>, to: Viewer) {
   for (const id of entities) {
@@ -168,29 +188,28 @@ function sendData() {
 //     this.queue.reset();
 //   }
 
-  // process(action?: Action) {
-  //   if (this.processing === true) {
-  //     // Reactions fire on their own before the original finishes, so we have to make sure to let hooks see it
-  //     if (action?.inReactionTo !== undefined) {
-  //       this.actionsThisProcess.push(action);
-  //       this.broadcastToActionHooks(action);
-  //     }
-  //     return;
-  //   }
-  //   this.processing = true;
-  //   let nextAction = this.queue.getNextAction();
-  //   while(nextAction !== undefined) {
-  //     this.actionsThisProcess.push(nextAction);
-  //     nextAction.execute();
-  //     this.broadcastToActionHooks(nextAction);
-  //     nextAction = this.queue.getNextAction();
-  //   }
-  //   if (this.actionsThisProcess.length > 0) {
-  //     this.broadcastToExecutionHooks();
-  //   }
-  //   this.sendData(); // TODO make this conditional on server role?
-  //   this.actionsThisProcess = [];
-  //   this.processing = false;
-  // }
+// process(action?: Action) {
+//   if (this.processing === true) {
+//     // Reactions fire on their own before the original finishes, so we have to make sure to let hooks see it
+//     if (action?.inReactionTo !== undefined) {
+//       this.actionsThisProcess.push(action);
+//       this.broadcastToActionHooks(action);
+//     }
+//     return;
+//   }
+//   this.processing = true;
+//   let nextAction = this.queue.getNextAction();
+//   while(nextAction !== undefined) {
+//     this.actionsThisProcess.push(nextAction);
+//     nextAction.execute();
+//     this.broadcastToActionHooks(nextAction);
+//     nextAction = this.queue.getNextAction();
+//   }
+//   if (this.actionsThisProcess.length > 0) {
+//     this.broadcastToExecutionHooks();
+//   }
+//   this.sendData(); // TODO make this conditional on server role?
+//   this.actionsThisProcess = [];
+//   this.processing = false;
 // }
-
+// }

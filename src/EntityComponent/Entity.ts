@@ -1,14 +1,42 @@
 import { v4 as uuid } from 'uuid';
 import {
-  Chaos, Vector, World, CachesSensedEntities, Printable,
-  Component, ComponentContainer, ComponentCatalog, Event, Action,
-  Ability, Property, AttachComponentAction,
-  ChangeWorldAction, MoveAction,
-  PublishEntityAction, UnpublishEntityAction,
-  AddSlotAction, RemoveSlotAction, AddPropertyAction,
-  OptionalCastParameters, Grant, RemovePropertyAction, LearnAbilityAction, NestedChanges,
-  ForgetAbilityAction, EquipItemAction, Scope, SenseEntityAction, NestedMap, Team, DetachComponentAction,
-  Player, cachesSensedEntities, GlyphCode347, NestedSet, NestedSetChanges
+  Chaos,
+  Vector,
+  World,
+  CachesSensedEntities,
+  Printable,
+  Component,
+  ComponentContainer,
+  ComponentCatalog,
+  Event,
+  Action,
+  Ability,
+  Property,
+  AttachComponentAction,
+  ChangeWorldAction,
+  MoveAction,
+  PublishEntityAction,
+  UnpublishEntityAction,
+  AddSlotAction,
+  RemoveSlotAction,
+  AddPropertyAction,
+  OptionalCastParameters,
+  Grant,
+  RemovePropertyAction,
+  LearnAbilityAction,
+  NestedChanges,
+  ForgetAbilityAction,
+  EquipItemAction,
+  Scope,
+  SenseEntityAction,
+  NestedMap,
+  Team,
+  DetachComponentAction,
+  Player,
+  cachesSensedEntities,
+  GlyphCode347,
+  NestedSet,
+  NestedSetChanges
 } from '../internal.js';
 
 export class Entity implements ComponentContainer, Printable {
@@ -17,7 +45,7 @@ export class Entity implements ComponentContainer, Printable {
   metadata = new Map<string, string | number | boolean | undefined>();
   published = false;
   active = false;
-  perceives = false;  // when assigned to a player/team it contributes to visibility
+  perceives = false; // when assigned to a player/team it contributes to visibility
   omnipotent = false; // listens to every action in the game
 
   properties: Map<string, Property> = new Map<string, Property>();
@@ -26,14 +54,17 @@ export class Entity implements ComponentContainer, Printable {
 
   abilities: Map<string, Grant[]> = new Map<string, Grant[]>();
 
-  players = new Map<string, Player>();  // players that can control this Entity
-  team?: Team;                          // team that this entity belongs to
+  players = new Map<string, Player>(); // players that can control this Entity
+  team?: Team; // team that this entity belongs to
 
   sensedEntities: NestedMap<Entity>;
   visibleChunks: NestedSet;
 
   // Places for items to be equipped
-  slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
+  slots: Map<string, Entity | undefined> = new Map<
+    string,
+    Entity | undefined
+  >();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
   world?: World;
@@ -42,19 +73,28 @@ export class Entity implements ComponentContainer, Printable {
   asset?: string;
   glyph: GlyphCode347;
 
-  constructor({ id = uuid(), name = 'Unnamed Entity', metadata, team, active = false, omnipotent = false, glyph = GlyphCode347['?'] }: Entity.ConstructorParams = {}) { // TODO 
+  constructor({
+    id = uuid(),
+    name = 'Unnamed Entity',
+    metadata,
+    team,
+    active = false,
+    omnipotent = false,
+    glyph = GlyphCode347['?']
+  }: Entity.ConstructorParams = {}) {
+    // TODO
     this.id = id;
     this.name = name;
     this.active = active;
     this.omnipotent = omnipotent;
     this.glyph = glyph;
     // tslint:disable-next-line: forin
-    for(const key in metadata) {
+    for (const key in metadata) {
       this.metadata.set(key, metadata[key]);
     }
     this.visibleChunks = new NestedSet(id, 'entity');
     this.sensedEntities = new NestedMap<Entity>(id, 'entity');
-    if(team) {
+    if (team) {
       this.team = team;
       team._addEntity(this);
     }
@@ -81,7 +121,7 @@ export class Entity implements ComponentContainer, Printable {
   // MESSAGING
 
   getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
-    switch(scope) {
+    switch (scope) {
       case 'entity':
         return this;
       case 'world':
@@ -102,7 +142,7 @@ export class Entity implements ComponentContainer, Printable {
   }
 
   tag(tag: string) {
-    if(!this.metadata.has(tag)) {
+    if (!this.metadata.has(tag)) {
       this.metadata.set(tag, true);
     }
   }
@@ -115,7 +155,7 @@ export class Entity implements ComponentContainer, Printable {
     return this.metadata.has(tag);
   }
 
-  is(componentName: string): boolean  {
+  is(componentName: string): boolean {
     return this.components.is(componentName);
   }
 
@@ -130,14 +170,18 @@ export class Entity implements ComponentContainer, Printable {
   }
 
   // Cast ability by name and optional lookup for specific version based on how we're casting it
-  cast(abilityName: string, {using, grantedBy, target, params}: OptionalCastParameters = {}): Event | string | undefined {
+  cast(
+    abilityName: string,
+    { using, grantedBy, target, params }: OptionalCastParameters = {}
+  ): Event | string | undefined {
     // See if we have this ability at all
     const grants = this.abilities.get(abilityName);
-    if(grants && grants.length > 0) {
-      // Use the verion of this ability granted by 
-      let grant: Grant | undefined = using ? grants.find(g => g.using === using && g.grantedBy === grantedBy) : undefined;
-      if(!grant)
-        grant = grants[0];
+    if (grants && grants.length > 0) {
+      // Use the verion of this ability granted by
+      let grant: Grant | undefined = using
+        ? grants.find((g) => g.using === using && g.grantedBy === grantedBy)
+        : undefined;
+      if (!grant) grant = grants[0];
       const e = grant.ability.cast(this, { using, target, params });
       return e;
     }
@@ -155,19 +199,43 @@ export class Entity implements ComponentContainer, Printable {
    *****************************************/
 
   getPublishedInPlaceAction(): PublishEntityAction {
-    if(this.published && this.world !== undefined) {
-      return new PublishEntityAction({entity: this, position: this.position, world: this.world});
+    if (this.published && this.world !== undefined) {
+      return new PublishEntityAction({
+        entity: this,
+        position: this.position,
+        world: this.world
+      });
     }
-    throw new Error('Tried to publish an entity to a client is not published or does not have a world.');
+    throw new Error(
+      'Tried to publish an entity to a client is not published or does not have a world.'
+    );
   }
 
   // Publishing
-  publish({caster, world, position, using, metadata}: PublishEntityAction.EntityParams): PublishEntityAction {
-    return new PublishEntityAction({caster, target: this, entity: this, world, position, using, metadata});
+  publish({
+    caster,
+    world,
+    position,
+    using,
+    metadata
+  }: PublishEntityAction.EntityParams): PublishEntityAction {
+    return new PublishEntityAction({
+      caster,
+      target: this,
+      entity: this,
+      world,
+      position,
+      using,
+      metadata
+    });
   }
 
-  _publish(world: World, position: Vector, changes?: NestedSetChanges): boolean {
-    if(this.published) {
+  _publish(
+    world: World,
+    position: Vector,
+    changes?: NestedSetChanges
+  ): boolean {
+    if (this.published) {
       return false;
     }
     // Get the visibility changes for adding to the world, or alternatively the world will fail to add it
@@ -185,12 +253,23 @@ export class Entity implements ComponentContainer, Printable {
 
   // Unpublishing
 
-  unpublish({caster, target, using, metadata}: UnpublishEntityAction.EntityParams = {}): UnpublishEntityAction {
-    return new UnpublishEntityAction({caster, target, entity: this, using, metadata});
+  unpublish({
+    caster,
+    target,
+    using,
+    metadata
+  }: UnpublishEntityAction.EntityParams = {}): UnpublishEntityAction {
+    return new UnpublishEntityAction({
+      caster,
+      target,
+      entity: this,
+      using,
+      metadata
+    });
   }
 
   _unpublish(changes?: NestedSetChanges): boolean {
-    if(this.world?.removeEntity(this, changes)) {
+    if (this.world?.removeEntity(this, changes)) {
       Chaos.removeEntity(this);
       this.components.unpublish();
       // TODO and persistence stuff
@@ -206,16 +285,25 @@ export class Entity implements ComponentContainer, Printable {
 
   // Attaching components
 
-  attach({component, caster, using, metadata}: AttachComponentAction.EntityParams, force = false): AttachComponentAction {
-    return new AttachComponentAction({ caster, target: this, component, using, metadata});
+  attach(
+    { component, caster, using, metadata }: AttachComponentAction.EntityParams,
+    force = false
+  ): AttachComponentAction {
+    return new AttachComponentAction({
+      caster,
+      target: this,
+      component,
+      using,
+      metadata
+    });
   }
 
   _attach(component: Component): boolean {
-    if(this.published) {
+    if (this.published) {
       Chaos.allComponents.set(component.id, component);
     }
     this.components.addComponent(component); // TODO check for unique flag, or duplicate ID -- return false if already attached
-    if(cachesSensedEntities(component)) {
+    if (cachesSensedEntities(component)) {
       this.sensedEntities.addChild(component.sensedEntities);
     }
     component._publish();
@@ -230,14 +318,23 @@ export class Entity implements ComponentContainer, Printable {
 
   // Detaching components
 
-  detach({component, caster, using, metadata}: DetachComponentAction.EntityParams, force = false): DetachComponentAction {
-    return new DetachComponentAction({ caster, target: this, component, using, metadata});
+  detach(
+    { component, caster, using, metadata }: DetachComponentAction.EntityParams,
+    force = false
+  ): DetachComponentAction {
+    return new DetachComponentAction({
+      caster,
+      target: this,
+      component,
+      using,
+      metadata
+    });
   }
 
   _detach(component: Component): boolean {
     Chaos.allComponents.delete(component.id);
     this.components.removeComponent(component);
-    if(cachesSensedEntities(component)) {
+    if (cachesSensedEntities(component)) {
       this.sensedEntities.removeChild(component.id);
     }
     return true;
@@ -251,31 +348,63 @@ export class Entity implements ComponentContainer, Printable {
 
   // Adding properties
 
-  addProperty({caster, using, name, current, min, max, metadata}: AddPropertyAction.EntityParams, force = false): AddPropertyAction {
-    return new AddPropertyAction({ caster, target: this, using, name, current, min, max, metadata});
+  addProperty(
+    {
+      caster,
+      using,
+      name,
+      current,
+      min,
+      max,
+      metadata
+    }: AddPropertyAction.EntityParams,
+    force = false
+  ): AddPropertyAction {
+    return new AddPropertyAction({
+      caster,
+      target: this,
+      using,
+      name,
+      current,
+      min,
+      max,
+      metadata
+    });
   }
 
-  _addProperty(name: string, current?: number, min?: number, max?: number): boolean {
+  _addProperty(
+    name: string,
+    current?: number,
+    min?: number,
+    max?: number
+  ): boolean {
     // Check that we don't already have this property
-    if(this.properties.has(name)) {
+    if (this.properties.has(name)) {
       return false;
-    }
-    else {
+    } else {
       this.properties.set(name, new Property(this, name, current, min, max));
       return true;
     }
   }
 
-  removeProperty({caster, using, name, metadata}: RemovePropertyAction.EntityParams, force = false) {
-    return new RemovePropertyAction({ caster, target: this, using, name, metadata});
+  removeProperty(
+    { caster, using, name, metadata }: RemovePropertyAction.EntityParams,
+    force = false
+  ) {
+    return new RemovePropertyAction({
+      caster,
+      target: this,
+      using,
+      name,
+      metadata
+    });
   }
 
   _removeProperty(name: string, p?: Property): boolean {
     // Check that we have this property
-    if(!this.properties.has(name)) {
+    if (!this.properties.has(name)) {
       return false;
-    }
-    else {
+    } else {
       this.properties.delete(name);
       // TODO unhook modifications on property values
       return true;
@@ -284,41 +413,73 @@ export class Entity implements ComponentContainer, Printable {
 
   // Learning abilities
 
-  learn({caster, using, ability, metadata}: LearnAbilityAction.EntityParams, force = false): LearnAbilityAction {
-    return new LearnAbilityAction({caster, target: this, using, ability, metadata});
+  learn(
+    { caster, using, ability, metadata }: LearnAbilityAction.EntityParams,
+    force = false
+  ): LearnAbilityAction {
+    return new LearnAbilityAction({
+      caster,
+      target: this,
+      using,
+      ability,
+      metadata
+    });
   }
 
-  _learn(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
+  _learn(
+    ability: Ability,
+    grantedBy?: Entity | Component,
+    using?: Entity | Component
+  ): boolean {
     const { name } = ability;
     const grants = this.abilities.get(name);
-    if(grants) {
+    if (grants) {
       // check if ability already granted by this combo
-      const duplicate = grants.find(grant => grant.grantedBy === grantedBy && grant.using === using);
-      if(!duplicate) {
-        grants.push({ability, grantedBy: grantedBy?.id, using: using?.id });
+      const duplicate = grants.find(
+        (grant) => grant.grantedBy === grantedBy && grant.using === using
+      );
+      if (!duplicate) {
+        grants.push({ ability, grantedBy: grantedBy?.id, using: using?.id });
       } else {
         return false;
       }
     } else {
-      this.abilities.set(name, [{ability, grantedBy: grantedBy?.id, using: using?.id }]);
+      this.abilities.set(name, [
+        { ability, grantedBy: grantedBy?.id, using: using?.id }
+      ]);
     }
     return true;
   }
 
   // Denying abilities
 
-  forget({caster, using, ability, metadata}: ForgetAbilityAction.Params, force = false): ForgetAbilityAction {
-    return new ForgetAbilityAction({caster, target: this, using, ability, metadata});
+  forget(
+    { caster, using, ability, metadata }: ForgetAbilityAction.Params,
+    force = false
+  ): ForgetAbilityAction {
+    return new ForgetAbilityAction({
+      caster,
+      target: this,
+      using,
+      ability,
+      metadata
+    });
   }
 
-  _forget(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
+  _forget(
+    ability: Ability,
+    grantedBy?: Entity | Component,
+    using?: Entity | Component
+  ): boolean {
     const name = ability.name;
     let grants = this.abilities.get(name);
-    if(!grants) {
+    if (!grants) {
       return false;
     }
-    const grantIndex = grants.findIndex(grant => grant.grantedBy === grantedBy && grant.using === using);
-    if(grantIndex < 0) {
+    const grantIndex = grants.findIndex(
+      (grant) => grant.grantedBy === grantedBy && grant.using === using
+    );
+    if (grantIndex < 0) {
       return false;
     }
 
@@ -336,12 +497,15 @@ export class Entity implements ComponentContainer, Printable {
 
   // Equipping items
 
-  equip({caster, slot, item, metadata }: EquipItemAction.EntityParams, force = false): EquipItemAction {
-    return new EquipItemAction({caster, target: this, slot, item, metadata});
+  equip(
+    { caster, slot, item, metadata }: EquipItemAction.EntityParams,
+    force = false
+  ): EquipItemAction {
+    return new EquipItemAction({ caster, target: this, slot, item, metadata });
   }
 
   _equip(item: Entity, slotName: string): boolean {
-    if(this.slots.has(slotName) && this.slots.get(slotName) === undefined) {
+    if (this.slots.has(slotName) && this.slots.get(slotName) === undefined) {
       this.slots.set(slotName, item);
       // TODO should item decide to remove from parent container?
       return true;
@@ -354,24 +518,30 @@ export class Entity implements ComponentContainer, Printable {
 
   // Slot changes
 
-  addSlot({caster, name, metadata }: AddSlotAction.EntityParams, force = false): AddSlotAction {
-    return new AddSlotAction({caster, target: this, name, metadata});
+  addSlot(
+    { caster, name, metadata }: AddSlotAction.EntityParams,
+    force = false
+  ): AddSlotAction {
+    return new AddSlotAction({ caster, target: this, name, metadata });
   }
 
   _addSlot(name: string): boolean {
-    if(!this.slots.has(name)) {
+    if (!this.slots.has(name)) {
       this.slots.set(name, undefined);
       return true;
     }
     return false;
   }
 
-  removeSlot({caster, name, metadata }: RemoveSlotAction.Params, force = false): RemoveSlotAction {
-    return new RemoveSlotAction({caster, target: this, name, metadata});
+  removeSlot(
+    { caster, name, metadata }: RemoveSlotAction.Params,
+    force = false
+  ): RemoveSlotAction {
+    return new RemoveSlotAction({ caster, target: this, name, metadata });
   }
 
   _removeSlot(name: string): boolean {
-    if(this.slots.has(name)) {
+    if (this.slots.has(name)) {
       // TODO, have to drop item on the ground, or something
       this.slots.delete(name);
       return true;
@@ -382,16 +552,27 @@ export class Entity implements ComponentContainer, Printable {
   // Movement
 
   move({ caster, to, using, metadata }: MoveAction.EntityParams): MoveAction {
-    return new MoveAction({caster, target: this, to, using, metadata});
+    return new MoveAction({ caster, target: this, to, using, metadata });
   }
 
-  moveRelative({ caster, amount, using, metadata }: MoveAction.EntityRelativeParams): MoveAction {
-    return new MoveAction({caster, target: this, to: this.position.copyAdjusted(amount.x, amount.y), using, metadata});
+  moveRelative({
+    caster,
+    amount,
+    using,
+    metadata
+  }: MoveAction.EntityRelativeParams): MoveAction {
+    return new MoveAction({
+      caster,
+      target: this,
+      to: this.position.copyAdjusted(amount.x, amount.y),
+      using,
+      metadata
+    });
   }
 
-  _move(to: Vector, changes = new NestedSetChanges): boolean {
+  _move(to: Vector, changes = new NestedSetChanges()): boolean {
     const { world } = this;
-    if (world !== undefined) { 
+    if (world !== undefined) {
       // Let the world know we're moving and track the chunk load changes
       const couldMove = world.moveEntity(this, this.position, to, changes);
       if (couldMove) {
@@ -408,34 +589,68 @@ export class Entity implements ComponentContainer, Printable {
 
   // Senses
 
-  senseEntity({target, using, metadata}: SenseEntityAction.EntityParams): SenseEntityAction {
-    return new SenseEntityAction({caster: this, target, using, metadata});
+  senseEntity({
+    target,
+    using,
+    metadata
+  }: SenseEntityAction.EntityParams): SenseEntityAction {
+    return new SenseEntityAction({ caster: this, target, using, metadata });
   }
 
-  _senseEntity(entity: Entity, using: CachesSensedEntities, changes?: NestedChanges) {
+  _senseEntity(
+    entity: Entity,
+    using: CachesSensedEntities,
+    changes?: NestedChanges
+  ) {
     using.sensedEntities.add(entity.id, entity, undefined, changes);
     return true;
   }
 
-  loseEntity({target, using, metadata}: SenseEntityAction.EntityParams): SenseEntityAction {
-    return new SenseEntityAction({caster: this, target, using, metadata});
+  loseEntity({
+    target,
+    using,
+    metadata
+  }: SenseEntityAction.EntityParams): SenseEntityAction {
+    return new SenseEntityAction({ caster: this, target, using, metadata });
   }
 
-  _loseEntity(entity: Entity, from: CachesSensedEntities, changes?: NestedChanges): boolean {
+  _loseEntity(
+    entity: Entity,
+    from: CachesSensedEntities,
+    changes?: NestedChanges
+  ): boolean {
     from.sensedEntities.remove(entity.id, 'undefined', changes);
     return true;
   }
 
   // World
-  
-  changeWorlds({caster, to, position, using, metadata}: ChangeWorldAction.EntityParams): ChangeWorldAction {
-    if(this.world === undefined) {
+
+  changeWorlds({
+    caster,
+    to,
+    position,
+    using,
+    metadata
+  }: ChangeWorldAction.EntityParams): ChangeWorldAction {
+    if (this.world === undefined) {
       throw new Error();
     }
-    return new ChangeWorldAction({caster, target: this, from: this.world, to, position, using, metadata});
+    return new ChangeWorldAction({
+      caster,
+      target: this,
+      from: this.world,
+      to,
+      position,
+      using,
+      metadata
+    });
   }
 
-  _changeWorlds(to: World, position: Vector, changes = new NestedSetChanges): boolean {
+  _changeWorlds(
+    to: World,
+    position: Vector,
+    changes = new NestedSetChanges()
+  ): boolean {
     if (!to.isInBounds(position)) {
       return false;
     }
@@ -454,15 +669,15 @@ export class Entity implements ComponentContainer, Printable {
   // Players
   // TODO action
   _grantOwnershipTo(player: Player) {
-    if(!this.players.has(player.id)) {
+    if (!this.players.has(player.id)) {
       this.players.set(player.id, player);
       player._ownEntity(this);
     }
   }
-  
+
   // TODO action
   _revokeOwnershipFrom(player: Player) {
-    if(this.players.has(player.id)) {
+    if (this.players.has(player.id)) {
       this.players.delete(player.id);
       player._disownEntity(this);
     }
@@ -471,34 +686,34 @@ export class Entity implements ComponentContainer, Printable {
   // Teams
   // TODO action
   _joinTeam(team: Team): boolean {
-    if(team !== undefined) {
+    if (team !== undefined) {
       this.team = team;
       team._addEntity(this);
       return true;
     }
     return false;
   }
-  
+
   // TODO action
   _leaveTeam() {
-    if(this.team !== undefined) {
+    if (this.team !== undefined) {
       this.team._removeEntity(this);
       this.team = undefined;
     }
   }
 
   serialize(): Entity.Serialized {
-      return { id: this.id };
+    return { id: this.id };
   }
 
   serializeForClient(): Entity.SerializedForClient {
     const components: Component.SerializedForClient[] = [];
-    this.components.all.forEach(c => {
-      if(c.broadcast) {
+    this.components.all.forEach((c) => {
+      if (c.broadcast) {
         components.push(c.serializeForClient());
       }
     });
-    return { 
+    return {
       id: this.id,
       position: this.position.serialize(),
       name: this.name,
@@ -509,46 +724,62 @@ export class Entity implements ComponentContainer, Printable {
       glyph: this.glyph
     };
   }
-
 }
 
 // tslint:disable-next-line: no-namespace
 export namespace Entity {
   export interface ConstructorParams {
-    id?: string,
-    name?: string,
-    team?: Team,
-    metadata?: {[key: string]: string | number | boolean | undefined},
-    active?: boolean,
-    omnipotent?: boolean,
-    glyph?: GlyphCode347
+    id?: string;
+    name?: string;
+    team?: Team;
+    metadata?: { [key: string]: string | number | boolean | undefined };
+    active?: boolean;
+    omnipotent?: boolean;
+    glyph?: GlyphCode347;
   }
 
-  export interface Serialized {
-
-  }
+  export interface Serialized {}
 
   export interface SerializedForClient {
-    id: string,
-    name: string,
-    position: string,
-    world?: string,
-    metadata?: {[key: string]: string | number | boolean | undefined},
-    active?: boolean,
-    omnipotent?: boolean,
-    team?: string,
-    components?: Component.SerializedForClient[],
-    glyph?: GlyphCode347
+    id: string;
+    name: string;
+    position: string;
+    world?: string;
+    metadata?: { [key: string]: string | number | boolean | undefined };
+    active?: boolean;
+    omnipotent?: boolean;
+    team?: string;
+    components?: Component.SerializedForClient[];
+    glyph?: GlyphCode347;
   }
 
   export function Deserialize(json: Entity.Serialized): Entity {
     throw new Error('Not yet implemented.');
   }
 
-  export function DeserializeAsClient(json: Entity.SerializedForClient): Entity {
+  export function DeserializeAsClient(
+    json: Entity.SerializedForClient
+  ): Entity {
     try {
-      const { id, name, metadata, team, active, omnipotent, components, world: worldId, glyph } = json;
-      const deserialized = new Entity({ id, name, metadata, active, omnipotent, glyph });
+      const {
+        id,
+        name,
+        metadata,
+        team,
+        active,
+        omnipotent,
+        components,
+        world: worldId,
+        glyph
+      } = json;
+      const deserialized = new Entity({
+        id,
+        name,
+        metadata,
+        active,
+        omnipotent,
+        glyph
+      });
       deserialized.position = Vector.deserialize(json.position);
       if (worldId !== undefined) {
         const world = Chaos.getWorld(worldId);
@@ -559,7 +790,7 @@ export namespace Entity {
       if (team !== undefined) {
         const t = Chaos.teams.get(team);
         if (t === undefined) {
-          throw new Error(`Team for Entity ${id} is not defined locally.`)
+          throw new Error(`Team for Entity ${id} is not defined locally.`);
         }
       }
       if (components !== undefined) {

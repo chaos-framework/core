@@ -11,14 +11,15 @@ class TestAction extends Action {
 }
 
 describe('Action Abstract Functionality', () => {
-
   describe('Feasiblity callbacks', () => {
     // TODO
   });
 
   describe('Permits or forbids actions intelligently', () => {
     let a: TestAction;
-    beforeEach(() => { a = new TestAction() });
+    beforeEach(() => {
+      a = new TestAction();
+    });
 
     it('Permits actions by default', () => {
       expect(a.permitted).to.be.true;
@@ -54,6 +55,5 @@ describe('Action Abstract Functionality', () => {
       a.decidePermission();
       expect(a.permitted).to.be.false;
     });
-
   });
 });

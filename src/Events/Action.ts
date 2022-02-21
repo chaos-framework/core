@@ -1,10 +1,30 @@
-import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
-  Permission, SensoryInformation, NestedChanges, Viewer, Vector, Printable, ActionEffect,
-  TerminalMessageFragment, TerminalMessage, NestedSetChanges, EffectRunner, Followup, processRunner
+import {
+  Chaos,
+  ActionType,
+  Entity,
+  Component,
+  Event,
+  ComponentContainer,
+  BroadcastType,
+  World,
+  Permission,
+  SensoryInformation,
+  NestedChanges,
+  Viewer,
+  Vector,
+  Printable,
+  ActionEffect,
+  TerminalMessageFragment,
+  TerminalMessage,
+  NestedSetChanges,
+  Followup,
+  processRunner,
+  ActionEffectRunner,
+  Immediate
 } from '../internal.js';
-import { Immediate } from './Effect.js';
+import {} from './Effect.js';
 
-export abstract class Action implements EffectRunner<ActionEffect> {
+export abstract class Action implements ActionEffectRunner {
   actionType: ActionType = ActionType.INVALID;
   broadcastType: BroadcastType = BroadcastType.FULL;
 
@@ -19,7 +39,7 @@ export abstract class Action implements EffectRunner<ActionEffect> {
   metadata = new Map<string, string | number | boolean | undefined>();
   breadcrumbs: Set<string> = new Set<string>();
 
-  public: boolean = false;    // whether or not nearby entities (who are not omnipotent) can modify/react
+  public: boolean = false; // whether or not nearby entities (who are not omnipotent) can modify/react
 
   skipPrePhases: boolean = false; // whether or not to run pre-phases
   skipPostPhases: boolean = false; // whether or not to run post-phases
@@ -31,7 +51,7 @@ export abstract class Action implements EffectRunner<ActionEffect> {
 
   nested: number = 0;
 
-  movementAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
+  movementAction: boolean = false; // whether the action involves movement, and therefore possible scope / visibility change
 
   anticipators = new Set<string>();
   sensors = new Map<string, SensoryInformation | boolean>();
@@ -41,8 +61,8 @@ export abstract class Action implements EffectRunner<ActionEffect> {
 
   listeners = new Map<string, ComponentContainer>();
 
-  // Additional worlds and points that entities in a radius around can be included. 
-  additionalListenPoints: { world: World, position: Vector }[] = [];
+  // Additional worlds and points that entities in a radius around can be included.
+  additionalListenPoints: { world: World; position: Vector }[] = [];
   // Additional listeners on top of the default caster -> target flow
   additionalListeners: ComponentContainer[] = [];
 
@@ -59,8 +79,8 @@ export abstract class Action implements EffectRunner<ActionEffect> {
     this.caster = caster;
     this.using = using;
     this.permissions.set(0, new Permission(true));
-        // tslint:disable-next-line: forin
-    for(const key in metadata) {
+    // tslint:disable-next-line: forin
+    for (const key in metadata) {
       this.metadata.set(key, metadata[key]);
     }
   }
@@ -90,14 +110,14 @@ export abstract class Action implements EffectRunner<ActionEffect> {
     this.collectListeners();
 
     // Assume that caster has full awareness
-    if(this.caster) {
+    if (this.caster) {
       this.sensors.set(this.caster.id, true);
     }
 
     // Handle all pre-phases
     if (!this.skipPrePhases) {
-      for(const phase of Chaos.getPrePhases()) {
-        for(const [,listener] of this.listeners) {
+      for (const phase of Chaos.getPrePhases()) {
+        for (const [, listener] of this.listeners) {
           listener.handle(phase, this);
         }
       }
@@ -105,14 +125,20 @@ export abstract class Action implements EffectRunner<ActionEffect> {
 
     // See if the action is allowed after any modifiers
     this.decidePermission();
+
     // Apply this action to the target, checking for permission and if still feasible
-    if ((this.permitted && this.feasabilityCallback !== undefined ? this.feasabilityCallback(this) : true) || force) {
+    if (
+      (this.permitted && this.feasabilityCallback !== undefined
+        ? this.feasabilityCallback(this)
+        : true) ||
+      force
+    ) {
       const generator = this.apply();
       let res = generator.next();
       while (!res.done) {
         yield res.value;
       }
-      return res.value;
+      this.applied = res.value;
     }
 
     // Generate terminal message
@@ -120,13 +146,13 @@ export abstract class Action implements EffectRunner<ActionEffect> {
 
     // Handle all post-phases
     if (!this.skipPostPhases) {
-      for(const phase of Chaos.getPostPhases()) {
-        for(const [,listener] of this.listeners) {
+      for (const phase of Chaos.getPostPhases()) {
+        for (const [, listener] of this.listeners) {
           listener.handle(phase, this);
         }
       }
     }
-    
+
     this.teardown();
 
     return this.applied;
@@ -138,8 +164,8 @@ export abstract class Action implements EffectRunner<ActionEffect> {
   }
 
   addListener(listener: ComponentContainer) {
-    if(!this.listeners.has(listener.id)) {
-      this.listeners.set(listener.id,listener);
+    if (!this.listeners.has(listener.id)) {
+      this.listeners.set(listener.id, listener);
     }
   }
 
@@ -153,8 +179,8 @@ export abstract class Action implements EffectRunner<ActionEffect> {
       this.addListener(caster);
       // Add all nearby entities and the world itself, if caster is published to a world
       if (caster.world !== undefined) {
-        caster.world.getEntitiesWithinRadius(caster.position, listenRadius).map(entity => {
-          if(entity.id !== caster.id && entity.id !== target?.id) {
+        caster.world.getEntitiesWithinRadius(caster.position, listenRadius).map((entity) => {
+          if (entity.id !== caster.id && entity.id !== target?.id) {
             this.addListener(entity);
           }
         });
@@ -166,7 +192,7 @@ export abstract class Action implements EffectRunner<ActionEffect> {
         this.addListener(player);
       }
 
-      // Add all teams that this entity belongs to 
+      // Add all teams that this entity belongs to
       if (caster.team !== undefined) {
         this.addListener(caster.team);
       }
@@ -180,10 +206,10 @@ export abstract class Action implements EffectRunner<ActionEffect> {
     // TODO add players + teams of target(s)
 
     // Add the target world, nearby entities, and target itself.. if the target !== the caster
-    if(target !== undefined && target !== caster) {
-      if(target.world !== undefined) {
+    if (target !== undefined && target !== caster) {
+      if (target.world !== undefined) {
         this.addListener(target.world);
-        target.world.getEntitiesWithinRadius(target.position, listenRadius).forEach(entity => {
+        target.world.getEntitiesWithinRadius(target.position, listenRadius).forEach((entity) => {
           this.addListener(entity);
         });
       }
@@ -194,29 +220,49 @@ export abstract class Action implements EffectRunner<ActionEffect> {
         this.addListener(player);
       }
 
-      // Add all teams that this entity belongs to 
+      // Add all teams that this entity belongs to
       if (target.team !== undefined) {
         this.addListener(target.team);
       }
     }
 
     // Let worlds and entities listen in any additional radiuses specified by the action
-    this.additionalListenPoints.map(point => {
+    this.additionalListenPoints.map((point) => {
       this.addListener(point.world);
-      point.world.getEntitiesWithinRadius(point.position, listenRadius).forEach(entity => {
+      point.world.getEntitiesWithinRadius(point.position, listenRadius).forEach((entity) => {
         this.addListener(entity);
       });
-    })
+    });
 
     // Add any additional listeners specified by the action
-    this.additionalListeners.map(listener => this.addListener(listener));
+    this.additionalListeners.map((listener) => this.addListener(listener));
   }
 
-  permit({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
+  permit({
+    priority = 0,
+    by,
+    using,
+    message
+  }: {
+    priority?: number;
+    by?: Entity | Component;
+    using?: Entity | Component;
+    message?: string;
+  } = {}) {
     this.addPermission(true, { priority, by, using, message });
   }
 
-  deny({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
+  deny({
+    priority = 0,
+    by,
+    using,
+    message
+  }: {
+    priority?: number;
+    by?: Entity | Component;
+    using?: Entity | Component;
+    message?: string;
+  } = {}) {
     this.addPermission(false, { priority, by, using, message });
   }
 
@@ -225,13 +271,25 @@ export abstract class Action implements EffectRunner<ActionEffect> {
     return this;
   }
 
-  addPermission(permitted: boolean, { priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
+  addPermission(
+    permitted: boolean,
+    {
+      priority = 0,
+      by,
+      using,
+      message
+    }: {
+      priority?: number;
+      by?: Entity | Component;
+      using?: Entity | Component;
+      message?: string;
+    } = {}
+  ) {
     const previous = this.permissions.get(priority);
     if (previous === undefined) {
       // Add directly if this has never been added
       this.permissions.set(priority, new Permission(permitted, { by, using, message }));
-    }
-    else {
+    } else {
       // Override the previous at this priority if the new one is a denial and the previous is an allowance
       if (previous.permitted && !permitted) {
         this.permissions.set(priority, new Permission(permitted, { by, using, message }));
@@ -252,7 +310,7 @@ export abstract class Action implements EffectRunner<ActionEffect> {
   }
 
   tag(tag: string) {
-    if(!this.metadata.has(tag)) {
+    if (!this.metadata.has(tag)) {
       this.metadata.set(tag, true);
     }
   }
@@ -265,8 +323,10 @@ export abstract class Action implements EffectRunner<ActionEffect> {
     return this.metadata.has(tag);
   }
 
-  sense(entity: Entity, information: SensoryInformation | boolean) {
-    
+  sense(entity: Entity, information: SensoryInformation | boolean) {}
+
+  static immediate(action: Action): Immediate {
+    return ['IMMEDIATE', action];
   }
 
   react(action: Action): Immediate {
@@ -274,7 +334,7 @@ export abstract class Action implements EffectRunner<ActionEffect> {
   }
 
   followup(item: Action | Event): Followup {
-    return ['FOLLOWUP', item]
+    return ['FOLLOWUP', item];
   }
 
   static serializedHasRequiredFields(json: any, additional: string[]): boolean {
@@ -304,7 +364,7 @@ export abstract class Action implements EffectRunner<ActionEffect> {
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
     return true; // SCOPE
-  };
+  }
 
   // Get the relevant entity, by default the target but some actions apply to an entity that is not the target
   getEntity(): Entity | undefined {
@@ -330,34 +390,34 @@ export abstract class Action implements EffectRunner<ActionEffect> {
       }
       this.generatedMessage = this.terminalMessage;
     }
-  };
+  }
 
-  initialize(): void { };
-  teardown(): void { };
+  initialize(): void {}
+  teardown(): void {}
 }
 
 // tslint:disable-next-line: no-namespace
 export namespace Action {
   export interface Serialized {
-    caster?: string,
-    target?: string,
-    using?: string,
-    metadata?: {[key: string]: string | number | boolean | undefined}
-    permitted: boolean,
-    actionType: ActionType
+    caster?: string;
+    target?: string;
+    using?: string;
+    metadata?: { [key: string]: string | number | boolean | undefined };
+    permitted: boolean;
+    actionType: ActionType;
   }
 
   export interface Deserialized {
-    caster?: Entity,
-    target?: Entity,
-    using?: Entity,
-    metadata?: {[key: string]: string | number | boolean | undefined}
-    permitted: boolean
+    caster?: Entity;
+    target?: Entity;
+    using?: Entity;
+    metadata?: { [key: string]: string | number | boolean | undefined };
+    permitted: boolean;
   }
 }
 
 export interface ActionParameters {
-  caster?: Entity,
-  using?: Entity | Component,
-  metadata?: {[key: string]: string | number | boolean | undefined}
+  caster?: Entity;
+  using?: Entity | Component;
+  metadata?: { [key: string]: string | number | boolean | undefined };
 }

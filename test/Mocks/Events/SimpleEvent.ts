@@ -1,15 +1,19 @@
-import { Action, Event} from '../../../src/internal.js';
+import {
+  Action,
+  ActionEffect,
+  ActionEffectGenerator,
+  Event
+} from '../../../src/internal.js';
 
 export class SimpleEvent implements Event {
   index = 0;
 
-  constructor(private actions: Action[]) { };
+  constructor(private actions: Action[]) {}
 
-  getNextAction(previousAction?: Action): Action | undefined {
-    if (this.actions.length > this.index) {
-      return this.actions[this.index++];
-    } else {
-      return undefined;
+  *run(): ActionEffectGenerator {
+    for (const action of this.actions) {
+      yield Action.immediate(action);
     }
+    return true;
   }
 }

@@ -1,16 +1,24 @@
-import { Entity, Ability, OptionalCastParameters, Event } from '../../../src/internal.js';
+import {
+  Entity,
+  Ability,
+  OptionalCastParameters,
+  Event
+} from '../../../src/internal.js';
 
 import { SimpleEvent } from '../Events/SimpleEvent.js';
 
 export class Heal extends Ability {
-  name = "Heal";
+  name = 'Heal';
 
-  cast(caster: Entity, { using, target, params }: OptionalCastParameters = {}): Event | undefined {
-    if(!target) {
+  cast(
+    caster: Entity,
+    { using, target, params }: OptionalCastParameters = {}
+  ): Event | undefined {
+    if (!target) {
       return undefined;
     }
-    const hpValue = target.properties.get("HP");
-    if(!hpValue) {
+    const hpValue = target.properties.get('HP');
+    if (!hpValue) {
       return undefined;
     }
     // TODO check line-of-sight
@@ -18,13 +26,10 @@ export class Heal extends Ability {
     // default to casting on self
     target = target && target instanceof Entity ? target : caster;
     const event = new SimpleEvent([
-      hpValue.current.adjust({amount, caster, metadata: { heals: true } })
+      hpValue.current.adjust({ amount, caster, metadata: { heals: true } })
     ]);
     return event;
   }
-  
-  _move() {
 
-  }
-
+  _move() {}
 }

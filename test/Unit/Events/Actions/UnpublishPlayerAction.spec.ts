@@ -14,7 +14,7 @@ describe('UnpublishPlayerAction', () => {
 
   it('Unpublishes the player', () => {
     const a = new UnpublishPlayerAction({ player });
-    a.apply();
+    a.apply().next();
     expect(player.published).to.be.false;
   });
 
@@ -25,11 +25,14 @@ describe('UnpublishPlayerAction', () => {
   });
 
   it('Can deserialize from proper json', () => {
-    const json: UnpublishPlayerAction.Serialized = { player: player.id, permitted: true, actionType: ActionType.UNPUBLISH_ENTITY_ACTION };
+    const json: UnpublishPlayerAction.Serialized = {
+      player: player.id,
+      permitted: true,
+      actionType: ActionType.UNPUBLISH_ENTITY_ACTION
+    };
     const a = UnpublishPlayerAction.deserialize(json);
     expect(a instanceof UnpublishPlayerAction).to.be.true;
     expect(a.player.id).to.equal(player.id);
     expect(a.permitted).to.be.true;
   });
-
 });
