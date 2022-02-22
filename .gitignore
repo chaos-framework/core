@@ -1,6 +1,5 @@
 node_modules
 /lib
 .scratchpad
-.vscode
 /coverage
 .DS_Store

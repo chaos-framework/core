@@ -137,6 +137,7 @@ export abstract class Action implements ActionEffectRunner {
       let res = generator.next();
       while (!res.done) {
         yield res.value;
+        res = generator.next();
       }
       this.applied = res.value;
     }
@@ -159,8 +160,8 @@ export abstract class Action implements ActionEffectRunner {
   }
 
   // Runs this action internally, without broadcasting to any clients. Useful for entity factories or game initialization.
-  runPrivate() {
-    processRunner(this, false);
+  async runPrivate() {
+    await processRunner(this, false);
   }
 
   addListener(listener: ComponentContainer) {
@@ -335,6 +336,10 @@ export abstract class Action implements ActionEffectRunner {
 
   followup(item: Action | Event): Followup {
     return ['FOLLOWUP', item];
+  }
+
+  effect(): Immediate {
+    return ['IMMEDIATE', this];
   }
 
   static serializedHasRequiredFields(json: any, additional: string[]): boolean {

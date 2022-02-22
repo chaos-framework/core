@@ -51,10 +51,10 @@ export class PropertyChangeAction extends Action {
 
   *apply(): ActionEffectGenerator {
     this.calculate();
-    const { target, property, type, finalAmount } = this;
+    const { value, property, type, finalAmount, previousValue } = this;
     // Figure out which value we're adjusting (current, min, or max)
     let v: Value;
-    switch (this.value) {
+    switch (value) {
       case 'min':
         v = property.min;
         break;
@@ -65,54 +65,53 @@ export class PropertyChangeAction extends Action {
         v = property.current;
         break;
     }
-    // TODO make sure we didn't break a min/max order rule, ie trying to set max below min should totally fail action
     // Either adjust or set this number
-    const delta =
-      type === 'adjust' ? v._adjust(finalAmount) : v._set(finalAmount);
+    const delta = type === 'adjust' ? v._adjust(finalAmount) : v._set(finalAmount);
+    // Make sure the property isn't letting min get higher than max with this action
+    if (value !== 'current' && property.min.calculated > property.max.calculated) {
+      // TODO throw error?
+      v._set(previousValue);
+      return false;
+    }
     // Update threshold state if either threshold was newly crossed
     const oldMinState = property.minState;
     const newMinState = property.updateMinState();
     if (newMinState !== undefined) {
       const { caster, target, using, previousValue } = this;
-      property.getMinThresholdAction({
-        caster,
-        target,
-        using,
-        previousValue,
-        oldState: oldMinState
-      });
+      yield this.react(
+        property.getMinThresholdAction({
+          caster,
+          target,
+          using,
+          previousValue,
+          oldState: oldMinState
+        })
+      );
     }
     const oldMaxState = property.maxState;
     const newMaxState = property.updateMaxState();
     if (newMaxState !== undefined) {
       const { caster, target, using, previousValue } = this;
-      property.getMaxThresholdAction({
-        caster,
-        target,
-        using,
-        previousValue,
-        oldState: oldMaxState
-      });
+      yield this.react(
+        property.getMaxThresholdAction({
+          caster,
+          target,
+          using,
+          previousValue,
+          oldState: oldMaxState
+        })
+      );
     }
     return true;
   }
 
   calculate(): number {
-    this.adjustments.map(
-      (adjustment) => (this.finalAmount += adjustment.amount)
-    );
-    this.multipliers.map(
-      (multiplier) => (this.finalAmount *= multiplier.amount)
-    );
+    this.adjustments.map((adjustment) => (this.finalAmount += adjustment.amount));
+    this.multipliers.map((multiplier) => (this.finalAmount *= multiplier.amount));
     return this.finalAmount;
   }
 
-  adjust(
-    amount: number,
-    by?: Entity | Component,
-    breadcrumbs?: string[],
-    unique?: boolean
-  ) {
+  adjust(amount: number, by?: Entity | Component, breadcrumbs?: string[], unique?: boolean) {
     // TODO this logic should be lifted up into Action itself
     if (breadcrumbs) {
       // If unique, make sure we haven't already applied an adjustment with any of these tags
@@ -124,12 +123,7 @@ export class PropertyChangeAction extends Action {
     this.adjustments.push({ amount, by });
   }
 
-  multiply(
-    amount: number,
-    by?: Entity | Component,
-    breadcrumbs?: string[],
-    unique?: boolean
-  ) {
+  multiply(amount: number, by?: Entity | Component, breadcrumbs?: string[], unique?: boolean) {
     if (breadcrumbs) {
       // If unique, make sure we haven't already applied an adjustment with any of these tags
       if (unique && breadcrumbs.some((r) => this.breadcrumbs.has(r))) {

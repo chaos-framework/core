@@ -12,7 +12,10 @@ import {
   ActionEffectRunner
 } from '../internal.js';
 
-export async function processRunner(item: ActionEffectRunner, broadcast = false) {
+export async function processRunner(
+  item: ActionEffectRunner,
+  broadcast = false
+): Promise<Action[]> {
   const followups = new Queue<ActionEffectRunner>();
   const immediates = new Stack<[ActionEffectRunner, ActionEffectGenerator]>();
   const actionsThisProcess: Action[] = [];
@@ -65,6 +68,7 @@ export async function processRunner(item: ActionEffectRunner, broadcast = false)
   if (broadcast === true) {
     broadcastToExecutionHooks(actionsThisProcess);
   }
+  return actionsThisProcess;
 }
 
 function broadcastToActionHooks(action: Action) {
