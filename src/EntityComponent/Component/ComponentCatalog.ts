@@ -7,7 +7,8 @@ import {
   Scope,
   World,
   Entity,
-  EffectGenerator
+  EffectGenerator,
+  ActionHandler
 } from '../../internal.js';
 
 const validSubscriptions = {
@@ -30,7 +31,7 @@ export class ComponentCatalog {
 
   // Components from other containers subscribed (listening/interacting) to this ComponentContainer
   subscribers = new Map<string, Subscription>();
-  subscriberFunctionsByPhase = new Map<string, Map<string, EffectGenerator>>();
+  subscriberFunctionsByPhase = new Map<string, Map<string, ActionHandler>>();
 
   // Things we're subscribed to, mapped out in different dimensions
   subscriptions = new Map<string, Subscription>();
@@ -68,20 +69,13 @@ export class ComponentCatalog {
   }
 
   createComponentSubscriptions(component: Component) {
-    for (const phase of Chaos.getPhases()) {
-      if (typeof phase === 'string') {
-        let fn = (component as any)[phase];
-        if (isActionFunction(fn)) {
-          fn = fn.bind(component);
-          const scope = component.scope[phase];
-          if (
-            scope !== undefined &&
-            validSubscriptions[this.parentScope].includes(scope) &&
-            this.parent.isPublished()
-          ) {
-            this.subscribeToOther(component, phase, fn, scope);
+    for (const [scope, phases] of Object.entries(component.actionHandlers)) {
+      for (const [phase, handlers] of Object.entries(phases)) {
+        for (const handler of handlers) {
+          if (validSubscriptions[this.parentScope].includes(scope) && this.parent.isPublished()) {
+            this.subscribeToOther(component, phase, handler, scope as Scope);
           } else {
-            this.attach(new Subscription(component, this, this, phase, fn, this.parentScope));
+            this.attach(new Subscription(component, this, this, phase, handler, this.parentScope));
           }
         }
       }
@@ -127,7 +121,7 @@ export class ComponentCatalog {
     // Attach by type, ie modifier or reacter
     const map = this.subscriberFunctionsByPhase.get(phase);
     if (map === undefined) {
-      const newMap = new Map<string, EffectGenerator>();
+      const newMap = new Map<string, ActionHandler>();
       newMap.set(subscription.component.id, subscription.fn);
       this.subscriberFunctionsByPhase.set(phase, newMap);
     } else {
@@ -174,7 +168,7 @@ export class ComponentCatalog {
 
   clearSubscriptions() {
     this.subscribers = new Map<string, Subscription>();
-    this.subscriberFunctionsByPhase = new Map<string, Map<string, EffectGenerator>>();
+    this.subscriberFunctionsByPhase = new Map<string, Map<string, ActionHandler>>();
   }
 
   // Delete all components and terminate all incoming / outgoing subscriptions
@@ -201,7 +195,7 @@ export class ComponentCatalog {
   }
 
   // Subscribe one of these components to another catalog
-  private subscribeToOther(component: Component, phase: string, fn: EffectGenerator, scope: Scope) {
+  private subscribeToOther(component: Component, phase: string, fn: ActionHandler, scope: Scope) {
     // Defer to parent to decide which ComponentContainer fits the relative scope
     const target = this.parent.getComponentContainerByScope(scope);
     if (target !== undefined) {

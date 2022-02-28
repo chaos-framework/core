@@ -1,22 +1,32 @@
-import { Component, Action, Entity, 
-  Scope, NestedMap, LogicalAction, CachesSensedEntities } from '../../../src/internal.js';
+import {
+  Component,
+  Action,
+  Entity,
+  Scope,
+  NestedMap,
+  LogicalAction,
+  CachesSensedEntities,
+  ActionHandler,
+  EffectGenerator,
+  MoveAction
+} from '../../../src/internal.js';
 
 // tslint:disable: max-classes-per-file
 export class EmptyComponent extends Component {
   unique = false;
 
-  constructor({ name }: { name?: string } = { }) {
+  constructor({ name }: { name?: string } = {}) {
     super({ name });
   }
 }
 
 /*
-*  SENSORS
-*/
+ *  SENSORS
+ */
 
 export class SensesAll extends Component implements CachesSensedEntities {
   sensedEntities: NestedMap<Entity>;
-  constructor(){
+  constructor() {
     super();
     this.sensedEntities = new NestedMap<Entity>(this.id, 'component');
   }
@@ -27,52 +37,57 @@ export class SensesAll extends Component implements CachesSensedEntities {
 }
 
 /*
-*   SCOPE TESTS
-*/
+ *   SCOPE TESTS
+ */
 
-export class NoScopeSpecified extends Component {
-  name = "Component that has all types of listeners at default scopes";
-
-  sense(action: Action): boolean {
-    return true;
-  }
-
-  modify(a: Action) {
-
-  }
-
-  react(a: Action) {
-    
-  }
+function* emptyActionHandler(action: Action): EffectGenerator {
+  yield action.react(action);
+  return false;
 }
 
-export class EntityScopeSpecified extends NoScopeSpecified {
-  scope: { [key: string]: Scope } = {
-    'sense': 'entity',
-    'modify': 'entity',
-    'react': 'entity'
-  }
+export class DefaultScopeSpecified extends Component {
+  actionHandlers = {
+    default: {
+      sense: [emptyActionHandler.bind(this)],
+      modify: [emptyActionHandler.bind(this)],
+      react: [emptyActionHandler.bind(this)]
+    }
+  };
 }
 
-export class WorldScopeSpecified extends NoScopeSpecified {
-  scope: { [key: string]: Scope } = {
-    'sense': 'world',
-    'modify': 'world',
-    'react': 'world'
-  }
+export class EntityScopeSpecified extends Component {
+  actionHandlers = {
+    entity: {
+      sense: [emptyActionHandler.bind(this)],
+      modify: [emptyActionHandler.bind(this)],
+      react: [emptyActionHandler.bind(this)]
+    }
+  };
 }
 
-export class GameScopeSpecified extends NoScopeSpecified {
-  scope: { [key: string]: Scope } = {
-    'sense': 'game',
-    'modify': 'game',
-    'react': 'game'
-  }
+export class WorldScopeSpecified extends Component {
+  actionHandlers = {
+    world: {
+      sense: [emptyActionHandler.bind(this)],
+      modify: [emptyActionHandler.bind(this)],
+      react: [emptyActionHandler.bind(this)]
+    }
+  };
+}
+
+export class GameScopeSpecified extends Component {
+  actionHandlers = {
+    game: {
+      sense: [emptyActionHandler.bind(this)],
+      modify: [emptyActionHandler.bind(this)],
+      react: [emptyActionHandler.bind(this)]
+    }
+  };
 }
 
 /*
-*   EVENT TESTS
-*/
+ *   EVENT TESTS
+ */
 
 export class CancelsSpecificCustomAction extends Component {
   constructor(public nameToCancel: string) {
@@ -80,7 +95,7 @@ export class CancelsSpecificCustomAction extends Component {
   }
 
   modify(action: Action) {
-    if(action instanceof LogicalAction && action.name === this.nameToCancel) {
+    if (action instanceof LogicalAction && action.name === this.nameToCancel) {
       action.deny({ priority: Number.MAX_VALUE, by: this });
     }
   }

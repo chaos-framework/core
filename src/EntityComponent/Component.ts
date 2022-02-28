@@ -1,14 +1,18 @@
 import { v4 as uuid } from 'uuid';
 import {
-  ComponentFunctionCollection,
   ComponentContainer,
   Printable,
   Scope,
   Entity,
   AttachComponentAction,
   DetachComponentAction,
-  Chaos
+  Chaos,
+  ActionHandler
 } from '../internal.js';
+
+type ActionHandlerCollection = Partial<
+  Record<Scope | 'default', { [phase: string]: ActionHandler[] }>
+>;
 
 export abstract class Component implements Printable {
   readonly id: string;
@@ -22,8 +26,7 @@ export abstract class Component implements Printable {
   unique: boolean = true; // whether or not more of one of this type of class can be attached to an entity
   //propertyModifications: Modification[] = [];
 
-  scope: { [key: string]: Scope } = {};
-  functions!: ComponentFunctionCollection;
+  actionHandlers: ActionHandlerCollection;
 
   constructor({ id = uuid(), name = 'Unnamed Component', tags }: Component.ConstructorParams = {}) {
     this.id = id;
@@ -32,9 +35,7 @@ export abstract class Component implements Printable {
       this.tags = new Set<string>(tags);
     }
     this.data = {};
-    if (this.functions === undefined) {
-      this.functions = new ComponentFunctionCollection();
-    }
+    this.actionHandlers ??= {};
   }
 
   print(): string {

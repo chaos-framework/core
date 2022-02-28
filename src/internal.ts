@@ -1,7 +1,6 @@
 // ENTITY AND COMPONENT
 export * from './EntityComponent/Entity.js';
 export * from './EntityComponent/Component.js';
-export * from './EntityComponent/Component/ComponentFunctionCollection.js';
 export * from './EntityComponent/Component/ComponentContainer.js';
 export * from './EntityComponent/Component/ComponentCatalog.js';
 export * from './EntityComponent/Component/ComponentCatalog/Subscription.js';
