@@ -1,9 +1,13 @@
+import { Action } from '../internal.js';
+
 export type Effect = readonly [string, any];
 
-export type EffectGenerator<T extends Effect, R = any, N = any> = Generator<T, R, N>;
+export type EffectGenerator<T = Effect, R = any, N = any> = Generator<T, R, N>;
 export type EffectRunner<T extends Effect, R = any, N = any> = {
   run(): EffectGenerator<T, R, N>;
 };
+
+export type ActionHandler = (action: Action, ...params: any[]) => EffectGenerator<Effect, boolean>;
 
 export type Immediate = readonly ['IMMEDIATE', EffectRunner<ActionEffect>];
 export type Followup = readonly ['FOLLOWUP', EffectRunner<ActionEffect>];

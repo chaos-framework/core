@@ -61,10 +61,7 @@ export class Entity implements ComponentContainer, Printable {
   visibleChunks: NestedSet;
 
   // Places for items to be equipped
-  slots: Map<string, Entity | undefined> = new Map<
-    string,
-    Entity | undefined
-  >();
+  slots: Map<string, Entity | undefined> = new Map<string, Entity | undefined>();
   // TODO Inventory array -- places for items to be stored -- probably needs to be a class to store size info
 
   world?: World;
@@ -188,8 +185,6 @@ export class Entity implements ComponentContainer, Printable {
     return undefined;
   }
 
-  // Gets the first team in the teams map, no guarantee of insertion order
-  // TODO there really should only be one team, IMO, but let's keep it flexible for now
   getTeam(): Team | undefined {
     return this.team;
   }
@@ -230,11 +225,7 @@ export class Entity implements ComponentContainer, Printable {
     });
   }
 
-  _publish(
-    world: World,
-    position: Vector,
-    changes?: NestedSetChanges
-  ): boolean {
+  _publish(world: World, position: Vector, changes?: NestedSetChanges): boolean {
     if (this.published) {
       return false;
     }
@@ -349,15 +340,7 @@ export class Entity implements ComponentContainer, Printable {
   // Adding properties
 
   addProperty(
-    {
-      caster,
-      using,
-      name,
-      current,
-      min,
-      max,
-      metadata
-    }: AddPropertyAction.EntityParams,
+    { caster, using, name, current, min, max, metadata }: AddPropertyAction.EntityParams,
     force = false
   ): AddPropertyAction {
     return new AddPropertyAction({
@@ -372,12 +355,7 @@ export class Entity implements ComponentContainer, Printable {
     });
   }
 
-  _addProperty(
-    name: string,
-    current?: number,
-    min?: number,
-    max?: number
-  ): boolean {
+  _addProperty(name: string, current?: number, min?: number, max?: number): boolean {
     // Check that we don't already have this property
     if (this.properties.has(name)) {
       return false;
@@ -426,11 +404,7 @@ export class Entity implements ComponentContainer, Printable {
     });
   }
 
-  _learn(
-    ability: Ability,
-    grantedBy?: Entity | Component,
-    using?: Entity | Component
-  ): boolean {
+  _learn(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
     const { name } = ability;
     const grants = this.abilities.get(name);
     if (grants) {
@@ -444,9 +418,7 @@ export class Entity implements ComponentContainer, Printable {
         return false;
       }
     } else {
-      this.abilities.set(name, [
-        { ability, grantedBy: grantedBy?.id, using: using?.id }
-      ]);
+      this.abilities.set(name, [{ ability, grantedBy: grantedBy?.id, using: using?.id }]);
     }
     return true;
   }
@@ -466,11 +438,7 @@ export class Entity implements ComponentContainer, Printable {
     });
   }
 
-  _forget(
-    ability: Ability,
-    grantedBy?: Entity | Component,
-    using?: Entity | Component
-  ): boolean {
+  _forget(ability: Ability, grantedBy?: Entity | Component, using?: Entity | Component): boolean {
     const name = ability.name;
     let grants = this.abilities.get(name);
     if (!grants) {
@@ -518,10 +486,7 @@ export class Entity implements ComponentContainer, Printable {
 
   // Slot changes
 
-  addSlot(
-    { caster, name, metadata }: AddSlotAction.EntityParams,
-    force = false
-  ): AddSlotAction {
+  addSlot({ caster, name, metadata }: AddSlotAction.EntityParams, force = false): AddSlotAction {
     return new AddSlotAction({ caster, target: this, name, metadata });
   }
 
@@ -533,10 +498,7 @@ export class Entity implements ComponentContainer, Printable {
     return false;
   }
 
-  removeSlot(
-    { caster, name, metadata }: RemoveSlotAction.Params,
-    force = false
-  ): RemoveSlotAction {
+  removeSlot({ caster, name, metadata }: RemoveSlotAction.Params, force = false): RemoveSlotAction {
     return new RemoveSlotAction({ caster, target: this, name, metadata });
   }
 
@@ -555,12 +517,7 @@ export class Entity implements ComponentContainer, Printable {
     return new MoveAction({ caster, target: this, to, using, metadata });
   }
 
-  moveRelative({
-    caster,
-    amount,
-    using,
-    metadata
-  }: MoveAction.EntityRelativeParams): MoveAction {
+  moveRelative({ caster, amount, using, metadata }: MoveAction.EntityRelativeParams): MoveAction {
     return new MoveAction({
       caster,
       target: this,
@@ -589,36 +546,20 @@ export class Entity implements ComponentContainer, Printable {
 
   // Senses
 
-  senseEntity({
-    target,
-    using,
-    metadata
-  }: SenseEntityAction.EntityParams): SenseEntityAction {
+  senseEntity({ target, using, metadata }: SenseEntityAction.EntityParams): SenseEntityAction {
     return new SenseEntityAction({ caster: this, target, using, metadata });
   }
 
-  _senseEntity(
-    entity: Entity,
-    using: CachesSensedEntities,
-    changes?: NestedChanges
-  ) {
+  _senseEntity(entity: Entity, using: CachesSensedEntities, changes?: NestedChanges) {
     using.sensedEntities.add(entity.id, entity, undefined, changes);
     return true;
   }
 
-  loseEntity({
-    target,
-    using,
-    metadata
-  }: SenseEntityAction.EntityParams): SenseEntityAction {
+  loseEntity({ target, using, metadata }: SenseEntityAction.EntityParams): SenseEntityAction {
     return new SenseEntityAction({ caster: this, target, using, metadata });
   }
 
-  _loseEntity(
-    entity: Entity,
-    from: CachesSensedEntities,
-    changes?: NestedChanges
-  ): boolean {
+  _loseEntity(entity: Entity, from: CachesSensedEntities, changes?: NestedChanges): boolean {
     from.sensedEntities.remove(entity.id, 'undefined', changes);
     return true;
   }
@@ -646,11 +587,7 @@ export class Entity implements ComponentContainer, Printable {
     });
   }
 
-  _changeWorlds(
-    to: World,
-    position: Vector,
-    changes = new NestedSetChanges()
-  ): boolean {
+  _changeWorlds(to: World, position: Vector, changes = new NestedSetChanges()): boolean {
     if (!to.isInBounds(position)) {
       return false;
     }
@@ -757,9 +694,7 @@ export namespace Entity {
     throw new Error('Not yet implemented.');
   }
 
-  export function DeserializeAsClient(
-    json: Entity.SerializedForClient
-  ): Entity {
+  export function DeserializeAsClient(json: Entity.SerializedForClient): Entity {
     try {
       const {
         id,
