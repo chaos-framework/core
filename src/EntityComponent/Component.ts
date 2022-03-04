@@ -7,7 +7,8 @@ import {
   AttachComponentAction,
   DetachComponentAction,
   Chaos,
-  ActionHandler
+  ActionHandler,
+  Action
 } from '../internal.js';
 
 type ActionHandlerCollection = Partial<
