@@ -19,12 +19,14 @@ import {
   NestedSetChanges,
   Followup,
   processRunner,
-  ActionEffectRunner,
-  Immediate
+  Effect,
+  EffectGenerator,
+  EffectRunner,
+  Immediate,
+  ActionEffectKey
 } from '../internal.js';
-import {} from './Effect.js';
 
-export abstract class Action implements ActionEffectRunner {
+export abstract class Action implements EffectRunner {
   actionType: ActionType = ActionType.INVALID;
   broadcastType: BroadcastType = BroadcastType.FULL;
 
@@ -68,7 +70,10 @@ export abstract class Action implements ActionEffectRunner {
 
   followups: (Action | Event)[] = [];
   reactions: (Action | Event)[] = [];
-  inReactionTo?: Action;
+  previous?: {
+    action: Action;
+    effectType: ActionEffectKey;
+  };
 
   // Function to run to check if the action is still feasible after any modifiers / counters etc
   feasabilityCallback?: (a?: Action) => boolean;
@@ -103,7 +108,7 @@ export abstract class Action implements ActionEffectRunner {
     return this;
   }
 
-  *run(force: boolean = false): Generator<ActionEffect, boolean> {
+  *run(force: boolean = false): EffectGenerator {
     this.initialize();
 
     // Get listeners (nearby entities, worlds, systems, etc)
@@ -162,6 +167,35 @@ export abstract class Action implements ActionEffectRunner {
   // Runs this action internally, without broadcasting to any clients. Useful for entity factories or game initialization.
   async runPrivate() {
     await processRunner(this, false);
+  }
+
+  // Runs processEffect on all yielded results of this action
+  *process(): EffectGenerator {
+    const generator = this.apply();
+    let next = generator.next();
+    // Handle
+    while (next.done === false) {
+      const effect = next.value;
+      const result = this.processEffect(effect);
+      next = generator.next();
+    }
+  }
+
+  /**
+   * Logic for effect handling within actions. Handles permission effects by default, but can be
+   * overriden for custom action-specific effects. Just make sure to return `super(effect)` at the end
+   * if the override doesn't actually handle the effect passed in.
+   */
+  processEffect(effect: Effect): Effect | undefined {
+    const [effectType] = effect;
+    switch (effectType) {
+      case 'PERMIT':
+        break;
+      case 'DENY':
+        break;
+      default:
+        return undefined;
+    }
   }
 
   addListener(listener: ComponentContainer) {
@@ -331,10 +365,18 @@ export abstract class Action implements ActionEffectRunner {
   }
 
   react(action: Action): Immediate {
+    action.previous = {
+      action: this,
+      effectType: 'IMMEDIATE'
+    };
     return ['IMMEDIATE', action];
   }
 
   followup(item: Action | Event): Followup {
+    item.previous = {
+      action: this,
+      effectType: 'FOLLOWUP'
+    };
     return ['FOLLOWUP', item];
   }
 
@@ -365,7 +407,7 @@ export abstract class Action implements ActionEffectRunner {
     return { caster, target, using, metadata, permitted };
   }
 
-  abstract apply(): Generator<ActionEffect, boolean>;
+  abstract apply(): Generator<Effect, boolean>;
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
     return true; // SCOPE

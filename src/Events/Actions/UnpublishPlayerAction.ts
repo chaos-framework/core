@@ -1,10 +1,4 @@
-import {
-  Action,
-  Chaos,
-  ActionType,
-  Player,
-  ActionEffectGenerator
-} from '../../internal.js';
+import { Action, Chaos, ActionType, Player, ActionEffectGenerator } from '../../internal.js';
 
 export class UnpublishPlayerAction extends Action {
   actionType = ActionType.UNPUBLISH_PLAYER_ACTION;
@@ -17,7 +11,7 @@ export class UnpublishPlayerAction extends Action {
   }
 
   *apply(): ActionEffectGenerator {
-    return this.player._unpublish();
+    return this.player._unpublish() || false;
   }
 
   serialize() {
@@ -27,9 +21,7 @@ export class UnpublishPlayerAction extends Action {
     };
   }
 
-  static deserialize(
-    json: UnpublishPlayerAction.Serialized
-  ): UnpublishPlayerAction {
+  static deserialize(json: UnpublishPlayerAction.Serialized): UnpublishPlayerAction {
     const common = Action.deserializeCommonFields(json);
     const player = Chaos.players.get(json.player);
     if (player === undefined) {

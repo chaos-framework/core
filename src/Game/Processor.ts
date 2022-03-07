@@ -8,19 +8,16 @@ import {
   Team,
   Viewer,
   UnpublishEntityAction,
-  ActionEffectGenerator,
-  ActionEffectRunner
+  EffectRunner,
+  ActionEffectGenerator
 } from '../internal.js';
 
-export async function processRunner(
-  item: ActionEffectRunner,
-  broadcast = false
-): Promise<Action[]> {
-  const followups = new Queue<ActionEffectRunner>();
-  const immediates = new Stack<[ActionEffectRunner, ActionEffectGenerator]>();
+export async function processRunner(item: EffectRunner, broadcast = false): Promise<Action[]> {
+  const followups = new Queue<EffectRunner>();
+  const immediates = new Stack<[EffectRunner, ActionEffectGenerator]>();
   const actionsThisProcess: Action[] = [];
-  let currentActionOrEvent: ActionEffectRunner = item;
-  let currentGenerator: ActionEffectGenerator | undefined = item.run();
+  let currentActionOrEvent: EffectRunner = item;
+  let currentGenerator: ActionEffectGenerator = item.run() as ActionEffectGenerator;
   while (currentActionOrEvent !== undefined) {
     let next = currentGenerator.next();
     // Handle whatever effect
@@ -32,7 +29,7 @@ export async function processRunner(
           // TODO check for length of reactions stack and ignore if too deep?
           immediates.push([currentActionOrEvent, currentGenerator]);
           currentActionOrEvent = actionOrEvent;
-          currentGenerator = actionOrEvent.run();
+          currentGenerator = actionOrEvent.run() as ActionEffectGenerator;
           break;
         case 'FOLLOWUP':
           followups.enqueue(effect[1]);
@@ -54,20 +51,22 @@ export async function processRunner(
       actionsThisProcess.push(currentActionOrEvent);
       if (broadcast === true) {
         broadcastToActionHooks(currentActionOrEvent);
-        // TODO queue for broadcast
+        queueForBroadcast(currentActionOrEvent);
       }
     }
+    // TODO tie queue of actions together here -- in other words let each action know what it actually followed
     // Pop last generator-in-progress OR next followup's generator
     if (immediates.length > 0) {
       [currentActionOrEvent, currentGenerator] = immediates.pop();
     } else {
       currentActionOrEvent = followups.dequeue();
-      currentGenerator = currentActionOrEvent?.run();
+      currentGenerator = currentActionOrEvent?.run() as ActionEffectGenerator;
     }
   }
   if (broadcast === true) {
     broadcastToExecutionHooks(actionsThisProcess);
   }
+  sendData();
   return actionsThisProcess;
 }
 
@@ -130,11 +129,11 @@ function queueForBroadcast(action: Action, to?: Player | Team) {
           player.queueForBroadcast(action);
           const oldChunks = action.chunkVisibilityChanges?.removed['player']?.[player.id];
           if (oldChunks !== undefined) {
-            publishChunks(oldChunks, player);
+            unpublishChunks(oldChunks, player);
           }
           const oldEntities = action.entityVisibilityChanges?.removed['player']?.[player.id];
           if (oldEntities !== undefined) {
-            publishEntities(oldEntities, player);
+            unpublishEntities(oldEntities, player);
           }
         }
       }
@@ -176,44 +175,3 @@ function sendData() {
     player.broadcast();
   }
 }
-
-// export class ActionProcessor {
-//   queue = new Queue<EffectGenerator<any>>();
-//   actionsThisProcess: Action[] = [];
-//   processing = false;
-
-//   constructor(private broadcasts: boolean = true) { }
-
-//   enqueue(item: Action | Event) {
-//     this.queue.enqueue(item);
-//   }
-
-//   reset() {
-//     this.queue.reset();
-//   }
-
-// process(action?: Action) {
-//   if (this.processing === true) {
-//     // Reactions fire on their own before the original finishes, so we have to make sure to let hooks see it
-//     if (action?.inReactionTo !== undefined) {
-//       this.actionsThisProcess.push(action);
-//       this.broadcastToActionHooks(action);
-//     }
-//     return;
-//   }
-//   this.processing = true;
-//   let nextAction = this.queue.getNextAction();
-//   while(nextAction !== undefined) {
-//     this.actionsThisProcess.push(nextAction);
-//     nextAction.execute();
-//     this.broadcastToActionHooks(nextAction);
-//     nextAction = this.queue.getNextAction();
-//   }
-//   if (this.actionsThisProcess.length > 0) {
-//     this.broadcastToExecutionHooks();
-//   }
-//   this.sendData(); // TODO make this conditional on server role?
-//   this.actionsThisProcess = [];
-//   this.processing = false;
-// }
-// }
