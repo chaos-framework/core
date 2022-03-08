@@ -8,7 +8,7 @@ import {
   BroadcastType,
   Viewer,
   NestedSetChanges,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class MoveAction extends Action {
@@ -28,13 +28,11 @@ export class MoveAction extends Action {
     this.to = to;
     // Let the abstract impl of execute know to let listeners react in the space that this entity has not YET moved to
     if (this.target.world !== undefined) {
-      this.additionalListenPoints = [
-        { world: this.target.world, position: to }
-      ];
+      this.additionalListenPoints = [{ world: this.target.world, position: to }];
     }
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.target._move(this.to, this.chunkVisibilityChanges);
   }
 
@@ -68,18 +66,12 @@ export class MoveAction extends Action {
 
   // See if this is moving into a circle from outside
   movesInto(origin: Vector, radius: number): boolean {
-    return (
-      !this.from.withinRadius(origin, radius) &&
-      this.to.withinRadius(origin, radius)
-    );
+    return !this.from.withinRadius(origin, radius) && this.to.withinRadius(origin, radius);
   }
 
   // See if this is moving out of a circle from inside
   movesOutOf(origin: Vector, radius: number): boolean {
-    return (
-      this.from.withinRadius(origin, radius) &&
-      !this.to.withinRadius(origin, radius)
-    );
+    return this.from.withinRadius(origin, radius) && !this.to.withinRadius(origin, radius);
   }
 
   serialize(): MoveAction.Serialized {

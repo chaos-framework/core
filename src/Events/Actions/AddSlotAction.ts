@@ -4,7 +4,7 @@ import {
   Entity,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class AddSlotAction extends Action {
@@ -20,7 +20,7 @@ export class AddSlotAction extends Action {
     this.name = name;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.target._addSlot(this.name);
   }
 }

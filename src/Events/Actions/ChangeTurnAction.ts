@@ -7,7 +7,7 @@ import {
   Chaos,
   Player,
   Team,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class ChangeTurnAction extends Action {
@@ -22,7 +22,7 @@ export class ChangeTurnAction extends Action {
     this.to = to;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     this.appliedAt = Date.now();
     if (Chaos.currentTurn === this.to) {
       return false;

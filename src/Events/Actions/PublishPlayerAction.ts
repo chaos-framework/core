@@ -1,10 +1,4 @@
-import {
-  Action,
-  Chaos,
-  ActionType,
-  Player,
-  ActionEffectGenerator
-} from '../../internal.js';
+import { Action, Chaos, ActionType, Player, ProcessEffectGenerator } from '../../internal.js';
 
 export class PublishPlayerAction extends Action {
   actionType = ActionType.PUBLISH_PLAYER_ACTION;
@@ -16,7 +10,7 @@ export class PublishPlayerAction extends Action {
     this.player = player;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.player._publish();
   }
 
@@ -27,9 +21,7 @@ export class PublishPlayerAction extends Action {
     };
   }
 
-  static deserialize(
-    json: PublishPlayerAction.Serialized
-  ): PublishPlayerAction {
+  static deserialize(json: PublishPlayerAction.Serialized): PublishPlayerAction {
     return new PublishPlayerAction({
       player: Player.DeserializeAsClient(json.player)
     });

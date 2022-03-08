@@ -13,7 +13,6 @@ import {
   Viewer,
   Vector,
   Printable,
-  ActionEffect,
   TerminalMessageFragment,
   TerminalMessage,
   NestedSetChanges,
@@ -23,7 +22,9 @@ import {
   EffectGenerator,
   EffectRunner,
   Immediate,
-  ActionEffectKey
+  ProcessEffectKey,
+  Permit,
+  Deny
 } from '../internal.js';
 
 export abstract class Action implements EffectRunner {
@@ -72,7 +73,7 @@ export abstract class Action implements EffectRunner {
   reactions: (Action | Event)[] = [];
   previous?: {
     action: Action;
-    effectType: ActionEffectKey;
+    effectType: ProcessEffectKey;
   };
 
   // Function to run to check if the action is still feasible after any modifiers / counters etc
@@ -190,8 +191,10 @@ export abstract class Action implements EffectRunner {
     const [effectType] = effect;
     switch (effectType) {
       case 'PERMIT':
+        this.addPermission(true, effect[1]);
         break;
       case 'DENY':
+        this.addPermission(false, effect[1]);
         break;
       default:
         return undefined;
@@ -273,36 +276,8 @@ export abstract class Action implements EffectRunner {
     this.additionalListeners.map((listener) => this.addListener(listener));
   }
 
-  permit({
-    priority = 0,
-    by,
-    using,
-    message
-  }: {
-    priority?: number;
-    by?: Entity | Component;
-    using?: Entity | Component;
-    message?: string;
-  } = {}) {
-    this.addPermission(true, { priority, by, using, message });
-  }
-
-  deny({
-    priority = 0,
-    by,
-    using,
-    message
-  }: {
-    priority?: number;
-    by?: Entity | Component;
-    using?: Entity | Component;
-    message?: string;
-  } = {}) {
-    this.addPermission(false, { priority, by, using, message });
-  }
-
   deniedByDefault() {
-    this.deny();
+    this.addPermission(false);
     return this;
   }
 
@@ -380,7 +355,15 @@ export abstract class Action implements EffectRunner {
     return ['FOLLOWUP', item];
   }
 
-  effect(): Immediate {
+  permit(priority: number, args: Omit<Permit[1], 'priority'>): Permit {
+    return ['PERMIT', { ...args, priority }];
+  }
+
+  deny(priority: number, args: Omit<Permit[1], 'priority'>): Deny {
+    return ['DENY', { ...args, priority }];
+  }
+
+  asEffect(): Immediate {
     return ['IMMEDIATE', this];
   }
 

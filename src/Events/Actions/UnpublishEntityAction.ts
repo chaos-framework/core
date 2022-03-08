@@ -6,7 +6,7 @@ import {
   ActionType,
   BroadcastType,
   NestedSetChanges,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class UnpublishEntityAction extends Action {
@@ -19,26 +19,18 @@ export class UnpublishEntityAction extends Action {
 
   chunkVisibilityChanges = new NestedSetChanges();
 
-  constructor({
-    caster,
-    target,
-    entity,
-    using,
-    metadata
-  }: UnpublishEntityAction.Params) {
+  constructor({ caster, target, entity, using, metadata }: UnpublishEntityAction.Params) {
     super({ caster, using, metadata });
     this.entity = entity;
     this.target = target;
     // Let the abstract impl of execute know to let listeners react around the entity itself
     if (entity.world !== undefined) {
-      this.additionalListenPoints = [
-        { world: entity.world, position: entity.position }
-      ];
+      this.additionalListenPoints = [{ world: entity.world, position: entity.position }];
     }
     this.additionalListeners = [entity];
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.entity._unpublish(this.chunkVisibilityChanges);
   }
 
@@ -53,9 +45,7 @@ export class UnpublishEntityAction extends Action {
     };
   }
 
-  static deserialize(
-    json: UnpublishEntityAction.Serialized
-  ): UnpublishEntityAction {
+  static deserialize(json: UnpublishEntityAction.Serialized): UnpublishEntityAction {
     // Deserialize common fields
     const common = Action.deserializeCommonFields(json);
     // Deserialize unique fields

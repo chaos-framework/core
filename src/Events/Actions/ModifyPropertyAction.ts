@@ -11,7 +11,7 @@ import {
   MultiplierModification,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class ModifyPropertyAction extends Action {
@@ -41,7 +41,7 @@ export class ModifyPropertyAction extends Action {
     this.amount = amount;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     const { target, value: type, propertyName: name, method, amount } = this;
     const property = target?.properties.get(name);
     // See if we have this property

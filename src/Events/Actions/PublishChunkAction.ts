@@ -7,7 +7,7 @@ import {
   World,
   Vector,
   Chaos,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class PublishChunkAction extends Action {
@@ -19,19 +19,13 @@ export class PublishChunkAction extends Action {
 
   data?: any;
 
-  constructor({
-    caster,
-    world,
-    position,
-    using,
-    metadata
-  }: PublishChunkAction.Params) {
+  constructor({ caster, world, position, using, metadata }: PublishChunkAction.Params) {
     super({ caster, using, metadata });
     this.world = world;
     this.position = position;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return true;
   }
 
@@ -48,9 +42,7 @@ export class PublishChunkAction extends Action {
   static deserializeAsClient(json: PublishChunkAction.SerializedForClient) {
     const world = Chaos.getWorld(json.worldId);
     if (world === undefined) {
-      throw new Error(
-        `Could not find world ID ${json.worldId} when publishing chunk.`
-      );
+      throw new Error(`Could not find world ID ${json.worldId} when publishing chunk.`);
     }
     const position = Vector.fromIndexString(json.position);
     if (!world.hasChunk(position.x, position.y)) {

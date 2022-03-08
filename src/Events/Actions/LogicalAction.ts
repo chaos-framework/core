@@ -4,7 +4,7 @@ import {
   ActionParameters,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class LogicalAction extends Action {
@@ -22,7 +22,7 @@ export class LogicalAction extends Action {
     this.target = target;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return true;
   }
 }

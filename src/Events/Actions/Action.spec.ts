@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Action, ActionEffectGenerator } from '../../../src/internal.js';
+import { Action, ProcessEffectGenerator } from '../../../src/internal.js';
 
 // Fake concrete implementation
 class TestAction extends Action {
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return true;
   }
 }
@@ -31,27 +31,27 @@ describe('Action Abstract Functionality', () => {
     });
 
     it('Allows for denial', () => {
-      a.deny();
+      a.addPermission(false);
       a.decidePermission();
       expect(a.permitted).to.be.false;
     });
 
     it('Accepts highest priority permit/deny', () => {
-      a.deny({ priority: 0 });
+      a.addPermission(true, { priority: 0 });
       a.decidePermission();
       expect(a.permitted).to.be.false;
-      a.permit({ priority: 1 });
+      a.addPermission(false, { priority: 1 });
       a.decidePermission();
       expect(a.permitted).to.be.true;
-      a.deny({ priority: 1000 });
+      a.addPermission(true, { priority: 1000 });
       a.decidePermission();
       expect(a.permitted).to.be.false;
     });
 
     it('When permitted and denied with same priority, yields to denial', () => {
-      a.permit();
-      a.deny();
-      a.permit();
+      a.addPermission(true);
+      a.addPermission(false);
+      a.addPermission(true);
       a.decidePermission();
       expect(a.permitted).to.be.false;
     });

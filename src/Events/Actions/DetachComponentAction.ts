@@ -7,7 +7,7 @@ import {
   BroadcastType,
   ComponentContainer,
   Chaos,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class DetachComponentAction extends Action {
@@ -17,19 +17,13 @@ export class DetachComponentAction extends Action {
   target: Entity;
   component: Component;
 
-  constructor({
-    caster,
-    target,
-    component,
-    using,
-    metadata
-  }: DetachComponentAction.Params) {
+  constructor({ caster, target, component, using, metadata }: DetachComponentAction.Params) {
     super({ caster, using, metadata });
     this.target = target;
     this.component = component;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     this.component.parent?.components.removeComponent(this.component);
     return true;
   }

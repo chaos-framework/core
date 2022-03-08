@@ -7,7 +7,7 @@ import {
   CachesSensedEntities,
   BroadcastType,
   NestedChanges,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class SenseEntityAction extends Action {
@@ -29,12 +29,8 @@ export class SenseEntityAction extends Action {
     this.target = target;
   }
 
-  *apply(): ActionEffectGenerator {
-    return this.caster._senseEntity(
-      this.target,
-      this.using,
-      this.entityVisibilityChanges
-    );
+  *apply(): ProcessEffectGenerator {
+    return this.caster._senseEntity(this.target, this.using, this.entityVisibilityChanges);
   }
 }
 

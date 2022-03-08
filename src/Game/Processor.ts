@@ -9,15 +9,15 @@ import {
   Viewer,
   UnpublishEntityAction,
   EffectRunner,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../internal.js';
 
 export async function processRunner(item: EffectRunner, broadcast = false): Promise<Action[]> {
   const followups = new Queue<EffectRunner>();
-  const immediates = new Stack<[EffectRunner, ActionEffectGenerator]>();
+  const immediates = new Stack<[EffectRunner, ProcessEffectGenerator]>();
   const actionsThisProcess: Action[] = [];
   let currentActionOrEvent: EffectRunner = item;
-  let currentGenerator: ActionEffectGenerator = item.run() as ActionEffectGenerator;
+  let currentGenerator: ProcessEffectGenerator = item.run() as ProcessEffectGenerator;
   while (currentActionOrEvent !== undefined) {
     let next = currentGenerator.next();
     // Handle whatever effect
@@ -29,7 +29,7 @@ export async function processRunner(item: EffectRunner, broadcast = false): Prom
           // TODO check for length of reactions stack and ignore if too deep?
           immediates.push([currentActionOrEvent, currentGenerator]);
           currentActionOrEvent = actionOrEvent;
-          currentGenerator = actionOrEvent.run() as ActionEffectGenerator;
+          currentGenerator = actionOrEvent.run() as ProcessEffectGenerator;
           break;
         case 'FOLLOWUP':
           followups.enqueue(effect[1]);
@@ -60,7 +60,7 @@ export async function processRunner(item: EffectRunner, broadcast = false): Prom
       [currentActionOrEvent, currentGenerator] = immediates.pop();
     } else {
       currentActionOrEvent = followups.dequeue();
-      currentGenerator = currentActionOrEvent?.run() as ActionEffectGenerator;
+      currentGenerator = currentActionOrEvent?.run() as ProcessEffectGenerator;
     }
   }
   if (broadcast === true) {

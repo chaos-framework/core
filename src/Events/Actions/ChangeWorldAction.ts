@@ -10,7 +10,7 @@ import {
   Viewer,
   NestedSet,
   NestedSetChanges,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class ChangeWorldAction extends Action {
@@ -27,15 +27,7 @@ export class ChangeWorldAction extends Action {
   temporaryViewer?: NestedSet;
   chunkVisibilityChanges = new NestedSetChanges();
 
-  constructor({
-    caster,
-    target,
-    from,
-    to,
-    position,
-    using,
-    metadata
-  }: ChangeWorldAction.Params) {
+  constructor({ caster, target, from, to, position, using, metadata }: ChangeWorldAction.Params) {
     super({ caster, using, metadata });
     this.target = target;
     this.from = from;
@@ -62,12 +54,8 @@ export class ChangeWorldAction extends Action {
     this.to.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
   }
 
-  *apply(): ActionEffectGenerator {
-    return this.target._changeWorlds(
-      this.to,
-      this.position,
-      this.chunkVisibilityChanges
-    );
+  *apply(): ProcessEffectGenerator {
+    return this.target._changeWorlds(this.to, this.position, this.chunkVisibilityChanges);
   }
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {

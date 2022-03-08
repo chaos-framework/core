@@ -96,7 +96,7 @@ export class CancelsSpecificCustomAction extends Component {
 
   modify(action: Action) {
     if (action instanceof LogicalAction && action.name === this.nameToCancel) {
-      action.deny({ priority: Number.MAX_VALUE, by: this });
+      action.addPermission(false, { priority: Number.MAX_VALUE, by: this });
     }
   }
 }

@@ -9,7 +9,7 @@ import {
   TerminalMessage,
   Property,
   ValueType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class PropertyChangeAction extends Action {
@@ -49,7 +49,7 @@ export class PropertyChangeAction extends Action {
     this.finalAmount = amount;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     this.calculate();
     const { value, property, type, finalAmount, previousValue } = this;
     // Figure out which value we're adjusting (current, min, or max)

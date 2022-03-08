@@ -4,7 +4,7 @@ import {
   TerminalMessage,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class MessageAction extends Action {
@@ -18,7 +18,7 @@ export class MessageAction extends Action {
     this.terminalMessage = message;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return true;
   }
 }

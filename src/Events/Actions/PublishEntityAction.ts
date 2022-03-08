@@ -9,7 +9,7 @@ import {
   BroadcastType,
   NestedSet,
   NestedSetChanges,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class PublishEntityAction extends Action {
@@ -54,18 +54,11 @@ export class PublishEntityAction extends Action {
 
   teardown() {
     // Unload temporary new chunks
-    this.world.removeViewer(
-      this.temporaryViewer!.id,
-      this.chunkVisibilityChanges
-    );
+    this.world.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
   }
 
-  *apply(): ActionEffectGenerator {
-    return this.entity._publish(
-      this.world,
-      this.position,
-      this.chunkVisibilityChanges
-    );
+  *apply(): ProcessEffectGenerator {
+    return this.entity._publish(this.world, this.position, this.chunkVisibilityChanges);
   }
 
   serialize(): PublishEntityAction.Serialized {
@@ -81,16 +74,12 @@ export class PublishEntityAction extends Action {
     return this.entity;
   }
 
-  static deserialize(
-    json: PublishEntityAction.Serialized
-  ): PublishEntityAction {
+  static deserialize(json: PublishEntityAction.Serialized): PublishEntityAction {
     try {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);
       // Deserialize unique fields
-      const entity: Entity | undefined = Entity.DeserializeAsClient(
-        json.entity
-      ); // lol OOPS
+      const entity: Entity | undefined = Entity.DeserializeAsClient(json.entity); // lol OOPS
       const world: World | undefined = Chaos.worlds.get(json.world);
       const position: Vector = Vector.deserialize(json.position);
       // Build the action if fields are proper, otherwise throw an error

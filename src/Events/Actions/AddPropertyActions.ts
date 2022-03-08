@@ -4,7 +4,7 @@ import {
   Entity,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class AddPropertyAction extends Action {
@@ -35,13 +35,8 @@ export class AddPropertyAction extends Action {
     this.max = max;
   }
 
-  *apply(): ActionEffectGenerator {
-    return this.target._addProperty(
-      this.name,
-      this.current,
-      this.min,
-      this.max
-    );
+  *apply(): ProcessEffectGenerator {
+    return this.target._addProperty(this.name, this.current, this.min, this.max);
   }
 }
 

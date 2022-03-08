@@ -4,7 +4,7 @@ import {
   Entity,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class EquipItemAction extends Action {
@@ -16,23 +16,16 @@ export class EquipItemAction extends Action {
   item: Entity;
   permitted = false; // assume canceled until something allows it
 
-  constructor({
-    caster,
-    target,
-    slot,
-    item,
-    using,
-    metadata
-  }: EquipItemAction.Params) {
+  constructor({ caster, target, slot, item, using, metadata }: EquipItemAction.Params) {
     super({ caster, using, metadata });
     this.target = target;
     this.slot = slot;
     this.item = item;
     // Equipping is forbidden by default, until allowed by another component
-    this.permit();
+    this.addPermission(false);
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.target._equip(this.item, this.slot);
   }
 }

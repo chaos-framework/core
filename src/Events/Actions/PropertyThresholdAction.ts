@@ -6,7 +6,7 @@ import {
   ActionType,
   BroadcastType,
   PropertyChangeAction,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class PropertyThresholdAction extends Action {
@@ -48,7 +48,7 @@ export class PropertyThresholdAction extends Action {
     this.newState = newState;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return true;
   }
 }

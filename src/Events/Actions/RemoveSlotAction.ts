@@ -4,7 +4,7 @@ import {
   Entity,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class RemoveSlotAction extends Action {
@@ -14,19 +14,13 @@ export class RemoveSlotAction extends Action {
   name: string;
   target: Entity;
 
-  constructor({
-    caster,
-    target,
-    using,
-    name,
-    metadata
-  }: RemoveSlotAction.Params) {
+  constructor({ caster, target, using, name, metadata }: RemoveSlotAction.Params) {
     super({ caster, using, metadata });
     this.target = target;
     this.name = name;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.target._removeSlot(this.name);
   }
 }

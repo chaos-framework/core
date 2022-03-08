@@ -7,13 +7,13 @@ import {
   LogicalAction,
   ActionHook,
   ExecutionHook,
-  ActionEffectGenerator,
+  ProcessEffectGenerator,
   Event,
   processRunner
 } from '../../../src/internal.js';
 
 class FollowupEvent implements Event {
-  *run(): ActionEffectGenerator {
+  *run(): ProcessEffectGenerator {
     yield Action.immediate(new LogicalAction('TEST'));
     yield Action.immediate(new LogicalAction('TEST'));
     yield Action.immediate(new LogicalAction('TEST'));

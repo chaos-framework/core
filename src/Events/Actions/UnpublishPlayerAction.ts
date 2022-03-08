@@ -1,4 +1,4 @@
-import { Action, Chaos, ActionType, Player, ActionEffectGenerator } from '../../internal.js';
+import { Action, Chaos, ActionType, Player, ProcessEffectGenerator } from '../../internal.js';
 
 export class UnpublishPlayerAction extends Action {
   actionType = ActionType.UNPUBLISH_PLAYER_ACTION;
@@ -10,7 +10,7 @@ export class UnpublishPlayerAction extends Action {
     this.player = player;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.player._unpublish() || false;
   }
 

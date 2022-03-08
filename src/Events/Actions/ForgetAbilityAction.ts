@@ -6,7 +6,7 @@ import {
   Component,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class ForgetAbilityAction extends Action {
@@ -17,21 +17,14 @@ export class ForgetAbilityAction extends Action {
   target: Entity;
   grantedBy?: Entity | Component;
 
-  constructor({
-    caster,
-    target,
-    using,
-    grantedBy,
-    ability,
-    metadata
-  }: ForgetAbilityAction.Params) {
+  constructor({ caster, target, using, grantedBy, ability, metadata }: ForgetAbilityAction.Params) {
     super({ caster, using, metadata });
     this.target = target;
     this.ability = ability;
     this.grantedBy = grantedBy;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     this.target._forget(this.ability, this.grantedBy, this.using);
     return false;
   }

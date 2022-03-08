@@ -9,7 +9,7 @@ import {
   NestedSetChanges,
   NestedSet,
   NestedChanges,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class OwnEntityAction extends Action {
@@ -21,21 +21,14 @@ export class OwnEntityAction extends Action {
   chunkVisibilityChanges = new NestedSetChanges();
   entityVisibilityChanges = new NestedChanges();
 
-  constructor({
-    caster,
-    target,
-    entity,
-    player,
-    using,
-    metadata
-  }: OwnEntityAction.Params) {
+  constructor({ caster, target, entity, player, using, metadata }: OwnEntityAction.Params) {
     super({ caster, using, metadata });
     this.target = target;
     this.player = player;
     this.entity = entity;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     if (this.player.entities.has(this.entity.id)) {
       return false; // player already owns this entity
     }
@@ -58,15 +51,11 @@ export class OwnEntityAction extends Action {
   static deserialize(json: OwnEntityAction.Serialized): OwnEntityAction {
     const player = Chaos.players.get(json.player);
     if (player === undefined) {
-      throw new Error(
-        `Player ${json.player} not found for this OwnEntityAction`
-      );
+      throw new Error(`Player ${json.player} not found for this OwnEntityAction`);
     }
     const entity = Chaos.getEntity(json.entity);
     if (entity === undefined) {
-      throw new Error(
-        `Entity ${json.entity} not found for this OwnEntityAction`
-      );
+      throw new Error(`Entity ${json.entity} not found for this OwnEntityAction`);
     }
     return new OwnEntityAction({ player, entity });
   }

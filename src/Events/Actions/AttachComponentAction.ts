@@ -5,7 +5,7 @@ import {
   Component,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class AttachComponentAction extends Action {
@@ -15,19 +15,13 @@ export class AttachComponentAction extends Action {
   target: Entity;
   component: Component;
 
-  constructor({
-    caster,
-    target,
-    component,
-    using,
-    metadata
-  }: AttachComponentAction.Params) {
+  constructor({ caster, target, component, using, metadata }: AttachComponentAction.Params) {
     super({ caster, using, metadata });
     this.target = target;
     this.component = component;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.target._attach(this.component);
   }
 

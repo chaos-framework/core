@@ -4,7 +4,7 @@ import {
   Entity,
   ActionType,
   BroadcastType,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class RemovePropertyAction extends Action {
@@ -14,19 +14,13 @@ export class RemovePropertyAction extends Action {
   target: Entity;
   name: string;
 
-  constructor({
-    caster,
-    target,
-    name,
-    using,
-    metadata
-  }: RemovePropertyAction.Params) {
+  constructor({ caster, target, name, using, metadata }: RemovePropertyAction.Params) {
     super({ caster, using, metadata });
     this.target = target;
     this.name = name;
   }
 
-  *apply(): ActionEffectGenerator {
+  *apply(): ProcessEffectGenerator {
     return this.target._removeProperty(this.name);
   }
 }

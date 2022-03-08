@@ -7,7 +7,7 @@ import {
   ActionType,
   BroadcastType,
   NestedChanges,
-  ActionEffectGenerator
+  ProcessEffectGenerator
 } from '../../internal.js';
 
 export class LoseEntityAction extends Action {
@@ -29,12 +29,8 @@ export class LoseEntityAction extends Action {
     this.target = target;
   }
 
-  *apply(): ActionEffectGenerator {
-    return this.target._loseEntity(
-      this.target,
-      this.using,
-      this.entityVisibilityChanges
-    );
+  *apply(): ProcessEffectGenerator {
+    return this.target._loseEntity(this.target, this.using, this.entityVisibilityChanges);
   }
 }
 
