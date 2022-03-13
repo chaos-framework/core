@@ -8,7 +8,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class AttachComponentAction extends Action {
+export class AttachComponentAction extends Action<Entity> {
   actionType: ActionType = ActionType.ATTACH_COMPONENT_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -52,15 +52,17 @@ export class AttachComponentAction extends Action {
 }
 
 export namespace AttachComponentAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     component: Component;
   }
 
-  export interface ComponentParams extends ActionParameters {
+  export interface ComponentParams extends ActionParameters<Entity> {
     target: Entity;
   }
 
-  export interface Params extends EntityParams, ComponentParams {}
+  export interface Params extends EntityParams {
+    target: Entity;
+  }
 
   export interface Serialized extends Action.Serialized {
     target: string;

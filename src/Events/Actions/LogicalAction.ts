@@ -4,14 +4,15 @@ import {
   ActionParameters,
   ActionType,
   BroadcastType,
-  ProcessEffectGenerator
+  ProcessEffectGenerator,
+  ComponentContainer
 } from '../../internal.js';
 
-export class LogicalAction extends Action {
+export class LogicalAction extends Action<ComponentContainer> {
   actionType: ActionType = ActionType.LOGICAL;
   broadcastType = BroadcastType.NONE;
 
-  target?: Entity;
+  target?: ComponentContainer;
 
   constructor(
     public name: string,

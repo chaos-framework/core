@@ -12,7 +12,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class PropertyChangeAction extends Action {
+export class PropertyChangeAction extends Action<Entity> {
   actionType: ActionType = ActionType.PROPERTY_CHANGE_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -163,7 +163,7 @@ export class PropertyChangeAction extends Action {
   generateMessage() {
     if (this.successVerb !== undefined) {
       this.terminalMessage = new TerminalMessage(
-        this.caster,
+        this.caster instanceof Entity ? this.caster : undefined,
         this.successVerb,
         this.target,
         '--',
@@ -176,7 +176,7 @@ export class PropertyChangeAction extends Action {
 
 // tslint:disable-next-line: no-namespace
 export namespace PropertyChangeAction {
-  export interface ValueParams extends ActionParameters {
+  export interface ValueParams extends ActionParameters<Entity> {
     amount: number;
   }
 

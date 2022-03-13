@@ -9,7 +9,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class ForgetAbilityAction extends Action {
+export class ForgetAbilityAction extends Action<Entity> {
   actionType: ActionType = ActionType.FORGET_ABILITY_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY; // TODO should only be owning players?
 
@@ -31,7 +31,7 @@ export class ForgetAbilityAction extends Action {
 }
 
 export namespace ForgetAbilityAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     ability: Ability;
     grantedBy?: Entity | Component;
   }

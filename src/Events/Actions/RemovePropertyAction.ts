@@ -7,7 +7,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class RemovePropertyAction extends Action {
+export class RemovePropertyAction extends Action<Entity> {
   actionType: ActionType = ActionType.REMOVE_PROPERTY_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -26,7 +26,7 @@ export class RemovePropertyAction extends Action {
 }
 
 export namespace RemovePropertyAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     name: string;
   }
   export interface Params extends EntityParams {

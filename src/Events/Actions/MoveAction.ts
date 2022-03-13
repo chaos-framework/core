@@ -2,7 +2,6 @@ import {
   Action,
   ActionParameters,
   Entity,
-  Chaos,
   ActionType,
   Vector,
   BroadcastType,
@@ -11,7 +10,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class MoveAction extends Action {
+export class MoveAction extends Action<Entity> {
   actionType: ActionType = ActionType.MOVE_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -108,7 +107,7 @@ export namespace MoveAction {
     target: Entity;
   }
 
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     to: Vector;
   }
 

@@ -1,29 +1,29 @@
 import { Action, Chaos, ActionType, Player, ProcessEffectGenerator } from '../../internal.js';
 
-export class PublishPlayerAction extends Action {
+export class PublishPlayerAction extends Action<Player> {
   actionType = ActionType.PUBLISH_PLAYER_ACTION;
 
-  player: Player;
+  target: Player;
 
-  constructor({ player }: PublishPlayerAction.Params) {
+  constructor({ target }: PublishPlayerAction.Params) {
     super({});
-    this.player = player;
+    this.target = target;
   }
 
   *apply(): ProcessEffectGenerator {
-    return this.player._publish();
+    return this.target._publish();
   }
 
   serialize() {
     return {
       ...super.serialize(),
-      player: this.player.serializeForClient()
+      player: this.target.serializeForClient()
     };
   }
 
   static deserialize(json: PublishPlayerAction.Serialized): PublishPlayerAction {
     return new PublishPlayerAction({
-      player: Player.DeserializeAsClient(json.player)
+      target: Player.DeserializeAsClient(json.target)
     });
   }
 }
@@ -31,10 +31,10 @@ export class PublishPlayerAction extends Action {
 // tslint:disable-next-line: no-namespace
 export namespace PublishPlayerAction {
   export interface Params {
-    player: Player;
+    target: Player;
   }
 
   export interface Serialized extends Action.Serialized {
-    player: Player.SerializedForClient;
+    target: Player.SerializedForClient;
   }
 }

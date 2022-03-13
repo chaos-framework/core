@@ -5,7 +5,6 @@ import {
   Component,
   ActionType,
   BroadcastType,
-  ComponentContainer,
   Chaos,
   ProcessEffectGenerator
 } from '../../internal.js';
@@ -65,7 +64,9 @@ export namespace DetachComponentAction {
     target: Entity;
   }
 
-  export interface Params extends EntityParams, ComponentParams {}
+  export interface Params extends EntityParams {
+    target: Entity;
+  }
 
   export interface Serialized extends Action.Serialized {
     target: string;

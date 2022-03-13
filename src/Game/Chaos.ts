@@ -29,10 +29,7 @@ let postPhases = ['react', 'output'];
 
 export const worlds: Map<string, World> = new Map<string, World>();
 export const entities: Map<string, Entity> = new Map<string, Entity>();
-export const allComponents: Map<string, Component> = new Map<
-  string,
-  Component
->();
+export const allComponents: Map<string, Component> = new Map<string, Component>();
 
 export const teams: Map<string, Team> = new Map<string, Team>();
 export const teamsByName: Map<string, Team> = new Map<string, Team>();
@@ -206,9 +203,7 @@ export function removePlayer(player: Player | string) {
   players.delete(id);
 }
 
-export function getComponentContainerByScope(
-  scope: Scope
-): ComponentContainer | undefined {
+export function getComponentContainerByScope(scope: Scope): ComponentContainer | undefined {
   return undefined;
 }
 
@@ -313,10 +308,7 @@ export interface SerializedForClient {
   entities: Entity.SerializedForClient[];
 }
 
-export function DeserializeAsClient(
-  serialized: SerializedForClient,
-  clientPlayerId: string
-) {
+export function DeserializeAsClient(serialized: SerializedForClient, clientPlayerId: string) {
   for (const team of serialized.teams) {
     const deserialized = Team.DeserializeAsClient(team);
     teams.set(deserialized.id, deserialized); // TODO addTeam

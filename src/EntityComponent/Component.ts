@@ -7,18 +7,14 @@ import {
   AttachComponentAction,
   DetachComponentAction,
   Chaos,
-  ActionHandler,
-  Action
+  ActionHandler
 } from '../internal.js';
 
-type ActionHandlerCollection = Partial<
-  Record<Scope | 'default', { [phase: string]: ActionHandler[] }>
->;
-
-export abstract class Component implements Printable {
+export abstract class Component<ParentType extends ComponentContainer = ComponentContainer>
+  implements Printable {
   readonly id: string;
   data: { [key: string]: any };
-  parent?: ComponentContainer;
+  parent?: ParentType;
   readonly name: string = '';
   description?: string;
   tags = new Set<string>(); // usually frontend stuff, like filtering for traits vs statuses, etc
@@ -27,7 +23,7 @@ export abstract class Component implements Printable {
   unique: boolean = true; // whether or not more of one of this type of class can be attached to an entity
   //propertyModifications: Modification[] = [];
 
-  actionHandlers: ActionHandlerCollection;
+  actionHandlers: Partial<Record<Scope | 'default', { [phase: string]: ActionHandler[] }>>;
 
   constructor({ id = uuid(), name = 'Unnamed Component', tags }: Component.ConstructorParams = {}) {
     this.id = id;
@@ -61,7 +57,7 @@ export abstract class Component implements Printable {
     return new AttachComponentAction({ target, caster, component: this, using, metadata });
   }
 
-  _attach(parent: ComponentContainer) {
+  _attach(parent: ParentType) {
     this.parent = parent;
     if (this.parent.isPublished()) {
       Chaos.allComponents.set(this.id, this);

@@ -9,10 +9,11 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class PropertyThresholdAction extends Action {
+export class PropertyThresholdAction extends Action<Entity> {
   actionType: ActionType = ActionType.PROPERTY_THRESHOLD_ACTION;
   broadcastType = BroadcastType.NONE;
 
+  target: Entity;
   propertyName: string;
   newValue: number;
   previousValue: number;
@@ -55,7 +56,7 @@ export class PropertyThresholdAction extends Action {
 
 // tslint:disable-next-line: no-namespace
 export namespace PropertyThresholdAction {
-  export interface Params extends ActionParameters {
+  export interface Params extends ActionParameters<Entity> {
     target: Entity;
     propertyName: string;
     newValue: number;
@@ -67,7 +68,7 @@ export namespace PropertyThresholdAction {
     newState: 'out' | 'in' | 'equals';
   }
 
-  export interface PropertyParams extends ActionParameters {
+  export interface PropertyParams extends ActionParameters<Entity> {
     target: Entity;
     previousValue: number;
     adjustmentAction?: PropertyChangeAction;

@@ -16,6 +16,7 @@ export async function processRunner(item: EffectRunner, broadcast = false): Prom
   const followups = new Queue<EffectRunner>();
   const immediates = new Stack<[EffectRunner, ProcessEffectGenerator]>();
   const actionsThisProcess: Action[] = [];
+  let actionsThisProcessAfterDelays: Action[] = [];
   let currentActionOrEvent: EffectRunner = item;
   let currentGenerator: ProcessEffectGenerator = item.run() as ProcessEffectGenerator;
   while (currentActionOrEvent !== undefined) {
@@ -35,13 +36,17 @@ export async function processRunner(item: EffectRunner, broadcast = false): Prom
           followups.enqueue(effect[1]);
           break;
         case 'DELAY':
-          // get starting time in ms
-          // broadcast
-          // delay rest
-          // await
-          // DECISION
-          // broadcast all
-          // await decision
+          const delay = effect[1];
+          const start = Date.now();
+          if (broadcast === true) {
+            broadcastToExecutionHooks(actionsThisProcessAfterDelays);
+            actionsThisProcessAfterDelays = [];
+          }
+          sendData();
+          const timePassedWhileBroadcasting = Date.now() - start;
+          if (timePassedWhileBroadcasting < delay) {
+            await setTimeout(() => {}, delay - timePassedWhileBroadcasting);
+          }
           break;
       }
       next = currentGenerator.next();
@@ -49,6 +54,7 @@ export async function processRunner(item: EffectRunner, broadcast = false): Prom
     // Track that this action was finished applying and broadcast to hooks that want to read it immediately
     if (currentActionOrEvent instanceof Action) {
       actionsThisProcess.push(currentActionOrEvent);
+      actionsThisProcessAfterDelays.push(currentActionOrEvent);
       if (broadcast === true) {
         broadcastToActionHooks(currentActionOrEvent);
         queueForBroadcast(currentActionOrEvent);
@@ -64,7 +70,7 @@ export async function processRunner(item: EffectRunner, broadcast = false): Prom
     }
   }
   if (broadcast === true) {
-    broadcastToExecutionHooks(actionsThisProcess);
+    broadcastToExecutionHooks(actionsThisProcessAfterDelays);
   }
   sendData();
   return actionsThisProcess;

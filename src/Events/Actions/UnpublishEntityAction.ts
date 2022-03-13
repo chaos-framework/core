@@ -9,39 +9,37 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class UnpublishEntityAction extends Action {
+export class UnpublishEntityAction extends Action<Entity> {
   actionType: ActionType = ActionType.UNPUBLISH_ENTITY_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
-  entity: Entity;
-  target?: Entity; // likely unused; if the unpublishing is hostile, could be cancelled by target in a meaningful way
+  target: Entity;
   movementAction = true;
 
   chunkVisibilityChanges = new NestedSetChanges();
 
-  constructor({ caster, target, entity, using, metadata }: UnpublishEntityAction.Params) {
+  constructor({ caster, target, using, metadata }: UnpublishEntityAction.Params) {
     super({ caster, using, metadata });
-    this.entity = entity;
     this.target = target;
     // Let the abstract impl of execute know to let listeners react around the entity itself
-    if (entity.world !== undefined) {
-      this.additionalListenPoints = [{ world: entity.world, position: entity.position }];
+    if (target.world !== undefined) {
+      this.additionalListenPoints = [{ world: target.world, position: target.position }];
     }
-    this.additionalListeners = [entity];
+    this.additionalListeners = [target];
   }
 
   *apply(): ProcessEffectGenerator {
-    return this.entity._unpublish(this.chunkVisibilityChanges);
+    return this.target._unpublish(this.chunkVisibilityChanges);
   }
 
   getEntity(): Entity {
-    return this.entity;
+    return this.target;
   }
 
   serialize(): UnpublishEntityAction.Serialized {
     return {
       ...super.serialize(),
-      entity: this.entity.id
+      target: this.target.id
     };
   }
 
@@ -49,25 +47,23 @@ export class UnpublishEntityAction extends Action {
     // Deserialize common fields
     const common = Action.deserializeCommonFields(json);
     // Deserialize unique fields
-    const entity = Chaos.entities.get(json.entity);
+    const target = Chaos.entities.get(json.target);
     // Build the action if fields are proper, otherwise throw an error
-    if (entity === undefined) {
+    if (target === undefined) {
       throw new Error('UnpublishEntityAction fields not correct.');
     }
-    return new UnpublishEntityAction({ ...common, entity });
+    return new UnpublishEntityAction({ ...common, target });
   }
 }
 
 export namespace UnpublishEntityAction {
-  export interface EntityParams extends ActionParameters {
-    target?: Entity;
+  export interface EntityParams extends ActionParameters<Entity> {
+    target: Entity;
   }
 
-  export interface Params extends EntityParams {
-    entity: Entity;
-  }
+  export interface Params extends EntityParams {}
 
   export interface Serialized extends Action.Serialized {
-    entity: string;
+    target: string;
   }
 }

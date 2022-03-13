@@ -10,7 +10,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class LoseEntityAction extends Action {
+export class LoseEntityAction extends Action<Entity, Entity> {
   actionType: ActionType = ActionType.LOSE_ENTITY_ACTION;
   broadcastType = BroadcastType.NONE;
 
@@ -36,7 +36,7 @@ export class LoseEntityAction extends Action {
 
 // tslint:disable-next-line: no-namespace
 export namespace LoseEntityAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity, Entity> {
     target: Entity;
     using: Component & CachesSensedEntities;
   }

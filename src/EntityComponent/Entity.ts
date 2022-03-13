@@ -97,10 +97,6 @@ export class Entity implements ComponentContainer, Printable {
     }
   }
 
-  isPublished(): boolean {
-    return this.published;
-  }
-
   print(): string {
     return this.name !== '' ? this.name : '???';
   }
@@ -639,6 +635,17 @@ export class Entity implements ComponentContainer, Printable {
     }
   }
 
+  // NARROWING
+  isPublished(): this is PublishedEntity {
+    return this.published && this.world !== undefined && this.position !== undefined;
+  }
+
+  isOnTeam(team?: Team): this is EntityOnTeam {
+    return this.team !== undefined && (team === undefined || this.team === team);
+  }
+
+  // SERIALIZATION
+
   serialize(): Entity.Serialized {
     return { id: this.id };
   }
@@ -739,3 +746,15 @@ export namespace Entity {
     }
   }
 }
+
+// NARROWED TYPES
+
+export type PublishedEntity = {
+  published: true;
+  world: World;
+  position: Vector;
+} & Entity;
+
+export type EntityOnTeam = {
+  team: Team;
+} & Entity;

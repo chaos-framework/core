@@ -7,7 +7,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class EquipItemAction extends Action {
+export class EquipItemAction extends Action<Entity> {
   actionType: ActionType = ActionType.EQUIP_ITEM_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -31,7 +31,7 @@ export class EquipItemAction extends Action {
 }
 
 export namespace EquipItemAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     slot: string;
     item: Entity;
   }

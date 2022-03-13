@@ -13,7 +13,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class ChangeWorldAction extends Action {
+export class ChangeWorldAction extends Action<Entity> {
   actionType: ActionType = ActionType.CHANGE_WORLD_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -69,7 +69,7 @@ export namespace ChangeWorldAction {
     from: World;
   }
 
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     to: World;
     position: Vector;
   }

@@ -9,7 +9,8 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class LearnAbilityAction extends Action {
+export class LearnAbilityAction extends Action<Entity> {
+  // TODO should include teams + players
   actionType: ActionType = ActionType.LEARN_ABILITY_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY; // TODO only broadcast to owners?
 
@@ -30,7 +31,7 @@ export class LearnAbilityAction extends Action {
 }
 
 export namespace LearnAbilityAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     ability: Ability;
     grantedBy?: Entity | Component;
   }

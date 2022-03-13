@@ -24,10 +24,14 @@ import {
   Immediate,
   ProcessEffectKey,
   Permit,
-  Deny
+  Deny,
+  Delay
 } from '../internal.js';
 
-export abstract class Action implements EffectRunner {
+export abstract class Action<
+  TargetType extends ComponentContainer = ComponentContainer,
+  CasterType extends ComponentContainer = ComponentContainer
+> implements EffectRunner {
   actionType: ActionType = ActionType.INVALID;
   broadcastType: BroadcastType = BroadcastType.FULL;
 
@@ -35,9 +39,9 @@ export abstract class Action implements EffectRunner {
   generatedMessage?: TerminalMessage;
   verb?: string;
 
-  caster?: Entity;
-  target?: Entity;
-  using?: Entity | Component;
+  caster?: CasterType;
+  target?: TargetType;
+  using?: Entity | Component<ComponentContainer>;
 
   metadata = new Map<string, string | number | boolean | undefined>();
   breadcrumbs: Set<string> = new Set<string>();
@@ -81,8 +85,9 @@ export abstract class Action implements EffectRunner {
 
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
-  constructor({ caster, using, metadata }: ActionParameters = {}) {
+  constructor({ caster, target, using, metadata }: ActionParameters<TargetType, CasterType> = {}) {
     this.caster = caster;
+    this.target = target;
     this.using = using;
     this.permissions.set(0, new Permission(true));
     // tslint:disable-next-line: forin
@@ -92,14 +97,14 @@ export abstract class Action implements EffectRunner {
   }
 
   // Upon execution this action will apply itself and broadcast -- no phases called
-  direct(): Action {
+  direct(): Action<TargetType, CasterType> {
     this.skipPrePhases = true;
     this.skipPostPhases = true;
     return this;
   }
 
   // Set the optional callback to see if the action is still possible
-  if(callback: (a?: Action) => boolean): Action {
+  if(callback: (a?: Action) => boolean): Action<TargetType, CasterType> {
     this.feasabilityCallback = callback;
     return this;
   }
@@ -213,7 +218,7 @@ export abstract class Action implements EffectRunner {
     const { caster, target } = this;
 
     // Add the caster, caster's world, player, teams, and nearby entities (if caster specified)
-    if (caster !== undefined) {
+    if (caster instanceof Entity) {
       this.addListener(caster);
       // Add all nearby entities and the world itself, if caster is published to a world
       if (caster.world !== undefined) {
@@ -244,7 +249,7 @@ export abstract class Action implements EffectRunner {
     // TODO add players + teams of target(s)
 
     // Add the target world, nearby entities, and target itself.. if the target !== the caster
-    if (target !== undefined && target !== caster) {
+    if (target instanceof Entity && (target as any) !== caster) {
       if (target.world !== undefined) {
         this.addListener(target.world);
         target.world.getEntitiesWithinRadius(target.position, listenRadius).forEach((entity) => {
@@ -355,11 +360,29 @@ export abstract class Action implements EffectRunner {
     return ['FOLLOWUP', item];
   }
 
-  permit(priority: number, args: Omit<Permit[1], 'priority'>): Permit {
+  /**
+   * Returns a `Delay` effect for the number of milliseconds specified. Delay does
+   * not run other actions asynchronously, but broadcasts actions up to this point
+   * and waits before process any other actions. Note that in case of a low enough
+   * `millisecond` count with a large enough backlog of actions to serialize and
+   * broadcast out, there is a chance that the delay in real-time will be greater
+   * than the number of `milliseconds` specified.
+   * @param milliseconds The time (in milliseconds) to delay for. Must be `>= 0`.
+   * @returns
+   */
+  delay(milliseconds: number): Delay {
+    if (milliseconds < 0) {
+      // TODO make this more specific
+      throw new Error();
+    }
+    return ['DELAY', milliseconds];
+  }
+
+  permit(priority: number = 0, args?: Omit<Permit[1], 'priority'>): Permit {
     return ['PERMIT', { ...args, priority }];
   }
 
-  deny(priority: number, args: Omit<Permit[1], 'priority'>): Deny {
+  deny(priority: number = 0, args?: Omit<Permit[1], 'priority'>): Deny {
     return ['DENY', { ...args, priority }];
   }
 
@@ -398,7 +421,9 @@ export abstract class Action implements EffectRunner {
 
   // Get the relevant entity, by default the target but some actions apply to an entity that is not the target
   getEntity(): Entity | undefined {
-    return this.target;
+    if (this.target instanceof Entity) {
+      return this.target;
+    }
   }
 
   serialize(): Action.Serialized {
@@ -430,7 +455,7 @@ export abstract class Action implements EffectRunner {
 export namespace Action {
   export interface Serialized {
     caster?: string;
-    target?: string;
+    target?: any;
     using?: string;
     metadata?: { [key: string]: string | number | boolean | undefined };
     permitted: boolean;
@@ -446,8 +471,12 @@ export namespace Action {
   }
 }
 
-export interface ActionParameters {
-  caster?: Entity;
+export interface ActionParameters<
+  TargetType extends ComponentContainer = ComponentContainer,
+  CasterType extends ComponentContainer = ComponentContainer
+> {
+  caster?: CasterType;
+  target?: TargetType;
   using?: Entity | Component;
   metadata?: { [key: string]: string | number | boolean | undefined };
 }

@@ -14,7 +14,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class ModifyPropertyAction extends Action {
+export class ModifyPropertyAction extends Action<Entity> {
   actionType: ActionType = ActionType.MODIFY_PROPERTY_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -83,7 +83,7 @@ export class ModifyPropertyAction extends Action {
 }
 
 export namespace ModifyPropertyAction {
-  export interface ValueParams extends ActionParameters {
+  export interface ValueParams extends ActionParameters<Entity> {
     amount: number;
     method?: ModificationMethod;
   }

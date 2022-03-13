@@ -7,7 +7,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class RemoveSlotAction extends Action {
+export class RemoveSlotAction extends Action<Entity> {
   actionType: ActionType = ActionType.REMOVE_SLOT_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -26,7 +26,7 @@ export class RemoveSlotAction extends Action {
 }
 
 export namespace RemoveSlotAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     name: string;
   }
 

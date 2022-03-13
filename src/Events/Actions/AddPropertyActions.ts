@@ -7,7 +7,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class AddPropertyAction extends Action {
+export class AddPropertyAction extends Action<Entity> {
   actionType = ActionType.ADD_PROPERTY_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -21,7 +21,7 @@ export class AddPropertyAction extends Action {
     caster,
     target,
     name,
-    current,
+    current = 0,
     min,
     max,
     using,
@@ -41,9 +41,9 @@ export class AddPropertyAction extends Action {
 }
 
 export namespace AddPropertyAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     name: string;
-    current: number;
+    current?: number;
     min?: number;
     max?: number;
   }

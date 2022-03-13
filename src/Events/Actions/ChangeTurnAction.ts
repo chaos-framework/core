@@ -10,24 +10,24 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class ChangeTurnAction extends Action {
+export class ChangeTurnAction extends Action<Entity | Player | Team> {
   actionType: ActionType = ActionType.CHANGE_TURN_ACTION;
   broadcastType = BroadcastType.FULL;
 
-  to: Entity | Player | Team | undefined;
+  target: Entity | Player | Team | undefined;
   appliedAt?: number;
 
-  constructor({ caster, to, using, metadata }: ChangeTurnAction.Params) {
+  constructor({ caster, target, using, metadata }: ChangeTurnAction.Params) {
     super({ caster, using, metadata });
-    this.to = to;
+    this.target = target;
   }
 
   *apply(): ProcessEffectGenerator {
     this.appliedAt = Date.now();
-    if (Chaos.currentTurn === this.to) {
+    if (Chaos.currentTurn === this.target) {
       return false;
     } else {
-      Chaos.setCurrentTurn(this.to);
+      Chaos.setCurrentTurn(this.target);
       Chaos.setCurrentTurnSetAt(this.appliedAt);
       return true;
     }
@@ -35,16 +35,16 @@ export class ChangeTurnAction extends Action {
 
   serialize(): ChangeTurnAction.Serialized {
     let type: 'Entity' | 'Player' | 'Team' | 'undefined' = 'undefined';
-    if (this.to instanceof Entity) {
+    if (this.target instanceof Entity) {
       type = 'Entity';
-    } else if (this.to instanceof Player) {
+    } else if (this.target instanceof Player) {
       type = 'Player';
-    } else if (this.to instanceof Team) {
+    } else if (this.target instanceof Team) {
       type = 'Team';
     }
     return {
       ...super.serialize(),
-      to: this.to?.id,
+      target: this.target?.id,
       type
     };
   }
@@ -54,20 +54,20 @@ export class ChangeTurnAction extends Action {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);
       // Deserialize unique fields
-      let to;
+      let target;
       switch (json.type) {
         case 'Entity':
-          to = Chaos.getEntity(json.to);
+          target = Chaos.getEntity(json.target);
           break;
         case 'Player':
-          to = Chaos.players.get(json.to);
+          target = Chaos.players.get(json.target);
           break;
         case 'Team':
-          to = Chaos.teams.get(json.to);
+          target = Chaos.teams.get(json.target);
           break;
       }
       // Build the action if we did indeed find
-      return new ChangeTurnAction({ ...common, to });
+      return new ChangeTurnAction({ ...common, target });
     } catch (error) {
       throw error;
     }
@@ -75,14 +75,12 @@ export class ChangeTurnAction extends Action {
 }
 
 export namespace ChangeTurnAction {
-  export interface EntityParams extends ActionParameters {}
-
-  export interface Params extends EntityParams {
-    to: Entity | Player | Team | undefined;
+  export interface Params extends ActionParameters<Entity | Player | Team> {
+    target: Entity | Player | Team | undefined;
   }
 
   export interface Serialized extends Action.Serialized {
-    to?: string;
+    target?: string;
     type: 'Entity' | 'Player' | 'Team' | 'undefined';
   }
 }

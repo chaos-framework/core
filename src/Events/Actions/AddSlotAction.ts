@@ -7,7 +7,7 @@ import {
   ProcessEffectGenerator
 } from '../../internal.js';
 
-export class AddSlotAction extends Action {
+export class AddSlotAction extends Action<Entity> {
   actionType = ActionType.ADD_SLOT_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -27,7 +27,7 @@ export class AddSlotAction extends Action {
 
 // tslint:disable-next-line: no-namespace
 export namespace AddSlotAction {
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     name: string;
   }
 
