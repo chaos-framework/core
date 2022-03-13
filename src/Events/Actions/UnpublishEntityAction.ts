@@ -57,11 +57,11 @@ export class UnpublishEntityAction extends Action<Entity> {
 }
 
 export namespace UnpublishEntityAction {
-  export interface EntityParams extends ActionParameters<Entity> {
+  export interface EntityParams extends ActionParameters<Entity> {}
+
+  export interface Params extends EntityParams {
     target: Entity;
   }
-
-  export interface Params extends EntityParams {}
 
   export interface Serialized extends Action.Serialized {
     target: string;

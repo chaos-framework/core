@@ -48,7 +48,7 @@ describe('Change Turn Action', () => {
     entity._publish(room, room.stageLeft);
     const json = {
       type: 'Entity',
-      to: entity.id
+      target: entity.id
     };
     const deserialized = ChangeTurnAction.deserialize(json);
     expect(deserialized.target).to.equal(entity);

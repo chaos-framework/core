@@ -192,7 +192,7 @@ export class Entity implements ComponentContainer, Printable {
   getPublishedInPlaceAction(): PublishEntityAction {
     if (this.published && this.world !== undefined) {
       return new PublishEntityAction({
-        entity: this,
+        target: this,
         position: this.position,
         world: this.world
       });
@@ -213,7 +213,6 @@ export class Entity implements ComponentContainer, Printable {
     return new PublishEntityAction({
       caster,
       target: this,
-      entity: this,
       world,
       position,
       using,
@@ -242,14 +241,12 @@ export class Entity implements ComponentContainer, Printable {
 
   unpublish({
     caster,
-    target,
     using,
     metadata
   }: UnpublishEntityAction.EntityParams = {}): UnpublishEntityAction {
     return new UnpublishEntityAction({
       caster,
-      target,
-      entity: this,
+      target: this,
       using,
       metadata
     });

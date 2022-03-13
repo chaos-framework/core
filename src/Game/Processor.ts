@@ -172,7 +172,7 @@ function publishEntities(entities: Set<string>, to: Viewer) {
 
 function unpublishEntities(entities: Set<string>, from: Viewer) {
   for (const id of entities) {
-    from.queueForBroadcast(new UnpublishEntityAction({ entity: Chaos.getEntity(id)! }));
+    from.queueForBroadcast(new UnpublishEntityAction({ target: Chaos.getEntity(id)! }));
   }
 }
 

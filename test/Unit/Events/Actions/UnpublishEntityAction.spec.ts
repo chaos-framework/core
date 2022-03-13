@@ -12,39 +12,39 @@ import {
 import Room from '../../../Mocks/Worlds/Room.js';
 
 describe('UnpublishEntityAction', () => {
-  let entity: Entity;
+  let target: Entity;
   let world: Room;
   let position: Vector;
 
   beforeEach(() => {
     Chaos.reset();
-    entity = new Entity({ name: 'Test Entity' });
+    target = new Entity({ name: 'Test Entity' });
     world = new Room(10, 10);
     Chaos.worlds.set(world.id, world);
-    entity._publish(world, world.stageLeft);
+    target._publish(world, world.stageLeft);
   });
 
   it('Unpublishes the entity', () => {
-    const a = new UnpublishEntityAction({ entity });
+    const a = new UnpublishEntityAction({ target });
     a.apply().next();
-    expect(entity.published).to.be.false;
+    expect(target.published).to.be.false;
   });
 
   it('Serializes to a proper object', () => {
-    const a = new UnpublishEntityAction({ entity });
+    const a = new UnpublishEntityAction({ target });
     const o = a.serialize();
-    expect(o.entity).to.equal(entity.id);
+    expect(o.target).to.equal(target.id);
   });
 
   it('Can deserialize from proper json', () => {
     const json: UnpublishEntityAction.Serialized = {
-      entity: entity.id,
+      target: target.id,
       permitted: true,
       actionType: ActionType.UNPUBLISH_ENTITY_ACTION
     };
     const a = UnpublishEntityAction.deserialize(json);
     expect(a instanceof UnpublishEntityAction).to.be.true;
-    expect(a.entity.id).to.equal(entity.id);
+    expect(a.target.id).to.equal(target.id);
     expect(a.permitted).to.be.true;
   });
 });
