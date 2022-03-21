@@ -20,7 +20,7 @@ export async function processRunner(item: EffectRunner, broadcast = false): Prom
   let currentActionOrEvent: EffectRunner = item;
   let currentGenerator: ProcessEffectGenerator = item.run() as ProcessEffectGenerator;
   while (currentActionOrEvent !== undefined) {
-    let next = currentGenerator.next();
+    let next = await currentGenerator.next();
     // Handle whatever effect
     while (next.done === false) {
       const effect = next.value;
@@ -49,7 +49,7 @@ export async function processRunner(item: EffectRunner, broadcast = false): Prom
           }
           break;
       }
-      next = currentGenerator.next();
+      next = await currentGenerator.next();
     }
     // Track that this action was finished applying and broadcast to hooks that want to read it immediately
     if (currentActionOrEvent instanceof Action) {

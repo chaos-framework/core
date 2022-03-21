@@ -47,7 +47,7 @@ export class PublishEntityAction extends Action<Entity> {
     this.world.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._publish(this.world, this.position, this.chunkVisibilityChanges);
   }
 

@@ -31,7 +31,7 @@ export class MoveAction extends Action<Entity> {
     }
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._move(this.to, this.chunkVisibilityChanges);
   }
 

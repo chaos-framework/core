@@ -25,7 +25,7 @@ export class EquipItemAction extends Action<Entity> {
     this.addPermission(false);
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._equip(this.item, this.slot);
   }
 }

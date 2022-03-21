@@ -49,7 +49,7 @@ export class PropertyChangeAction extends Action<Entity> {
     this.finalAmount = amount;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     this.calculate();
     const { value, property, type, finalAmount, previousValue } = this;
     // Figure out which value we're adjusting (current, min, or max)

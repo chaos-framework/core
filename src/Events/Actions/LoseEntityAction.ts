@@ -29,7 +29,7 @@ export class LoseEntityAction extends Action<Entity, Entity> {
     this.target = target;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._loseEntity(this.target, this.using, this.entityVisibilityChanges);
   }
 }

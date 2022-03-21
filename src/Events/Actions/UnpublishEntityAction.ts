@@ -28,7 +28,7 @@ export class UnpublishEntityAction extends Action<Entity> {
     this.additionalListeners = [target];
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._unpublish(this.chunkVisibilityChanges);
   }
 

@@ -5,7 +5,7 @@ import { Action, ProcessEffectGenerator } from '../../../src/internal.js';
 
 // Fake concrete implementation
 class TestAction extends Action {
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 }

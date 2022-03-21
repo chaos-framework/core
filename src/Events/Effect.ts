@@ -2,7 +2,7 @@ import { Action, Component, Entity, TerminalMessage } from '../internal.js';
 
 export type Effect = readonly [string, any];
 
-export type EffectGenerator<T = Effect, R = any, N = any> = Generator<T, R, N>;
+export type EffectGenerator<T = Effect, R = any, N = any> = AsyncGenerator<T, R, N>;
 export type EffectRunner<T extends Effect = Effect, R = any, N = any> = {
   run(): EffectGenerator<T, R, N>;
 };

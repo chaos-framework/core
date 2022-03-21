@@ -5,7 +5,7 @@ export class SimpleEvent implements Event {
 
   constructor(private actions: Action[]) {}
 
-  *run(): ProcessEffectGenerator {
+  async *run(): ProcessEffectGenerator {
     for (const action of this.actions) {
       yield Action.immediate(action);
     }

@@ -20,7 +20,7 @@ export class AddSlotAction extends Action<Entity> {
     this.name = name;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._addSlot(this.name);
   }
 }

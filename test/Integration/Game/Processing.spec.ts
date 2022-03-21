@@ -16,7 +16,7 @@ class EffectEvent implements Event {
     this.effects = effects;
   }
 
-  *run(): ProcessEffectGenerator {
+  async *run(): ProcessEffectGenerator {
     for (const effect of this.effects) {
       yield effect;
     }
@@ -31,20 +31,20 @@ abstract class NumberedAction extends Action {
 }
 
 class NoEffectAction extends NumberedAction {
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 }
 
 class ImmediateAction extends NumberedAction {
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     yield this.react(new NoEffectAction(this.index + 1));
     return true;
   }
 }
 
 class FollowupAction extends NumberedAction {
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     yield this.followup(new NoEffectAction(this.index + 1));
     return true;
   }

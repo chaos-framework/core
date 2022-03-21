@@ -29,7 +29,7 @@ export class SenseEntityAction extends Action<Entity, Entity> {
     this.target = target;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.caster._senseEntity(this.target, this.using, this.entityVisibilityChanges);
   }
 }

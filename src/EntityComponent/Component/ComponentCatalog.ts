@@ -222,7 +222,7 @@ export class ComponentCatalog {
     }
   }
 
-  *handle(phase: string, action: Action): EffectGenerator {
+  async *handle(phase: string, action: Action): EffectGenerator {
     const functions = this.subscriberFunctionsByPhase.get(phase);
     if (functions !== undefined) {
       for (const [, fn] of functions) {

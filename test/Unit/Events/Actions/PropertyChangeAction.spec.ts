@@ -50,18 +50,18 @@ describe('PropertyChangeAction', function () {
     describe('Yielding actions', function () {
       describe('min', function () {
         describe('min changes', function () {
-          it('Fires an action on matching', function () {
+          it('Fires an action on matching', async function () {
             const gen = property.min.set({ amount: 5 }).apply();
-            const [, effect] = gen.next().value as [any, PropertyThresholdAction];
+            const [, effect] = (await gen.next()).value as [any, PropertyThresholdAction];
             expect(effect instanceof PropertyThresholdAction).to.be.true;
             expect(effect.propertyName).to.equal('HP');
             expect(effect.threshold).to.equal('min');
             expect(effect.newState).to.equal('equals');
           });
 
-          it('Fires an action on crossing', function () {
+          it('Fires an action on crossing', async function () {
             const gen = property.min.set({ amount: 6 }).apply();
-            const [, effect] = gen.next().value as [any, PropertyThresholdAction];
+            const [, effect] = (await gen.next()).value as [any, PropertyThresholdAction];
             expect(effect instanceof PropertyThresholdAction).to.be.true;
             expect(effect.propertyName).to.equal('HP');
             expect(effect.threshold).to.equal('min');
@@ -70,18 +70,18 @@ describe('PropertyChangeAction', function () {
         });
 
         describe('current changes', function () {
-          it('Fires an action on matching', function () {
+          it('Fires an action on matching', async function () {
             const gen = property.current.set({ amount: 0 }).apply();
-            const [, effect] = gen.next().value as [any, PropertyThresholdAction];
+            const [, effect] = (await gen.next()).value as [any, PropertyThresholdAction];
             expect(effect instanceof PropertyThresholdAction).to.be.true;
             expect(effect.propertyName).to.equal('HP');
             expect(effect.threshold).to.equal('min');
             expect(effect.newState).to.equal('equals');
           });
 
-          it('Fires an action on crossing', function () {
+          it('Fires an action on crossing', async function () {
             const gen = property.current.set({ amount: -1 }).apply();
-            const [, effect] = gen.next().value as [any, PropertyThresholdAction];
+            const [, effect] = (await gen.next()).value as [any, PropertyThresholdAction];
             expect(effect instanceof PropertyThresholdAction).to.be.true;
             expect(effect.propertyName).to.equal('HP');
             expect(effect.threshold).to.equal('min');
@@ -92,18 +92,18 @@ describe('PropertyChangeAction', function () {
 
       describe('max', function () {
         describe('max changes', function () {
-          it('Fires an action on matching', function () {
+          it('Fires an action on matching', async function () {
             const gen = property.max.set({ amount: 5 }).apply();
-            const [, effect] = gen.next().value as [any, PropertyThresholdAction];
+            const [, effect] = (await gen.next()).value as [any, PropertyThresholdAction];
             expect(effect instanceof PropertyThresholdAction).to.be.true;
             expect(effect.propertyName).to.equal('HP');
             expect(effect.threshold).to.equal('max');
             expect(effect.newState).to.equal('equals');
           });
 
-          it('Fires an action on crossing', function () {
+          it('Fires an action on crossing', async function () {
             const gen = property.max.set({ amount: 4 }).apply();
-            const [, effect] = gen.next().value as [any, PropertyThresholdAction];
+            const [, effect] = (await gen.next()).value as [any, PropertyThresholdAction];
             expect(effect instanceof PropertyThresholdAction).to.be.true;
             expect(effect.propertyName).to.equal('HP');
             expect(effect.threshold).to.equal('max');
@@ -111,19 +111,19 @@ describe('PropertyChangeAction', function () {
           });
         });
 
-        describe('current changes', function () {
-          it('Fires an action on matching', function () {
+        describe('current changes', async function () {
+          it('Fires an action on matching', async function () {
             const gen = property.current.set({ amount: 10 }).apply();
-            const [, effect] = gen.next().value as [any, PropertyThresholdAction];
+            const [, effect] = (await gen.next()).value as [any, PropertyThresholdAction];
             expect(effect instanceof PropertyThresholdAction).to.be.true;
             expect(effect.propertyName).to.equal('HP');
             expect(effect.threshold).to.equal('max');
             expect(effect.newState).to.equal('equals');
           });
 
-          it('Fires an action on crossing', function () {
+          it('Fires an action on crossing', async function () {
             const gen = property.current.set({ amount: 11 }).apply();
-            const [, effect] = gen.next().value as [any, PropertyThresholdAction];
+            const [, effect] = (await gen.next()).value as [any, PropertyThresholdAction];
             expect(effect instanceof PropertyThresholdAction).to.be.true;
             expect(effect.propertyName).to.equal('HP');
             expect(effect.threshold).to.equal('max');
@@ -133,12 +133,12 @@ describe('PropertyChangeAction', function () {
       });
     });
 
-    it('Should not allow minimum to be greater than maximum, and vice-versa', function () {
+    it('Should not allow minimum to be greater than maximum, and vice-versa', async function () {
       let gen = property.min.set({ amount: 11 }).apply();
-      expect(gen.next().value).to.be.false;
+      expect((await gen.next()).value).to.be.false;
       expect(property.min.calculated).to.equal(0);
       gen = property.max.set({ amount: -1 }).apply();
-      expect(gen.next().value).to.be.false;
+      expect((await gen.next()).value).to.be.false;
       expect(property.max.calculated).to.equal(10);
     });
   });

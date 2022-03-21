@@ -41,7 +41,7 @@ export class ModifyPropertyAction extends Action<Entity> {
     this.amount = amount;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     const { target, value: type, propertyName: name, method, amount } = this;
     const property = target?.properties.get(name);
     // See if we have this property

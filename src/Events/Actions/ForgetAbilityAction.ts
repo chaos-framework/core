@@ -24,7 +24,7 @@ export class ForgetAbilityAction extends Action<Entity> {
     this.grantedBy = grantedBy;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     this.target._forget(this.ability, this.grantedBy, this.using);
     return false;
   }

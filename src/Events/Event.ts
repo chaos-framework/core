@@ -5,6 +5,7 @@ import {
   Action,
   ProcessEffectKey
 } from '../internal.js';
+import { ProcessEffectGenerator } from './Effect.js';
 
 export interface Event extends ProcessEffectRunner {
   // TODO add ID for the client's sake
@@ -14,5 +15,5 @@ export interface Event extends ProcessEffectRunner {
   };
   caster?: Entity;
 
-  run(): Generator<ProcessEffect, boolean>;
+  run(): ProcessEffectGenerator;
 }

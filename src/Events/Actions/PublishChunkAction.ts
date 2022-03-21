@@ -25,7 +25,7 @@ export class PublishChunkAction extends Action<World> {
     this.position = position;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 

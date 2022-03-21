@@ -18,7 +18,7 @@ export class MessageAction extends Action {
     this.terminalMessage = message;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 }

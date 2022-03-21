@@ -25,7 +25,7 @@ export class LearnAbilityAction extends Action<Entity> {
     this.grantedBy = grantedBy;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._learn(this.ability);
   }
 }

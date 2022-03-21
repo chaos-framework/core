@@ -49,7 +49,7 @@ export class PropertyThresholdAction extends Action<Entity> {
     this.newState = newState;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 }

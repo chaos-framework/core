@@ -10,7 +10,7 @@ export class PublishPlayerAction extends Action<Player> {
     this.target = target;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._publish();
   }
 

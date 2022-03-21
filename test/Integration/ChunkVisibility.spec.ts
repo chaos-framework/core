@@ -87,16 +87,16 @@ describe('World and chunk visibility tracking', function () {
         expect(streamingWorld.visibleChunks.has(zeroInWorld)).to.be.true;
       });
 
-      it('Tracks and forgets chunks when moving through a world', function () {
+      it('Tracks and forgets chunks when moving through a world', async function () {
         // Publish
         entityA1.publish({ world: streamingWorld, position: Vector.zero() }).runPrivate();
         // Will not have any changes for moves within the same chunk
         let move = entityA1.move({ to: new Vector(1, 1) });
-        move.runPrivate();
+        await move.runPrivate();
         expect(move.chunkVisibilityChanges.hasChanges).to.be.false;
         // Will have changes when moving between chunks
         const action = entityA1.move({ to: new Vector(32, 32) });
-        action.runPrivate();
+        await action.runPrivate();
         expect(action.chunkVisibilityChanges?.hasChanges).to.be.true;
         expect(action.chunkVisibilityChanges.added['world'][streamingWorld.id]).to.contain(
           streamingWorld.getFullChunkID(2, 2)
@@ -112,10 +112,10 @@ describe('World and chunk visibility tracking', function () {
         );
       });
 
-      it('Forgets chunks when unpublished from a world', function () {
-        entityA1.publish({ world: streamingWorld, position: Vector.zero() }).runPrivate();
+      it('Forgets chunks when unpublished from a world', async function () {
+        await entityA1.publish({ world: streamingWorld, position: Vector.zero() }).runPrivate();
         const unpublish = entityA1.unpublish();
-        unpublish.runPrivate();
+        await unpublish.runPrivate();
         // Test changes
         const zeroInWorld = streamingWorld.getFullChunkID(0, 0);
         expect(
@@ -129,13 +129,13 @@ describe('World and chunk visibility tracking', function () {
         expect(streamingWorld.visibleChunks.has(zeroInWorld)).to.be.false;
       });
 
-      it('Updates chunks appropriately after a ChangeWorldAction', function () {
-        entityA1.publish({ world: fixedWorld1, position: Vector.zero() }).runPrivate();
+      it('Updates chunks appropriately after a ChangeWorldAction', async function () {
+        await entityA1.publish({ world: fixedWorld1, position: Vector.zero() }).runPrivate();
         const changeWorlds = entityA1.changeWorlds({
           to: streamingWorld,
           position: Vector.zero()
         });
-        changeWorlds.runPrivate();
+        await changeWorlds.runPrivate();
         expect(changeWorlds.chunkVisibilityChanges.hasChanges).to.be.true;
         expect(changeWorlds.chunkVisibilityChanges.removed['world'][fixedWorld1.id]).to.include(
           fixedWorld1.getFullChunkID(0, 0)
@@ -151,11 +151,11 @@ describe('World and chunk visibility tracking', function () {
         );
       });
 
-      it('Persists chunks after an active entity is unpublished when one active entity is still remaining', function () {
+      it('Persists chunks after an active entity is unpublished when one active entity is still remaining', async function () {
         entityA1._publish(fixedWorld1, Vector.zero());
         entityA2._publish(fixedWorld1, Vector.zero());
         const unpublish = entityA1.unpublish();
-        unpublish.runPrivate();
+        await unpublish.runPrivate();
         expect(unpublish.chunkVisibilityChanges.removed['entity'][entityA1.id]).to.contain(
           fixedWorld1.getFullChunkID(0, 0)
         );
@@ -167,8 +167,8 @@ describe('World and chunk visibility tracking', function () {
         expect(fixedWorld1.visibleChunks.set).to.not.include(fixedWorld1.getFullChunkID(-1, -1));
       });
 
-      it('Does not keep a world loaded after an entity fails to publish to it', function () {
-        entityA1
+      it('Does not keep a world loaded after an entity fails to publish to it', async function () {
+        await entityA1
           .publish({ world: streamingWorld, position: Vector.zero() })
           .deniedByDefault()
           .runPrivate();
@@ -177,29 +177,33 @@ describe('World and chunk visibility tracking', function () {
     });
 
     describe('Inactive entities', function () {
-      it('Does not track chunks when published to a world', function () {
-        inactiveEntity.publish({ world: fixedWorld1, position: Vector.zero() }).runPrivate();
+      it('Does not track chunks when published to a world', async function () {
+        await inactiveEntity.publish({ world: fixedWorld1, position: Vector.zero() }).runPrivate();
         expect(inactiveEntity.visibleChunks.set).to.not.contain(fixedWorld1.getFullChunkID(0, 0));
       });
 
-      it('Does not track or forget chunks when moving through a world', function () {
-        entityA1.publish({ world: fixedWorld1, position: Vector.zero() }).runPrivate();
-        inactiveEntity.publish({ world: fixedWorld1, position: Vector.zero() }).runPrivate();
-        inactiveEntity.move({ to: new Vector(32, 32) }).runPrivate();
+      it('Does not track or forget chunks when moving through a world', async function () {
+        await entityA1.publish({ world: fixedWorld1, position: Vector.zero() }).runPrivate();
+        await inactiveEntity.publish({ world: fixedWorld1, position: Vector.zero() }).runPrivate();
+        await inactiveEntity.move({ to: new Vector(32, 32) }).runPrivate();
         expect(inactiveEntity.visibleChunks.set).to.not.contain(fixedWorld1.getFullChunkID(2, 2));
       });
 
-      it('Does not persist chunks when an active entity leaves the world', function () {
-        entityA1.publish({ world: streamingWorld, position: Vector.zero() }).runPrivate();
-        inactiveEntity.publish({ world: streamingWorld, position: Vector.zero() }).runPrivate();
-        entityA1.unpublish().runPrivate();
+      it('Does not persist chunks when an active entity leaves the world', async function () {
+        await entityA1.publish({ world: streamingWorld, position: Vector.zero() }).runPrivate();
+        await inactiveEntity
+          .publish({ world: streamingWorld, position: Vector.zero() })
+          .runPrivate();
+        await entityA1.unpublish().runPrivate();
         expect(streamingWorld.visibleChunks.set).to.not.include(
           streamingWorld.getFullChunkID(0, 0)
         );
       });
 
-      it('Can be published to a world but is immediately unloaded after', function () {
-        inactiveEntity.publish({ world: streamingWorld, position: Vector.zero() }).runPrivate();
+      it('Can be published to a world but is immediately unloaded after', async function () {
+        await inactiveEntity
+          .publish({ world: streamingWorld, position: Vector.zero() })
+          .runPrivate();
         entityA1.unpublish().runPrivate();
         expect(inactiveEntity.visibleChunks.set).to.not.contain(fixedWorld1.getFullChunkID(0, 0));
       });

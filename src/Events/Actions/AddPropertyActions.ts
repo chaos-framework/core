@@ -35,7 +35,7 @@ export class AddPropertyAction extends Action<Entity> {
     this.max = max;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._addProperty(this.name, this.current, this.min, this.max);
   }
 }

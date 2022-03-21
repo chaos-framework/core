@@ -21,7 +21,7 @@ export class AttachComponentAction extends Action<Entity> {
     this.component = component;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._attach(this.component);
   }
 

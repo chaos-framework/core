@@ -13,7 +13,7 @@ import {
 } from '../../../src/internal.js';
 
 class FollowupEvent implements Event {
-  *run(): ProcessEffectGenerator {
+  async *run(): ProcessEffectGenerator {
     yield Action.immediate(new LogicalAction('TEST'));
     yield Action.immediate(new LogicalAction('TEST'));
     yield Action.immediate(new LogicalAction('TEST'));

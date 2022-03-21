@@ -26,7 +26,7 @@ export class OwnEntityAction extends Action<Player> {
     this.entity = entity;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     if (this.target.entities.has(this.entity.id)) {
       return false; // player already owns this entity
     }

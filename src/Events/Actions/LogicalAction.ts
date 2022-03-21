@@ -23,7 +23,7 @@ export class LogicalAction extends Action<ComponentContainer> {
     this.target = target;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 }

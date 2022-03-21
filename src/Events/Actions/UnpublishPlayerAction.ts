@@ -10,7 +10,7 @@ export class UnpublishPlayerAction extends Action<Player> {
     this.target = target;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._unpublish() || false;
   }
 

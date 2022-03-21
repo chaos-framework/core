@@ -54,7 +54,7 @@ export class ChangeWorldAction extends Action<Entity> {
     this.to.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     return this.target._changeWorlds(this.to, this.position, this.chunkVisibilityChanges);
   }
 

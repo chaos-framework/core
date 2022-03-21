@@ -22,7 +22,7 @@ export class DetachComponentAction extends Action {
     this.component = component;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     this.component.parent?.components.removeComponent(this.component);
     return true;
   }

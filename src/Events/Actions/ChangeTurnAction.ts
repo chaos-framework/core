@@ -22,7 +22,7 @@ export class ChangeTurnAction extends Action<Entity | Player | Team> {
     this.target = target;
   }
 
-  *apply(): ProcessEffectGenerator {
+  async *apply(): ProcessEffectGenerator {
     this.appliedAt = Date.now();
     if (Chaos.currentTurn === this.target) {
       return false;

@@ -25,7 +25,8 @@ import {
   ProcessEffectKey,
   Permit,
   Deny,
-  Delay
+  Delay,
+  ProcessEffectGenerator
 } from '../internal.js';
 
 export abstract class Action<
@@ -114,7 +115,7 @@ export abstract class Action<
     return this;
   }
 
-  *run(force: boolean = false): EffectGenerator {
+  async *run(force: boolean = false): EffectGenerator {
     this.initialize();
 
     // Get listeners (nearby entities, worlds, systems, etc)
@@ -145,10 +146,10 @@ export abstract class Action<
       force
     ) {
       const generator = this.apply();
-      let res = generator.next();
+      let res = await generator.next();
       while (!res.done) {
         yield res.value;
-        res = generator.next();
+        res = await generator.next();
       }
       this.applied = res.value;
     }
@@ -176,14 +177,14 @@ export abstract class Action<
   }
 
   // Runs processEffect on all yielded results of this action
-  *process(): EffectGenerator {
+  async *process(): EffectGenerator {
     const generator = this.apply();
-    let next = generator.next();
+    let next = await generator.next();
     // Handle
     while (next.done === false) {
       const effect = next.value;
       const result = this.processEffect(effect);
-      next = generator.next();
+      next = await generator.next();
     }
   }
 
@@ -413,7 +414,7 @@ export abstract class Action<
     return { caster, target, using, metadata, permitted };
   }
 
-  abstract apply(): Generator<Effect, boolean>;
+  abstract apply(): ProcessEffectGenerator;
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
     return true; // SCOPE

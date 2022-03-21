@@ -40,7 +40,7 @@ export class SensesAll extends Component implements CachesSensedEntities {
  *   SCOPE TESTS
  */
 
-function* emptyActionHandler(action: Action): EffectGenerator {
+async function* emptyActionHandler(action: Action): EffectGenerator {
   yield action.react(action);
   return false;
 }
