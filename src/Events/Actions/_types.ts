@@ -29,11 +29,11 @@ export enum ActionType {
 }
 
 export enum BroadcastType {
-  NONE,                   // never broadcast to client (internal logic)
-  DIRECT,                 // broadcasts only to a direct client
-  OWNER,                  // broadcast only to owning player(s)
-  TEAM,                   // broadcast to owning teams
-  SENSED_ACTION,          // broadcast to any owner of a component that has sensed the action itself
-  HAS_SENSE_OF_ENTITY,    // broadcast to any player/team that currently has sense of the target/entity
-  FULL                    // broadcast to all clients
+  NONE, // never broadcast to client (internal logic)
+  DIRECT, // broadcasts only to a direct client
+  OWNER, // broadcast only to owning player(s)
+  TEAM, // broadcast to owning teams
+  SENSED_ACTION, // broadcast to any owner of a component that has sensed the action itself
+  HAS_SENSE_OF_ENTITY, // broadcast to any player/team that currently has sense of the target/entity
+  FULL // broadcast to all clients
 }

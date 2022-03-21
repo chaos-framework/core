@@ -11,15 +11,14 @@ describe('LearnAbilityAction Action', () => {
 
   beforeEach(() => {
     Chaos.reset();
-    e = new Entity({ name: "Test Entity" });
+    e = new Entity({ name: 'Test Entity' });
     ability = new EmptyAbility();
   });
 
   it('Grants an ability to an entity upon execution', () => {
-    const action = new LearnAbilityAction({caster: e, target: e, ability});
+    const action = new LearnAbilityAction({ caster: e, target: e, ability });
     expect(e.can(ability.name)).to.be.false;
-    action.execute();
+    action.runPrivate();
     expect(e.can(ability.name)).to.be.true;
   });
-  
 });

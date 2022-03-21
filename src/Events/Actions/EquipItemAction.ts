@@ -1,6 +1,13 @@
-import { Action, ActionParameters, Entity, ActionType, BroadcastType } from '../../internal.js'; 
+import {
+  Action,
+  ActionParameters,
+  Entity,
+  ActionType,
+  BroadcastType,
+  ProcessEffectGenerator
+} from '../../internal.js';
 
-export class EquipItemAction extends Action {
+export class EquipItemAction extends Action<Entity> {
   actionType: ActionType = ActionType.EQUIP_ITEM_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -9,24 +16,24 @@ export class EquipItemAction extends Action {
   item: Entity;
   permitted = false; // assume canceled until something allows it
 
-  constructor({caster, target, slot, item, using, metadata }: EquipItemAction.Params) {
-    super({caster, using, metadata });
+  constructor({ caster, target, slot, item, using, metadata }: EquipItemAction.Params) {
+    super({ caster, using, metadata });
     this.target = target;
     this.slot = slot;
     this.item = item;
     // Equipping is forbidden by default, until allowed by another component
-    this.permit();
+    this.addPermission(false);
   }
 
-  apply(): boolean {
+  async *apply(): ProcessEffectGenerator {
     return this.target._equip(this.item, this.slot);
   }
 }
 
 export namespace EquipItemAction {
-  export interface EntityParams extends ActionParameters {
-    slot: string,
-    item: Entity
+  export interface EntityParams extends ActionParameters<Entity> {
+    slot: string;
+    item: Entity;
   }
 
   export interface Params extends EntityParams {

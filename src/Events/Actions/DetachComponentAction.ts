@@ -1,4 +1,13 @@
-import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType, ComponentContainer, Chaos } from '../../internal.js';
+import {
+  Action,
+  ActionParameters,
+  Entity,
+  Component,
+  ActionType,
+  BroadcastType,
+  Chaos,
+  ProcessEffectGenerator
+} from '../../internal.js';
 
 export class DetachComponentAction extends Action {
   actionType: ActionType = ActionType.DETACH_COMPONENT_ACTION;
@@ -7,13 +16,13 @@ export class DetachComponentAction extends Action {
   target: Entity;
   component: Component;
 
-  constructor({caster, target, component, using, metadata }: DetachComponentAction.Params) {
-    super({caster, using, metadata });
+  constructor({ caster, target, component, using, metadata }: DetachComponentAction.Params) {
+    super({ caster, using, metadata });
     this.target = target;
     this.component = component;
   }
 
-  apply(): boolean {
+  async *apply(): ProcessEffectGenerator {
     this.component.parent?.components.removeComponent(this.component);
     return true;
   }
@@ -33,10 +42,10 @@ export class DetachComponentAction extends Action {
       const { target } = common;
       // Deserialize unique fields
       const component = Chaos.allComponents.get(json.component);
-      if(component === undefined) {
-        throw new Error(`Couldn't find component.`);  // TODO define a commmon error for type + field that is bad
+      if (component === undefined) {
+        throw new Error(`Couldn't find component.`); // TODO define a commmon error for type + field that is bad
       } else if (target === undefined) {
-        throw new Error(`Couldn't find target.`);  // TODO define a commmon error for type + field that is bad
+        throw new Error(`Couldn't find target.`); // TODO define a commmon error for type + field that is bad
       }
       // Build the action if we did indeed find
       return new DetachComponentAction({ ...common, target, component });
@@ -48,17 +57,19 @@ export class DetachComponentAction extends Action {
 
 export namespace DetachComponentAction {
   export interface EntityParams extends ActionParameters {
-    component: Component
+    component: Component;
   }
 
   export interface ComponentParams extends ActionParameters {
-    target: Entity
+    target: Entity;
   }
 
-  export interface Params extends EntityParams, ComponentParams { }
+  export interface Params extends EntityParams {
+    target: Entity;
+  }
 
   export interface Serialized extends Action.Serialized {
-    target: string,
-    component: string
+    target: string;
+    component: string;
   }
 }

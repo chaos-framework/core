@@ -1,8 +1,13 @@
-import { 
-  Action, ActionParameters, Entity, ActionType, BroadcastType
-} from '../../internal.js'; 
+import {
+  Action,
+  ActionParameters,
+  Entity,
+  ActionType,
+  BroadcastType,
+  ProcessEffectGenerator
+} from '../../internal.js';
 
-export class RemovePropertyAction extends Action {
+export class RemovePropertyAction extends Action<Entity> {
   actionType: ActionType = ActionType.REMOVE_PROPERTY_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -10,21 +15,21 @@ export class RemovePropertyAction extends Action {
   name: string;
 
   constructor({ caster, target, name, using, metadata }: RemovePropertyAction.Params) {
-    super({caster, using, metadata });
+    super({ caster, using, metadata });
     this.target = target;
     this.name = name;
   }
 
-  apply(): boolean {
+  async *apply(): ProcessEffectGenerator {
     return this.target._removeProperty(this.name);
   }
 }
 
-export namespace RemovePropertyAction { 
-  export interface EntityParams extends ActionParameters {
-    name: string, 
+export namespace RemovePropertyAction {
+  export interface EntityParams extends ActionParameters<Entity> {
+    name: string;
   }
   export interface Params extends EntityParams {
-    target: Entity
+    target: Entity;
   }
 }

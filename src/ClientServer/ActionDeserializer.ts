@@ -1,11 +1,10 @@
-
 import { 
   Action, ActionType, PublishPlayerAction,
   PublishEntityAction, MoveAction,
   OwnEntityAction, UnpublishEntityAction, ChangeTurnAction, DetachComponentAction, AttachComponentAction
 } from "../internal.js";
 
-export default class ActionDeserializer {
+export class ActionDeserializer {
   static deserializeAction(json: any): Action {
     try {
       if(json.actionType !== undefined) {

@@ -6,7 +6,12 @@ import 'mocha';
 import { Component, Entity, Chaos } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
-import { EntityScopeSpecified, GameScopeSpecified, NoScopeSpecified, WorldScopeSpecified } from '../../Mocks/Components/Functional.js';
+import {
+  EntityScopeSpecified,
+  GameScopeSpecified,
+  DefaultScopeSpecified,
+  WorldScopeSpecified
+} from '../../Mocks/Components/Functional.js';
 
 describe('ComponentCatalog and ComponentContainer integration', () => {
   let entity: Entity;
@@ -28,7 +33,7 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
 
         describe('Subscribes components at the appropriate scopes', () => {
           it('Subscribes at default scopes if none specified', () => {
-            const c = new NoScopeSpecified();
+            const c = new DefaultScopeSpecified();
             entity.components.addComponent(c);
             expect(entity.components.subscriberFunctionsByPhase.get('modify')?.get(c.id)).to.exist;
             expect(entity.components.subscriberFunctionsByPhase.get('react')?.get(c.id)).to.exist;
@@ -45,7 +50,7 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
             const c = new WorldScopeSpecified();
             entity.components.addComponent(c);
             expect(room.components.subscriberFunctionsByPhase.get('modify')?.get(c.id)).to.exist;
-          expect(room.components.subscriberFunctionsByPhase.get('react')?.get(c.id)).to.exist;
+            expect(room.components.subscriberFunctionsByPhase.get('react')?.get(c.id)).to.exist;
           });
 
           it('Subscribes to game if scoped appropriately', () => {
@@ -60,7 +65,7 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
       describe('When not published', () => {
         describe('Subscribes to self for all components', () => {
           it('Subscribes at default scopes if none specified', () => {
-            const c = new NoScopeSpecified();
+            const c = new DefaultScopeSpecified();
             entity.components.addComponent(c);
             expect(entity.components.subscriberFunctionsByPhase.get('modify')?.get(c.id)).to.exist;
             expect(entity.components.subscriberFunctionsByPhase.get('react')?.get(c.id)).to.exist;
@@ -106,25 +111,35 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
         });
 
         it('Should keep the entity-scoped components subscribed locally', () => {
-          expect(entity.components.subscriberFunctionsByPhase.get('modify')?.get(entityScoped.id)).to.exist;
-          expect(entity.components.subscriberFunctionsByPhase.get('react')?.get(entityScoped.id)).to.exist;
+          expect(entity.components.subscriberFunctionsByPhase.get('modify')?.get(entityScoped.id))
+            .to.exist;
+          expect(entity.components.subscriberFunctionsByPhase.get('react')?.get(entityScoped.id)).to
+            .exist;
         });
 
         it('Should NOT keep the world or game-scoped components subscribed locally', () => {
-          expect(entity.components.subscriberFunctionsByPhase.get('modify')?.get(worldScoped.id)).to.not.exist;
-          expect(entity.components.subscriberFunctionsByPhase.get('react')?.get(worldScoped.id)).to.not.exist;
-          expect(entity.components.subscriberFunctionsByPhase.get('modify')?.get(gameScoped.id)).to.not.exist;
-          expect(entity.components.subscriberFunctionsByPhase.get('react')?.get(gameScoped.id)).to.not.exist;
+          expect(entity.components.subscriberFunctionsByPhase.get('modify')?.get(worldScoped.id)).to
+            .not.exist;
+          expect(entity.components.subscriberFunctionsByPhase.get('react')?.get(worldScoped.id)).to
+            .not.exist;
+          expect(entity.components.subscriberFunctionsByPhase.get('modify')?.get(gameScoped.id)).to
+            .not.exist;
+          expect(entity.components.subscriberFunctionsByPhase.get('react')?.get(gameScoped.id)).to
+            .not.exist;
         });
 
         it('Should subscribe to world scope when published', () => {
-          expect(room.components.subscriberFunctionsByPhase.get('modify')?.get(worldScoped.id)).to.exist;
-          expect(room.components.subscriberFunctionsByPhase.get('react')?.get(worldScoped.id)).to.exist;
+          expect(room.components.subscriberFunctionsByPhase.get('modify')?.get(worldScoped.id)).to
+            .exist;
+          expect(room.components.subscriberFunctionsByPhase.get('react')?.get(worldScoped.id)).to
+            .exist;
         });
 
         it('Should subscribe to game scope when published', () => {
-          expect(Chaos.components.subscriberFunctionsByPhase.get('modify')?.get(gameScoped.id)).to.exist;
-          expect(Chaos.components.subscriberFunctionsByPhase.get('react')?.get(gameScoped.id)).to.exist;
+          expect(Chaos.components.subscriberFunctionsByPhase.get('modify')?.get(gameScoped.id)).to
+            .exist;
+          expect(Chaos.components.subscriberFunctionsByPhase.get('react')?.get(gameScoped.id)).to
+            .exist;
         });
       });
 
@@ -146,10 +161,14 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
         });
 
         it('Should no longer be subscribed to other components', () => {
-          expect(room.components.subscriberFunctionsByPhase.get('modify')?.get(worldScoped.id)).to.not.exist;
-          expect(room.components.subscriberFunctionsByPhase.get('react')?.get(worldScoped.id)).to.not.exist;
-          expect(Chaos.components.subscriberFunctionsByPhase.get('modify')?.get(gameScoped.id)).to.not.exist;
-          expect(Chaos.components.subscriberFunctionsByPhase.get('react')?.get(gameScoped.id)).to.not.exist;
+          expect(room.components.subscriberFunctionsByPhase.get('modify')?.get(worldScoped.id)).to
+            .not.exist;
+          expect(room.components.subscriberFunctionsByPhase.get('react')?.get(worldScoped.id)).to
+            .not.exist;
+          expect(Chaos.components.subscriberFunctionsByPhase.get('modify')?.get(gameScoped.id)).to
+            .not.exist;
+          expect(Chaos.components.subscriberFunctionsByPhase.get('react')?.get(gameScoped.id)).to
+            .not.exist;
         });
       });
     });
@@ -162,7 +181,7 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
 
         describe('Subscribes components at the appropriate scopes', () => {
           it('Subscribes at default scopes if none specified', () => {
-            const c = new NoScopeSpecified();
+            const c = new DefaultScopeSpecified();
             room.components.addComponent(c);
             expect(room.components.subscriberFunctionsByPhase.get('modify')?.get(c.id)).to.exist;
             expect(room.components.subscriberFunctionsByPhase.get('react')?.get(c.id)).to.exist;
@@ -187,7 +206,7 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
       describe('When not published', () => {
         describe('Subscribes to self for all scopes', () => {
           it('Subscribes at default scopes if none specified', () => {
-            const c = new NoScopeSpecified();
+            const c = new DefaultScopeSpecified();
             room.components.addComponent(c);
             expect(room.components.subscriberFunctionsByPhase.get('modify')?.get(c.id)).to.exist;
             expect(room.components.subscriberFunctionsByPhase.get('react')?.get(c.id)).to.exist;
@@ -216,7 +235,7 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
     describe('As a game', () => {
       describe('Subscribes components at the appropriate scopes', () => {
         it('Subscribes at default scopes if none specified', () => {
-          const c = new NoScopeSpecified();
+          const c = new DefaultScopeSpecified();
           Chaos.components.addComponent(c);
           expect(Chaos.components.subscriberFunctionsByPhase.get('modify')?.get(c.id)).to.exist;
           expect(Chaos.components.subscriberFunctionsByPhase.get('react')?.get(c.id)).to.exist;
@@ -245,5 +264,4 @@ describe('ComponentCatalog and ComponentContainer integration', () => {
       });
     });
   });
-
 });

@@ -37,13 +37,13 @@ describe('Action Abstract Functionality', () => {
     });
 
     it('Accepts highest priority permit/deny', () => {
-      a.addPermission(false, { priority: 0 });
+      a.addPermission(true, { priority: 0 });
       a.decidePermission();
       expect(a.permitted).to.be.false;
-      a.addPermission(true, { priority: 1 });
+      a.addPermission(false, { priority: 1 });
       a.decidePermission();
       expect(a.permitted).to.be.true;
-      a.addPermission(false, { priority: 1000 });
+      a.addPermission(true, { priority: 1000 });
       a.decidePermission();
       expect(a.permitted).to.be.false;
     });

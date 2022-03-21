@@ -1,33 +1,42 @@
-import { Action, ActionType, BroadcastType, ActionParameters, Entity, World, Vector, Chaos } from '../../internal.js';
+import {
+  Action,
+  ActionType,
+  BroadcastType,
+  ActionParameters,
+  Entity,
+  World,
+  Vector,
+  Chaos,
+  ProcessEffectGenerator
+} from '../../internal.js';
 
-export class PublishChunkAction extends Action {
+export class PublishChunkAction extends Action<World> {
   actionType: ActionType = ActionType.PUBLISH_CHUNK_ACTION;
   broadcastType = BroadcastType.NONE; // TODO only broadcast to owners?
 
-  world: World;
+  target: World;
   position: Vector;
 
   data?: any;
 
-  constructor({ caster, world, position, using, metadata }: PublishChunkAction.Params) {
+  constructor({ caster, target, position, using, metadata }: PublishChunkAction.Params) {
     super({ caster, using, metadata });
-    this.world = world;
+    this.target = target;
     this.position = position;
   }
 
-  apply() {
-
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 
   serializeForClient(): PublishChunkAction.SerializedForClient {
     return {
-      worldId: this.world.id,
+      worldId: this.target.id,
       position: this.position.getIndexString(),
-      layerData: this.world.serializeChunk(this.position),
+      layerData: this.target.serializeChunk(this.position),
       permitted: true,
       actionType: ActionType.PUBLISH_CHUNK_ACTION
-    }
+    };
   }
 
   static deserializeAsClient(json: PublishChunkAction.SerializedForClient) {
@@ -43,21 +52,21 @@ export class PublishChunkAction extends Action {
 }
 
 export namespace PublishChunkAction {
-  export interface Params extends ActionParameters {
-    caster?: Entity,
-    world: World,
-    position: Vector
+  export interface Params extends ActionParameters<World> {
+    caster?: Entity;
+    target: World;
+    position: Vector;
   }
 
   export interface Serialized extends Action.Serialized {
-    worldId: string,
-    position: string // vector
+    worldId: string;
+    position: string; // vector
   }
 
   export interface SerializedForClient extends Serialized {
     layerData: {
-      base: string,
-      [key: string]: string
-    }
+      base: string;
+      [key: string]: string;
+    };
   }
 }

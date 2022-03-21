@@ -14,7 +14,13 @@ export class Property implements Property {
   minState: 'out' | 'in' | 'equals';
   maxState: 'out' | 'in' | 'equals';
 
-  constructor(entity: Entity, name: string, current: number = 0, min: number = -Infinity, max: number = Infinity) {
+  constructor(
+    entity: Entity,
+    name: string,
+    current: number = 0,
+    min: number = -Infinity,
+    max: number = Infinity
+  ) {
     this.entity = entity;
     this.name = name;
     this.current = new Value(this, 'current', current);
@@ -23,7 +29,6 @@ export class Property implements Property {
 
     this.minState = this.getMinState();
     this.maxState = this.getMaxState();
-    this.maxState = current > max ? 'out' : current < max ? 'in' : 'equals';
   }
 
   getValue(type: ValueType) {
@@ -31,7 +36,11 @@ export class Property implements Property {
   }
 
   getMinState(): ThresholdState {
-    return this.current < this.min ? 'out' : this.current > this.min ? 'in' : 'equals';
+    return this.current.calculated < this.min.calculated
+      ? 'out'
+      : this.current.calculated > this.min.calculated
+      ? 'in'
+      : 'equals';
   }
 
   updateMinState(): ThresholdState | undefined {
@@ -43,7 +52,11 @@ export class Property implements Property {
   }
 
   getMaxState(): ThresholdState {
-    return this.current > this.max ? 'out' : this.current < this.max ? 'in' : 'equals';
+    return this.current.calculated > this.max.calculated
+      ? 'out'
+      : this.current.calculated < this.max.calculated
+      ? 'in'
+      : 'equals';
   }
 
   updateMaxState(): ThresholdState | undefined {
@@ -61,7 +74,7 @@ export class Property implements Property {
     adjustmentAction,
     oldState,
     using,
-    metadata,
+    metadata
   }: PropertyThresholdAction.PropertyParams) {
     return new PropertyThresholdAction({
       caster,
@@ -86,7 +99,7 @@ export class Property implements Property {
     adjustmentAction,
     oldState,
     using,
-    metadata,
+    metadata
   }: PropertyThresholdAction.PropertyParams) {
     return new PropertyThresholdAction({
       caster,

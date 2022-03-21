@@ -1,43 +1,43 @@
-import { Action, Chaos, ActionType, Player } from '../../internal.js';
+import { Action, Chaos, ActionType, Player, ProcessEffectGenerator } from '../../internal.js';
 
-export class UnpublishPlayerAction extends Action {
+export class UnpublishPlayerAction extends Action<Player> {
   actionType = ActionType.UNPUBLISH_PLAYER_ACTION;
 
-  player: Player;
+  target: Player;
 
-  constructor({player}: UnpublishPlayerAction.Params) {
+  constructor({ target }: UnpublishPlayerAction.Params) {
     super();
-    this.player = player;
+    this.target = target;
   }
 
-  apply(): boolean {
-    return this.player._unpublish();
+  async *apply(): ProcessEffectGenerator {
+    return this.target._unpublish() || false;
   }
 
   serialize() {
     return {
-        ...super.serialize(),
-        player: this.player.id
-      };
+      ...super.serialize(),
+      target: this.target.id
+    };
   }
 
   static deserialize(json: UnpublishPlayerAction.Serialized): UnpublishPlayerAction {
     const common = Action.deserializeCommonFields(json);
-    const player = Chaos.players.get(json.player);
-    if(player === undefined) {
+    const target = Chaos.players.get(json.target);
+    if (target === undefined) {
       throw new Error('Player not found!');
     }
-    return new UnpublishPlayerAction({ ...common, player });
+    return new UnpublishPlayerAction({ ...common, target });
   }
 }
 
 // tslint:disable-next-line: no-namespace
 export namespace UnpublishPlayerAction {
   export interface Params {
-    player: Player;
+    target: Player;
   }
 
   export interface Serialized extends Action.Serialized {
-    player: string
+    target: string;
   }
 }

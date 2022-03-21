@@ -1,7 +1,15 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Action, Entity, Chaos, MoveAction, Vector, Player, Team } from '../../../src/internal.js';
+import {
+  Action,
+  Entity,
+  Chaos,
+  MoveAction,
+  Vector,
+  Player,
+  Team
+} from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
 import { SensesAll } from '../../Mocks/Components/Functional.js';
@@ -12,7 +20,7 @@ describe('Action Integration', () => {
     let witness: Entity;
     let mover: Entity;
     let room: Room;
-      
+
     beforeEach(() => {
       Chaos.reset();
       room = new Room();
@@ -21,7 +29,7 @@ describe('Action Integration', () => {
       witness._publish(room, room.stageLeft);
       mover = new Entity();
       mover._publish(room, room.stageRight);
-      action = new MoveAction({ 
+      action = new MoveAction({
         caster: mover,
         target: mover,
         to: mover.position.add(new Vector(1, 0))
@@ -29,7 +37,7 @@ describe('Action Integration', () => {
     });
 
     it('Assumes caster can sense everything, regardless of sensory components', () => {
-      action.execute();
+      action.runPrivate();
       expect(action.sensors.has(mover.id)).to.be.true;
       expect(action.sensors.get(mover.id)).to.be.true;
     });
@@ -39,12 +47,11 @@ describe('Action Integration', () => {
     //   expect(action.sensors.has(witness.id)).to.be.true;
     //   expect(action.sensors.get(witness.id)).to.be.true;
     // });
-
   });
 
   describe('Lets various entities, players, teams, and worlds, and game listen to an action', () => {
     it('Lets players and teams of affected entities listen to an action', () => {
-      const room = new Room(100, 100);;
+      const room = new Room(100, 100);
       const caster = new Entity();
       caster._publish(room, room.stageLeft);
       const target = new Entity();
@@ -56,19 +63,21 @@ describe('Action Integration', () => {
       const castingTeam = new Team({ name: 'Casting Team' });
       castingTeam._publish();
       caster.team = castingTeam;
-      const targetTeam = new Team ({ name: 'Target Team' });
+      const targetTeam = new Team({ name: 'Target Team' });
       targetTeam._publish();
       target.team = targetTeam;
       castingPlayer._ownEntity(caster);
       targetPlayer._ownEntity(target);
-      const action = new MoveAction({ 
-        caster, target, to: target.position.copyAdjusted(1, 0)
+      const action = new MoveAction({
+        caster,
+        target,
+        to: target.position.copyAdjusted(1, 0)
       });
       action.collectListeners();
-      expect(action.listeners.find(el => el === castingPlayer)).to.exist;
-      expect(action.listeners.find(el => el === castingTeam)).to.exist;
-      expect(action.listeners.find(el => el === targetPlayer)).to.exist;
-      expect(action.listeners.find(el => el === targetTeam)).to.exist;
+      expect(action.listeners.has(castingPlayer.id)).to.be.true;
+      expect(action.listeners.has(castingTeam.id)).to.be.true;
+      expect(action.listeners.has(targetPlayer.id)).to.be.true;
+      expect(action.listeners.has(targetTeam.id)).to.be.true;
     });
 
     describe('Entities, targets, witnesses, and world when caster and target are in same world', () => {
@@ -96,13 +105,13 @@ describe('Action Integration', () => {
       });
 
       it('Includes caster, target, their worlds, witnesses in respective worlds, and the game', () => {
-        action.collectListeners()
-        expect(action.listeners.find(el => el === caster)).to.exist;
-        expect(action.listeners.find(el => el === target)).to.exist;
-        expect(action.listeners.find(el => el === casterWitness)).to.exist;
-        expect(action.listeners.find(el => el === targetWitness)).to.exist;
-        expect(action.listeners.find(el => el === room)).to.exist;
-        expect(action.listeners.find(el => el === Chaos.reference)).to.exist;
+        action.collectListeners();
+        expect(action.listeners.has(caster.id)).to.be.true;
+        expect(action.listeners.has(target.id)).to.be.true;
+        expect(action.listeners.has(casterWitness.id)).to.be.true;
+        expect(action.listeners.has(targetWitness.id)).to.be.true;
+        expect(action.listeners.has(room.id)).to.be.true;
+        expect(action.listeners.has(Chaos.reference.id)).to.be.true;
       });
 
       it('Does not include witnesses that are outside of listening radius', () => {
@@ -111,8 +120,8 @@ describe('Action Integration', () => {
         const tooFarWitness = new Entity();
         tooFarWitness._publish(room, room.stageLeft.add(new Vector(20, 40)));
         action.collectListeners();
-        expect(action.listeners.find(el => el === nearbyWitness)).to.exist;
-        expect(action.listeners.find(el => el === tooFarWitness)).to.not.exist;
+        expect(action.listeners.has(nearbyWitness.id)).to.be.true;
+        expect(action.listeners.has(tooFarWitness.id)).to.be.false;
       });
     });
 
@@ -131,23 +140,29 @@ describe('Action Integration', () => {
         caster = new Entity();
         caster._publish(casterRoom, casterRoom.stageLeft);
         casterWitness = new Entity();
-        casterWitness._publish(casterRoom, casterRoom.stageLeft.add(new Vector(0, -1)));
+        casterWitness._publish(
+          casterRoom,
+          casterRoom.stageLeft.add(new Vector(0, -1))
+        );
         target = new Entity();
         target._publish(targetRoom, targetRoom.stageRight);
         targetWitness = new Entity();
-        targetWitness._publish(targetRoom, targetRoom.stageLeft.add(new Vector(0, -1)));
+        targetWitness._publish(
+          targetRoom,
+          targetRoom.stageLeft.add(new Vector(0, -1))
+        );
         action = target.moveRelative({ caster, amount: new Vector(1, 0) });
       });
 
       it('Includes caster, target, their worlds, witnesses in respective worlds, players, teams, and the game', () => {
         action.collectListeners();
-        expect(action.listeners.find(el => el === caster)).to.exist;
-        expect(action.listeners.find(el => el === target)).to.exist;
-        expect(action.listeners.find(el => el === casterWitness)).to.exist;
-        expect(action.listeners.find(el => el === targetWitness)).to.exist;
-        expect(action.listeners.find(el => el === casterRoom)).to.exist;
-        expect(action.listeners.find(el => el === targetRoom)).to.exist;
-        expect(action.listeners.find(el => el === Chaos.reference)).to.exist;
+        expect(action.listeners.has(caster.id)).to.be.true;
+        expect(action.listeners.has(target.id)).to.be.true;
+        expect(action.listeners.has(casterWitness.id)).to.be.true;
+        expect(action.listeners.has(targetWitness.id)).to.be.true;
+        expect(action.listeners.has(casterRoom.id)).to.be.true;
+        expect(action.listeners.has(targetRoom.id)).to.be.true;
+        expect(action.listeners.has(Chaos.reference.id)).to.be.true;
       });
     });
   });

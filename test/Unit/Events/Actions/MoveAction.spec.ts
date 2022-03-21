@@ -11,14 +11,14 @@ describe('MoveAction', () => {
 
   beforeEach(() => {
     Chaos.reset();
-    target = new Entity({ name: "Test Entity" });
+    target = new Entity({ name: 'Test Entity' });
     room = new Room(10, 10);
     target._publish(room, room.stageLeft);
   });
 
   it('Moves an entity absolutely', () => {
     const a = new MoveAction({ target, to: target.position.add(new Vector(1, 0)) });
-    a.apply();
+    a.apply().next();
     expect(target.position.x).to.equal(room.stageLeft.x + 1);
   });
 
@@ -31,11 +31,15 @@ describe('MoveAction', () => {
   });
 
   it('Can deserialize from proper json', () => {
-    const json: MoveAction.Serialized = { target: target.id, to: room.stageLeft.add(new Vector(1, 0)).serialize(), permitted: true, actionType: ActionType.MOVE_ACTION }
+    const json: MoveAction.Serialized = {
+      target: target.id,
+      to: room.stageLeft.add(new Vector(1, 0)).serialize(),
+      permitted: true,
+      actionType: ActionType.MOVE_ACTION
+    };
     const a = MoveAction.deserialize(json);
     expect(a instanceof MoveAction).to.be.true;
     expect(a.target).to.equal(target);
     expect(a.to.x).to.equal(room.stageLeft.x + 1);
   });
-  
 });

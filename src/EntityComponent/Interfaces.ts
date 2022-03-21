@@ -1,4 +1,4 @@
-import { Action, Entity, NestedMap } from "../internal.js";
+import { Action, Entity, NestedMap } from '../internal.js';
 
 export interface Identifiable {
   id: string;
@@ -18,6 +18,6 @@ export function cachesSensedEntities(o: any): o is CachesSensedEntities {
 
 // SCOPE
 
-export type Scope = 'entity' | 'world' | 'game'; // 'player' | 'team' | 'game';
+export type Scope = 'entity' | 'world' | 'player' | 'team' | 'game';
 
 export type ComponentScope = Map<string, Scope>;

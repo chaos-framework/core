@@ -1,21 +1,31 @@
-import { Action, ActionParameters, World, Vector, Entity, Chaos, ActionType, BroadcastType, NestedSet, NestedSetChanges } from '../../internal.js';
+import {
+  Action,
+  ActionParameters,
+  World,
+  Vector,
+  Entity,
+  Chaos,
+  ActionType,
+  BroadcastType,
+  NestedSet,
+  NestedSetChanges,
+  ProcessEffectGenerator
+} from '../../internal.js';
 
-export class PublishEntityAction extends Action {
+export class PublishEntityAction extends Action<Entity> {
   actionType: ActionType = ActionType.PUBLISH_ENTITY_ACTION;
-  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;  // TODO redundant? should never be true
+  broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY; // TODO redundant? should never be true
 
-  entity: Entity;
+  target: Entity;
   world: World;
   position: Vector;
-  target?: Entity; // likely unused; if the publishing is a hostile, could be cancelled by target in a meaningful way
   movementAction = true;
 
   temporaryViewer?: NestedSet;
-  chunkVisibilityChanges = new NestedSetChanges;
+  chunkVisibilityChanges = new NestedSetChanges();
 
-  constructor({ caster, target, entity, world, position, using, metadata }: PublishEntityAction.Params) {
-    super({caster, using, metadata });
-    this.entity = entity;
+  constructor({ caster, target, world, position, using, metadata }: PublishEntityAction.Params) {
+    super({ caster, using, metadata });
     this.world = world;
     this.position = position;
     this.target = target;
@@ -25,7 +35,11 @@ export class PublishEntityAction extends Action {
 
   initialize() {
     // Add temporary viewers to chunks in new location
-    this.temporaryViewer = this.world.addTemporaryViewer(this.position.toChunkSpace(), this.entity.active, this.chunkVisibilityChanges);
+    this.temporaryViewer = this.world.addTemporaryViewer(
+      this.position.toChunkSpace(),
+      this.target.active,
+      this.chunkVisibilityChanges
+    );
   }
 
   teardown() {
@@ -33,8 +47,8 @@ export class PublishEntityAction extends Action {
     this.world.removeViewer(this.temporaryViewer!.id, this.chunkVisibilityChanges);
   }
 
-  apply(): boolean {
-    return this.entity._publish(this.world, this.position, this.chunkVisibilityChanges);
+  async *apply(): ProcessEffectGenerator {
+    return this.target._publish(this.world, this.position, this.chunkVisibilityChanges);
   }
 
   serialize(): PublishEntityAction.Serialized {
@@ -42,12 +56,12 @@ export class PublishEntityAction extends Action {
       ...super.serialize(),
       position: this.position.serialize(),
       world: this.world.id,
-      entity: this.entity.serializeForClient()
+      target: this.target.serializeForClient()
     };
   }
-  
+
   getEntity(): Entity {
-    return this.entity;
+    return this.target;
   }
 
   static deserialize(json: PublishEntityAction.Serialized): PublishEntityAction {
@@ -55,12 +69,17 @@ export class PublishEntityAction extends Action {
       // Deserialize common fields
       const common = Action.deserializeCommonFields(json);
       // Deserialize unique fields
-      const entity: Entity | undefined = Entity.DeserializeAsClient(json.entity);  // lol OOPS
+      const target: Entity | undefined = Entity.DeserializeAsClient(json.target); // lol OOPS
       const world: World | undefined = Chaos.worlds.get(json.world);
       const position: Vector = Vector.deserialize(json.position);
       // Build the action if fields are proper, otherwise throw an error
-      if (entity && world && position) {
-        const a = new PublishEntityAction({ ...common, entity, world, position });
+      if (target && world && position) {
+        const a = new PublishEntityAction({
+          ...common,
+          target,
+          world,
+          position
+        });
         return a;
       } else {
         throw new Error('PublishEntityAction fields not correct.');
@@ -72,18 +91,17 @@ export class PublishEntityAction extends Action {
 }
 
 export namespace PublishEntityAction {
-  export interface EntityParams extends ActionParameters {
-    world: World,
-    position: Vector
+  export interface EntityParams extends ActionParameters<Entity> {
+    world: World;
+    position: Vector;
   }
 
   export interface Params extends EntityParams {
-    entity: Entity,
-    target?: Entity
+    target: Entity;
   }
 
   export interface Serialized extends Action.Serialized {
-    entity: Entity.SerializedForClient;
+    target: Entity.SerializedForClient;
     world: string;
     position: string;
   }

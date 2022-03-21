@@ -1,1 +1,1 @@
-export * from './internal.js' // TODO restrict
+export * from './internal.js'; // TODO restrict'

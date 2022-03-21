@@ -1,17 +1,29 @@
-import { Entity, Action, ActionParameters, ActionType, BroadcastType } from '../../internal.js';
+import {
+  Entity,
+  Action,
+  ActionParameters,
+  ActionType,
+  BroadcastType,
+  ProcessEffectGenerator,
+  ComponentContainer
+} from '../../internal.js';
 
-export class LogicalAction extends Action {
+export class LogicalAction extends Action<ComponentContainer> {
   actionType: ActionType = ActionType.LOGICAL;
   broadcastType = BroadcastType.NONE;
 
-  target?: Entity;
+  target?: ComponentContainer;
 
-  constructor(public name: string, public payload: any = {}, { caster, target, using, metadata }: LogicalAction.Params = {}) {
+  constructor(
+    public name: string,
+    public payload: any = {},
+    { caster, target, using, metadata }: LogicalAction.Params = {}
+  ) {
     super({ caster, using, metadata });
     this.target = target;
   }
 
-  apply(): boolean {
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 }

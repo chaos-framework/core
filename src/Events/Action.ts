@@ -1,9 +1,38 @@
-import { Chaos, ActionType, Entity, Component, Event, ComponentContainer, BroadcastType, World,
-  Permission, SensoryInformation, PublishEntityAction, NestedChanges, Viewer, Vector, Printable,
-  TerminalMessageFragment, TerminalMessage, Scope, NestedSet, NestedSetChanges
+import {
+  Chaos,
+  ActionType,
+  Entity,
+  Component,
+  Event,
+  ComponentContainer,
+  BroadcastType,
+  World,
+  Permission,
+  SensoryInformation,
+  NestedChanges,
+  Viewer,
+  Vector,
+  Printable,
+  TerminalMessageFragment,
+  TerminalMessage,
+  NestedSetChanges,
+  Followup,
+  processRunner,
+  Effect,
+  EffectGenerator,
+  EffectRunner,
+  Immediate,
+  ProcessEffectKey,
+  Permit,
+  Deny,
+  Delay,
+  ProcessEffectGenerator
 } from '../internal.js';
 
-export abstract class Action {
+export abstract class Action<
+  TargetType extends ComponentContainer = ComponentContainer,
+  CasterType extends ComponentContainer = ComponentContainer
+> implements EffectRunner {
   actionType: ActionType = ActionType.INVALID;
   broadcastType: BroadcastType = BroadcastType.FULL;
 
@@ -11,14 +40,14 @@ export abstract class Action {
   generatedMessage?: TerminalMessage;
   verb?: string;
 
-  caster?: Entity;
-  target?: Entity;
-  using?: Entity | Component;
+  caster?: CasterType;
+  target?: TargetType;
+  using?: Entity | Component<ComponentContainer>;
 
   metadata = new Map<string, string | number | boolean | undefined>();
   breadcrumbs: Set<string> = new Set<string>();
 
-  public: boolean = false;    // whether or not nearby entities (who are not omnipotent) can modify/react
+  public: boolean = false; // whether or not nearby entities (who are not omnipotent) can modify/react
 
   skipPrePhases: boolean = false; // whether or not to run pre-phases
   skipPostPhases: boolean = false; // whether or not to run post-phases
@@ -30,7 +59,7 @@ export abstract class Action {
 
   nested: number = 0;
 
-  movementAction: boolean = false;  // whether the action involves movement, and therefore possible scope / visibility change
+  movementAction: boolean = false; // whether the action involves movement, and therefore possible scope / visibility change
 
   anticipators = new Set<string>();
   sensors = new Map<string, SensoryInformation | boolean>();
@@ -38,42 +67,45 @@ export abstract class Action {
   entityVisibilityChanges?: NestedChanges;
   chunkVisibilityChanges?: NestedSetChanges;
 
-  listeners: ComponentContainer[] = [];
-  listenerIds = new Set<string>();
+  listeners = new Map<string, ComponentContainer>();
 
-  // Additional worlds and points that entities in a radius around can be included. 
-  additionalListenPoints: { world: World, position: Vector }[] = [];
+  // Additional worlds and points that entities in a radius around can be included.
+  additionalListenPoints: { world: World; position: Vector }[] = [];
   // Additional listeners on top of the default caster -> target flow
   additionalListeners: ComponentContainer[] = [];
 
   followups: (Action | Event)[] = [];
-  reactions: Action[] = [];
-  inReactionTo?: Action;
+  reactions: (Action | Event)[] = [];
+  previous?: {
+    action: Action;
+    effectType: ProcessEffectKey;
+  };
 
   // Function to run to check if the action is still feasible after any modifiers / counters etc
   feasabilityCallback?: (a?: Action) => boolean;
 
   static universallyRequiredFields: string[] = ['tags', 'breadcrumbs', 'permitted'];
 
-  constructor({ caster, using, metadata }: ActionParameters = {}) {
+  constructor({ caster, target, using, metadata }: ActionParameters<TargetType, CasterType> = {}) {
     this.caster = caster;
+    this.target = target;
     this.using = using;
     this.permissions.set(0, new Permission(true));
-        // tslint:disable-next-line: forin
-    for(const key in metadata) {
+    // tslint:disable-next-line: forin
+    for (const key in metadata) {
       this.metadata.set(key, metadata[key]);
     }
   }
 
   // Upon execution this action will apply itself and broadcast -- no phases called
-  direct(): Action {
+  direct(): Action<TargetType, CasterType> {
     this.skipPrePhases = true;
     this.skipPostPhases = true;
     return this;
   }
 
   // Set the optional callback to see if the action is still possible
-  if(callback: (a?: Action) => boolean): Action {
+  if(callback: (a?: Action) => boolean): Action<TargetType, CasterType> {
     this.feasabilityCallback = callback;
     return this;
   }
@@ -83,80 +115,101 @@ export abstract class Action {
     return this;
   }
 
-  execute(force: boolean = false): boolean {
-    // console.log(''.padStart(this.nested, ' ') + this.actionType );
+  async *run(force: boolean = false): EffectGenerator {
     this.initialize();
 
-    // If target is unpublished, just run through locally attached components (these may need to do work before publishing)
-    if (this.target && !this.target.isPublished() && !(this instanceof PublishEntityAction)) {
-      if (!this.skipPrePhases) {
-        for(const phase of Chaos.getPrePhases()) {
-          this.target.handle(phase, this);
-        }
-      }
-      this.decidePermission();
-      if (this.permitted || force) {
-        this.apply();
-      }
-      if (!this.skipPostPhases) {
-        for(const phase of Chaos.getPostPhases()) {
-          this.target.handle(phase, this);
-        }
-      }
-      return true;
-    }
-
-    // Get listeners (entities, maps, systems, etc) in order they should modify/react
+    // Get listeners (nearby entities, worlds, systems, etc)
     this.collectListeners();
 
     // Assume that caster has full awareness
-    if(this.caster) {
+    if (this.caster) {
       this.sensors.set(this.caster.id, true);
     }
 
     // Handle all pre-phases
     if (!this.skipPrePhases) {
-      for(const phase of Chaos.getPrePhases()) {
-        for(const listener of this.listeners) {
+      for (const phase of Chaos.getPrePhases()) {
+        for (const [, listener] of this.listeners) {
           listener.handle(phase, this);
         }
       }
     }
 
-    // See if this action was not permitted by any modifiers
+    // See if the action is allowed after any modifiers
     this.decidePermission();
+
     // Apply this action to the target, checking for permission and if still feasible
-    if ((this.permitted && this.feasabilityCallback !== undefined ? this.feasabilityCallback(this) : true) || force) {
-      this.applied = this.apply();
-    }
-
-    // Queue in the game
-    Chaos.processor.queueForBroadcast(this);
-
-    // Do any special teardown for this action (ie unloading areas of the world we've moved away from)
-    this.teardown();
-
-    // Handle all post-phases
-    if (!this.skipPostPhases) {
-      for(const phase of Chaos.getPostPhases()) {
-        for(const listener of this.listeners) {
-          listener.handle(phase, this);
-        }
+    if (
+      (this.permitted && this.feasabilityCallback !== undefined
+        ? this.feasabilityCallback(this)
+        : true) ||
+      force
+    ) {
+      const generator = this.apply();
+      let res = await generator.next();
+      while (!res.done) {
+        yield res.value;
+        res = await generator.next();
       }
+      this.applied = res.value;
     }
 
     // Generate terminal message
     this.generateMessage();
 
-    Chaos.processor.process(this);
+    // Handle all post-phases
+    if (!this.skipPostPhases) {
+      for (const phase of Chaos.getPostPhases()) {
+        for (const [, listener] of this.listeners) {
+          listener.handle(phase, this);
+        }
+      }
+    }
+
+    this.teardown();
 
     return this.applied;
   }
 
+  // Runs this action internally, without broadcasting to any clients. Useful for entity factories or game initialization.
+  async runPrivate() {
+    await processRunner(this, false);
+  }
+
+  // Runs processEffect on all yielded results of this action
+  async *process(): EffectGenerator {
+    const generator = this.apply();
+    let next = await generator.next();
+    // Handle
+    while (next.done === false) {
+      const effect = next.value;
+      const result = this.processEffect(effect);
+      next = await generator.next();
+    }
+  }
+
+  /**
+   * Logic for effect handling within actions. Handles permission effects by default, but can be
+   * overriden for custom action-specific effects. Just make sure to return `super(effect)` at the end
+   * if the override doesn't actually handle the effect passed in.
+   */
+  processEffect(effect: Effect): Effect | undefined {
+    const [effectType] = effect;
+    switch (effectType) {
+      case 'PERMIT':
+        this.addPermission(true, effect[1]);
+        break;
+      case 'DENY':
+        this.addPermission(false, effect[1]);
+        break;
+      default:
+        return undefined;
+    }
+  }
+
   addListener(listener: ComponentContainer) {
-    if(!this.listenerIds.has(listener.id)) {
-      this.listeners.push(listener);
-      this.listenerIds.add(listener.id);
+    if (!this.listeners.has(listener.id)) {
+      this.listeners.set(listener.id, listener);
     }
   }
 
@@ -166,12 +219,12 @@ export abstract class Action {
     const { caster, target } = this;
 
     // Add the caster, caster's world, player, teams, and nearby entities (if caster specified)
-    if (caster !== undefined) {
+    if (caster instanceof Entity) {
       this.addListener(caster);
       // Add all nearby entities and the world itself, if caster is published to a world
       if (caster.world !== undefined) {
-        caster.world.getEntitiesWithinRadius(caster.position, listenRadius).map(entity => {
-          if(entity.id !== caster.id && entity.id !== target?.id) {
+        caster.world.getEntitiesWithinRadius(caster.position, listenRadius).map((entity) => {
+          if (entity.id !== caster.id && entity.id !== target?.id) {
             this.addListener(entity);
           }
         });
@@ -183,7 +236,7 @@ export abstract class Action {
         this.addListener(player);
       }
 
-      // Add all teams that this entity belongs to 
+      // Add all teams that this entity belongs to
       if (caster.team !== undefined) {
         this.addListener(caster.team);
       }
@@ -197,10 +250,10 @@ export abstract class Action {
     // TODO add players + teams of target(s)
 
     // Add the target world, nearby entities, and target itself.. if the target !== the caster
-    if(target !== undefined && target !== caster) {
-      if(target.world !== undefined) {
+    if (target instanceof Entity && (target as any) !== caster) {
+      if (target.world !== undefined) {
         this.addListener(target.world);
-        target.world.getEntitiesWithinRadius(target.position, listenRadius).forEach(entity => {
+        target.world.getEntitiesWithinRadius(target.position, listenRadius).forEach((entity) => {
           this.addListener(entity);
         });
       }
@@ -211,52 +264,48 @@ export abstract class Action {
         this.addListener(player);
       }
 
-      // Add all teams that this entity belongs to 
+      // Add all teams that this entity belongs to
       if (target.team !== undefined) {
         this.addListener(target.team);
       }
     }
 
     // Let worlds and entities listen in any additional radiuses specified by the action
-    this.additionalListenPoints.map(point => {
+    this.additionalListenPoints.map((point) => {
       this.addListener(point.world);
-      point.world.getEntitiesWithinRadius(point.position, listenRadius).forEach(entity => {
+      point.world.getEntitiesWithinRadius(point.position, listenRadius).forEach((entity) => {
         this.addListener(entity);
       });
-    })
+    });
 
     // Add any additional listeners specified by the action
-    this.additionalListeners.map(listener => this.addListener(listener));
-  }
-
-  handlePrePhases() {
-
-  }
-
-  handlePostPhases() {
-    
-  }
-
-  permit({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
-    this.addPermission(true, { priority, by, using, message });
-  }
-
-  deny({ priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
-    this.addPermission(false, { priority, by, using, message });
+    this.additionalListeners.map((listener) => this.addListener(listener));
   }
 
   deniedByDefault() {
-    this.deny();
+    this.addPermission(false);
     return this;
   }
 
-  addPermission(permitted: boolean, { priority = 0, by, using, message }: { priority?: number, by?: Entity | Component, using?: Entity | Component, message?: string } = {}) {
+  addPermission(
+    permitted: boolean,
+    {
+      priority = 0,
+      by,
+      using,
+      message
+    }: {
+      priority?: number;
+      by?: Entity | Component;
+      using?: Entity | Component;
+      message?: string;
+    } = {}
+  ) {
     const previous = this.permissions.get(priority);
     if (previous === undefined) {
       // Add directly if this has never been added
       this.permissions.set(priority, new Permission(permitted, { by, using, message }));
-    }
-    else {
+    } else {
       // Override the previous at this priority if the new one is a denial and the previous is an allowance
       if (previous.permitted && !permitted) {
         this.permissions.set(priority, new Permission(permitted, { by, using, message }));
@@ -277,7 +326,7 @@ export abstract class Action {
   }
 
   tag(tag: string) {
-    if(!this.metadata.has(tag)) {
+    if (!this.metadata.has(tag)) {
       this.metadata.set(tag, true);
     }
   }
@@ -290,33 +339,56 @@ export abstract class Action {
     return this.metadata.has(tag);
   }
 
-  sense(entity: Entity, information: SensoryInformation | boolean) {
-    
+  sense(entity: Entity, information: SensoryInformation | boolean) {}
+
+  static immediate(action: Action): Immediate {
+    return ['IMMEDIATE', action];
   }
 
-  counter(action: Action): boolean {
-    action.nested = this.nested + 1;
-    if (action.nested < 10) {
-      return action.execute();
+  react(action: Action): Immediate {
+    action.previous = {
+      action: this,
+      effectType: 'IMMEDIATE'
+    };
+    return ['IMMEDIATE', action];
+  }
+
+  followup(item: Action | Event): Followup {
+    item.previous = {
+      action: this,
+      effectType: 'FOLLOWUP'
+    };
+    return ['FOLLOWUP', item];
+  }
+
+  /**
+   * Returns a `Delay` effect for the number of milliseconds specified. Delay does
+   * not run other actions asynchronously, but broadcasts actions up to this point
+   * and waits before process any other actions. Note that in case of a low enough
+   * `millisecond` count with a large enough backlog of actions to serialize and
+   * broadcast out, there is a chance that the delay in real-time will be greater
+   * than the number of `milliseconds` specified.
+   * @param milliseconds The time (in milliseconds) to delay for. Must be `>= 0`.
+   * @returns
+   */
+  delay(milliseconds: number): Delay {
+    if (milliseconds < 0) {
+      // TODO make this more specific
+      throw new Error();
     }
-    return false;
+    return ['DELAY', milliseconds];
   }
 
-  react(action: Action): boolean {
-    this.reactions.push(action);
-    action.nested = this.nested + 1;
-    action.inReactionTo = this;
-    if (action.nested < 10) {
-      this.reactions.push(action);
-      return action.execute();
-    }
-    // TODO figure out logging / errors, then throw one for reactions that are obviously cyclicle
-    return false;
+  permit(priority: number = 0, args?: Omit<Permit[1], 'priority'>): Permit {
+    return ['PERMIT', { ...args, priority }];
   }
 
-  followup(o: Action | Event): void {
-    this.followups.push(o);
-    Chaos.processor.queue.enqueue(o);
+  deny(priority: number = 0, args?: Omit<Permit[1], 'priority'>): Deny {
+    return ['DENY', { ...args, priority }];
+  }
+
+  asEffect(): Immediate {
+    return ['IMMEDIATE', this];
   }
 
   static serializedHasRequiredFields(json: any, additional: string[]): boolean {
@@ -342,15 +414,17 @@ export abstract class Action {
     return { caster, target, using, metadata, permitted };
   }
 
-  abstract apply(): boolean;
+  abstract apply(): ProcessEffectGenerator;
 
   isInPlayerOrTeamScope(viewer: Viewer): boolean {
     return true; // SCOPE
-  };
+  }
 
   // Get the relevant entity, by default the target but some actions apply to an entity that is not the target
   getEntity(): Entity | undefined {
-    return this.target;
+    if (this.target instanceof Entity) {
+      return this.target;
+    }
   }
 
   serialize(): Action.Serialized {
@@ -372,34 +446,38 @@ export abstract class Action {
       }
       this.generatedMessage = this.terminalMessage;
     }
-  };
+  }
 
-  initialize(): void { };
-  teardown(): void { };
+  initialize(): void {}
+  teardown(): void {}
 }
 
 // tslint:disable-next-line: no-namespace
 export namespace Action {
   export interface Serialized {
-    caster?: string,
-    target?: string,
-    using?: string,
-    metadata?: {[key: string]: string | number | boolean | undefined}
-    permitted: boolean,
-    actionType: ActionType
+    caster?: string;
+    target?: any;
+    using?: string;
+    metadata?: { [key: string]: string | number | boolean | undefined };
+    permitted: boolean;
+    actionType: ActionType;
   }
 
   export interface Deserialized {
-    caster?: Entity,
-    target?: Entity,
-    using?: Entity,
-    metadata?: {[key: string]: string | number | boolean | undefined}
-    permitted: boolean
+    caster?: Entity;
+    target?: Entity;
+    using?: Entity;
+    metadata?: { [key: string]: string | number | boolean | undefined };
+    permitted: boolean;
   }
 }
 
-export interface ActionParameters {
-  caster?: Entity,
-  using?: Entity | Component,
-  metadata?: {[key: string]: string | number | boolean | undefined}
+export interface ActionParameters<
+  TargetType extends ComponentContainer = ComponentContainer,
+  CasterType extends ComponentContainer = ComponentContainer
+> {
+  caster?: CasterType;
+  target?: TargetType;
+  using?: Entity | Component;
+  metadata?: { [key: string]: string | number | boolean | undefined };
 }

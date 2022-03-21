@@ -1,6 +1,16 @@
-import { Action, ActionParameters, Entity, Chaos, ActionType, Vector, BroadcastType, Viewer, NestedSetChanges } from '../../internal.js';
+import {
+  Action,
+  ActionParameters,
+  Entity,
+  ActionType,
+  Vector,
+  BroadcastType,
+  Viewer,
+  NestedSetChanges,
+  ProcessEffectGenerator
+} from '../../internal.js';
 
-export class MoveAction extends Action {
+export class MoveAction extends Action<Entity> {
   actionType: ActionType = ActionType.MOVE_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
@@ -8,7 +18,7 @@ export class MoveAction extends Action {
   from: Vector;
   to: Vector;
   movementAction = true;
-  chunkVisibilityChanges = new NestedSetChanges;
+  chunkVisibilityChanges = new NestedSetChanges();
 
   constructor({ caster, target, to, using, metadata }: MoveAction.Params) {
     super({ caster, using, metadata });
@@ -16,12 +26,12 @@ export class MoveAction extends Action {
     this.from = target.position;
     this.to = to;
     // Let the abstract impl of execute know to let listeners react in the space that this entity has not YET moved to
-    if(this.target.world !== undefined) {
+    if (this.target.world !== undefined) {
       this.additionalListenPoints = [{ world: this.target.world, position: to }];
     }
   }
 
-  apply(): boolean {
+  async *apply(): ProcessEffectGenerator {
     return this.target._move(this.to, this.chunkVisibilityChanges);
   }
 
@@ -41,9 +51,9 @@ export class MoveAction extends Action {
       // Check if this entity is active, and therefore needs to persist the world around it
       // Also check if action was permitted. If so, remove old view. If neither is true, just remove old.
       if (this.target.active && this.applied) {
-      //   world.removeView(this.target, this.from.toChunkSpace(), this.to.toChunkSpace());
-      // } else {
-      //   world.removeView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());
+        //   world.removeView(this.target, this.from.toChunkSpace(), this.to.toChunkSpace());
+        // } else {
+        //   world.removeView(this.target, this.to.toChunkSpace(), this.from.toChunkSpace());
       }
     }
   }
@@ -69,7 +79,7 @@ export class MoveAction extends Action {
       to: this.to.serialize(),
       target: this.target.id
     };
-  };
+  }
 
   static deserialize(json: MoveAction.Serialized): MoveAction {
     try {
@@ -89,7 +99,6 @@ export class MoveAction extends Action {
       throw error;
     }
   }
-
 }
 
 // tslint:disable-next-line: no-namespace
@@ -98,7 +107,7 @@ export namespace MoveAction {
     target: Entity;
   }
 
-  export interface EntityParams extends ActionParameters {
+  export interface EntityParams extends ActionParameters<Entity> {
     to: Vector;
   }
 
@@ -107,7 +116,7 @@ export namespace MoveAction {
   }
 
   export interface Serialized extends Action.Serialized {
-    target: string,
-    to: string
+    target: string;
+    to: string;
   }
 }

@@ -1,4 +1,11 @@
-import { Action, ActionParameters, TerminalMessage, ActionType, BroadcastType } from "../../internal.js";
+import {
+  Action,
+  ActionParameters,
+  TerminalMessage,
+  ActionType,
+  BroadcastType,
+  ProcessEffectGenerator
+} from '../../internal.js';
 
 export class MessageAction extends Action {
   actionType = ActionType.MESSAGE;
@@ -6,12 +13,12 @@ export class MessageAction extends Action {
 
   terminalMessage: TerminalMessage | ((action: Action) => TerminalMessage);
 
-  constructor({caster, message, using, metadata }: MessageAction.Params) {
-    super({caster, using, metadata });
-    this.terminalMessage = message
+  constructor({ caster, message, using, metadata }: MessageAction.Params) {
+    super({ caster, using, metadata });
+    this.terminalMessage = message;
   }
 
-  apply(): boolean {
+  async *apply(): ProcessEffectGenerator {
     return true;
   }
 }

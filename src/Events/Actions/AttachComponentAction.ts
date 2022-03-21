@@ -1,19 +1,27 @@
-import { Action, ActionParameters, Entity, Component, ActionType, BroadcastType, Chaos } from '../../internal.js';
+import {
+  Action,
+  ActionParameters,
+  Entity,
+  Component,
+  ActionType,
+  BroadcastType,
+  ProcessEffectGenerator
+} from '../../internal.js';
 
-export class AttachComponentAction extends Action {
+export class AttachComponentAction extends Action<Entity> {
   actionType: ActionType = ActionType.ATTACH_COMPONENT_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
   target: Entity;
   component: Component;
 
-  constructor({caster, target, component, using, metadata }: AttachComponentAction.Params) {
-    super({caster, using, metadata });
+  constructor({ caster, target, component, using, metadata }: AttachComponentAction.Params) {
+    super({ caster, using, metadata });
     this.target = target;
     this.component = component;
   }
 
-  apply(): boolean {
+  async *apply(): ProcessEffectGenerator {
     return this.target._attach(this.component);
   }
 
@@ -24,7 +32,7 @@ export class AttachComponentAction extends Action {
       component: this.component.serializeForClient()
     };
   }
-  
+
   static deserialize(json: any): AttachComponentAction {
     try {
       // Deserialize common fields
@@ -33,7 +41,7 @@ export class AttachComponentAction extends Action {
       // Deserialize unique fields
       const component = Component.DeserializeAsClient(json.component);
       if (target === undefined) {
-        throw new Error;
+        throw new Error();
       }
       // Build the action if we did indeed find
       return new AttachComponentAction({ ...common, target, component });
@@ -44,18 +52,20 @@ export class AttachComponentAction extends Action {
 }
 
 export namespace AttachComponentAction {
-  export interface EntityParams extends ActionParameters {
-    component: Component
+  export interface EntityParams extends ActionParameters<Entity> {
+    component: Component;
   }
 
-  export interface ComponentParams extends ActionParameters {
+  export interface ComponentParams extends ActionParameters<Entity> {
     target: Entity;
   }
 
-  export interface Params extends EntityParams, ComponentParams { }
+  export interface Params extends EntityParams {
+    target: Entity;
+  }
 
   export interface Serialized extends Action.Serialized {
-    target: string,
+    target: string;
     component: Component.SerializedForClient;
   }
 }
