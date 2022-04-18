@@ -1,17 +1,24 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { MoveAction, Entity, Chaos, Vector, ActionType } from '../../../../src/internal.js';
+import {
+  MoveAction,
+  Entity,
+  Chaos,
+  Vector,
+  ActionType,
+  PublishedEntity
+} from '../../../../src/internal.js';
 
 import Room from '../../../Mocks/Worlds/Room.js';
 
 describe('MoveAction', () => {
-  let target: Entity;
+  let target: PublishedEntity;
   let room: Room;
 
   beforeEach(() => {
     Chaos.reset();
-    target = new Entity({ name: 'Test Entity' });
+    target = new Entity({ name: 'Test Entity' }) as PublishedEntity;
     room = new Room(10, 10);
     target._publish(room, room.stageLeft);
   });

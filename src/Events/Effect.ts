@@ -18,7 +18,7 @@ export type Delay = readonly ['DELAY', number];
 
 export type ProcessEffect = Immediate | Followup | Delay;
 export type ProcessEffectKey = ProcessEffect[0];
-export type ProcessEffectGenerator = EffectGenerator<ProcessEffect, boolean>;
+export type ProcessEffectGenerator<T = boolean> = EffectGenerator<ProcessEffect, T>;
 export type ProcessEffectRunner = EffectRunner<ProcessEffect, boolean>;
 
 export type Permit = readonly [
@@ -27,7 +27,7 @@ export type Permit = readonly [
     priority: number;
     by?: Entity | Component;
     using?: Entity | Component;
-    message?: TerminalMessage;
+    message?: string | TerminalMessage;
   }
 ];
 export type Deny = readonly [
@@ -36,11 +36,11 @@ export type Deny = readonly [
     priority: number;
     by?: Entity | Component;
     using?: Entity | Component;
-    message?: TerminalMessage;
+    message?: string | TerminalMessage;
   }
 ];
 
 export type ActionEffect = Permit | Deny;
 export type ActionEffectKey = ActionEffect[0];
-export type ActionEffectGenerator = EffectGenerator<ActionEffect, boolean>;
+export type ActionEffectGenerator<T = boolean> = EffectGenerator<ActionEffect, T>;
 export type ActionEffectRunner = EffectRunner<ActionEffect, boolean>;

@@ -8,7 +8,8 @@ import {
   MoveAction,
   Vector,
   Player,
-  Team
+  Team,
+  PublishedEntity
 } from '../../../src/internal.js';
 
 import Room from '../../Mocks/Worlds/Room.js';
@@ -31,7 +32,7 @@ describe('Action Integration', () => {
       mover._publish(room, room.stageRight);
       action = new MoveAction({
         caster: mover,
-        target: mover,
+        target: mover as PublishedEntity,
         to: mover.position.add(new Vector(1, 0))
       });
     });
@@ -70,7 +71,7 @@ describe('Action Integration', () => {
       targetPlayer._ownEntity(target);
       const action = new MoveAction({
         caster,
-        target,
+        target: target as PublishedEntity,
         to: target.position.copyAdjusted(1, 0)
       });
       action.collectListeners();
@@ -140,17 +141,11 @@ describe('Action Integration', () => {
         caster = new Entity();
         caster._publish(casterRoom, casterRoom.stageLeft);
         casterWitness = new Entity();
-        casterWitness._publish(
-          casterRoom,
-          casterRoom.stageLeft.add(new Vector(0, -1))
-        );
+        casterWitness._publish(casterRoom, casterRoom.stageLeft.add(new Vector(0, -1)));
         target = new Entity();
         target._publish(targetRoom, targetRoom.stageRight);
         targetWitness = new Entity();
-        targetWitness._publish(
-          targetRoom,
-          targetRoom.stageLeft.add(new Vector(0, -1))
-        );
+        targetWitness._publish(targetRoom, targetRoom.stageLeft.add(new Vector(0, -1)));
         action = target.moveRelative({ caster, amount: new Vector(1, 0) });
       });
 

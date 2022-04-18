@@ -7,14 +7,15 @@ import {
   BroadcastType,
   Viewer,
   NestedSetChanges,
-  ProcessEffectGenerator
+  ProcessEffectGenerator,
+  PublishedEntity
 } from '../../internal.js';
 
 export class MoveAction extends Action<Entity> {
   actionType: ActionType = ActionType.MOVE_ACTION;
   broadcastType = BroadcastType.HAS_SENSE_OF_ENTITY;
 
-  target: Entity;
+  target: PublishedEntity;
   from: Vector;
   to: Vector;
   movementAction = true;
@@ -73,6 +74,11 @@ export class MoveAction extends Action<Entity> {
     return this.from.withinRadius(origin, radius) && !this.to.withinRadius(origin, radius);
   }
 
+  getDelta() {
+    // TODO test
+    return this.to.subtract(this.from).length();
+  }
+
   serialize(): MoveAction.Serialized {
     return {
       ...super.serialize(),
@@ -90,7 +96,7 @@ export class MoveAction extends Action<Entity> {
       const to: Vector = Vector.deserialize(json.to);
       // Build the action if fields are proper, otherwise throw an error
       if (target !== undefined && to) {
-        const a = new MoveAction({ ...common, target, to });
+        const a = new MoveAction({ ...common, target: target as PublishedEntity, to });
         return a;
       } else {
         throw new Error('MoveAction fields not correct.');
@@ -104,7 +110,7 @@ export class MoveAction extends Action<Entity> {
 // tslint:disable-next-line: no-namespace
 export namespace MoveAction {
   export interface Params extends EntityParams {
-    target: Entity;
+    target: PublishedEntity;
   }
 
   export interface EntityParams extends ActionParameters<Entity> {

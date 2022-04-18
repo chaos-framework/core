@@ -507,17 +507,23 @@ export class Entity implements ComponentContainer, Printable {
   // Movement
 
   move({ caster, to, using, metadata }: MoveAction.EntityParams): MoveAction {
-    return new MoveAction({ caster, target: this, to, using, metadata });
+    if (this.isPublished()) {
+      return new MoveAction({ caster, target: this, to, using, metadata });
+    }
+    throw new Error('Tried to create move action for unpublished entity.');
   }
 
   moveRelative({ caster, amount, using, metadata }: MoveAction.EntityRelativeParams): MoveAction {
-    return new MoveAction({
-      caster,
-      target: this,
-      to: this.position.copyAdjusted(amount.x, amount.y),
-      using,
-      metadata
-    });
+    if (this.isPublished()) {
+      return new MoveAction({
+        caster,
+        target: this,
+        to: this.position.copyAdjusted(amount.x, amount.y),
+        using,
+        metadata
+      });
+    }
+    throw new Error('Tried to create move action for unpublished entity.');
   }
 
   _move(to: Vector, changes = new NestedSetChanges()): boolean {
