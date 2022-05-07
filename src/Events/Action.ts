@@ -49,6 +49,18 @@ export abstract class Action<
 
   public: boolean = false; // whether or not nearby entities (who are not omnipotent) can modify/react
 
+  // TODO below doesn't actually stop developer from adding redundant before or after..
+  static prePhases: Exclude<string[], 'before'> = ['permit', 'modify'];
+  static postPhases: Exclude<string[], 'after'> = ['react'];
+
+  getPrePhases(): string[] {
+    return (this.constructor as any).prePhases || [];
+  }
+
+  getPostPhases(): string[] {
+    return (this.constructor as any).postPhases || [];
+  }
+
   skipPrePhases: boolean = false; // whether or not to run pre-phases
   skipPostPhases: boolean = false; // whether or not to run post-phases
 
@@ -128,7 +140,7 @@ export abstract class Action<
 
     // Handle all pre-phases
     if (!this.skipPrePhases) {
-      for (const phase of Chaos.getPrePhases()) {
+      for (const phase of ['before', ...this.getPrePhases()]) {
         for (const [, listener] of this.listeners) {
           listener.handle(phase, this);
         }
@@ -159,7 +171,7 @@ export abstract class Action<
 
     // Handle all post-phases
     if (!this.skipPostPhases) {
-      for (const phase of Chaos.getPostPhases()) {
+      for (const phase of [...this.getPostPhases(), 'after']) {
         for (const [, listener] of this.listeners) {
           listener.handle(phase, this);
         }

@@ -5,16 +5,15 @@ import { Action, ProcessEffectGenerator } from '../../../src/internal.js';
 
 // Fake concrete implementation
 class TestAction extends Action {
+  static prePhases: string[] = ['alteredPrePhase'];
+  static postPhases: string[] = ['alteredPostPhase'];
+
   async *apply(): ProcessEffectGenerator {
     return true;
   }
 }
 
 describe('Action Abstract Functionality', () => {
-  describe('Feasiblity callbacks', () => {
-    // TODO
-  });
-
   describe('Permits or forbids actions intelligently', () => {
     let a: TestAction;
     beforeEach(() => {
@@ -55,5 +54,11 @@ describe('Action Abstract Functionality', () => {
       a.decidePermission();
       expect(a.permitted).to.be.false;
     });
+  });
+
+  it('Allows overriding of pre- and postphases', function () {
+    const action = new TestAction();
+    expect(action.getPrePhases()).to.include('alteredPrePhase');
+    expect(action.getPostPhases()).to.include('alteredPostPhase');
   });
 });
