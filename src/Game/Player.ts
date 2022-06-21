@@ -1,4 +1,3 @@
-import { Queue } from 'queue-typescript';
 import { v4 as uuid } from 'uuid';
 import {
   Chaos,
@@ -11,7 +10,6 @@ import {
   ComponentContainer,
   ComponentCatalog,
   Scope,
-  MessageType,
   OwnEntityAction,
   NestedChanges,
   Viewer,
@@ -19,11 +17,9 @@ import {
   NestedSetChanges
 } from '../internal.js';
 
-// TODO clean up above imports
-
 export class Player implements Viewer, ComponentContainer {
   id: string = uuid();
-  client?: Client;
+  clients = new Map<string, Client>();
   username: string;
 
   team?: Team; // teams this player belongs to
@@ -36,7 +32,6 @@ export class Player implements Viewer, ComponentContainer {
   sensedEntities: NestedMap<Entity>;
   visibleChunks: NestedSet;
 
-  broadcastQueue = new Queue<any>();
   published = true; // TODO change this?
 
   constructor({
@@ -49,7 +44,9 @@ export class Player implements Viewer, ComponentContainer {
     this.id = id;
     this.username = username ? username : this.id.substring(this.id.length - 6);
     this.admin = admin;
-    this.client = client;
+    if (client !== undefined) {
+      this.clients.set(client.id, client);
+    }
     this.entities = new Map<string, Entity>();
     this.sensedEntities = new NestedMap<Entity>(id, 'player');
     // Make sure the team exists, if passed
@@ -92,19 +89,14 @@ export class Player implements Viewer, ComponentContainer {
     if (serialized === undefined) {
       serialized = action.serialize();
     }
-    if (this.client !== undefined) {
-      this.broadcastQueue.enqueue(serialized);
+    for (const [,client] of this.clients) {
+      client.broadcastQueue.enqueue(serialized);
     }
   }
 
   broadcast() {
-    if (this.client !== undefined) {
-      let serializedAction = this.broadcastQueue.dequeue();
-      while (serializedAction !== undefined) {
-        // TODO batch these
-        this.client.broadcast(MessageType.ACTION, serializedAction);
-        serializedAction = this.broadcastQueue.dequeue();
-      }
+    for (const [,client] of this.clients) {
+      client.broadcastEnqueued();
     }
   }
 

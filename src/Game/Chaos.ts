@@ -5,6 +5,7 @@ import {
   Component,
   Viewer,
   Player,
+  Client,
   Team,
   ComponentCatalog,
   ComponentContainer,
@@ -25,7 +26,7 @@ let phases = ['modify', 'permit', 'react', 'output'];
 let prePhases = ['modify', 'permit'];
 let postPhases = ['react', 'output'];
 
-// const phases = new Set<string>()
+export const adminClients: Map<string, Client> = new Map<string, Client>();
 
 export const worlds: Map<string, World> = new Map<string, World>();
 export const entities: Map<string, Entity> = new Map<string, Entity>();
@@ -194,6 +195,15 @@ export function removeEntity(e: Entity): boolean {
   return true;
 }
 
+export function addAdmin(admin: Client) {
+  adminClients.set(admin.id, admin);
+}
+
+export function removeAdmin(admin: Client | string) {
+  const id = admin instanceof Object ? admin.id : admin;
+  adminClients.delete(id);
+}
+
 export function addPlayer(player: Player) {
   players.set(player.id, player);
 }
@@ -239,8 +249,8 @@ export function percieve(
 }
 
 export function serializeForScope(viewer: Viewer): SerializedForClient {
-  const o: SerializedForClient = {
-    id: id,
+  const serialized: SerializedForClient = {
+    id, // game id
     players: [],
     teams: [],
     worlds: [],
@@ -249,11 +259,11 @@ export function serializeForScope(viewer: Viewer): SerializedForClient {
   };
   // Serialize all players
   for (const player of players.values()) {
-    o.players.push(player.serializeForClient());
+    serialized.players.push(player.serializeForClient());
   }
   // Serialize all teams
   for (const team of teams.values()) {
-    o.teams.push(team.serializeForClient());
+    serialized.teams.push(team.serializeForClient());
   }
   // Gather all visible worlds and serialize with visible baselayer chunks
   // TODO SCOPE -- I have to track visible worlds in their own nested set, for NOW this is acceptable
@@ -268,9 +278,9 @@ export function serializeForScope(viewer: Viewer): SerializedForClient {
           `Could not find work id ${id} when serializing chunk ${x} ${y} for client.`
         );
       }
-      o.worldData[id] ??= [];
+      serialized.worldData[id] ??= [];
       // yeesh
-      o.worldData[id].push({
+      serialized.worldData[id].push({
         x: parseInt(x),
         y: parseInt(y),
         data: world.serializeChunk(parseInt(x), parseInt(y))
@@ -280,15 +290,58 @@ export function serializeForScope(viewer: Viewer): SerializedForClient {
   for (const worldId of worldIds) {
     const world = worlds.get(worldId)?.serializeForClient();
     if (world !== undefined) {
-      o.worlds.push(world);
+      serialized.worlds.push(world);
     }
   }
   // Gather all entities in sight
   const visibleEntities = viewer.getSensedAndOwnedEntities();
   for (const [, entity] of visibleEntities) {
-    o.entities.push(entity.serializeForClient());
+    serialized.entities.push(entity.serializeForClient());
   }
-  return o;
+  return serialized;
+}
+
+export function serializeForAdmin(): SerializedForClient {
+  // TODO consider scope in what we serialize
+  const serialized: SerializedForClient = {
+    id, // game id
+    players: [],
+    teams: [],
+    worlds: [],
+    entities: [],
+    worldData: {}
+  };
+  // Serialize all players
+  for (const player of players.values()) {
+    serialized.players.push(player.serializeForClient());
+  }
+  // Serialize all teams
+  for (const team of teams.values()) {
+    serialized.teams.push(team.serializeForClient());
+  }
+  // Serialize all worlds
+  for (const world of worlds.values()) {
+    // Serialize world itself
+    serialized.worlds.push(world.serializeForClient());
+    // Serialize ALL world data for admins
+    serialized.worldData[world.id] ??= [];
+    for (const chunkString of world.visibleChunks.set) {
+      const [id, x, y] = chunkString.split('_');
+      if (id && x && y) {
+        serialized.worldData[id].push({
+          x: parseInt(x),
+          y: parseInt(y),
+          data: world.serializeChunk(parseInt(x), parseInt(y))
+        });
+      }
+    }
+  }
+  // Serialize all entities
+  for (const [, entity] of entities) {
+    serialized.entities.push(entity.serializeForClient());
+  }
+
+  return serialized;
 }
 
 // tslint:disable-next-line: no-namespace

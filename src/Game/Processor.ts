@@ -96,6 +96,10 @@ function queueForBroadcast(action: Action, to?: Player | Team) {
   } else if (action.broadcastType === BroadcastType.DIRECT) {
     return;
   }
+  // Broadcast to all admins
+  for (const [, admin] of Chaos.adminClients) {
+    admin.broadcastQueue.enqueue(action);
+  }
   // Broadcast to everyone, if specified, or more specific clients
   if (action.broadcastType === BroadcastType.FULL) {
     for (const [, player] of Chaos.players) {
